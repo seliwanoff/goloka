@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import BgPattern from "@/public/assets/images/auth-bg-pattern.svg";
-import Logo from "@/public/assets/images/goloka-logo.svg";
+import Logo from "@/public/assets/images/thumb.svg";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
@@ -22,11 +22,11 @@ const SignIn: React.FC<PageProps> = ({}) => {
   return (
     <div className="relative overflow-hidden px-4 md:mx-auto md:w-[70%] lg:w-[80%]">
       {/* BG PATTERN */}
-      <div className="absolute -top-10 z-0 hidden h-full w-full lg:block">
+      {/* <div className="absolute -top-10 z-0 hidden h-full w-full lg:block">
         <Image src={BgPattern} alt="auth-bg-pattern" className="scale-105" />
-      </div>
+      </div> */}
       {/* SIGNUP */}
-      <div className="relative z-10">
+      <div className="relative z-10 md:w-[70%] lg:w-[80%]">
         {/* HEADING */}
         <div className="mb-8 flex flex-col items-center gap-2 pt-12">
           <Image src={Logo} alt="goloka logo" />
@@ -36,7 +36,7 @@ const SignIn: React.FC<PageProps> = ({}) => {
               Back!
             </span>
           </h1>
-          <p className="text-center text-sm text-neutral-500 lg:text-balance">
+          <p className="text-center text-sm font-thin text-[#828282] lg:text-balance">
             Lorem ipsum dolor sit amet consectetur. Sapien ipsum lorem volutpat
             magna tortor.
           </p>
@@ -45,7 +45,7 @@ const SignIn: React.FC<PageProps> = ({}) => {
         {/* SIGNUP FORM */}
         <form id="sign-in" className="space-y-6 [&>label]:block">
           <Label htmlFor="email">
-            <span className="mb-2 inline-block text-base text-neutral-500">
+            <span className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
               Email address
             </span>
             <Input
@@ -53,12 +53,12 @@ const SignIn: React.FC<PageProps> = ({}) => {
               name="email"
               id="email"
               placeholder="Input email address"
-              className="h-12 rounded-md border bg-transparent placeholder:text-sm placeholder:font-light placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
+              className="h-12 rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
             />
           </Label>
 
           <Label htmlFor="password">
-            <span className="mb-2 inline-block text-base text-neutral-500">
+            <span className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
               Password
             </span>
             <div className="relative">
@@ -67,9 +67,9 @@ const SignIn: React.FC<PageProps> = ({}) => {
                 name="password"
                 id="password"
                 placeholder="Input password"
-                className="h-12 rounded-md border placeholder:text-sm placeholder:font-light placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
+                className="h-12 rounded-md border placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
               />
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-neutral-500">
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-[#828282]">
                 {!eye1 ? <FiEye size={20} /> : <FiEyeOff size={20} />}
               </span>
             </div>
@@ -81,7 +81,7 @@ const SignIn: React.FC<PageProps> = ({}) => {
             forgot password?
           </Link>
 
-          <div className="mt-8 space-y-4">
+          <div className=" space-y-4">
             <Button
               type="submit"
               className="h-12 w-full rounded-full bg-main-100 text-base font-light text-white hover:bg-blue-700"

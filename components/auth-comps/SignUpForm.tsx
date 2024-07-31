@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Logo from "@/public/assets/images/goloka-logo.svg";
+import Logo from "@/public/assets/images/thumb.svg";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import {
@@ -37,14 +37,14 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
       <div className="relative z-10">
         {/* HEADING */}
         <div className="mb-8 flex flex-col items-center gap-2 pt-24 lg:pt-12">
-          <Image src={Logo} alt="goloka logo" />
+          <Image src={Logo} alt="goloka_logo" />
           <h1 className="text-center text-2xl font-bold">
             Welcome to{" "}
             <span className="bg-gradient-to-b from-main-100 from-[55%] to-main-200 bg-clip-text text-transparent">
               Goloka
             </span>
           </h1>
-          <p className="text-center text-sm text-neutral-500 lg:text-balance">
+          <p className="text-center text-sm font-thin text-[#828282] lg:text-balance">
             Lorem ipsum dolor sit amet consectetur. Sapien ipsum lorem volutpat
             magna tortor.
           </p>
@@ -57,31 +57,31 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
           onSubmit={(e) => e.preventDefault()}
         >
           <Label htmlFor="fullname">
-            <span className="mb-2 inline-block text-base text-neutral-500">
+            <span className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
               Full name
             </span>
             <Input
               name="fullname"
               id="fullname"
               placeholder="Input your name"
-              className="h-12 rounded-md border bg-transparent placeholder:text-sm placeholder:font-light placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
+              className="h-12 rounded-md border bg-transparent font-extralight placeholder:text-sm placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
             />
           </Label>
 
           <Label htmlFor="email">
-            <span className="mb-2 inline-block text-base text-neutral-500">
+            <span className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
               Email address
             </span>
             <Input
               name="email"
               id="email"
               placeholder="Input email address"
-              className="h-12 rounded-md border bg-transparent placeholder:text-sm placeholder:font-light placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
+              className="h-12 rounded-md border bg-transparent font-extralight placeholder:text-sm placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
             />
           </Label>
 
           <Label htmlFor="country">
-            <span className="mb-2 inline-block text-base text-neutral-500">
+            <span className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
               Select your country
             </span>
             <Select name="country">
@@ -105,7 +105,7 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
           </Label>
 
           <Label htmlFor="password">
-            <span className="mb-2 inline-block text-base text-neutral-500">
+            <span className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
               Password
             </span>
             <div className="relative">
@@ -114,7 +114,7 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
                 name="password"
                 id="password"
                 placeholder="Input password"
-                className="h-12 rounded-md border placeholder:text-sm placeholder:font-light placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
+                className="h-12 rounded-md border font-extralight placeholder:text-sm placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
               />
               <span
                 onClick={handleToggle1}
@@ -126,7 +126,7 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
           </Label>
 
           <Label htmlFor="password2">
-            <span className="mb-2 inline-block text-base text-neutral-500">
+            <span className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
               Confirm password
             </span>
             <div className="relative">
@@ -135,7 +135,7 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
                 name="password2"
                 id="password2"
                 placeholder="Input password confirm"
-                className="h-12 rounded-md border placeholder:text-sm placeholder:font-light placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
+                className="h-12 rounded-md border font-extralight placeholder:text-sm placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
               />
               <span
                 onClick={handleToggle2}

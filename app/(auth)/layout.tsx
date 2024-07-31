@@ -2,7 +2,7 @@ import React from "react";
 import Image from "next/image";
 import MainPattern from "@/public/assets/images/auth.png";
 import { cn } from "@/lib/utils";
-
+import BgPattern from "@/public/assets/images/auth-bg-pattern.svg";
 type LayoutProps = {
   children: React.ReactNode;
 };
@@ -11,9 +11,18 @@ const AuthLayout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <>
       <div className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]">
-        <div className="pb-12">{children}</div>
+        <main className="flex h-max min-h-screen w-full items-center justify-center">
+          <div className="absolute -top-10 z-0 hidden h-full w-full lg:block left-9">
+            <Image
+              src={BgPattern}
+              alt="auth-bg-pattern"
+              className="scale-105"
+            />
+          </div>
+          <div className="">{children}</div>
+        </main>
         <div className="hidden bg-white p-4 lg:block">
-          <div className="relative mx-auto min-h-[800px] w-full overflow-hidden rounded-2xl">
+          <div className="relative hidden h-full bg-gray-900 lg:block overflow-hidden rounded-3xl">
             <Image
               src={MainPattern}
               alt="main-pattern"

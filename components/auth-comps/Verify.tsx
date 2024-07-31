@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import OtpInput from "react-otp-input";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
+import { InputOTPBox } from "./Otp";
 
 type PageProps = { setStep: any };
 
@@ -26,10 +27,10 @@ const Verify: React.FC<PageProps> = ({ setStep }) => {
   }, []);
 
   return (
-    <div className="relative z-[1] py-24 lg:translate-y-[60%] lg:py-0">
+    <div className="">
       <div>
         <h2 className="mb-1 text-2xl font-semibold text-[#333333]">
-          Verify your account
+          {/* Verify your account */}
         </h2>
         <p className="text-[#828282]">
           Enter verification code sent to <br />
@@ -39,7 +40,7 @@ const Verify: React.FC<PageProps> = ({ setStep }) => {
         </p>
       </div>
 
-      <div className="mx-auto my-10 flex w-full justify-center sm:max-w-80">
+      <div className=" ">
         <OtpInput
           value={otp}
           onChange={setOtp}
@@ -64,6 +65,8 @@ const Verify: React.FC<PageProps> = ({ setStep }) => {
           }}
           renderInput={(props) => <input {...props} />}
         />
+
+        <InputOTPBox/>
       </div>
 
       <div className="text-center">
