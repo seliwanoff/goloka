@@ -64,7 +64,7 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
               name="fullname"
               id="fullname"
               placeholder="Input your name"
-              className="h-12 rounded-md border bg-transparent font-extralight placeholder:text-sm placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
+              className="h-12 rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
             />
           </Label>
 
@@ -76,7 +76,7 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
               name="email"
               id="email"
               placeholder="Input email address"
-              className="h-12 rounded-md border bg-transparent font-extralight placeholder:text-sm placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
+              className="h-12 rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
             />
           </Label>
 
@@ -103,48 +103,49 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
               </SelectContent>
             </Select>
           </Label>
-
-          <Label htmlFor="password">
-            <span className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
-              Password
-            </span>
-            <div className="relative">
-              <Input
-                type={eye1 ? "text" : "password"}
-                name="password"
-                id="password"
-                placeholder="Input password"
-                className="h-12 rounded-md border font-extralight placeholder:text-sm placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
-              />
-              <span
-                onClick={handleToggle1}
-                className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-neutral-500"
-              >
-                {!eye1 ? <FiEye size={20} /> : <FiEyeOff size={20} />}
+          <div className="flex w-full items-center gap-3">
+            <Label htmlFor="password" className="flex-1">
+              <span className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
+                Password
               </span>
-            </div>
-          </Label>
+              <div className="relative flex-1">
+                <Input
+                  type={eye1 ? "text" : "password"}
+                  name="password"
+                  id="password"
+                  placeholder="Input password"
+                  className="h-12 rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
+                />
+                <span
+                  onClick={handleToggle1}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-neutral-500"
+                >
+                  {!eye1 ? <FiEye size={20} /> : <FiEyeOff size={20} />}
+                </span>
+              </div>
+            </Label>
 
-          <Label htmlFor="password2">
-            <span className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
-              Confirm password
-            </span>
-            <div className="relative">
-              <Input
-                type={eye2 ? "text" : "password"}
-                name="password2"
-                id="password2"
-                placeholder="Input password confirm"
-                className="h-12 rounded-md border font-extralight placeholder:text-sm placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
-              />
-              <span
-                onClick={handleToggle2}
-                className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-neutral-500"
-              >
-                {!eye2 ? <FiEye size={20} /> : <FiEyeOff size={20} />}
+            <Label htmlFor="password2 " className="flex-1">
+              <span className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
+                Confirm password
               </span>
-            </div>
-          </Label>
+              <div className="relative w-full">
+                <Input
+                  type={eye2 ? "text" : "password"}
+                  name="password2"
+                  id="password2"
+                  placeholder="Input password confirm"
+                  className="h-12 rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
+                />
+                <span
+                  onClick={handleToggle2}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-neutral-500"
+                >
+                  {!eye2 ? <FiEye size={20} /> : <FiEyeOff size={20} />}
+                </span>
+              </div>
+            </Label>
+          </div>
 
           <div className="mt-8 space-y-4">
             <Button

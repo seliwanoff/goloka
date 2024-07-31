@@ -38,9 +38,9 @@ const SignUp: React.FC<PageProps> = ({}) => {
         )}
       >
         {/* BG PATTERN */}
-        <div className="absolute -top-10 z-0 hidden h-full w-full lg:block">
+        {/* <div className="absolute -top-10 z-0 hidden h-full w-full lg:block">
           <Image src={BgPattern} alt="auth-bg-pattern" className="scale-105" />
-        </div>
+        </div> */}
 
         {/* SIGN UP ONBAORDING */}
         {displayStep(step)}
