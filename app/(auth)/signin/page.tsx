@@ -21,11 +21,7 @@ const SignIn: React.FC<PageProps> = ({}) => {
 
   return (
     <div className="relative overflow-hidden px-4 md:mx-auto md:w-[70%] lg:w-[80%]">
-      {/* BG PATTERN */}
-      {/* <div className="absolute -top-10 z-0 hidden h-full w-full lg:block">
-        <Image src={BgPattern} alt="auth-bg-pattern" className="scale-105" />
-      </div> */}
-      {/* SIGNUP */}
+     
       <div className="relative z-10 md:w-[70%] lg:w-[80%]">
         {/* HEADING */}
         <div className="mb-8 flex flex-col items-center gap-2 pt-12">

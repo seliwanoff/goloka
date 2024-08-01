@@ -26,8 +26,10 @@ const PrimaryGoal: React.FC<PageProps> = ({ setStep }) => {
     setStep((prev: number) => prev + 1);
   };
 
+  console.log(goals);
+
   return (
-    <div className="relative z-[1] py-24 lg:translate-y-[60%] lg:py-0">
+    <div className="relative z-[1] py-24 lg:translate-y-[60%] lg:py-0 bg-slate-400">
       <div>
         <h3 className="mb-2 text-2xl font-semibold lg:text-[32px] lg:leading-[1.4]">
           What is your primary goal on{" "}

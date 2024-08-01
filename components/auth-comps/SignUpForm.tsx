@@ -34,7 +34,7 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
   };
   return (
     <>
-      <div className="relative z-10">
+      <div className="lg:w-[80% relative z-10 md:w-[70%]">
         {/* HEADING */}
         <div className="mb-8 flex flex-col items-center gap-2 pt-24 lg:pt-12">
           <Image src={Logo} alt="goloka_logo" />
@@ -53,7 +53,7 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
         {/* SIGNUP FORM */}
         <form
           id="sign-up"
-          className="space-y-6 [&>label]:block"
+          className="space-y-3 [&>label]:block"
           onSubmit={(e) => e.preventDefault()}
         >
           <Label htmlFor="fullname">
@@ -147,7 +147,7 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
             </Label>
           </div>
 
-          <div className="mt-8 space-y-4">
+          <div className="mt-3 space-y-4">
             <Button
               type="submit"
               onClick={() => setStep(1)}
@@ -161,7 +161,7 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
             </Button>
           </div>
 
-          <p className="my-8 text-center">
+          <p className="my-3 text-center">
             Already have an account?{" "}
             <Link href="/signin" className="text-main-100">
               Log in
