@@ -29,7 +29,7 @@ const PrimaryGoal: React.FC<PageProps> = ({ setStep }) => {
   console.log(goals);
 
   return (
-    <div className="relative z-[1] py-24 lg:translate-y-[60%] lg:py-0 bg-slate-400">
+    <div className="flex w-[90%] flex-col gap-8">
       <div>
         <h3 className="mb-2 text-2xl font-semibold lg:text-[32px] lg:leading-[1.4]">
           What is your primary goal on{" "}
@@ -47,21 +47,21 @@ const PrimaryGoal: React.FC<PageProps> = ({ setStep }) => {
         {goals.map((goal: any, index: number) => (
           <div
             key={index}
-            className="grid w-full cursor-pointer grid-cols-[50px_1fr_20px] items-center rounded border p-2"
+            className="group grid w-full transform cursor-pointer grid-cols-[50px_1fr_20px] items-center rounded border p-2 transition-all ease-out hover:border-[#7F55DA] active:scale-90"
             onClick={handleClick}
           >
-            <figure className="flex h-10 w-10 items-center justify-center rounded bg-neutral-100">
+            <figure className="flex h-10 w-10 items-center justify-center rounded bg-[#7F55DA0F] transition-colors group-hover:bg-[#ddd5ee]">
               <Image src={goal.icon} alt={goal?.title} width={30} height={30} />
-            </figure>{" "}
+            </figure>
             <div>
-              <h3 className="mb-1 text-xs font-medium text-[#101828] lg:text-base">
+              <h3 className="mb-1 text-xs font-medium text-[#101828] lg:text-[16px] lg:leading-[19.2px]">
                 {goal.title}
               </h3>
-              <p className="text-[10px] text-[#828282] lg:text-sm">
+              <p className="text-[10px] leading-[16.8px] text-[#828282] lg:text-[14px]">
                 {goal.content}
               </p>
             </div>
-            <span className="cursor-pointer text-[#828282]">
+            <span className="cursor-pointer text-[#828282] transition-colors group-hover:text-[#7F55DA]">
               <BsChevronRight />
             </span>
           </div>

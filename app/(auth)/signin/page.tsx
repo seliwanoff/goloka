@@ -9,19 +9,46 @@ import { FiEye, FiEyeOff } from "react-icons/fi";
 import { Button } from "@/components/ui/button";
 import { FcGoogle } from "react-icons/fc";
 import Link from "next/link";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { userSignIn } from "@/services/auth";
+import { useRouter } from "next/navigation";
 
 type PageProps = {};
 
+type FormValues = {
+  email: string;
+  password: string;
+};
+
 const SignIn: React.FC<PageProps> = ({}) => {
   const [eye1, setEye1] = useState(false);
+  const router = useRouter();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormValues>();
 
   const handleToggle1 = () => {
     setEye1((prev: boolean) => !prev);
   };
 
+  const onSubmit: SubmitHandler<FormValues> = async (data) => {
+    const { email, password } = data;
+    console.log(data);
+    const token = await userSignIn(email, password);
+    if (!token) {
+      return alert("No user found");
+    }
+    if (token) {
+      localStorage.setItem("whoami", JSON.stringify(token));
+      alert("Sign in successful");
+      return router.replace("/");
+    }
+  };
+
   return (
     <div className="relative overflow-hidden px-4 md:mx-auto md:w-[70%] lg:w-[80%]">
-     
       <div className="relative z-10 md:w-[70%] lg:w-[80%]">
         {/* HEADING */}
         <div className="mb-8 flex flex-col items-center gap-2 pt-12">
@@ -39,36 +66,51 @@ const SignIn: React.FC<PageProps> = ({}) => {
         </div>
 
         {/* SIGNUP FORM */}
-        <form id="sign-in" className="space-y-6 [&>label]:block">
+        <form
+          id="sign-in"
+          className="space-y-6 [&>label]:block"
+          onSubmit={handleSubmit(onSubmit)}
+        >
           <Label htmlFor="email">
-            <span className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
+            <span className="inline-block text-base font-extralight text-[#4F4F4F]">
               Email address
             </span>
             <Input
               type="email"
-              name="email"
               id="email"
               placeholder="Input email address"
-              className="h-12 rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
+              className="my-2 h-12 rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
+              {...register("email", { required: "Email is required" })}
             />
+            {errors.email && (
+              <span className="mt-2 text-red-600">{errors.email.message}</span>
+            )}
           </Label>
 
           <Label htmlFor="password">
-            <span className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
+            <span className="inline-block text-base font-extralight text-[#4F4F4F]">
               Password
             </span>
             <div className="relative">
               <Input
                 type={eye1 ? "text" : "password"}
-                name="password"
                 id="password"
                 placeholder="Input password"
-                className="h-12 rounded-md border placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
+                className="my-2 h-12 rounded-md border placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
+                {...register("password", { required: "Password is required" })}
               />
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-[#828282]">
+              <span
+                className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-[#828282]"
+                onClick={handleToggle1}
+              >
                 {!eye1 ? <FiEye size={20} /> : <FiEyeOff size={20} />}
               </span>
             </div>
+            {errors.password && (
+              <span className="mt-2 text-red-600">
+                {errors.password.message}
+              </span>
+            )}
           </Label>
           <Link
             href="/forget_password"
@@ -77,7 +119,7 @@ const SignIn: React.FC<PageProps> = ({}) => {
             forgot password?
           </Link>
 
-          <div className=" space-y-4">
+          <div className="space-y-4">
             <Button
               type="submit"
               className="h-12 w-full rounded-full bg-main-100 text-base font-light text-white hover:bg-blue-700"

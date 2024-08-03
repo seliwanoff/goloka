@@ -1,42 +1,43 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import React, { SetStateAction } from "react";
-// import { getResourceToken } from "@/services/resource_service";
+import React from "react";
 
-
+// Define the type for tokens
 type TokenType = {
   access_token: string;
-  token_type: string;
+  refresh_token: string;
+  token_type: "Bearer";
 };
 
+// Function to merge class names with Tailwind and clsx
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// ~ ======= merge and construct various tailwind classes into one -->
-export const class_merge = (...classes: (string | boolean)[]): string =>
+// Function to merge and construct various Tailwind classes into one
+export const classMerge = (...classes: (string | boolean)[]): string =>
   classes.filter(Boolean).join(" ");
 
-// ~ ======= build server routes -->
-const server_url: string = process.env.NEXT_PUBLIC_SERVER_HOST as string;
-export const serverRoute = (route: string): string => `${server_url}/${route}`;
+// Build server routes with the base URL from environment variables
+const serverUrl: string = process.env.NEXT_PUBLIC_SERVER_HOST as string;
+export const serverRoute = (route: string): string => `${serverUrl}/${route}`;
 
-// ~ ======= Get token from localstorage -->
+// Extract token from local storage and return token data with auth header
 export const tokenExtractor = (): {
-  auth_header: string;
-  token_data: TokenType;
+  authHeader: string;
+  tokenData: TokenType;
 } | null => {
-  const raw_token: string | null = localStorage.getItem("whoami");
-  if (!raw_token) return null;
+  const rawToken: string | null = localStorage.getItem("whoami");
+  if (!rawToken) return null;
 
-  const token: TokenType = JSON.parse(raw_token);
-  // @ts-ignore
-  return { auth_header: `${token.token_type} ${token.access_token}` };
+  try {
+    const tokenData: TokenType = JSON.parse(rawToken);
+    return {
+      authHeader: `${tokenData.token_type} ${tokenData.access_token}`,
+      tokenData,
+    };
+  } catch (error) {
+    console.error("Failed to parse token from local storage", error);
+    return null;
+  }
 };
-
-
-
-
-
-
-

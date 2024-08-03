@@ -40,7 +40,7 @@ const Verify: React.FC<PageProps> = ({ setStep }) => {
   }, []);
 
   return (
-    <div className="flex w-full flex-col gap-8 md:w-[70%]">
+    <div className="flex w-full flex-col gap-8">
       <div>
         <h2 className="mb-1 text-2xl font-semibold text-[#333333]">
           Verify your account

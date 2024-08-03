@@ -1,22 +1,30 @@
-import axios from "axios";
+import axios, { InternalAxiosRequestConfig, AxiosError } from "axios";
 import { tokenExtractor } from "@/lib/utils";
 
+// Ensure the environment variable is correctly typed
+const baseURL: string = process.env.NEXT_PUBLIC_API_BASE_URL as string;
+
 const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+  baseURL,
 });
 
+// Request interceptor to add Authorization header and Content-Type
 axiosInstance.interceptors.request.use(
-  (config) => {
+  (config: InternalAxiosRequestConfig) => {
     const token = tokenExtractor();
-    if (token?.auth_header) {
-      config.headers.Authorization = token.auth_header;
+    console.log(token, "Request");
+    if (token?.authHeader) {
+      config.headers.Authorization = token.authHeader;
     }
+
     if (!(config.data instanceof FormData)) {
       config.headers["Content-Type"] = "application/json";
     }
+
     return config;
   },
-  (error) => {
+  (error: AxiosError) => {
+    console.error("Request error:", error);
     return Promise.reject(error);
   },
 );

@@ -3,7 +3,7 @@ import axiosInstance from "./axiosInstance";
 import { UseQueryResult, QueryFunction, useQuery } from "@tanstack/react-query";
 import { AxiosResponse } from "axios";
 
-interface ServerResponse<T> {
+export interface ServerResponse<T> {
   data: T;
   message: string;
   status: string;
