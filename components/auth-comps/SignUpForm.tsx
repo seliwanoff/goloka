@@ -18,7 +18,8 @@ import { FcGoogle } from "react-icons/fc";
 import Link from "next/link";
 import Image from "next/image";
 import { createUser } from "@/services/auth/user";
-import { platform } from "os";
+
+import { FaSpinner } from "react-icons/fa";
 
 type PageProps = {
   setStep: React.Dispatch<React.SetStateAction<number>>;
@@ -35,6 +36,7 @@ type FormValues = {
 const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
   const [eye1, setEye1] = useState(false);
   const [eye2, setEye2] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const {
     register,
     handleSubmit,
@@ -61,14 +63,16 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
       password_confirmation: data.password2,
       platform: "web",
     };
-     const { data: newUser, error } = await createUser(userData);
-     console.log(newUser);
-
-     if (error || !newUser) {
-       alert("Error creating user");
+    const { data: newUser, error, isLoading } = await createUser(userData);
+    console.log(newUser);
+    if (isLoading) {
+      setIsLoading(true);
+    }
+    if (error || !newUser) {
+      alert("Error creating user");
       //  setQueryState("Sign up");
-       return;
-     }
+      return;
+    }
     setStep(2); // Move to the next step after successful submission
   };
 
@@ -237,7 +241,7 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
             type="submit"
             className="h-12 w-full rounded-full bg-main-100 text-base font-light text-white hover:bg-blue-700"
           >
-            Sign up
+            {isLoading ? <FaSpinner /> : "Sign up"}
           </Button>
           <Button className="h-12 w-full gap-2 rounded-full border border-main-100 bg-main-100 bg-opacity-15 text-base font-light text-white hover:bg-current">
             <FcGoogle size={20} />{" "}

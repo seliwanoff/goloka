@@ -33,12 +33,12 @@ export const createUser = async (
 // ~ ======= RefreshToken  -->
 // ~ =============================================>
 export const OTP = async (
-  email: string,
+  otp: string,
 ): Promise<UseQueryResult<ServerResponse<any>>> => {
   return queryClient.fetchQuery({
     queryKey: ["refresh token"],
     queryFn: async () => {
-      return await postData<ServerResponse<any>>("/refresh-token", email);
+      return await postData<ServerResponse<any>>("/email/verify", otp);
     },
   });
 };
