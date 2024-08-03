@@ -9,11 +9,13 @@ const goals = [
     icon: BenchMark,
     title: "Generate data for my organization",
     content: "Lorem ipsum dolor sit amet consectetur. Pulvinar.",
+    path:""
   },
   {
     icon: Income,
     title: "Earn by participating in survey",
     content: "Lorem ipsum dolor sit amet consectetur. Pulvinar.",
+        path:"/contributor-onboarding"
   },
 ];
 
