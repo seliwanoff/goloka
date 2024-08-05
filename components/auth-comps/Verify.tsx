@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import axios from "axios"; // Import axios or any HTTP client you prefer
-import { OTP } from "@/services/auth/user";
+import { OTP } from "@/services/user";
 
 type PageProps = { setStep: any };
 
@@ -30,7 +30,7 @@ const Verify: React.FC<PageProps> = ({ setStep }) => {
     setIsSubmitting(true);
     try {
       // Replace with your backend OTP verification endpoint
-     const { data } = await OTP(otpValue);
+      const { data } = await OTP(otpValue);
       // On success, move to the next step or show success message
       setStep(2);
     } catch (error) {

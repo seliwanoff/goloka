@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { FcGoogle } from "react-icons/fc";
 import Link from "next/link";
 import Image from "next/image";
-import { createUser } from "@/services/auth/user";
+import { createUser } from "@/services/user";
 
 import { FaSpinner } from "react-icons/fa";
 

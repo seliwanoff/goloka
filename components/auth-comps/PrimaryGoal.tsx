@@ -1,4 +1,6 @@
+"use client";
 import React from "react";
+import { useRouter } from "next/navigation";
 import BenchMark from "@/public/assets/images/goal1.png";
 import Income from "@/public/assets/images/goal2.png";
 import Image from "next/image";
@@ -9,26 +11,31 @@ const goals = [
     icon: BenchMark,
     title: "Generate data for my organization",
     content: "Lorem ipsum dolor sit amet consectetur. Pulvinar.",
-    path:""
+    path: "/organization-data",
   },
   {
     icon: Income,
     title: "Earn by participating in survey",
     content: "Lorem ipsum dolor sit amet consectetur. Pulvinar.",
-        path:"/contributor-onboarding"
+    path: "/contributor-onboarding",
   },
 ];
 
 type PageProps = {
-  setStep: any;
+  setStep: (step: (prev: number) => number) => void;
 };
 
 const PrimaryGoal: React.FC<PageProps> = ({ setStep }) => {
-  const handleClick = () => {
-    setStep((prev: number) => prev + 1);
-  };
+  const router = useRouter();
 
-  console.log(goals);
+  const handleClick = (path: string) => {
+    if (path) {
+      // router.push(path);
+      router.replace(path);
+    } else {
+      setStep((prev: number) => prev + 1);
+    }
+  };
 
   return (
     <div className="flex w-[90%] flex-col gap-8">
@@ -46,14 +53,14 @@ const PrimaryGoal: React.FC<PageProps> = ({ setStep }) => {
       </div>
 
       <div className="mt-8 space-y-4">
-        {goals.map((goal: any, index: number) => (
+        {goals.map((goal, index) => (
           <div
             key={index}
             className="group grid w-full transform cursor-pointer grid-cols-[50px_1fr_20px] items-center rounded border p-2 transition-all ease-out hover:border-[#7F55DA] active:scale-90"
-            onClick={handleClick}
+            onClick={() => handleClick(goal.path)}
           >
             <figure className="flex h-10 w-10 items-center justify-center rounded bg-[#7F55DA0F] transition-colors group-hover:bg-[#ddd5ee]">
-              <Image src={goal.icon} alt={goal?.title} width={30} height={30} />
+              <Image src={goal.icon} alt={goal.title} width={30} height={30} />
             </figure>
             <div>
               <h3 className="mb-1 text-xs font-medium text-[#101828] lg:text-[16px] lg:leading-[19.2px]">

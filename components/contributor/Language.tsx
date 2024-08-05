@@ -58,7 +58,7 @@ const Language: React.FC<PageProps> = ({ setStep, step }) => {
 
   return (
     <>
-      <div className="relative z-[1] py-24 lg:translate-y-[30%] lg:py-0">
+      <div className="lg:w-[80% relative z-10 md:w-[70%]">
         <StepperIndicator setStep={setStep} step={step} />
 
         <div className="mt-6">

@@ -1,6 +1,7 @@
 "use client";
-import Language from "@/components/auth-comps/contributor-onboarding/Language";
-import MoreInfo from "@/components/auth-comps/contributor-onboarding/MoreInfo";
+
+import Language from "@/components/contributor/Language";
+import MoreInfo from "@/components/contributor/MoreInfo";
 import React, { useState } from "react";
 
 
@@ -20,7 +21,7 @@ const ContributorOnboard: React.FC<PageProps> = ({}) => {
     }
   };
   return (
-    <div>
+    <div className="px-4 md:mx-auto md:w-[70%] lg:w-[80%]">
       <>{displayStep(step)}</>
     </div>
   );
