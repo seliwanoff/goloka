@@ -36,15 +36,17 @@ const SignIn: React.FC<PageProps> = ({}) => {
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     const { email, password } = data;
     console.log(data);
-    const token = await userSignIn(email, password);
-    if (!token) {
-      return alert("No user found");
-    }
-    if (token) {
-      localStorage.setItem("whoami", JSON.stringify(token));
-      alert("Sign in successful");
-      return router.replace("/");
-    }
+    const response = await userSignIn(email, password);
+
+    console.log(response, "hhyhy")
+    // if (!token) {
+    //   return alert("No user found");
+    // }
+    // if (token) {
+    //   localStorage.setItem("whoami", JSON.stringify(token));
+    //   alert("Sign in successful");
+    //   return router.replace("/");
+    // }
   };
 
   return (

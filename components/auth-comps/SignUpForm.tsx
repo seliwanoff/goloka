@@ -68,11 +68,11 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
     if (isLoading) {
       setIsLoading(true);
     }
-    if (error || !newUser) {
-      alert("Error creating user");
-      //  setQueryState("Sign up");
-      return;
-    }
+    // if (error || !newUser) {
+    //   alert("Error creating user");
+    //   //  setQueryState("Sign up");
+    //   return;
+    // }
     setStep(2); // Move to the next step after successful submission
   };
 

@@ -15,16 +15,16 @@ export const userSignIn = async (email: string, password: string) => {
       try {
         const response = await axios.post(
           serverRoute("login"),
-          new URLSearchParams({
+          {
             email,
             password,
             platform: "web",
-          }),
+          },
           {
             headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
+              "Content-Type": "application/json",
             },
-          }
+          },
         );
         return response.data;
       } catch (error) {
@@ -33,7 +33,7 @@ export const userSignIn = async (email: string, password: string) => {
             "Axios error during sign in:",
             error.message,
             error.code,
-            error.config
+            error.config,
           );
           return null;
         } else {
