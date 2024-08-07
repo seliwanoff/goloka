@@ -17,6 +17,10 @@ import { CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
+import { useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as Yup from "yup";
+import { useUserStore } from "@/stores/use-user-store";
 
 type PageProps = {
   setStep: any;
@@ -46,15 +50,33 @@ const ethnicities = [
   { label: "Other", value: "other" },
 ];
 
-const MoreInfo: React.FC<PageProps> = ({ step, setStep }) => {
-  const handleProceed = (e: any) => {
-    e.preventDefault();
+// Validation schema
+const validationSchema = Yup.object().shape({
+  dob: Yup.date()
+    .max(new Date(), "Date of birth cannot be in the future")
+    .min(new Date("1900-01-01"), "Date of birth cannot be before 1900")
+    .required("Date of birth is required"),
+  gender: Yup.string().required("Gender is required"),
+  religion: Yup.string().required("Religion is required"),
+  ethnicity: Yup.string().required("Ethnicity is required"),
+});
 
+const MoreInfo: React.FC<PageProps> = ({ step, setStep }) => {
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(validationSchema),
+  });
+  const currentUser = useUserStore((state) => state.currentUser);
+  const onSubmit = (data: any) => {
+    console.log(data);
     setStep((prev: number) => prev + 1);
   };
 
   const handleSkip = () => {};
-
+  console.log(currentUser, "currentUser");
   return (
     <>
       <div className="relative z-[1] translate-y-[30%] py-24 lg:translate-y-0 lg:py-10">
@@ -76,7 +98,7 @@ const MoreInfo: React.FC<PageProps> = ({ step, setStep }) => {
           <form
             id="more-info"
             className="mt-10 space-y-6"
-            onSubmit={(e) => handleProceed(e)}
+            onSubmit={handleSubmit(onSubmit)}
           >
             {/* DATE OF BIRTH */}
             <div className="">
@@ -87,28 +109,43 @@ const MoreInfo: React.FC<PageProps> = ({ step, setStep }) => {
                 Date of birth
               </label>
 
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn("w-full pl-3 text-left font-normal")}
-                  >
-                    <span>Pick a date</span>
-                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    // selected={field.value}
-                    // onSelect={field.onChange}
-                    disabled={(date) =>
-                      date > new Date() || date < new Date("1900-01-01")
-                    }
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
+              <Controller
+                name="dob"
+                control={control}
+                render={({ field }) => (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn("w-full pl-3 text-left font-normal", {
+                          "border-red-500": errors.dob,
+                        })}
+                      >
+                        <span>
+                          {field.value
+                            ? field.value.toLocaleDateString()
+                            : "Pick a date"}
+                        </span>
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={(date) =>
+                          date > new Date() || date < new Date("1900-01-01")
+                        }
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                )}
+              />
+              {errors.dob && (
+                <p className="text-xs text-red-500">{errors.dob.message}</p>
+              )}
             </div>
 
             {/* GENDER */}
@@ -120,17 +157,24 @@ const MoreInfo: React.FC<PageProps> = ({ step, setStep }) => {
                 Gender
               </label>
 
-              <Select
-                name="gender" /*onValueChange={onChange} defaultValue={value}*/
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select your gender" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="male">Male</SelectItem>
-                  <SelectItem value="female">Female</SelectItem>
-                </SelectContent>
-              </Select>
+              <Controller
+                name="gender"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select your gender" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="male">Male</SelectItem>
+                      <SelectItem value="female">Female</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.gender && (
+                <p className="text-xs text-red-500">{errors.gender.message}</p>
+              )}
             </div>
 
             {/* RELIGION */}
@@ -142,24 +186,32 @@ const MoreInfo: React.FC<PageProps> = ({ step, setStep }) => {
                 Religion
               </label>
 
-              <Select
-                name="religion" /*onValueChange={onChange} defaultValue={value}*/
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select religion" />
-                </SelectTrigger>
-                <SelectContent>
-                  {religions.map((rel: any, index: number) => (
-                    <SelectItem key={index} value={rel.value}>
-                      {rel.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Controller
+                name="religion"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select religion" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {religions.map((rel, index) => (
+                        <SelectItem key={index} value={rel.value}>
+                          {rel.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.religion && (
+                <p className="text-xs text-red-500">
+                  {errors.religion.message}
+                </p>
+              )}
             </div>
 
-            {/* Ethnicity */}
-
+            {/* ETHNICITY */}
             <div className="">
               <label
                 htmlFor="ethnicity"
@@ -168,20 +220,29 @@ const MoreInfo: React.FC<PageProps> = ({ step, setStep }) => {
                 Ethnicity
               </label>
 
-              <Select
-                name="ethnicity" /*onValueChange={onChange} defaultValue={value}*/
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select ethnicity" />
-                </SelectTrigger>
-                <SelectContent>
-                  {ethnicities.map((rel: any, index: number) => (
-                    <SelectItem key={index} value={rel.value}>
-                      {rel.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Controller
+                name="ethnicity"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select ethnicity" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ethnicities.map((ethnicity, index) => (
+                        <SelectItem key={index} value={ethnicity.value}>
+                          {ethnicity.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.ethnicity && (
+                <p className="text-xs text-red-500">
+                  {errors.ethnicity.message}
+                </p>
+              )}
             </div>
 
             <div className="grid gap-3 pt-6">
