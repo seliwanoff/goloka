@@ -8,7 +8,7 @@ import UpdateLocationModal from "@/components/contributor/UpdateLocationModal";
 type PageProps = {};
 
 const SignUp: React.FC<PageProps> = ({}) => {
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(2);
 
   return (
     <>

@@ -2,8 +2,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
-import axios from "axios"; // Import axios or any HTTP client you prefer
-import { OTP } from "@/services/user";
+import axios from "axios";
+import { veifyOTP } from "@/services/user";
 
 type PageProps = { setStep: any };
 
@@ -13,12 +13,9 @@ const Verify: React.FC<PageProps> = ({ setStep }) => {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleOtpChange = (value: string) => {
-    if (/^[0-9a-zA-Z]*$/.test(value) && value.length <= 6) {
-      const otpArray = value.split("").concat(Array(6 - value.length).fill(""));
-      setOtpValues(otpArray);
-      setError(""); // Clear error on change
-    }
+  const handleOtpChange = (otpArray: string[]) => {
+    setOtpValues(otpArray);
+    setError(""); // Clear error on change
   };
 
   const handleOtpSubmit = async () => {
@@ -29,9 +26,8 @@ const Verify: React.FC<PageProps> = ({ setStep }) => {
     }
     setIsSubmitting(true);
     try {
-      // Replace with your backend OTP verification endpoint
-      const { data } = await OTP(otpValue);
-      // On success, move to the next step or show success message
+      const { data } = await veifyOTP(otpValue);
+      console.log(data);
       setStep(2);
     } catch (error) {
       setError("Failed to verify OTP. Please try again.");
@@ -42,9 +38,7 @@ const Verify: React.FC<PageProps> = ({ setStep }) => {
 
   const handleResendOtp = async () => {
     try {
-      // Replace with your backend resend OTP endpoint
-      await axios.post("/api/resend-otp");
-      // Reset the timer
+      handleOtpSubmit();
       setSec(60);
     } catch (error) {
       setError("Failed to resend OTP. Please try again.");
@@ -126,7 +120,7 @@ export default Verify;
 interface OtpInputProps {
   length: number;
   otp: string[];
-  onChange: (otp: string) => void;
+  onChange: (otp: string[]) => void;
   errorMessage?: string;
 }
 
@@ -144,7 +138,7 @@ const OtpInput: React.FC<OtpInputProps> = ({
       const otpArray = pasteData
         .split("")
         .concat(Array(length - pasteData.length).fill(""));
-      onChange(otpArray.join(""));
+      onChange(otpArray.slice(0, length));
       inputRefs.current[Math.min(pasteData.length, length) - 1]?.focus();
     }
   };
@@ -153,13 +147,11 @@ const OtpInput: React.FC<OtpInputProps> = ({
     if (/^[0-9a-zA-Z]$/.test(value) || value === "") {
       const newOtp = [...otp];
       newOtp[index] = value;
-      onChange(newOtp.join(""));
+      onChange(newOtp);
 
-      // Move focus to the next input box if typing, or previous box if deleting
+      // Move focus to the next input box if typing
       if (value !== "" && index < length - 1) {
         inputRefs.current[index + 1]?.focus();
-      } else if (value === "" && index > 0) {
-        inputRefs.current[index - 1]?.focus();
       }
     }
   };
@@ -182,14 +174,14 @@ const OtpInput: React.FC<OtpInputProps> = ({
   return (
     <div className="flex flex-col items-center">
       <div className="flex space-x-2">
-        {otp.map((digit, index) => (
+        {Array.from({ length }).map((_, index) => (
           <input
             key={index}
             //@ts-ignore
             ref={(el) => (inputRefs.current[index] = el)}
             type="text"
             maxLength={1}
-            value={digit}
+            value={otp[index] || ""}
             onChange={(e) => handleChange(e.target.value, index)}
             onKeyDown={(e) => handleKeyDown(e, index)}
             onFocus={() => handleFocus(index)}
@@ -204,7 +196,7 @@ const OtpInput: React.FC<OtpInputProps> = ({
           />
         ))}
       </div>
-      {errorMessage && <p className="mt-2 text-red-500">{errorMessage}</p>}
+      {errorMessage && <p className="mt-2 text-red-500 text-xs">{errorMessage}</p>}
     </div>
   );
 };

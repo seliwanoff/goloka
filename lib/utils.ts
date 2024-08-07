@@ -27,7 +27,7 @@ export const tokenExtractor = (): {
   authHeader: string;
   tokenData: TokenType;
 } | null => {
-  const rawToken: string | null = localStorage.getItem("whoami");
+  const rawToken: string | null = localStorage.getItem("my_id");
   if (!rawToken) return null;
 
   try {

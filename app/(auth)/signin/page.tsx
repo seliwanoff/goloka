@@ -12,6 +12,7 @@ import Link from "next/link";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { userSignIn } from "@/services/auth";
 import { useRouter } from "next/navigation";
+import { FaSpinner } from "react-icons/fa";
 
 type PageProps = {};
 
@@ -32,21 +33,25 @@ const SignIn: React.FC<PageProps> = ({}) => {
   const handleToggle1 = () => {
     setEye1((prev: boolean) => !prev);
   };
-
+  const [isLoading, setIsLoading] = useState(false);
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
+    setIsLoading(true);
     const { email, password } = data;
     console.log(data);
-    const response = await userSignIn(email, password);
+    const token = await userSignIn(email, password);
 
-    console.log(response, "hhyhy")
-    // if (!token) {
-    //   return alert("No user found");
-    // }
-    // if (token) {
-    //   localStorage.setItem("whoami", JSON.stringify(token));
-    //   alert("Sign in successful");
-    //   return router.replace("/");
-    // }
+    console.log(token, "hhyhy");
+
+    if (!token) {
+      return alert("No user found");
+      setIsLoading(false);
+    }
+    if (token) {
+      localStorage.setItem("my_id", JSON.stringify(token));
+      alert("Sign in successful");
+      return router.replace("/");
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -126,7 +131,7 @@ const SignIn: React.FC<PageProps> = ({}) => {
               type="submit"
               className="h-12 w-full rounded-full bg-main-100 text-base font-light text-white hover:bg-blue-700"
             >
-              Login
+              {isLoading ? <FaSpinner className="animate-spin" /> : "Login"}
             </Button>
             <Button className="h-12 w-full gap-2 rounded-full border border-main-100 bg-main-100 bg-opacity-15 text-base font-light text-white hover:bg-current">
               <FcGoogle size={20} />{" "}

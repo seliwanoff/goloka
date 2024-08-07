@@ -20,6 +20,8 @@ import Image from "next/image";
 import { createUser } from "@/services/user";
 
 import { FaSpinner } from "react-icons/fa";
+import { getCountry, getOTP } from "@/services/misc";
+import { useQuery } from "@tanstack/react-query";
 
 type PageProps = {
   setStep: React.Dispatch<React.SetStateAction<number>>;
@@ -37,6 +39,7 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
   const [eye1, setEye1] = useState(false);
   const [eye2, setEye2] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedCountryLabel, setSelectedCountryLabel] = useState("");
   const {
     register,
     handleSubmit,
@@ -44,6 +47,11 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
     formState: { errors },
     watch,
   } = useForm<FormValues>();
+  const { data: country } = useQuery({
+    queryKey: ["Get Country list"],
+    queryFn: getCountry,
+  });
+  const countryData = country && country.data;
 
   const handleToggle1 = () => {
     setEye1((prev: boolean) => !prev);
@@ -54,6 +62,7 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
   };
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
+    setIsLoading(true);
     console.log(data);
     const userData = {
       name: data.fullname,
@@ -63,17 +72,22 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
       password_confirmation: data.password2,
       platform: "web",
     };
-    const { data: newUser, error, isLoading } = await createUser(userData);
-    console.log(newUser);
-    if (isLoading) {
-      setIsLoading(true);
+    const response = await createUser(userData);
+    console.log(response, "response");
+    if (response) {
+      //@ts-ignore
+      const token = response?.tokens;
+      localStorage.setItem("my_id", JSON.stringify(token));
+      const res = await getOTP({});
+      if (res) {
+        setIsLoading(false);
+        setStep(2); // Move to the next step after successful submission
+      }
+    } else {
+      setIsLoading(false);
+      alert("Error creating user");
     }
-    // if (error || !newUser) {
-    //   alert("Error creating user");
-    //   //  setQueryState("Sign up");
-    //   return;
-    // }
-    setStep(2); // Move to the next step after successful submission
+    setIsLoading(false);
   };
 
   return (
@@ -147,23 +161,32 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
             defaultValue=""
             rules={{ required: "Country is required" }}
             render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
+              <Select
+                value={selectedCountryLabel}
+                onValueChange={(value) => {
+                  const selectedCountry = countryData.find(
+                    (country: any) => country.id === value,
+                  );
+                  setSelectedCountryLabel(selectedCountry.label);
+                  field.onChange(value); // Pass the country id to useForm
+                }}
+              >
                 <SelectTrigger className="neutral-400 h-12 w-full rounded-md border bg-transparent focus:ring-1 focus:ring-offset-0 focus-visible:ring-main-100 [&>span]:font-light [&>span]:text-neutral-400">
                   <SelectValue
                     placeholder="Select a country"
                     className="text-sm font-light text-neutral-400"
                   >
-                    {field.value || "Select a country"}
+                    {selectedCountryLabel || "Select a country"}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent className="max-w-full">
                   <SelectGroup>
                     <SelectLabel>Country</SelectLabel>
-                    <SelectItem value="ng">Nigeria</SelectItem>
-                    <SelectItem value="Gh">Ghana</SelectItem>
-                    <SelectItem value="us">United States</SelectItem>
-                    <SelectItem value="uk">United Kingdom</SelectItem>
-                    <SelectItem value="fr">France</SelectItem>
+                    {countryData?.map((country: any) => (
+                      <SelectItem key={country?.id} value={country.id}>
+                        {country?.label}
+                      </SelectItem>
+                    ))}
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -241,7 +264,7 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
             type="submit"
             className="h-12 w-full rounded-full bg-main-100 text-base font-light text-white hover:bg-blue-700"
           >
-            {isLoading ? <FaSpinner /> : "Sign up"}
+            {isLoading ? <FaSpinner className="animate-spin" /> : "Sign up"}
           </Button>
           <Button className="h-12 w-full gap-2 rounded-full border border-main-100 bg-main-100 bg-opacity-15 text-base font-light text-white hover:bg-current">
             <FcGoogle size={20} />{" "}
