@@ -2,8 +2,8 @@
 
 import Language from "@/components/contributor/Language";
 import MoreInfo from "@/components/contributor/MoreInfo";
+import UpdateLocationModal from "@/components/contributor/UpdateLocationModal";
 import React, { useState } from "react";
-
 
 type PageProps = {};
 
@@ -21,9 +21,13 @@ const ContributorOnboard: React.FC<PageProps> = ({}) => {
     }
   };
   return (
-    <div className="px-4 md:mx-auto md:w-[70%] lg:w-[80%]">
-      <>{displayStep(step)}</>
-    </div>
+    <>
+      <div className="px-4 md:mx-auto md:w-[70%] lg:w-[80%]">
+        <>{displayStep(step)}</>
+      </div>
+
+      <UpdateLocationModal />
+    </>
   );
 };
 

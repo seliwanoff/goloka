@@ -40,18 +40,16 @@ const PrimaryGoal: React.FC<PageProps> = ({ setStep }) => {
   });
 
   const setUser = useUserStore((state) => state.setUser);
-
+  console.log(remoteUser, "set");
   useEffect(() => {
     if (isError || remoteUser === null || remoteUser?.status === "fail")
       setUser(remoteUser as unknown as User);
-
   }, [remoteUser, isError, isLoading, error]);
 
   const handleClick = (path: string) => {
     if (path) {
       router.replace(path);
     } else {
-  
     }
   };
 

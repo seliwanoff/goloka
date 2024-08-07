@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import dayjs from "dayjs"; // Using dayjs for date formatting
 import { createUser } from "@/services/user"; // Ensure this service is correctly imported
 import { useLoadingStore } from "./misc";
+import { createContributor } from "@/services/contributor";
 
 interface UserInfo {
   birth_date: string;
@@ -69,7 +70,7 @@ export const useContributorStore = create<UserState>()(
         const { setLoading } = useLoadingStore.getState();
         setLoading(true);
         try {
-          const response = await createUser(userInfo);
+          const response = await createContributor(userInfo);
           console.log("User Info submitted:", response);
         } catch (error) {
           console.error("Failed to submit user info:", error);
