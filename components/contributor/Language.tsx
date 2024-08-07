@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import StepperIndicator from "./StepperIndicator";
 import { Button } from "@/components/ui/button";
 import Select from "react-select";
@@ -10,9 +10,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { X } from "lucide-react";
-import Image from "next/image";
+import { useForm, Controller } from "react-hook-form";
 import useShowOverlay from "@/stores/overlay";
+import { useContributorStore } from "@/stores/contributors";
+import { useLoadingStore } from "@/stores/misc";
+import { FaSpinner } from "react-icons/fa";
 
 type PageProps = {
   setStep: any;
@@ -43,22 +45,27 @@ const languages = [
 ];
 
 const Language: React.FC<PageProps> = ({ setStep, step }) => {
-  const [selectedOption, setSelectedOption] = useState(null);
+  const { loading } = useLoadingStore();
   const { setOpen } = useShowOverlay();
+  const { setStep2Info, submitUserInfo } = useContributorStore();
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
-  const handleProceed = (e: any) => {
-    e.preventDefault();
-
-    // setStep((prev: number) => prev + 1);
+  const onSubmit = (data: any) => {
+    setStep2Info(data);
+    console.log(data);
     setOpen(true);
-    console.log("heheheh");
+    submitUserInfo();
   };
 
   const handleSkip = () => {};
 
   return (
     <>
-      <div className="lg:w-[80% relative z-10 md:w-[70%]">
+      <div className="relative z-10 md:w-[70%] lg:w-[80%]">
         <StepperIndicator setStep={setStep} step={step} />
 
         <div className="mt-6">
@@ -77,49 +84,77 @@ const Language: React.FC<PageProps> = ({ setStep, step }) => {
           <form
             id="more-info"
             className="mt-10 space-y-6"
-            onSubmit={(e) => handleProceed(e)}
+            onSubmit={handleSubmit(onSubmit)}
           >
             {/* PRIMARY LANGUAGE */}
             <div className="">
               <label
-                htmlFor="primary-language"
+                htmlFor="primary_language"
                 className="mb-2 inline-block font-normal capitalize text-[#4F4F4F]"
               >
-                primary language
+                Primary Language
               </label>
 
-              <Select2
-                name="primary-language" /*onValueChange={onChange} defaultValue={value}*/
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select your gender" />
-                </SelectTrigger>
-                <SelectContent>
-                  {languages.map((lang: any, index: number) => {
-                    return (
-                      <SelectItem key={index} value={lang.value}>
-                        {lang.label}
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select2>
+              <Controller
+                name="primary_language"
+                control={control}
+                render={({ field }) => (
+                  <Select2 value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select your primary language" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {languages.map((lang: any, index: number) => (
+                        <SelectItem key={index} value={lang.value}>
+                          {lang.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select2>
+                )}
+              />
+              {errors.primary_language && (
+                <p className="text-red-500">
+                  {errors.primary_language.message as string}
+                </p>
+              )}
             </div>
 
+            {/* SPOKEN LANGUAGES */}
             <div className="">
               <label
-                htmlFor="spoken-language"
+                htmlFor="spoken_languages"
                 className="mb-2 inline-block font-normal capitalize text-[#4F4F4F]"
               >
-                spoken language
+                Spoken Languages
               </label>
 
-              <Select
-                // defaultValue={selectedOption}
-                // onChange={(e) => se}
-                isMulti
-                options={languages}
+              <Controller
+                name="spoken_languages"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    isMulti
+                    options={languages}
+                    closeMenuOnSelect={false}
+                    components={makeAnimated()}
+                    value={languages.filter((lang) =>
+                      field?.value?.includes(lang.value),
+                    )}
+                    onChange={(selectedOptions) => {
+                      field.onChange(
+                        selectedOptions.map((option: any) => option.value),
+                      );
+                    }}
+                  />
+                )}
               />
+              {errors.spoken_languages && (
+                <p className="text-red-500">
+                  {errors.spoken_languages.message as string}
+                </p>
+              )}
             </div>
 
             <div className="grid gap-3 pt-6">
@@ -127,7 +162,7 @@ const Language: React.FC<PageProps> = ({ setStep, step }) => {
                 type="submit"
                 className="h-12 w-full rounded-full bg-main-100 text-base font-light text-white hover:bg-blue-700"
               >
-                Proceed
+                {loading ? <FaSpinner className="animate-spin" /> : "Proceed"}
               </Button>
 
               <Button

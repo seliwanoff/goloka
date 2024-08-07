@@ -44,14 +44,14 @@ const PrimaryGoal: React.FC<PageProps> = ({ setStep }) => {
   useEffect(() => {
     if (isError || remoteUser === null || remoteUser?.status === "fail")
       setUser(remoteUser as unknown as User);
-    // return setShowModal(true);
+
   }, [remoteUser, isError, isLoading, error]);
 
   const handleClick = (path: string) => {
     if (path) {
       router.replace(path);
     } else {
-      // setStep((pr1ev: number) => prev + );
+  
     }
   };
 

@@ -21,6 +21,7 @@ import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import { useUserStore } from "@/stores/use-user-store";
+import { useContributorStore } from "@/stores/contributors";
 
 type PageProps = {
   setStep: any;
@@ -52,7 +53,7 @@ const ethnicities = [
 
 // Validation schema
 const validationSchema = Yup.object().shape({
-  dob: Yup.date()
+  birth_date: Yup.date()
     .max(new Date(), "Date of birth cannot be in the future")
     .min(new Date("1900-01-01"), "Date of birth cannot be before 1900")
     .required("Date of birth is required"),
@@ -62,6 +63,9 @@ const validationSchema = Yup.object().shape({
 });
 
 const MoreInfo: React.FC<PageProps> = ({ step, setStep }) => {
+  const { setStep1Info } = useContributorStore();
+
+
   const {
     control,
     handleSubmit,
@@ -72,6 +76,7 @@ const MoreInfo: React.FC<PageProps> = ({ step, setStep }) => {
   const currentUser = useUserStore((state) => state.currentUser);
   const onSubmit = (data: any) => {
     console.log(data);
+     setStep1Info(data);
     setStep((prev: number) => prev + 1);
   };
 
@@ -103,14 +108,14 @@ const MoreInfo: React.FC<PageProps> = ({ step, setStep }) => {
             {/* DATE OF BIRTH */}
             <div className="">
               <label
-                htmlFor="dob"
+                htmlFor="birth_date"
                 className="mb-2 inline-block text-base font-normal text-[#4F4F4F]"
               >
                 Date of birth
               </label>
 
               <Controller
-                name="dob"
+                name="birth_date"
                 control={control}
                 render={({ field }) => (
                   <Popover>
@@ -118,7 +123,7 @@ const MoreInfo: React.FC<PageProps> = ({ step, setStep }) => {
                       <Button
                         variant={"outline"}
                         className={cn("w-full pl-3 text-left font-normal", {
-                          "border-red-500": errors.dob,
+                          "border-red-500": errors.birth_date,
                         })}
                       >
                         <span>
@@ -143,8 +148,8 @@ const MoreInfo: React.FC<PageProps> = ({ step, setStep }) => {
                   </Popover>
                 )}
               />
-              {errors.dob && (
-                <p className="text-xs text-red-500">{errors.dob.message}</p>
+              {errors.birth_date && (
+                <p className="text-xs text-red-500">{errors.birth_date.message}</p>
               )}
             </div>
 

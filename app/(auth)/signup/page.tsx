@@ -5,11 +5,13 @@ import Verify from "@/components/auth-comps/Verify";
 import PrimaryGoal from "@/components/auth-comps/PrimaryGoal";
 import SignUpForm from "@/components/auth-comps/SignUpForm";
 import UpdateLocationModal from "@/components/contributor/UpdateLocationModal";
+import useShowOverlay from "@/stores/overlay";
 
 type PageProps = {};
 
 const SignUp: React.FC<PageProps> = ({}) => {
   const [step, setStep] = useState(1);
+  const { open, setOpen } = useShowOverlay();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -37,7 +39,7 @@ const SignUp: React.FC<PageProps> = ({}) => {
         {step === 2 && <Verify setStep={handleStepChange} />}
         {step === 3 && <PrimaryGoal setStep={handleStepChange} />}
       </div>
-      <UpdateLocationModal />
+      {!open && <UpdateLocationModal />}
     </>
   );
 };

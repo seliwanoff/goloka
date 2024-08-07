@@ -37,3 +37,21 @@ export const getOTP = async (
     },
   });
 };
+
+
+// ~ =============================================>
+// ~ ======= location  -->
+// ~ =============================================>
+export const updateLocation = async (
+  locationData: any,
+): Promise<UseQueryResult<ServerResponse<any>>> => {
+  return queryClient.fetchQuery({
+    queryKey: ["update location"],
+    queryFn: async () => {
+      return await postData<ServerResponse<any>>(
+        "/contributor-profile/location",
+        locationData,
+      );
+    },
+  });
+};
