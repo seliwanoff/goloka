@@ -32,8 +32,8 @@ export const createUser = async (
 // ~ =============================================>
 // ~ ======= verifyOTP  -->
 // ~ =============================================>
-export const veifyOTP = async (
-  otp: string,
+export const verifyOTP = async (
+  otp: any,
 ): Promise<UseQueryResult<ServerResponse<any>>> => {
   return queryClient.fetchQuery({
     queryKey: ["VERIFY OTP"],

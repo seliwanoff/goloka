@@ -24,9 +24,8 @@ import { getCountry, getOTP } from "@/services/misc";
 import { useQuery } from "@tanstack/react-query";
 
 type PageProps = {
-  setStep: React.Dispatch<React.SetStateAction<number>>;
+  setStep: (step: number, email?: string) => void;
 };
-
 type FormValues = {
   fullname: string;
   email: string;
@@ -81,7 +80,7 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
       const res = await getOTP({});
       if (res) {
         setIsLoading(false);
-        setStep(2); // Move to the next step after successful submission
+        setStep(2, data.email);
       }
     } else {
       setIsLoading(false);

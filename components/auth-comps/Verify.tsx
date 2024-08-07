@@ -3,20 +3,30 @@ import React, { useState, useEffect, useRef } from "react";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import axios from "axios";
-import { veifyOTP } from "@/services/user";
+import { verifyOTP } from "@/services/user";
+import { useSearchParams } from "next/navigation";
 
-type PageProps = { setStep: any };
+type PageProps = {
+  setStep: (step: number, email?: string) => void;
+};
 
 const Verify: React.FC<PageProps> = ({ setStep }) => {
   const [sec, setSec] = useState(60);
   const [otpValues, setOtpValues] = useState<string[]>(Array(6).fill(""));
   const [error, setError] = useState("");
+  const [email, setEmail] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const searchParams = useSearchParams();
   const handleOtpChange = (otpArray: string[]) => {
     setOtpValues(otpArray);
     setError(""); // Clear error on change
   };
+  useEffect(() => {
+    const emailParam = searchParams.get("email");
+    if (emailParam) {
+      setEmail(decodeURIComponent(emailParam));
+    }
+  }, [searchParams]);
 
   const handleOtpSubmit = async () => {
     const otpValue = otpValues.join("");
@@ -24,11 +34,12 @@ const Verify: React.FC<PageProps> = ({ setStep }) => {
       setError("Please enter all digits.");
       return;
     }
+
     setIsSubmitting(true);
     try {
-      const { data } = await veifyOTP(otpValue);
+      const { data } = await verifyOTP({ otp: otpValue });
       console.log(data);
-      setStep(2);
+      setStep(3);
     } catch (error) {
       setError("Failed to verify OTP. Please try again.");
     } finally {
@@ -72,9 +83,7 @@ const Verify: React.FC<PageProps> = ({ setStep }) => {
         </h2>
         <p className="text-[#828282]">
           Enter verification code sent to <br />
-          <span className="font-medium text-[#4F4F4F]">
-            jimohjamiu2000@gmail.com
-          </span>
+          <span className="font-medium text-[#4F4F4F]">{email}</span>
         </p>
       </div>
 
@@ -196,7 +205,9 @@ const OtpInput: React.FC<OtpInputProps> = ({
           />
         ))}
       </div>
-      {errorMessage && <p className="mt-2 text-red-500 text-xs">{errorMessage}</p>}
+      {errorMessage && (
+        <p className="mt-2 text-xs text-red-500">{errorMessage}</p>
+      )}
     </div>
   );
 };

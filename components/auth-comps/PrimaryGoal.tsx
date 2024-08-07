@@ -22,23 +22,22 @@ const goals = [
 ];
 
 type PageProps = {
-  setStep: (step: (prev: number) => number) => void;
+  setStep: (step: number, email?: string) => void;
 };
-
 const PrimaryGoal: React.FC<PageProps> = ({ setStep }) => {
   const router = useRouter();
 
   const handleClick = (path: string) => {
     if (path) {
-      // router.push(path);
+   
       router.replace(path);
     } else {
-      setStep((prev: number) => prev + 1);
+      // setStep((pr1ev: number) => prev + );
     }
   };
 
   return (
-    <div className="flex w-[90%] flex-col gap-8">
+    <div className="flex  flex-col gap-8">
       <div>
         <h3 className="mb-2 text-2xl font-semibold lg:text-[32px] lg:leading-[1.4]">
           What is your primary goal on{" "}
@@ -56,7 +55,7 @@ const PrimaryGoal: React.FC<PageProps> = ({ setStep }) => {
         {goals.map((goal, index) => (
           <div
             key={index}
-            className="group grid w-full transform cursor-pointer grid-cols-[50px_1fr_20px] items-center rounded border p-2 transition-all ease-out hover:border-[#7F55DA] active:scale-90"
+            className="group grid w-full transform cursor-pointer grid-cols-[50px_1fr_20px] items-center rounded border p-2 transition-all ease-out hover:border-[#7F55DA] active:scale-90 bg-white hover:bg-[#fffdfd]"
             onClick={() => handleClick(goal.path)}
           >
             <figure className="flex h-10 w-10 items-center justify-center rounded bg-[#7F55DA0F] transition-colors group-hover:bg-[#ddd5ee]">
