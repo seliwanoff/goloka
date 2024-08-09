@@ -33,7 +33,7 @@
 
   .dark {
     --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
+    --foreground: 0 0% 31% 1;
     --card: 0 0% 3.9%;
     --card-foreground: 0 0% 98%;
     --popover: 0 0% 3.9%;
@@ -64,6 +64,27 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply font-normal text-foreground;
+  }
+
+  .authbg {
+    @apply bg-[url("/public/assets/images/auth.png")];
+  }
+
+  p {
+    @apply text-[#4F4F4F];
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply text-[#333333];
+  }
+
+  .otp {
+    @apply w-full rounded border border-[#E7E7E7] bg-[#F9F9F9] outline-0 focus:border focus:border-main-100 focus:border-opacity-55 focus:bg-main-100 focus:bg-opacity-20;
   }
 }
