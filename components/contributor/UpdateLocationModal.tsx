@@ -96,12 +96,12 @@ const UpdateLocationModal = () => {
             Update location
           </Button>
           {error && <p className="mt-4 text-red-500">{error}</p>}
-          {location && (
+          {/* {location && (
             <div className="mt-4 text-green-500">
               <p>Country: {location.country}</p>
               <p>State: {location.state}</p>
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </div>
