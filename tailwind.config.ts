@@ -105,8 +105,7 @@ const config = {
       center: true,
       padding: "2rem",
       screens: {
-        xl: "1200px",
-        "2xl": "1400px",
+        "1xl": "1200px",
       },
     },
     extend: {
@@ -178,9 +177,13 @@ const config = {
         "16.25": "65px", // Width
         "15.75": "63px", // Height
       },
+      screens: {
+        "1xl": "1200px",
+        "2xl": "1400px",
+      },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [require("tailwindcss-animate"), require("@tailwindcss/forms")],
 } satisfies Config;
 
 export default config;
