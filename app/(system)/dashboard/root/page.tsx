@@ -70,7 +70,7 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
         {/* -- stats card section */}
         {/* ####################################### */}
         <div className="no-scrollbar col-span-5 w-full overflow-x-auto">
-          <div className="1xl:grid 1xl:grid-cols-4 col-span-5 flex w-min gap-4 xl:w-full">
+          <div className="col-span-5 flex w-min gap-4 1xl:grid 1xl:grid-cols-4 xl:w-full">
             {/* Projects Card */}
             <div className="w-[300px] xl:w-full">
               <DashboardWidget
@@ -256,7 +256,7 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
           </div>
 
           {/* Task list */}
-          <div className="1xl:grid-cols-3 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-2 1xl:grid-cols-3 xl:grid-cols-3">
             {tasks.map((task: any, index: number) => (
               <TaskCardWidget {...task} key={index} />
             ))}
@@ -269,7 +269,7 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
 
 export default DashboardRoot;
 
-const tasks = [
+export const tasks = [
   {
     title: "Agriculture & Food Security",
     content:

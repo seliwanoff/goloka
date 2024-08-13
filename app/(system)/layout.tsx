@@ -71,7 +71,7 @@ const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div>
       {/* <NotificationLayout> */}
-      <div className="grid h-screen min-h-[200px] w-full grid-cols-6 overflow-hidden bg-[#F8F8F8]">
+      <div className="grid h-screen min-h-[200px] w-full grid-cols-6 overflow-hidden lg:bg-[#F8F8F8]">
         {
           /*remoteUser*/ true ? (
             <>
