@@ -1,0 +1,222 @@
+"use client";
+
+import CustomBreadCrumbs from "@/components/lib/navigation/custom_breadcrumbs";
+import Image from "next/image";
+import React, { useState } from "react";
+import Task1 from "@/public/assets/images/tasks/task1.png";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { Button } from "@/components/ui/button";
+import { Dot, SquarePen } from "lucide-react";
+import { ArchiveMinus, Note } from "iconsax-react";
+import Map from "@/public/assets/images/tasks/tasks.png";
+import Link from "next/link";
+import TaskCardWidget from "@/components/lib/widgets/task_card";
+
+import { StepperProvider, useStepper } from "@/context/TaskStepperContext.tsx";
+import TaskStepper from "@/components/task-stepper/TaskStepper";
+import { Toaster } from "@/components/ui/sonner";
+import { tasks } from "@/utils";
+
+type PageProps = {};
+
+const TaskDetail: React.FC<PageProps> = ({}) => {
+  const [isStepper, setIsStepper] = useState<boolean>(true);
+  const { step } = useStepper();
+
+  return (
+    <>
+      <Toaster richColors />
+      <section className="space-y-4 py-8 pt-[34px]">
+        <CustomBreadCrumbs />
+
+        {isStepper ? (
+          <>
+            <div className="mx-auto mt-9 w-full rounded-2xl bg-white p-4 sm:w-[500px] md:mt-[96px]">
+              <h3 className="mb-6 text-xl font-semibold text-neutral-900">
+                Agriculture & Food Security
+              </h3>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="inline-block font-medium text-neutral-600">
+                    <span className="text-main-100">{step}</span>/4
+                  </span>
+                  <div className="flex gap-1">
+                    <span className="inline-block h-1 w-7 rounded-full bg-main-100"></span>
+                    <span className="inline-block h-1 w-5 rounded-full bg-neutral-100"></span>
+                  </div>
+                </div>
+
+                <span className="text-sm text-neutral-500">
+                  <span className="font-semibold text-neutral-900">10</span>{" "}
+                  Questions
+                </span>
+              </div>
+
+              <div className="mt-6">
+                <TaskStepper />
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* ####################################### */}
+            {/* -- Header text section */}
+            {/* ####################################### */}
+
+            <div className="flex justify-between rounded-lg bg-white p-5">
+              <div className="grid grid-cols-[56px_1fr] items-center gap-4">
+                <AspectRatio ratio={1 / 1}>
+                  <Image
+                    src={Task1}
+                    alt="Task image"
+                    className="h-14 w-14 rounded-lg object-cover"
+                  />
+                </AspectRatio>
+
+                <div className="">
+                  <h3 className="font-semibold text-neutral-900">
+                    Agriculture & Food Security
+                  </h3>
+                  <p className="text-sm text-[#828282]">By Muhammad Jamiu</p>
+                </div>
+              </div>
+              <div className="hidden items-center justify-center space-x-2 md:flex">
+                <Button
+                  onClick={() => setIsStepper(true)}
+                  className="h-auto gap-3 rounded-full bg-main-100 px-10 py-3 text-sm shadow-lg shadow-blue-50 hover:bg-blue-700"
+                >
+                  <span>
+                    <Note size={20} />
+                  </span>
+                  Contribute
+                </Button>
+                <span className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[#3365E31F] text-main-100">
+                  <ArchiveMinus size={24} />
+                </span>
+              </div>
+            </div>
+
+            {/* -- Details */}
+            <div className="grid gap-4 lg:grid-cols-[2fr_1.5fr]">
+              <div className="mb-4 h-full w-full rounded-2xl bg-white p-5 md:mb-0">
+                <h3 className="text-base font-semibold leading-6 text-gray-900">
+                  Task Details
+                </h3>
+                <div className="mt-6 flex flex-wrap gap-5 md:justify-between">
+                  <div className="">
+                    <div className="flex items-center">
+                      <h4 className="font-medium text-[#101828]">
+                        26 June 2023
+                      </h4>
+                      <div className="font-medium text-[#101828]">
+                        <Dot size={30} />
+                      </div>
+                      <span className="font-medium text-[#101828]">
+                        05:07 PM
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-400">Task Ends on</p>
+                  </div>
+                  <div>
+                    <h4 className="text-[#101828]">$4 </h4>
+                    <p className="text-sm text-gray-400">Per response</p>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-[#101828]">Multiple</h4>
+                    <p className="text-sm text-gray-400">Response type </p>
+                  </div>
+                  <div className="md:text-right">
+                    <h4 className="font-medium text-[#101828]">Survey </h4>
+                    <p className="text-sm text-gray-400">Campaign</p>
+                  </div>
+                </div>
+                <div className="mt-8">
+                  <span className="text-sm text-gray-400">Description</span>
+                  <p className="mt-3 line-clamp-5 text-sm leading-6 text-[#4F4F4F]">
+                    Agriculture is the cornerstone of food security, serving as
+                    the primary means of sustenance and economic stability for
+                    nations worldwide. It encompasses the cultivation of crops
+                    and livestock, which are essential for providing the food
+                    supply that supports human life. n addition to its role in
+                    feeding populations, agriculture also drives economic
+                    development.
+                  </p>
+                </div>
+              </div>
+
+              <div className="rounded-2xl bg-white p-5">
+                <figure className="h-[85%]">
+                  <Image
+                    src={Map}
+                    alt="map"
+                    className="h-full w-full rounded-lg object-cover"
+                  />
+                </figure>
+                <div className="mt-5 flex gap-5">
+                  <div className="text-sm font-semibold text-[#101828]">
+                    6{" "}
+                    <span className="font-normal text-[#828282]">
+                      Questions
+                    </span>
+                  </div>
+                  <div className="text-sm font-semibold text-[#101828]">
+                    24{" "}
+                    <span className="font-normal text-[#828282]">
+                      0f 64 responses
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* ####################################### */}
+            {/* -- Tasks section */}
+            {/* ####################################### */}
+            <div className="col-span-5 mt-8">
+              <div className="mb-6 flex justify-between">
+                <h3 className="text-lg font-semibold text-[#333]">
+                  Related Tasks
+                </h3>
+
+                <Link
+                  href="/dashboard/tasks"
+                  className="text-lg font-semibold text-main-100"
+                >
+                  See all
+                </Link>
+              </div>
+
+              {/* Task list */}
+              <div className="grid gap-5 md:grid-cols-2 1xl:grid-cols-3 xl:grid-cols-3">
+                {tasks.map((task: any, index: number) => (
+                  <TaskCardWidget {...task} key={index} />
+                ))}
+              </div>
+            </div>
+
+            {/* MOBILE CTA */}
+            <div className="fixed bottom-0 left-0 z-10 flex w-full items-center justify-start space-x-2 bg-white p-5 md:hidden">
+              <Button
+                onClick={() => setIsStepper(true)}
+                className="h-auto flex-grow gap-3 rounded-full bg-main-100 px-10 py-3 text-sm shadow-lg shadow-blue-50 hover:bg-blue-700"
+              >
+                <span>
+                  <Note size={20} />
+                </span>
+                Contribute
+              </Button>
+              <span className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[#3365E31F] text-main-100">
+                <ArchiveMinus size={24} />
+              </span>
+            </div>
+          </>
+        )}
+      </section>
+    </>
+  );
+};
+
+export default TaskDetail;
+
+

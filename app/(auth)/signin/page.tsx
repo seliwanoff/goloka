@@ -49,7 +49,7 @@ const SignIn: React.FC<PageProps> = ({}) => {
     if (token) {
       localStorage.setItem("my_id", JSON.stringify(token));
       alert("Sign in successful");
-      return router.replace("/");
+      return router.replace("/dashboard/root");
       setIsLoading(false);
     }
   };
