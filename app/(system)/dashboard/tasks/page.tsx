@@ -26,9 +26,10 @@ import { useState } from "react";
 import { Calendar, Setting4 } from "iconsax-react";
 import Image from "next/image";
 import UpdateLocationDialog from "@/components/lib/modals/task_update_location";
-import { tasks } from "../root/page";
+
 import TaskCardWidget from "@/components/lib/widgets/task_card";
 import TaskFilterDrawerMobile from "@/components/lib/modals/task_filter";
+import { tasks } from "@/utils";
 
 type ComponentProps = {};
 
@@ -56,7 +57,7 @@ const TaskPage: React.FC<ComponentProps> = ({}) => {
           <div className="relative flex w-[200px] items-center justify-center md:w-[300px]">
             <Search className="absolute left-3 text-gray-500" size={18} />
             <Input
-              placeholder="Search task, organisation"
+              placeholder="Search task, organization"
               type="text"
               className="rounded-full bg-gray-50 pl-10"
             />

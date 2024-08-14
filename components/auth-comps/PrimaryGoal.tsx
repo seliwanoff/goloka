@@ -44,7 +44,7 @@ const PrimaryGoal: React.FC<PageProps> = ({ setStep }) => {
   useEffect(() => {
     if (isError || remoteUser === null || remoteUser?.status === "fail")
       setUser(remoteUser as unknown as User);
-  }, [remoteUser, isError, isLoading, error]);
+  }, [remoteUser, isError, isLoading, error, setUser]);
 
   const handleClick = (path: string) => {
     if (path) {

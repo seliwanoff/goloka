@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Verify from "@/components/auth-comps/Verify";
 import PrimaryGoal from "@/components/auth-comps/PrimaryGoal";
@@ -9,7 +9,7 @@ import useShowOverlay from "@/stores/overlay";
 
 type PageProps = {};
 
-const SignUp: React.FC<PageProps> = ({}) => {
+const SignUpContent: React.FC<PageProps> = ({}) => {
   const [step, setStep] = useState(1);
   const { open, setOpen } = useShowOverlay();
   const router = useRouter();
@@ -41,6 +41,14 @@ const SignUp: React.FC<PageProps> = ({}) => {
       </div>
       {!open && <UpdateLocationModal />}
     </>
+  );
+};
+
+const SignUp: React.FC<PageProps> = ({}) => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SignUpContent />
+    </Suspense>
   );
 };
 

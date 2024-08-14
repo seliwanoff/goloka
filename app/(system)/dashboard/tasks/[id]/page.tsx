@@ -11,10 +11,11 @@ import { ArchiveMinus, Note } from "iconsax-react";
 import Map from "@/public/assets/images/tasks/tasks.png";
 import Link from "next/link";
 import TaskCardWidget from "@/components/lib/widgets/task_card";
-import { tasks } from "../../root/page";
+
 import { StepperProvider, useStepper } from "@/context/TaskStepperContext.tsx";
 import TaskStepper from "@/components/task-stepper/TaskStepper";
 import { Toaster } from "@/components/ui/sonner";
+import { tasks } from "@/utils";
 
 type PageProps = {};
 
@@ -218,71 +219,4 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
 
 export default TaskDetail;
 
-export const questions1 = [
-  {
-    id: "Q1",
-    question: "What are the main agricultural products cultivated in Nigeria ?",
-    type: "text",
-    value: "agricultural-products",
-  },
-  {
-    id: "Q2",
-    question:
-      "Which factor significantly affects agricultural productivity in Nigeria?",
-    type: "option",
-    value: "significant-factor",
 
-    options: [
-      { label: "Urbanization", value: "urbanization" },
-      { label: "Climate change", value: "climate-change" },
-      { label: "Industrialization", value: "industrialization" },
-      { label: "Mining", value: "mining" },
-    ],
-  },
-];
-
-export const questions2 = [
-  {
-    id: "Q3",
-    question: "What are the main agricultural products cultivated in Nigeria ?",
-    type: "text",
-    value: "agricultural-products",
-  },
-  {
-    id: "Q4",
-    question:
-      "Which factor significantly affects agricultural productivity in Nigeria?",
-    type: "option",
-    value: "significant-factor",
-
-    options: [
-      { label: "Urbanization", value: "urbanization" },
-      { label: "Climate change", value: "climate-change" },
-      { label: "Industrialization", value: "industrialization" },
-      { label: "Mining", value: "mining" },
-    ],
-  },
-];
-
-export const questions3 = [
-  {
-    id: "Q5",
-    question: "What are the main agricultural products cultivated in Nigeria ?",
-    type: "text",
-    value: "agricultural-products",
-  },
-  {
-    id: "Q6",
-    question:
-      "Which factor significantly affects agricultural productivity in Nigeria?",
-    type: "option",
-    value: "significant-factor",
-
-    options: [
-      { label: "Urbanization", value: "urbanization" },
-      { label: "Climate change", value: "climate-change" },
-      { label: "Industrialization", value: "industrialization" },
-      { label: "Mining", value: "mining" },
-    ],
-  },
-];
