@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import DashSideBarDesktop from "@/components/lib/navigation/dash_sidebar_desktop";
 import DashTopNav from "@/components/lib/navigation/dash_topnav";
 import { useUserStore } from "@/stores/use-user-store";
+import { StepperProvider } from "@/context/TaskStepperContext.tsx";
 // import DashSideBarDesktop from "@/components/lib/navigation/dash_sidebar_desktop";
 // import { getCurrentUser } from "@/services/user_service";
 // import { User, userStore } from "@/stores/user-store";
@@ -70,27 +71,29 @@ const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <div>
-      {/* <NotificationLayout> */}
-      <div className="grid h-screen min-h-[200px] w-full grid-cols-6 overflow-hidden bg-[#F8F8F8]">
-        {
-          /*remoteUser*/ true ? (
-            <>
-              <DashSideBarDesktop />
-              <main className="relative col-span-6 flex h-screen flex-col overflow-hidden pb-10 pt-[70px] xl:col-span-5 xl:bg-[#F8F8F8]">
-                <DashTopNav />
-                <div className="h-[calc(100% - 72px)] tablet:px-8 w-full overflow-auto px-5 pb-10 lg:px-10">
-                  {children}
-                </div>
-              </main>
-            </>
-          ) : (
-            <div className="col-span-6 flex h-screen w-full items-center justify-center">
-              <p>Loading...</p>
-            </div>
-          )
-        }
-      </div>
-      {/* </NotificationLayout> */}
+      <StepperProvider>
+        {/* <NotificationLayout> */}
+        <div className="grid h-screen min-h-[200px] w-full grid-cols-6 overflow-hidden bg-[#F8F8F8]">
+          {
+            /*remoteUser*/ true ? (
+              <>
+                <DashSideBarDesktop />
+                <main className="relative col-span-6 flex h-screen flex-col overflow-hidden pb-10 pt-[70px] xl:col-span-5 xl:bg-[#F8F8F8]">
+                  <DashTopNav />
+                  <div className="h-[calc(100% - 72px)] tablet:px-8 w-full overflow-auto px-5 pb-10 lg:px-10">
+                    {children}
+                  </div>
+                </main>
+              </>
+            ) : (
+              <div className="col-span-6 flex h-screen w-full items-center justify-center">
+                <p>Loading...</p>
+              </div>
+            )
+          }
+        </div>
+        {/* </NotificationLayout> */}
+      </StepperProvider>
     </div>
   );
 };

@@ -1,6 +1,8 @@
 import { cn } from "@/lib/utils";
 import { ArchiveMinus, Location } from "iconsax-react";
 import Image, { StaticImageData } from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import React from "react";
 
 type ComponentProps = {
@@ -18,6 +20,7 @@ const TaskCardWidget: React.FC<ComponentProps> = ({
   location,
   image,
 }) => {
+  const pathname = usePathname();
   return (
     <div className="space-y-[18px] rounded-[16px] border border-[#F2F2F2] bg-white p-4">
       <figure className="relative h-[200px] w-full overflow-hidden rounded-[8px]">
@@ -45,7 +48,12 @@ const TaskCardWidget: React.FC<ComponentProps> = ({
         </span>
       </div>
       <div>
-        <h3 className="mb-3 font-semibold text-[#333]">{title}</h3>
+        <Link
+          href={`${pathname}/1`}
+          className="mb-3 block font-semibold text-[#333]"
+        >
+          {title}
+        </Link>
         <p className="text-[#333]">{content}</p>
         <div className="mt-3 flex gap-3">
           <span className="text-[#4F4F4F]">

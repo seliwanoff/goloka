@@ -40,7 +40,7 @@ const DashSideBarMobile: FC<ComponentProps> = ({}) => {
   const pathname = usePathname();
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger className="block cursor-pointer lg:hidden">
+      <SheetTrigger className="block cursor-pointer xl:hidden">
         <VscListSelection size={24} />
       </SheetTrigger>
       <SheetContent side="left" className="w-[95%] px-4">
