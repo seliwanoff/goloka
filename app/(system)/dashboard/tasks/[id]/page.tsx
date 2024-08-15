@@ -15,6 +15,7 @@ import { tasks } from "../../root/page";
 import { StepperProvider, useStepper } from "@/context/TaskStepperContext.tsx";
 import TaskStepper from "@/components/task-stepper/TaskStepper";
 import { Toaster } from "@/components/ui/sonner";
+import { cn } from "@/lib/utils";
 
 type PageProps = {};
 
@@ -24,7 +25,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
 
   return (
     <>
-      <Toaster richColors />
+      <Toaster richColors position={"top-right"} />
       <section className="space-y-4 py-8 pt-[34px]">
         <CustomBreadCrumbs />
 
@@ -41,8 +42,15 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
                     <span className="text-main-100">{step}</span>/4
                   </span>
                   <div className="flex gap-1">
-                    <span className="inline-block h-1 w-7 rounded-full bg-main-100"></span>
-                    <span className="inline-block h-1 w-5 rounded-full bg-neutral-100"></span>
+                    {Array.from({ length: 4 }, (_: any, index: number) => (
+                      <span
+                        className={cn(
+                          "inline-block h-1 w-3 rounded-full bg-neutral-200",
+                          step >= index + 1 && "bg-main-100",
+                          step === index + 1 && "w-5",
+                        )}
+                      ></span>
+                    ))}
                   </div>
                 </div>
 
@@ -244,22 +252,23 @@ export const questions1 = [
 export const questions2 = [
   {
     id: "Q3",
-    question: "What are the main agricultural products cultivated in Nigeria ?",
+    question:
+      "What strategies can improve agricultural productivity in Nigeria?",
     type: "text",
-    value: "agricultural-products",
+    value: "productivity-strategies",
   },
   {
     id: "Q4",
     question:
-      "Which factor significantly affects agricultural productivity in Nigeria?",
+      "Which agricultural sector in Nigeria has the highest potential for growth?",
     type: "option",
-    value: "significant-factor",
+    value: "growth-potential-sector",
 
     options: [
-      { label: "Urbanization", value: "urbanization" },
-      { label: "Climate change", value: "climate-change" },
-      { label: "Industrialization", value: "industrialization" },
-      { label: "Mining", value: "mining" },
+      { label: "Crop Production", value: "crop-production" },
+      { label: "Livestock Farming", value: "livestock-farming" },
+      { label: "Aquaculture", value: "aquaculture" },
+      { label: "Forestry", value: "forestry" },
     ],
   },
 ];
@@ -267,22 +276,72 @@ export const questions2 = [
 export const questions3 = [
   {
     id: "Q5",
-    question: "What are the main agricultural products cultivated in Nigeria ?",
+    question:
+      "What are the effects of government policies on agricultural development in Nigeria?",
     type: "text",
-    value: "agricultural-products",
+    value: "policy-effects",
   },
   {
     id: "Q6",
     question:
-      "Which factor significantly affects agricultural productivity in Nigeria?",
+      "Which challenge poses the greatest threat to food security in Nigeria?",
     type: "option",
-    value: "significant-factor",
+    value: "food-security-threat",
 
     options: [
-      { label: "Urbanization", value: "urbanization" },
-      { label: "Climate change", value: "climate-change" },
-      { label: "Industrialization", value: "industrialization" },
-      { label: "Mining", value: "mining" },
+      {
+        label: "Poor infrastructure",
+        value: "poor-infrastructure",
+      },
+      { label: "Pests and diseases", value: "pests-and-diseases" },
+      { label: "Land degradation", value: "land-degradation" },
+      { label: "Poor storage facilities", value: "poor-storage" },
+    ],
+  },
+];
+
+export const questions4 = [
+  {
+    id: "Q7",
+    question:
+      "How does agricultural mechanization impact farming efficiency in Nigeria?",
+    type: "text",
+    value: "mechanization-impact",
+  },
+  {
+    id: "Q8",
+    question: "Which region in Nigeria is most known for rice production?",
+    type: "option",
+    value: "rice-production-region",
+
+    options: [
+      { label: "North Central", value: "north-central" },
+      { label: "South West", value: "south-west" },
+      { label: "South East", value: "south-east" },
+      { label: "North East", value: "north-east" },
+    ],
+  },
+];
+
+export const questions5 = [
+  {
+    id: "Q9",
+    question:
+      "What are the challenges faced by small-scale farmers in Nigeria?",
+    type: "text",
+    value: "small-scale-farming-challenges",
+  },
+  {
+    id: "Q10",
+    question: "Which crop is most commonly exported from Nigeria?",
+    type: "option",
+    value: "common-export-crop",
+
+    options: [
+      { label: "Cocoa", value: "cocoa" },
+      { label: "Cassava", value: "cassava" },
+      { label: "Groundnut", value: "groundnut" },
+      { label: "Palm oil", value: "palm-oil" },
     ],
   },
 ];

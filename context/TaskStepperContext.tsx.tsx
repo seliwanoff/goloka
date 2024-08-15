@@ -4,6 +4,8 @@ interface StepperContextProps {
   step: number;
   nextStep: () => void;
   prevStep: () => void;
+  setStep: any;
+  setAnswers: any;
   updateAnswer: (question: string, answer: string) => void;
   answers: Record<string, string>;
 }
@@ -22,15 +24,25 @@ export const StepperProvider: React.FC<StepperProviderProps> = ({
   const [step, setStep] = useState(1);
   const [answers, setAnswers] = useState<Record<string, string>>({});
 
-  const nextStep = () => setStep((prevStep) => prevStep + 1);
-  const prevStep = () => setStep((prevStep) => prevStep - 1);
+  const nextStep = () =>
+    setStep((prevStep) => (prevStep === 4 ? prevStep : prevStep + 1));
+  const prevStep = () =>
+    setStep((prevStep) => (prevStep > 1 ? prevStep - 1 : prevStep));
   const updateAnswer = (question: string, answer: string) => {
     setAnswers((prevAnswers) => ({ ...prevAnswers, [question]: answer }));
   };
 
   return (
     <StepperContext.Provider
-      value={{ step, nextStep, prevStep, updateAnswer, answers }}
+      value={{
+        step,
+        nextStep,
+        prevStep,
+        updateAnswer,
+        answers,
+        setAnswers,
+        setStep,
+      }}
     >
       {children}
     </StepperContext.Provider>

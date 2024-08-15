@@ -5,7 +5,10 @@ import { Label } from "../ui/label";
 import { Checkbox } from "../ui/checkbox";
 import { cn } from "@/lib/utils";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { questions1 } from "@/app/(system)/dashboard/tasks/[id]/page";
+import {
+  questions1,
+  questions2,
+} from "@/app/(system)/dashboard/tasks/[id]/page";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import StepperControl from "./StepperControl";
@@ -24,7 +27,7 @@ const options = (index: number) => {
   }
 };
 
-const QuestionOne: React.FC = () => {
+const QuestionTwo: React.FC = () => {
   const { answers, nextStep, updateAnswer } = useStepper();
   const [answer, setAnswer] = useState("");
   const [selectedValue, setSelectedValue] = useState("");
@@ -49,17 +52,17 @@ const QuestionOne: React.FC = () => {
   };
 
   useEffect(() => {
-    setAnswer(answers.Q1);
-    setSelectedValue(answers.Q2);
+    setAnswer(answers.Q3);
+    setSelectedValue(answers.Q4);
   }, []);
 
   return (
     <div className="space-y-5">
-      {questions1.map((ques: any, index: number) => {
+      {questions2.map((ques: any, index: number) => {
         return (
           <>
-            <div className="grid grid-cols-[24px_1fr] gap-3">
-              <Numbering questionNumber={index + 1} />{" "}
+            <div className="grid grid-cols-[24px_1fr] gap-3" key={index}>
+              <Numbering questionNumber={ques?.id?.slice(1)} />{" "}
               <Label
                 htmlFor={ques?.value}
                 className="text-base leading-7 tracking-[3%] text-[#333333]"
@@ -127,7 +130,6 @@ const QuestionOne: React.FC = () => {
           </>
         );
       })}
-
       <div className="">
         <StepperControl next={handleNext} />
       </div>
@@ -135,4 +137,4 @@ const QuestionOne: React.FC = () => {
   );
 };
 
-export default QuestionOne;
+export default QuestionTwo;
