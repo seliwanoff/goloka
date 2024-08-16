@@ -1,6 +1,8 @@
 import axios, { AxiosResponse } from "axios";
 import { serverRoute } from "@/lib/utils";
 import { queryClient } from "@/components/layout/tanstackProvider";
+import { postData, ServerResponse } from "@/lib/api";
+import { UseQueryResult } from "@tanstack/react-query";
 
 // =============================================
 // ======= user sign in  -->
@@ -44,3 +46,33 @@ export const userSignIn = async (email: string, password: string) => {
     },
   });
 };
+
+// =============================================
+// ======= forgot password  -->
+// =============================================
+// Define the interface for the password reset data
+interface PasswordResetData {
+  email: string;
+  otp: string;
+  password: string;
+  password_confirmation: string;
+}
+
+
+export const resetPassword = async (
+  resetData: PasswordResetData,
+): Promise<UseQueryResult<AxiosResponse<any>>> =>
+  await queryClient.fetchQuery({
+    queryKey: ["ResetPassword"],
+    queryFn: async () => {
+      try {
+        return await postData<ServerResponse<any>>(
+          "/password/reset",
+          resetData,
+        );
+      } catch (error) {
+        console.error("Error resetting password:", error);
+        throw error;
+      }
+    },
+  });

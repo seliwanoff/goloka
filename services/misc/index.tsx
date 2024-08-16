@@ -28,12 +28,12 @@ export const getCountry = async (): Promise<ServerResponseOrNull<any>> => {
 };
 
 export const getOTP = async (
-  {}: any,
+  data: any,
 ): Promise<UseQueryResult<ServerResponse<any>>> => {
   return queryClient.fetchQuery({
     queryKey: ["getOTP"],
     queryFn: async () => {
-      return await postData<ServerResponse<any>>("/email/otp/send", {});
+      return await postData<ServerResponse<any>>("/email/otp/send", data);
     },
   });
 };
