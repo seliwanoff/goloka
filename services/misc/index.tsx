@@ -28,12 +28,22 @@ export const getCountry = async (): Promise<ServerResponseOrNull<any>> => {
 };
 
 export const getOTP = async (
-  data: any,
+  {}: any,
 ): Promise<UseQueryResult<ServerResponse<any>>> => {
   return queryClient.fetchQuery({
     queryKey: ["getOTP"],
     queryFn: async () => {
-      return await postData<ServerResponse<any>>("/email/otp/send", data);
+      return await postData<ServerResponse<any>>("/email/otp/send", {});
+    },
+  });
+};
+export const forgetPassword = async (
+  data: any,
+): Promise<UseQueryResult<ServerResponse<any>>> => {
+  return queryClient.fetchQuery({
+    queryKey: ["forgetPassword"],
+    queryFn: async () => {
+      return await postData<ServerResponse<any>>("/password/otp/send", data);
     },
   });
 };

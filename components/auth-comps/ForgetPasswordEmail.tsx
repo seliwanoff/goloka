@@ -1,16 +1,21 @@
+"use client";
+
 import React from "react";
 import { useForm } from "react-hook-form";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
-import { getOTP } from "@/services/misc";
+import { forgetPassword } from "@/services/misc";
+import { useRouter } from "next/navigation";
 
 type PageProps = {
   setStep: React.Dispatch<React.SetStateAction<number>>;
 };
 
 const ForgetPasswordEmail: React.FC<PageProps> = ({ setStep }) => {
+  const router = useRouter();
+
   const {
     register,
     handleSubmit,
@@ -20,24 +25,26 @@ const ForgetPasswordEmail: React.FC<PageProps> = ({ setStep }) => {
     mode: "onChange",
   });
 
+  const email = watch("email");
+
   const onSubmit = async (data: { email: string }) => {
     console.log("Form Data:", data);
 
-    // Create FormData object
-    // const formData = new FormData();
-    // formData.append("email", data.email);
+    const formData = new FormData();
+    formData.append("email", data.email);
 
-    // try {
-    //   const res = await getOTP(formData);
-    //   if (res) {
-    //   }
-    // } catch (error) {
-    //   console.error("Error submitting form:", error);
-    // }
-    setStep((prev: number) => prev + 1);
+    try {
+      const res = await forgetPassword(formData);
+      if (res) {
+        router.push(`/forgot_password?email=${data.email}`);
+
+        // Proceed to the next step
+        setStep((prev: number) => prev + 1);
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    }
   };
-
-  const email = watch("email");
 
   return (
     <div className="">
