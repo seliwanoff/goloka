@@ -84,7 +84,7 @@ const MoreInfo: React.FC<PageProps> = ({ step, setStep }) => {
   console.log(currentUser, "currentUser");
   return (
     <>
-      <div className="relative z-[1] translate-y-[30%] py-24 lg:translate-y-0 lg:py-10">
+      <div className="relative z-[1]  lg:py-10">
         <StepperIndicator setStep={setStep} step={step} />
 
         <div className="mt-6">

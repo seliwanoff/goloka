@@ -22,6 +22,7 @@ import { createUser } from "@/services/user";
 import { FaSpinner } from "react-icons/fa";
 import { getCountry, getOTP } from "@/services/misc";
 import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 type PageProps = {
   setStep: (step: number, email?: string) => void;
@@ -75,10 +76,13 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
     console.log(response, "response");
     if (response) {
       //@ts-ignore
+      toast.success(response?.message)
+      //@ts-ignore
       const token = response?.tokens;
       localStorage.setItem("my_id", JSON.stringify(token));
       const res = await getOTP({});
       if (res) {
+        console.log(res, "response")
         setIsLoading(false);
         setStep(2, data.email);
       }
@@ -206,10 +210,10 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
                 type={eye1 ? "text" : "password"}
                 {...register("password", {
                   required: "Password is required",
-                  minLength: {
-                    value: 8,
-                    message: "Password must be at least 8 characters long",
-                  },
+                  // minLength: {
+                  //   value: 8,
+                  //   message: "Password must be at least 8 characters long",
+                  // },
                 })}
                 name="password"
                 id="password"

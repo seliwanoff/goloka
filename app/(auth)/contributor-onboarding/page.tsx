@@ -22,7 +22,7 @@ const ContributorOnboard: React.FC<PageProps> = ({}) => {
   };
   return (
     <>
-      <div className="px-4 md:mx-auto md:w-[70%] lg:w-[80%]">
+      <div className=" md:w-[70%] lg:w-[80%]">
         <>{displayStep(step)}</>
       </div>
 

@@ -4,6 +4,7 @@ import dayjs from "dayjs"; // Using dayjs for date formatting
 import { createUser } from "@/services/user"; // Ensure this service is correctly imported
 import { useLoadingStore } from "./misc";
 import { createContributor } from "@/services/contributor";
+import { toast } from "sonner";
 
 interface UserInfo {
   birth_date: string;
@@ -71,9 +72,10 @@ export const useContributorStore = create<UserState>()(
         setLoading(true);
         try {
           const response = await createContributor(userInfo);
-          console.log("User Info submitted:", response);
+          //@ts-ignore
+          toast(response?.message);
         } catch (error) {
-          console.error("Failed to submit user info:", error);
+          alert("Failed to submit user info:");
         } finally {
           setLoading(false);
         }

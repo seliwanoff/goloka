@@ -13,6 +13,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { userSignIn } from "@/services/auth";
 import { useRouter } from "next/navigation";
 import { FaSpinner } from "react-icons/fa";
+import { toast } from "sonner";
 
 type PageProps = {};
 
@@ -34,25 +35,34 @@ const SignIn: React.FC<PageProps> = ({}) => {
     setEye1((prev: boolean) => !prev);
   };
   const [isLoading, setIsLoading] = useState(false);
-  const onSubmit: SubmitHandler<FormValues> = async (data) => {
-    setIsLoading(true);
-    const { email, password } = data;
-    console.log(data);
-    const token = await userSignIn(email, password);
+ const onSubmit: SubmitHandler<FormValues> = async (data) => {
+   setIsLoading(true);
 
-    console.log(token, "hhyhy");
+   try {
+     const { email, password } = data;
+     console.log(data);
 
-    if (!token) {
-      return alert("No user found");
-      setIsLoading(false);
-    }
-    if (token) {
-      localStorage.setItem("my_id", JSON.stringify(token));
-      alert("Sign in successful");
-      return router.replace("/dashboard/root");
-      setIsLoading(false);
-    }
-  };
+     const token = await userSignIn(email, password);
+     console.log(token, "hhyhy");
+
+     if (!token) {
+       setIsLoading(false);
+       return alert("No user found");
+     } else {
+
+       localStorage.setItem("my_id", JSON.stringify(token));
+       toast.success("Sign in successful");
+       router.replace("/dashboard/root");
+     }
+
+   } catch (error) {
+     console.error("Sign-in error:", error);
+     alert("An error occurred during sign-in. Please try again.");
+   } finally {
+     setIsLoading(false);
+   }
+ };
+
 
   return (
     <div className="relative overflow-hidden px-4 md:mx-auto md:w-[70%] lg:w-[80%]">

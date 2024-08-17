@@ -5,6 +5,7 @@ import Location from "@/public/assets/images/location.svg";
 import { X } from "lucide-react";
 import useShowOverlay from "@/stores/overlay";
 import { cn } from "@/lib/utils";
+import { createContributor } from "@/services/contributor";
 
 const OPEN_CAGE_API_KEY = "527e67fe29404253869bc02ad6b77332";
 
@@ -19,8 +20,10 @@ const UpdateLocationModal = () => {
   const { open, setOpen } = useShowOverlay();
   const [location, setLocation] = useState<LocationData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const getLocation = () => {
+    setIsSubmitting(true);
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
@@ -40,17 +43,40 @@ const UpdateLocationModal = () => {
             }
 
             setLocation(locationData);
+            updateContributorsLocation();
             setError(null);
           } catch (err) {
+            setIsSubmitting(false);
             setError("Failed to get location details.");
           }
         },
         (err) => {
+          setIsSubmitting(false);
           setError(err.message);
         },
       );
     } else {
+      setIsSubmitting(false);
       setError("Geolocation is not supported by this browser.");
+    }
+  };
+
+  console.log(location, "location");
+
+  const updateContributorsLocation = async () => {
+    if (location) {
+      const res = await createContributor({
+        longitude: location.longitude,
+        latitude: location.latitude,
+      });
+      if (res) {
+        setIsSubmitting(false);
+        console.log(res, "Location updated successfully.");
+      }
+      setOpen(false);
+    } else {
+      setError("Location data is required to update.");
+      setIsSubmitting(false);
     }
   };
 
