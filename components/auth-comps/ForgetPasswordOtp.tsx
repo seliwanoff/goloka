@@ -3,21 +3,26 @@ import React, { useState, useEffect } from "react";
 import OtpInput from "react-otp-input";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { FaSpinner } from "react-icons/fa";
 
 type PageProps = { setStep: any };
 
 const ForgetPasswordOtp: React.FC<PageProps> = ({ setStep }) => {
   const [otp, setOtp] = useState("");
   const [sec, setSec] = useState(60);
+  const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState<string | null>(null);
   const searchParams = useSearchParams();
+  const router = useRouter();
+
   useEffect(() => {
     const emailParam = searchParams.get("email");
     if (emailParam) {
       setEmail(decodeURIComponent(emailParam));
     }
   }, [searchParams]);
+
   useEffect(() => {
     if (sec > 0) {
       const timer = setTimeout(() => setSec(sec - 1), 1000);
@@ -27,8 +32,12 @@ const ForgetPasswordOtp: React.FC<PageProps> = ({ setStep }) => {
 
   const handleProceed = () => {
     if (otp?.length === 6) {
+      // Update the URL with the OTP and step
+      router.push(
+        `/forget_password?email=${email}&tk=${otp}&step=2`
+      );
       console.log("OTP Submitted:", otp);
-      setStep((prev: number) => prev + 1);
+      setStep(2);
     }
   };
 
@@ -100,7 +109,7 @@ const ForgetPasswordOtp: React.FC<PageProps> = ({ setStep }) => {
         disabled={otp?.length < 6} // Ensure 6-digit OTP
         className="mt-7 h-auto w-full rounded-full bg-main-100 py-3 font-medium text-white hover:bg-blue-700 disabled:bg-opacity-50"
       >
-        Verify Account
+        {isLoading ? <FaSpinner className="animate-spin" /> : " Verify Account"}
       </Button>
     </div>
   );

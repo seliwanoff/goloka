@@ -40,14 +40,7 @@ const ForgetPassword: React.FC<PageProps> = ({}) => {
 
   return (
     <>
-      {/* <div className="absolute top-0 z-0 hidden h-full w-full lg:block left-0">
-        <Image
-          src={BgPattern}
-          alt="auth-bg-pattern"
-          className="scale-105"
-          priority={true}
-        />
-      </div> */}
+    
 
       <Suspense fallback={<div>Loading...</div>}>
         <div className="">

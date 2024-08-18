@@ -1,12 +1,14 @@
 "use client";
-import React, { useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import React, { useState, useCallback } from "react";
+import { useForm } from "react-hook-form";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { resetPassword } from "@/services/auth";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import { toast } from "sonner";
+import { FaSpinner } from "react-icons/fa";
 
 // Type definitions
 type FormValues = {
@@ -19,7 +21,7 @@ const getUrlParams = () => {
   const params = new URLSearchParams(window.location.search);
   return {
     email: params.get("email") || "",
-    otp: params.get("otp") || "",
+    otp: params.get("tk") || "",
   };
 };
 type PageProps = {
@@ -28,12 +30,12 @@ type PageProps = {
 
 const ResetPasswordForm: React.FC<PageProps> = ({ setStep }) => {
   const { email, otp } = getUrlParams();
-  const [eye1, setEye1] = useState(false);
-  const [eye2, setEye2] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [eyeState, setEyeState] = useState({ eye1: false, eye2: false });
+
   const {
     register,
     handleSubmit,
-    control,
     formState: { errors },
   } = useForm<FormValues>({
     defaultValues: {
@@ -41,36 +43,42 @@ const ResetPasswordForm: React.FC<PageProps> = ({ setStep }) => {
       password_confirmation: "",
     },
   });
-  const handleToggle2 = () => {
-    setEye2((prev: boolean) => !prev);
-  };
-  const handleToggle1 = () => {
-    setEye1((prev: boolean) => !prev);
-  };
-  const onSubmit = async (data: FormValues) => {
-    if (data.password !== data.password_confirmation) {
-      console.error("Passwords do not match");
-      return;
-    }
 
-    const resetData = {
-      email: email, // Ensure `email` is defined and holds the user's email
-      otp: otp, // Ensure `otp` is defined and holds the OTP
-      password: data.password,
-      password_confirmation: data.password_confirmation,
-    };
+  const handleToggle = useCallback((eyeKey: "eye1" | "eye2") => {
+    setEyeState((prev) => ({ ...prev, [eyeKey]: !prev[eyeKey] }));
+  }, []);
 
-    try {
-      const response = await resetPassword(resetData);
+  const onSubmit = useCallback(
+    async (data: FormValues) => {
+      setIsLoading(true);
+      if (data.password !== data.password_confirmation) {
+        toast("Passwords do not match");
+        setIsLoading(false);
+        return;
+      }
+      const resetData = {
+        email,
+        otp,
+        password: data.password,
+        password_confirmation: data.password_confirmation,
+      };
 
-      console.log("Response:", response);
-    } catch (error) {
-      console.error("Error submitting form:", error);
-    }
-  };
+      try {
+        const response = await resetPassword(resetData);
+        //@ts-ignore
+        toast(response?.message);
+        setIsLoading(false);
+        setStep(3);
+      } catch (error) {
+        console.error("Error submitting form:", error);
+             setIsLoading(false);
+      }
+    },
+    [email, otp],
+  );
 
   return (
-    <div className="">
+    <div>
       <h2 className="mb-2 text-2xl font-semibold">Setup new password 🔐</h2>
       <p className="text-[#828282]">
         Kindly create a new password for your account.
@@ -103,7 +111,7 @@ const ResetPasswordForm: React.FC<PageProps> = ({ setStep }) => {
                       "Password must include a symbol",
                   },
                 })}
-                type={eye1 ? "text" : "password"}
+                type={eyeState.eye1 ? "text" : "password"}
                 id="password"
                 placeholder="Enter new password"
                 className={cn(
@@ -113,9 +121,9 @@ const ResetPasswordForm: React.FC<PageProps> = ({ setStep }) => {
               />
               <span
                 className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-[#828282]"
-                onClick={handleToggle1}
+                onClick={() => handleToggle("eye1")}
               >
-                {!eye1 ? <FiEye size={20} /> : <FiEyeOff size={20} />}
+                {eyeState.eye1 ? <FiEyeOff size={20} /> : <FiEye size={20} />}
               </span>
             </div>
           </Label>
@@ -127,10 +135,7 @@ const ResetPasswordForm: React.FC<PageProps> = ({ setStep }) => {
         </div>
 
         <div className="mt-4">
-          <Label
-            htmlFor="password_confirmation"
-            // className="mb-2 text-base font-normal text-[#4F4F4F]"
-          >
+          <Label htmlFor="password_confirmation">
             <span className="inline-block text-base font-extralight text-[#4F4F4F]">
               Confirm Password
             </span>
@@ -139,7 +144,7 @@ const ResetPasswordForm: React.FC<PageProps> = ({ setStep }) => {
                 {...register("password_confirmation", {
                   required: "Please confirm your password",
                 })}
-                type="password"
+                type={eyeState.eye2 ? "text" : "password"}
                 id="password_confirmation"
                 placeholder="Confirm new password"
                 className={cn(
@@ -149,9 +154,9 @@ const ResetPasswordForm: React.FC<PageProps> = ({ setStep }) => {
               />
               <span
                 className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-[#828282]"
-                onClick={handleToggle2}
+                onClick={() => handleToggle("eye2")}
               >
-                {!eye2 ? <FiEye size={20} /> : <FiEyeOff size={20} />}
+                {eyeState.eye2 ? <FiEyeOff size={20} /> : <FiEye size={20} />}
               </span>
             </div>
           </Label>
@@ -166,11 +171,11 @@ const ResetPasswordForm: React.FC<PageProps> = ({ setStep }) => {
           type="submit"
           className="mt-7 h-auto w-full rounded-full bg-main-100 py-3 font-medium text-white hover:bg-blue-700"
         >
-          Reset Password
+          {isLoading ? <FaSpinner className="animate-spin" /> : "Reset Password"}
         </Button>
       </form>
     </div>
   );
 };
 
-export default ResetPasswordForm;
+export default React.memo(ResetPasswordForm);
