@@ -33,13 +33,13 @@ export const createContributor = async (
 };
 
 
-// /contributor/aacgimnps;
+
 // ~ =============================================>
 // ~ ======= Get campaign user  -->
 // ~ =============================================>
 export const getAllTask = async () => {
   try {
-    return await fetchData<ServerResponse<any>>("/contributor/campaign");
+    return await fetchData<ServerResponse<any>>("/contributor/campaigns");
   } catch (error) {
     console.log(error);
     return null;
