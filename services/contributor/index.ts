@@ -31,3 +31,17 @@ export const createContributor = async (
     },
   });
 };
+
+
+
+// ~ =============================================>
+// ~ ======= Get campaign user  -->
+// ~ =============================================>
+export const getAllTask = async () => {
+  try {
+    return await fetchData<ServerResponse<any>>("/contributor/campaigns");
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};

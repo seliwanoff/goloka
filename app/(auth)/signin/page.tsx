@@ -13,6 +13,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { userSignIn } from "@/services/auth";
 import { useRouter } from "next/navigation";
 import { FaSpinner } from "react-icons/fa";
+import { toast } from "sonner";
 
 type PageProps = {};
 
@@ -34,22 +35,34 @@ const SignIn: React.FC<PageProps> = ({}) => {
     setEye1((prev: boolean) => !prev);
   };
   const [isLoading, setIsLoading] = useState(false);
+
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     setIsLoading(true);
-    const { email, password } = data;
-    console.log(data);
-    const token = await userSignIn(email, password);
 
-    console.log(token, "hhyhy");
+    try {
+      const { email, password } = data;
+      console.log(data);
 
-    if (!token) {
-      return alert("No user found");
-      setIsLoading(false);
-    }
-    if (token) {
+      const token = await userSignIn(email, password);
+
+      if (!token) {
+        throw new Error(
+          "Failed to sign in. Please check your credentials and try again.",
+        );
+      }
+
       localStorage.setItem("my_id", JSON.stringify(token));
-      alert("Sign in successful");
-      return router.replace("/dashboard/root");
+      toast.success("Sign in successful");
+      router.replace("/dashboard/root");
+    } catch (error: any) {
+      console.error("Sign-in error:", error);
+      toast(error?.response?.data?.message, {
+        className: "bg-gray-200",
+        // description: "My description",
+        // duration: 5000,
+        // icon: <MyIcon />,
+      });
+    } finally {
       setIsLoading(false);
     }
   };

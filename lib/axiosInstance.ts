@@ -1,8 +1,11 @@
 import axios, { InternalAxiosRequestConfig, AxiosError } from "axios";
 import { tokenExtractor } from "@/lib/utils";
 
-// Ensure the environment variable is correctly typed
-const baseURL: string = process.env.NEXT_PUBLIC_API_BASE_URL as string;
+
+export const baseURL =
+  process.env.NODE_ENV === "production"
+    ? process.env.NEXT_PUBLIC_PRODUCTION_API_BASE_URL
+    : process.env.NEXT_PUBLIC_LOCAL_API_BASE_URL;
 
 const axiosInstance = axios.create({
   baseURL,

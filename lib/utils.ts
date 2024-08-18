@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import React from "react";
+import { baseURL } from "./axiosInstance";
 
 // Define the type for tokens
 type TokenType = {
@@ -19,8 +20,8 @@ export const classMerge = (...classes: (string | boolean)[]): string =>
   classes.filter(Boolean).join(" ");
 
 // Build server routes with the base URL from environment variables
-const serverUrl: string = process.env.NEXT_PUBLIC_SERVER_HOST as string;
-export const serverRoute = (route: string): string => `${serverUrl}/${route}`;
+// const serverUrl: string = process.env.NEXT_PUBLIC_SERVER_HOST as string;
+export const serverRoute = (route: string): string => `${baseURL}/${route}`;
 
 // Extract token from local storage and return token data with auth header
 export const tokenExtractor = (): {

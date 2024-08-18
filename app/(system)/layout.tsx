@@ -20,54 +20,12 @@ type LayoutProps = {
 
 const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
   const router = useRouter();
-  // const {
-  //   data: remoteUser,
-  //   isError,
-  //   isLoading,
-  //   error,
-  // } = useQuery({
-  //   queryKey: ["Layout", "Get current user"],
-  //   queryFn: getCurrentUser,
-  //   staleTime: 1.8e6,
-  // });
+
 
   const [showModal, setShowModal] = React.useState(false);
   const setUser = useUserStore((state) => state.setUser);
 
-  // useEffect(() => {
-  //   if (isError || remoteUser === null || remoteUser?.status === "fail") {
-  //     setUser(remoteUser as User);
-  //     return setShowModal(true);
-  //   }
-  // }, [remoteUser, isError, isLoading, error]);
 
-  // if (isLoading)
-  //   return (
-  //     <div className="flex h-screen w-full items-center justify-center">
-  //       <p>Loading...</p>
-  //       <InfoDialog
-  //         title="Session not found"
-  //         content="Your session does not exist or has expired. Please Sign in again"
-  //         open={showModal}
-  //         action={() => router.replace("/signin")}
-  //         setOpen={setShowModal}
-  //       />
-  //     </div>
-  //   );
-
-  // if (error || remoteUser?.status === "fail")
-  //   return (
-  //     <div className="flex h-screen w-full items-center justify-center">
-  //       <p>!Error :(</p>
-  //       <InfoDialog
-  //         title="Session not found"
-  //         content="Your session does not exist or has expired. Please Sign in again"
-  //         open={showModal}
-  //         action={() => router.replace("/signin")}
-  //         setOpen={setShowModal}
-  //       />
-  //     </div>
-  //   );
 
   return (
     <div>

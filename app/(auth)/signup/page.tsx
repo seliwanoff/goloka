@@ -34,7 +34,7 @@ const SignUpContent: React.FC<PageProps> = ({}) => {
 
   return (
     <>
-      <div className="px-4 md:mx-auto md:w-[70%] lg:w-[80%]">
+      <div className=" md:mx-auto md:w-[70%] lg:w-[80%]">
         {step === 1 && <SignUpForm setStep={handleStepChange} />}
         {step === 2 && <Verify setStep={handleStepChange} />}
         {step === 3 && <PrimaryGoal setStep={handleStepChange} />}

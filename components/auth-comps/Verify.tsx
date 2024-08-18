@@ -5,6 +5,8 @@ import { cn } from "@/lib/utils";
 import axios from "axios";
 import { verifyOTP } from "@/services/user";
 import { useSearchParams } from "next/navigation";
+import { FaSpinner } from "react-icons/fa";
+import { toast } from "sonner";
 
 type PageProps = {
   setStep: (step: number, email?: string) => void;
@@ -19,7 +21,7 @@ const Verify: React.FC<PageProps> = ({ setStep }) => {
   const searchParams = useSearchParams();
   const handleOtpChange = (otpArray: string[]) => {
     setOtpValues(otpArray);
-    setError(""); // Clear error on change
+    setError("");
   };
   useEffect(() => {
     const emailParam = searchParams.get("email");
@@ -40,8 +42,10 @@ const Verify: React.FC<PageProps> = ({ setStep }) => {
       const { data } = await verifyOTP({ otp: otpValue });
       console.log(data);
       setStep(3);
+      setIsSubmitting(false);
     } catch (error) {
-      setError("Failed to verify OTP. Please try again.");
+      toast("Failed to verify OTP. Please try again.");
+      setIsSubmitting(false);
     } finally {
       setIsSubmitting(false);
     }
@@ -52,7 +56,7 @@ const Verify: React.FC<PageProps> = ({ setStep }) => {
       handleOtpSubmit();
       setSec(60);
     } catch (error) {
-      setError("Failed to resend OTP. Please try again.");
+      toast("Failed to resend OTP. Please try again.");
     }
   };
 
@@ -118,7 +122,11 @@ const Verify: React.FC<PageProps> = ({ setStep }) => {
         disabled={otpValues.join("").length < 6 || isSubmitting}
         className="mt-7 h-auto w-full rounded-full bg-main-100 py-3 font-medium text-white hover:bg-blue-700 disabled:bg-opacity-50"
       >
-        Verify Account
+        {isSubmitting ? (
+          <FaSpinner className="animate-spin" />
+        ) : (
+          "Verify Account"
+        )}
       </Button>
     </div>
   );

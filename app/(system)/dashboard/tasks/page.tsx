@@ -57,7 +57,7 @@ const TaskPage: React.FC<ComponentProps> = ({}) => {
           <div className="relative flex w-[200px] items-center justify-center md:w-[300px]">
             <Search className="absolute left-3 text-gray-500" size={18} />
             <Input
-              placeholder="Search task, organization"
+              placeholder="Search task"
               type="text"
               className="rounded-full bg-gray-50 pl-10"
             />

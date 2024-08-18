@@ -9,7 +9,7 @@ type PageProps = {};
 const ForgetPasswordSuccess: React.FC<PageProps> = ({}) => {
   const router = useRouter();
   return (
-    <div className="relative z-[1] py-24 lg:translate-y-[60%] lg:py-0">
+    <div className="mx-auto flex w-full items-center justify-center md:w-[50%]">
       <div className="text-center">
         <Image
           src={Success}
@@ -19,7 +19,7 @@ const ForgetPasswordSuccess: React.FC<PageProps> = ({}) => {
           className="mx-auto w-[120px]"
         />
         <h2 className="my-6 text-2xl font-semibold lg:text-[xl]">
-          Password reset succesful
+          Password Reset Successful
         </h2>
         <p className="text-[#828282] lg:text-wrap">
           Your password have been reset successfully, you can now log into point

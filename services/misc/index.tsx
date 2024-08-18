@@ -37,6 +37,16 @@ export const getOTP = async (
     },
   });
 };
+export const forgetPassword = async (
+  data: any,
+): Promise<UseQueryResult<ServerResponse<any>>> => {
+  return queryClient.fetchQuery({
+    queryKey: ["forgetPassword"],
+    queryFn: async () => {
+      return await postData<ServerResponse<any>>("/password/otp/send", data);
+    },
+  });
+};
 
 
 // ~ =============================================>

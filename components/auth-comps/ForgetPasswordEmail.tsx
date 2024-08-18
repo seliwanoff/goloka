@@ -1,23 +1,59 @@
+"use client";
+
 import React, { useState } from "react";
+import { useForm } from "react-hook-form";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
+import { forgetPassword } from "@/services/misc";
+import { useRouter } from "next/navigation";
+import { FaSpinner } from "react-icons/fa";
+import { toast } from "sonner";
 
 type PageProps = {
-  setStep: any;
+  setStep: React.Dispatch<React.SetStateAction<number>>;
 };
 
 const ForgetPasswordEmail: React.FC<PageProps> = ({ setStep }) => {
-  const [email, setEmail] = useState("");
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<{ email: string }>({
+    mode: "onChange",
+  });
 
-  const onsubmit = (e: any) => {
-    e.preventDefault();
+  const email = watch("email");
 
-    setStep((prev: number) => prev + 1);
+  const onSubmit = async (data: { email: string }) => {
+    console.log("Form Data:", data);
+    setIsLoading(true);
+    const formData = new FormData();
+    formData.append("email", data.email);
+
+    try {
+      const res = await forgetPassword(formData);
+      if (res) {
+        // Update the URL to include the email and move to the next step
+        router.push(`/forget_password?email=${data.email}&step=1`);
+        setIsLoading(false);
+
+        // Proceed to the next step
+        setStep(1);
+      }
+    } catch (error) {
+      setIsLoading(false);
+      //@ts-ignore
+      toast(error?.response?.data?.message);
+    }
   };
+
   return (
-    <div className="relative z-[1] py-24 lg:translate-y-[60%] lg:py-0">
+    <div className="">
       <h2 className="mb-2 text-2xl font-semibold text-[#333333]">
         Forgot Password
       </h2>
@@ -25,7 +61,11 @@ const ForgetPasswordEmail: React.FC<PageProps> = ({ setStep }) => {
         Enter the email address you registered with
       </p>
 
-      <form id="forget-pass" className="mt-12" onSubmit={(e) => onsubmit(e)}>
+      <form
+        id="forget-pass"
+        className="mt-12"
+        onSubmit={handleSubmit(onSubmit)}
+      >
         <div>
           <Label
             htmlFor="email"
@@ -34,24 +74,33 @@ const ForgetPasswordEmail: React.FC<PageProps> = ({ setStep }) => {
             Email address
           </Label>
           <Input
-            name="email"
+            {...register("email", {
+              required: "Email is required",
+              pattern: {
+                value: /^\S+@\S+\.\S+$/,
+                message: "Please enter a valid email address",
+              },
+            })}
             id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
             placeholder="Input email address"
             className={cn(
               "h-12 rounded-md border bg-transparent duration-300 placeholder:text-sm placeholder:font-light placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0",
-              email && "bg-main-100 bg-opacity-5",
+              errors.email && "border-red-500",
             )}
           />
+          {errors.email && (
+            <p className="mt-1 text-sm text-red-500">
+              {String(errors.email.message)}
+            </p>
+          )}
         </div>
 
         <Button
           type="submit"
-          disabled={!email?.includes("@") && !email?.includes(".")}
+          disabled={!email || !!errors.email}
           className="mt-7 h-auto w-full rounded-full bg-main-100 py-3 font-medium text-white hover:bg-blue-700 disabled:bg-opacity-50"
         >
-          Proceed
+          {isLoading ? <FaSpinner className="animate-spin" /> : "Proceed"}
         </Button>
       </form>
     </div>

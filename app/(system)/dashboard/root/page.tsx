@@ -37,12 +37,27 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Calendar as CalenderDate } from "@/components/ui/calendar";
 import { useState } from "react";
-import { tasks } from "@/utils";
+// import { tasks } from "@/utils";
+import { useUserStore } from "@/stores/use-user-store";
+import { useQuery } from "@tanstack/react-query";
+import { getAllTask } from "@/services/contributor";
 
 type PageProps = {};
 
 const DashboardRoot: React.FC<PageProps> = ({}) => {
   const [date, setDate] = useState<Date>();
+  const currentUser = useUserStore((state) => state.currentUser);
+  const { data: tasks } = useQuery({
+    queryKey: ["Get task list"],
+    queryFn: getAllTask,
+  });
+  const Name = currentUser?.data?.name?.split(" ")[0];
+  const FirstName = Name
+    ? Name.charAt(0).toUpperCase() + Name.slice(1).toLowerCase()
+    : "";
+
+
+  console.log(tasks, "tasks");
   return (
     <>
       <div className="grid h-max grid-cols-5 gap-6 py-10">
@@ -53,7 +68,7 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
           <div>
             <h1 className="text-2xl font-semibold">
               Welcome to Goloka,&nbsp;
-              <span className="text-main-100">Jamiu</span>
+              <span className="text-main-100">{FirstName}</span>
             </h1>
             <p className="text-gray-600">
               Lorem ipsum dolor sit amet consectetur. Ultrices turpis amet et
@@ -252,11 +267,11 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
           </div>
 
           {/* Task list */}
-          <div className="grid gap-5 md:grid-cols-2 1xl:grid-cols-3 xl:grid-cols-3">
+          {/* <div className="grid gap-5 md:grid-cols-2 1xl:grid-cols-3 xl:grid-cols-3">
             {tasks.map((task: any, index: number) => (
               <TaskCardWidget {...task} key={index} />
             ))}
-          </div>
+          </div> */}
         </div>
       </div>
     </>
@@ -264,4 +279,3 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
 };
 
 export default DashboardRoot;
-

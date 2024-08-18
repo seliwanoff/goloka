@@ -16,6 +16,7 @@ import { StepperProvider, useStepper } from "@/context/TaskStepperContext.tsx";
 import TaskStepper from "@/components/task-stepper/TaskStepper";
 import { Toaster } from "@/components/ui/sonner";
 import { tasks } from "@/utils";
+import { cn } from "@/lib/utils";
 
 type PageProps = {};
 
@@ -25,7 +26,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
 
   return (
     <>
-      <Toaster richColors />
+      <Toaster richColors position={"top-right"} />
       <section className="space-y-4 py-8 pt-[34px]">
         <CustomBreadCrumbs />
 
@@ -42,8 +43,16 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
                     <span className="text-main-100">{step}</span>/4
                   </span>
                   <div className="flex gap-1">
-                    <span className="inline-block h-1 w-7 rounded-full bg-main-100"></span>
-                    <span className="inline-block h-1 w-5 rounded-full bg-neutral-100"></span>
+                    {Array.from({ length: 4 }, (_: any, index: number) => (
+                      <span
+                        key={index}
+                        className={cn(
+                          "inline-block h-1 w-3 rounded-full bg-neutral-200",
+                          step >= index + 1 && "bg-main-100",
+                          step === index + 1 && "w-5",
+                        )}
+                      ></span>
+                    ))}
                   </div>
                 </div>
 

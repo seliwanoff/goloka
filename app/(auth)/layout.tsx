@@ -3,6 +3,7 @@ import Image from "next/image";
 import MainPattern from "@/public/assets/images/auth.png";
 import { cn } from "@/lib/utils";
 import BgPattern from "@/public/assets/images/auth-bg-pattern.svg";
+import { Toaster } from "@/components/ui/sonner";
 type LayoutProps = {
   children: React.ReactNode;
 };
@@ -10,7 +11,7 @@ type LayoutProps = {
 const AuthLayout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <>
-
+      <Toaster richColors position={"top-right"} />
 
       <div className="flex h-screen min-h-[300px] w-full items-center bg-white p-5">
         {/* -- content */}
@@ -22,10 +23,7 @@ const AuthLayout: React.FC<LayoutProps> = ({ children }) => {
               className="scale-105"
             />
           </div>
-          <div className="z-50">
-
-          {children}
-          </div>
+          <div className="z-50">{children}</div>
         </main>
 
         {/* ####################################### */}

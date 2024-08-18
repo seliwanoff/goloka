@@ -78,7 +78,7 @@ const Language: React.FC<PageProps> = ({ setStep, step }) => {
           </h2>
           <p className="leading-7 text-[#828282]">
             Lorem ipsum dolor sit amet consectetur. Feugiat ullamcorper
-            facilisis vulputate .
+            facilisis vulputate.
           </p>
 
           <form

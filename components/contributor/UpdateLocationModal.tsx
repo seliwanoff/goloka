@@ -5,6 +5,9 @@ import Location from "@/public/assets/images/location.svg";
 import { X } from "lucide-react";
 import useShowOverlay from "@/stores/overlay";
 import { cn } from "@/lib/utils";
+import { createContributor } from "@/services/contributor";
+import { FaSpinner } from "react-icons/fa";
+import { useRouter } from "next/navigation";
 
 const OPEN_CAGE_API_KEY = "527e67fe29404253869bc02ad6b77332";
 
@@ -16,11 +19,14 @@ interface LocationData {
 }
 
 const UpdateLocationModal = () => {
+   const router = useRouter();
   const { open, setOpen } = useShowOverlay();
   const [location, setLocation] = useState<LocationData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const getLocation = () => {
+    setIsSubmitting(true);
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
@@ -40,19 +46,42 @@ const UpdateLocationModal = () => {
             }
 
             setLocation(locationData);
+            await updateContributorsLocation(locationData);
             setError(null);
           } catch (err) {
+            setIsSubmitting(false);
             setError("Failed to get location details.");
           }
         },
         (err) => {
+          setIsSubmitting(false);
           setError(err.message);
         },
       );
     } else {
+      setIsSubmitting(false);
       setError("Geolocation is not supported by this browser.");
     }
   };
+
+ const updateContributorsLocation = async (locationData: LocationData) => {
+   try {
+     const res = await createContributor({
+       longitude: locationData.longitude,
+       latitude: locationData.latitude,
+     });
+
+     if (res) {
+       console.log(res, "Location updated successfully.");
+       setIsSubmitting(false);
+       setOpen(false);
+       router.push("/signin");
+     }
+   } catch (error) {
+     setError("Failed to update location.");
+     setIsSubmitting(false);
+   }
+ };
 
   return (
     <div
@@ -93,15 +122,13 @@ const UpdateLocationModal = () => {
             className="mt-5 h-12 w-full rounded-full bg-main-100 text-base font-light text-white hover:bg-blue-700"
             onClick={getLocation}
           >
-            Update location
+            {isSubmitting ? (
+              <FaSpinner className="animate-spin" />
+            ) : (
+              "Update location"
+            )}
           </Button>
           {error && <p className="mt-4 text-red-500">{error}</p>}
-          {/* {location && (
-            <div className="mt-4 text-green-500">
-              <p>Country: {location.country}</p>
-              <p>State: {location.state}</p>
-            </div>
-          )} */}
         </div>
       </div>
     </div>
