@@ -51,7 +51,6 @@ export const tasks = [
   },
 ];
 
-
 // questions.ts
 export const questions1 = [
   {
@@ -115,6 +114,51 @@ export const questions3 = [
       { label: "Climate change", value: "climate-change" },
       { label: "Industrialization", value: "industrialization" },
       { label: "Mining", value: "mining" },
+    ],
+  },
+];
+export const questions4 = [
+  {
+    id: "Q7",
+    question:
+      "How does agricultural mechanization impact farming efficiency in Nigeria?",
+    type: "text",
+    value: "mechanization-impact",
+  },
+  {
+    id: "Q8",
+    question: "Which region in Nigeria is most known for rice production?",
+    type: "option",
+    value: "rice-production-region",
+
+    options: [
+      { label: "North Central", value: "north-central" },
+      { label: "South West", value: "south-west" },
+      { label: "South East", value: "south-east" },
+      { label: "North East", value: "north-east" },
+    ],
+  },
+];
+
+export const questions5 = [
+  {
+    id: "Q9",
+    question:
+      "What are the challenges faced by small-scale farmers in Nigeria?",
+    type: "text",
+    value: "small-scale-farming-challenges",
+  },
+  {
+    id: "Q10",
+    question: "Which crop is most commonly exported from Nigeria?",
+    type: "option",
+    value: "common-export-crop",
+
+    options: [
+      { label: "Cocoa", value: "cocoa" },
+      { label: "Cassava", value: "cassava" },
+      { label: "Groundnut", value: "groundnut" },
+      { label: "Palm oil", value: "palm-oil" },
     ],
   },
 ];
