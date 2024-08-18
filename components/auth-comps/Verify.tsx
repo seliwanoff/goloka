@@ -77,7 +77,7 @@ const Verify: React.FC<PageProps> = ({ setStep }) => {
     if (otpValues.every((val) => val !== "")) {
       handleOtpSubmit();
     }
-  }, [otpValues]);
+  }, [handleOtpSubmit, otpValues]);
 
   return (
     <div className="flex w-full flex-col gap-8">

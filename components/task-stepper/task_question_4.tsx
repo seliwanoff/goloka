@@ -5,16 +5,12 @@ import { Label } from "../ui/label";
 import { Checkbox } from "../ui/checkbox";
 import { cn } from "@/lib/utils";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import {
-  questions1,
-  questions2,
-  questions4,
-} from "@/app/(system)/dashboard/tasks/[id]/page";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import StepperControl from "./StepperControl";
 import { toast } from "sonner";
 import TaskSuccessModal from "../lib/modals/task_question_success";
+import { questions4 } from "@/utils";
 
 const options = (index: number) => {
   switch (index) {
