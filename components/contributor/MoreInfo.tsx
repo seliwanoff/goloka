@@ -81,17 +81,22 @@ const MoreInfo: React.FC<PageProps> = ({ step, setStep }) => {
   };
 
   const handleSkip = () => {};
-  console.log(currentUser, "currentUser");
+const Name = currentUser?.data?.name?.split(" ")[0];
+const FirstName = Name
+  ? Name.charAt(0).toUpperCase() + Name.slice(1).toLowerCase()
+  : "";
+
+
   return (
     <>
-      <div className="relative z-[1]  lg:py-10">
+      <div className="relative z-[1] lg:py-10">
         <StepperIndicator setStep={setStep} step={step} />
 
         <div className="mt-6">
           <h2 className="mb-2 text-2xl font-bold leading-9 text-[#333333]">
             Hi{" "}
             <span className="bg-gradient-to-b from-main-100 from-[55%] to-main-200 bg-clip-text text-transparent">
-              Jamiu
+              {FirstName}
             </span>
             , we would like to know you more
           </h2>
@@ -149,7 +154,9 @@ const MoreInfo: React.FC<PageProps> = ({ step, setStep }) => {
                 )}
               />
               {errors.birth_date && (
-                <p className="text-xs text-red-500">{errors.birth_date.message}</p>
+                <p className="text-xs text-red-500">
+                  {errors.birth_date.message}
+                </p>
               )}
             </div>
 

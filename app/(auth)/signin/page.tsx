@@ -35,34 +35,37 @@ const SignIn: React.FC<PageProps> = ({}) => {
     setEye1((prev: boolean) => !prev);
   };
   const [isLoading, setIsLoading] = useState(false);
- const onSubmit: SubmitHandler<FormValues> = async (data) => {
-   setIsLoading(true);
 
-   try {
-     const { email, password } = data;
-     console.log(data);
+  const onSubmit: SubmitHandler<FormValues> = async (data) => {
+    setIsLoading(true);
 
-     const token = await userSignIn(email, password);
-     console.log(token, "hhyhy");
+    try {
+      const { email, password } = data;
+      console.log(data);
 
-     if (!token) {
-       setIsLoading(false);
-       return alert("No user found");
-     } else {
+      const token = await userSignIn(email, password);
 
-       localStorage.setItem("my_id", JSON.stringify(token));
-       toast.success("Sign in successful");
-       router.replace("/dashboard/root");
-     }
+      if (!token) {
+        throw new Error(
+          "Failed to sign in. Please check your credentials and try again.",
+        );
+      }
 
-   } catch (error) {
-     console.error("Sign-in error:", error);
-     alert("An error occurred during sign-in. Please try again.");
-   } finally {
-     setIsLoading(false);
-   }
- };
-
+      localStorage.setItem("my_id", JSON.stringify(token));
+      toast.success("Sign in successful");
+      router.replace("/dashboard/root");
+    } catch (error: any) {
+      console.error("Sign-in error:", error);
+      toast(error?.response?.data?.message, {
+        className: "bg-gray-200",
+        // description: "My description",
+        // duration: 5000,
+        // icon: <MyIcon />,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="relative overflow-hidden px-4 md:mx-auto md:w-[70%] lg:w-[80%]">

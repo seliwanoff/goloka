@@ -30,6 +30,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import DashNotificationPopOver from "../popover/dash_notification";
 import DashSideBarMobile from "./dash_sidebar_mobile";
+import { useUserStore } from "@/stores/use-user-store";
 
 type ComponentProps = {};
 
@@ -42,11 +43,11 @@ const data = {
 
 const DashTopNav: React.FC<ComponentProps> = ({}) => {
   const user = { data };
-  // const { data: user } = useQuery({
-  //   queryKey: ["Component", "nav get current user"],
-  //   queryFn: getCurrentUser,
-  // });
-
+  const currentUser = useUserStore((state) => state.currentUser);
+  const Name = currentUser?.data?.name;
+  const FirstName = Name
+    ? Name.charAt(0).toUpperCase() + Name.slice(1).toLowerCase()
+    : "";
   return (
     <>
       <div className="absolute left-0 top-0 flex h-[72px] w-full items-center justify-between bg-white px-4 py-2 shadow-sm lg:px-8">
@@ -104,10 +105,7 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                 </div>
 
                 <div className="hidden flex-col items-start justify-center lg:flex">
-                  <p className="text-base font-semibold">
-                    {user.data.first_name || "Muhammad"}{" "}
-                    {user.data.last_name || "jamiu"}
-                  </p>
+                  <p className="text-base font-semibold">{FirstName}</p>
                   {
                     // @ts-ignore
                     {

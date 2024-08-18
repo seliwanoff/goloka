@@ -28,24 +28,20 @@ export const userSignIn = async (email: string, password: string) => {
             },
           },
         );
-        return response.data;
+        return response;
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          console.error(
-            "Axios error during sign in:",
-            error.message,
-            error.code,
-            error.config,
-          );
-          return null;
+          console.error("Axios error during sign in:", error.message);
+          throw error; 
         } else {
           console.error("Unexpected error during sign in:", error);
+          throw error;
         }
-        return null;
       }
     },
   });
 };
+
 
 // =============================================
 // ======= forgot password  -->
@@ -57,7 +53,6 @@ interface PasswordResetData {
   password: string;
   password_confirmation: string;
 }
-
 
 export const resetPassword = async (
   resetData: PasswordResetData,

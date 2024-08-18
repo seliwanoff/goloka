@@ -6,6 +6,8 @@ import { X } from "lucide-react";
 import useShowOverlay from "@/stores/overlay";
 import { cn } from "@/lib/utils";
 import { createContributor } from "@/services/contributor";
+import { FaSpinner } from "react-icons/fa";
+import { useRouter } from "next/navigation";
 
 const OPEN_CAGE_API_KEY = "527e67fe29404253869bc02ad6b77332";
 
@@ -17,6 +19,7 @@ interface LocationData {
 }
 
 const UpdateLocationModal = () => {
+   const router = useRouter();
   const { open, setOpen } = useShowOverlay();
   const [location, setLocation] = useState<LocationData | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +46,7 @@ const UpdateLocationModal = () => {
             }
 
             setLocation(locationData);
-            updateContributorsLocation();
+            await updateContributorsLocation(locationData);
             setError(null);
           } catch (err) {
             setIsSubmitting(false);
@@ -61,24 +64,24 @@ const UpdateLocationModal = () => {
     }
   };
 
-  console.log(location, "location");
+ const updateContributorsLocation = async (locationData: LocationData) => {
+   try {
+     const res = await createContributor({
+       longitude: locationData.longitude,
+       latitude: locationData.latitude,
+     });
 
-  const updateContributorsLocation = async () => {
-    if (location) {
-      const res = await createContributor({
-        longitude: location.longitude,
-        latitude: location.latitude,
-      });
-      if (res) {
-        setIsSubmitting(false);
-        console.log(res, "Location updated successfully.");
-      }
-      setOpen(false);
-    } else {
-      setError("Location data is required to update.");
-      setIsSubmitting(false);
-    }
-  };
+     if (res) {
+       console.log(res, "Location updated successfully.");
+       setIsSubmitting(false);
+       setOpen(false);
+       router.push("/signin");
+     }
+   } catch (error) {
+     setError("Failed to update location.");
+     setIsSubmitting(false);
+   }
+ };
 
   return (
     <div
@@ -119,15 +122,13 @@ const UpdateLocationModal = () => {
             className="mt-5 h-12 w-full rounded-full bg-main-100 text-base font-light text-white hover:bg-blue-700"
             onClick={getLocation}
           >
-            Update location
+            {isSubmitting ? (
+              <FaSpinner className="animate-spin" />
+            ) : (
+              "Update location"
+            )}
           </Button>
           {error && <p className="mt-4 text-red-500">{error}</p>}
-          {/* {location && (
-            <div className="mt-4 text-green-500">
-              <p>Country: {location.country}</p>
-              <p>State: {location.state}</p>
-            </div>
-          )} */}
         </div>
       </div>
     </div>
