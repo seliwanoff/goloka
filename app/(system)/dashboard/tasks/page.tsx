@@ -32,7 +32,8 @@ import TaskFilterDrawerMobile from "@/components/lib/modals/task_filter";
 import { tasks } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { getAllTask } from "@/services/contributor";
-import { SkeletonLoader } from "../root/page";
+import { SkeletonLoader } from "@/components/lib/loader";
+
 
 type ComponentProps = {};
 
