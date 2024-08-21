@@ -17,13 +17,94 @@ import TaskStepper from "@/components/task-stepper/TaskStepper";
 import { Toaster } from "@/components/ui/sonner";
 import { tasks } from "@/utils";
 import { cn } from "@/lib/utils";
+import { getTaskById } from "@/services/contributor";
+import { useParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import moment from "moment";
+
+const SkeletonBox = ({ className }: { className?: string }) => (
+  <div className={`animate-pulse bg-gray-300 ${className}`}></div>
+);
+
+const SkeletonLoader: React.FC = () => {
+  return (
+    <section className="space-y-4 py-8 pt-[34px]">
+      <CustomBreadCrumbs />
+      <div className="flex justify-between rounded-lg bg-white p-5">
+        <div className="grid grid-cols-[56px_1fr] items-center gap-4">
+          <SkeletonBox className="h-14 w-14 rounded-lg" />
+          <div className="">
+            <SkeletonBox className="mb-2 h-4 w-48" />
+            <SkeletonBox className="h-4 w-32" />
+          </div>
+        </div>
+        <div className="hidden items-center justify-center space-x-2 md:flex">
+          <SkeletonBox className="h-12 w-32 rounded-full" />
+          <SkeletonBox className="h-12 w-12 rounded-full" />
+        </div>
+      </div>
+      <div className="grid h-[30%] gap-4 lg:grid-cols-[2fr_1.5fr]">
+        <div className="mb-4 h-full w-full rounded-2xl bg-white p-5 md:mb-0">
+          <SkeletonBox className="mb-4 h-6 w-48" />
+          <div className="mt-6 flex flex-wrap gap-5 md:justify-between">
+            <div className="">
+              <SkeletonBox className="mb-2 h-4 w-24" />
+              <SkeletonBox className="h-4 w-20" />
+            </div>
+            <div>
+              <SkeletonBox className="mb-2 h-4 w-20" />
+              <SkeletonBox className="h-4 w-24" />
+            </div>
+            <div>
+              <SkeletonBox className="mb-2 h-4 w-24" />
+              <SkeletonBox className="h-4 w-20" />
+            </div>
+            <div className="md:text-right">
+              <SkeletonBox className="mb-2 h-4 w-24" />
+              <SkeletonBox className="h-4 w-20" />
+            </div>
+          </div>
+          <div className="mt-8">
+            <SkeletonBox className="mb-2 h-4 w-32" />
+            <SkeletonBox className="h-16 w-full" />
+          </div>
+        </div>
+        <div className="rounded-2xl bg-white p-5">
+          <SkeletonBox className="mb-4 h-[85%] w-full rounded-lg" />
+          <div className="mt-5 flex gap-5">
+            <SkeletonBox className="h-4 w-12" />
+            <SkeletonBox className="h-4 w-16" />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
 
 type PageProps = {};
 
 const TaskDetail: React.FC<PageProps> = ({}) => {
-  const [isStepper, setIsStepper] = useState<boolean>(true);
+  const [isStepper, setIsStepper] = useState<boolean>(false);
+  const { id: taskId } = useParams();
   const { step } = useStepper();
+  // const { data } = getTaskById("");taskId;
+  const {
+    data: task,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["Get task"],
+    queryFn: async () => await getTaskById(taskId as string),
+  });
 
+  console.log(task, "juju");
+  //@ts-ignore
+  const Date = moment(task?.data?.ends_at).format("DD MMMM YYYY");
+  //@ts-ignore
+  const Time = moment(task?.data?.ends_at).format("hh:mm A");
+  if (isLoading) {
+    return <SkeletonLoader />;
+  }
   return (
     <>
       <Toaster richColors position={"top-right"} />
@@ -85,7 +166,8 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
 
                 <div className="">
                   <h3 className="font-semibold text-neutral-900">
-                    Agriculture & Food Security
+                    {/* @ts-ignore */}
+                    {task?.data?.title}
                   </h3>
                   <p className="text-sm text-[#828282]">By Muhammad Jamiu</p>
                 </div>
@@ -107,7 +189,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
             </div>
 
             {/* -- Details */}
-            <div className="grid gap-4 lg:grid-cols-[2fr_1.5fr]">
+            <div className="grid h-[30%] gap-4 lg:grid-cols-[2fr_1.5fr]">
               <div className="mb-4 h-full w-full rounded-2xl bg-white p-5 md:mb-0">
                 <h3 className="text-base font-semibold leading-6 text-gray-900">
                   Task Details
@@ -115,15 +197,11 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
                 <div className="mt-6 flex flex-wrap gap-5 md:justify-between">
                   <div className="">
                     <div className="flex items-center">
-                      <h4 className="font-medium text-[#101828]">
-                        26 June 2023
-                      </h4>
+                      <h4 className="font-medium text-[#101828]">{Date}</h4>
                       <div className="font-medium text-[#101828]">
                         <Dot size={30} />
                       </div>
-                      <span className="font-medium text-[#101828]">
-                        05:07 PM
-                      </span>
+                      <span className="font-medium text-[#101828]">{Time}</span>
                     </div>
                     <p className="text-sm text-gray-400">Task Ends on</p>
                   </div>
@@ -143,13 +221,8 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
                 <div className="mt-8">
                   <span className="text-sm text-gray-400">Description</span>
                   <p className="mt-3 line-clamp-5 text-sm leading-6 text-[#4F4F4F]">
-                    Agriculture is the cornerstone of food security, serving as
-                    the primary means of sustenance and economic stability for
-                    nations worldwide. It encompasses the cultivation of crops
-                    and livestock, which are essential for providing the food
-                    supply that supports human life. n addition to its role in
-                    feeding populations, agriculture also drives economic
-                    development.
+                    {/* @ts-ignore */}
+                    {task?.data?.description}
                   </p>
                 </div>
               </div>
@@ -197,11 +270,11 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
               </div>
 
               {/* Task list */}
-              <div className="grid gap-5 md:grid-cols-2 1xl:grid-cols-3 xl:grid-cols-3">
+              {/* <div className="grid gap-5 md:grid-cols-2 1xl:grid-cols-3 xl:grid-cols-3">
                 {tasks.map((task: any, index: number) => (
                   <TaskCardWidget {...task} key={index} />
                 ))}
-              </div>
+              </div> */}
             </div>
 
             {/* MOBILE CTA */}
@@ -227,5 +300,3 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
 };
 
 export default TaskDetail;
-
-

@@ -24,17 +24,58 @@ export const classMerge = (...classes: (string | boolean)[]): string =>
 export const serverRoute = (route: string): string => `${baseURL}/${route}`;
 
 // Extract token from local storage and return token data with auth header
+// export const tokenExtractor = (): {
+//   authHeader: string;
+//   // tokenData: TokenType;
+// } | null => {
+//   const rawToken: string | null = localStorage.getItem("my_id");
+//   const token = localStorage.getItem("access_token");
+//   const token_type = localStorage.getItem("token_type");
+//   if (!token) return null;
+
+//   try {
+//     const parsedToken = JSON.parse(token);
+//     const parsedTokenType = JSON.parse(token_type as string);
+
+//     const tokenData = {
+//       token_type: parsedTokenType,
+//       access_token: token,
+//       refresh_token: parsedToken.refresh_token,
+//       expires_at: parsedToken.exp * 1000, // Convert to milliseconds
+//     };
+
+//     return {
+//       authHeader: `${parsedTokenType} ${parsedToken}`,
+//       // tokenData,
+//     };
+//   } catch (error) {
+//     console.error("Failed to parse token from local storage", error);
+//     return null;
+//   }
+// };
 export const tokenExtractor = (): {
   authHeader: string;
-  tokenData: TokenType;
+  tokenData: any;
 } | null => {
-  const rawToken: string | null = localStorage.getItem("my_id");
-  if (!rawToken) return null;
+  const token = localStorage.getItem("access_token");
+  const refresh_token = localStorage.getItem("refresh_token");
+  const token_type = localStorage.getItem("token_type");
+
+  if (!token || !token_type) return null;
 
   try {
-    const tokenData: TokenType = JSON.parse(rawToken);
+    const parsedToken = JSON.parse(token) as string;
+    const parsedRefresh_token = JSON.parse(refresh_token as string) as string;
+    const parsedTokenType = JSON.parse(token_type) as string;
+
+    const tokenData = {
+      token_type: parsedTokenType,
+      access_token: parsedToken,
+      refresh_token: parsedRefresh_token,
+    };
+
     return {
-      authHeader: `${tokenData.token_type} ${tokenData.access_token}`,
+      authHeader: `${parsedTokenType} ${parsedToken}`,
       tokenData,
     };
   } catch (error) {

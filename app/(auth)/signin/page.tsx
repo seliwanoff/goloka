@@ -43,25 +43,30 @@ const SignIn: React.FC<PageProps> = ({}) => {
       const { email, password } = data;
       console.log(data);
 
-      const token = await userSignIn(email, password);
+      const response = await userSignIn(email, password);
 
-      if (!token) {
+      if (!response) {
         throw new Error(
           "Failed to sign in. Please check your credentials and try again.",
         );
       }
+      console.log(response, "response.data");
+      //@ts-ignore
+      const { access_token, token_type, refresh_token } = response;
 
-      localStorage.setItem("my_id", JSON.stringify(token));
-      toast.success("Sign in successful");
+      localStorage.setItem("access_token", JSON.stringify(access_token));
+      localStorage.setItem("refresh_token", JSON.stringify(refresh_token));
+      localStorage.setItem("token_type", JSON.stringify(token_type));
+
+      // Redirect to the dashboard
       router.replace("/dashboard/root");
+      toast.success("Sign in successful");
     } catch (error: any) {
       console.error("Sign-in error:", error);
-      toast(error?.response?.data?.message, {
-        className: "bg-gray-200",
-        // description: "My description",
-        // duration: 5000,
-        // icon: <MyIcon />,
-      });
+      toast.error(
+        error?.response?.data?.message ||
+          "Failed to sign in. Please try again.",
+      );
     } finally {
       setIsLoading(false);
     }

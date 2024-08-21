@@ -29,6 +29,7 @@
     "iconsax-react": "^0.0.8",
     "input-otp": "^1.2.4",
     "lucide-react": "^0.408.0",
+    "moment": "^2.30.1",
     "next": "14.2.5",
     "next-themes": "^0.3.0",
     "react": "^18",

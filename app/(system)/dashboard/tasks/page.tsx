@@ -30,6 +30,9 @@ import UpdateLocationDialog from "@/components/lib/modals/task_update_location";
 import TaskCardWidget from "@/components/lib/widgets/task_card";
 import TaskFilterDrawerMobile from "@/components/lib/modals/task_filter";
 import { tasks } from "@/utils";
+import { useQuery } from "@tanstack/react-query";
+import { getAllTask } from "@/services/contributor";
+import { SkeletonLoader } from "../root/page";
 
 type ComponentProps = {};
 
@@ -37,11 +40,14 @@ const TaskPage: React.FC<ComponentProps> = ({}) => {
   const [openFilter, setOpenFilter] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
   const [date, setDate] = useState<Date>();
-  const [task, setTask] = useState<any[]>([]);
+const { data: tasks, isLoading } = useQuery({
+  queryKey: ["Get task list"],
+  queryFn: getAllTask,
+});
 
   const handleUpdateLocation = () => {
     setOpen(false);
-    setTask(tasks);
+    // setTask(tasks);
   };
 
   return (
@@ -152,7 +158,7 @@ const TaskPage: React.FC<ComponentProps> = ({}) => {
 
         {/* EMPTY STATE */}
 
-        {task?.length < 1 ? (
+        {tasks?.data?.length < 1 ? (
           <div className="mx-auto mt-9 flex max-w-96 flex-col items-center lg:mt-[100px]">
             <Image src={Img} alt="No task illustrations" />
             <h3 className="mb-4 mt-11 text-center text-2xl font-medium text-main-100">
@@ -170,14 +176,17 @@ const TaskPage: React.FC<ComponentProps> = ({}) => {
             </button>
           </div>
         ) : (
-          <>
-            {/* Task list */}
-            <div className="grid gap-5 md:grid-cols-2 1xl:grid-cols-3 xl:grid-cols-3">
-              {tasks.map((task: any, index: number) => (
-                <TaskCardWidget {...task} key={index} />
-              ))}
-            </div>
-          </>
+          <div className="my-4 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {isLoading
+              ? Array.from({ length: 6 }).map((_, index) => (
+                  <SkeletonLoader key={index} />
+                ))
+                :
+                //@ts-ignore
+                tasks?.data.map((task: any, index: number) => (
+                  <TaskCardWidget {...task} key={index} />
+                ))}
+          </div>
         )}
       </section>
 
