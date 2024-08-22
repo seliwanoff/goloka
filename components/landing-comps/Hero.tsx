@@ -16,18 +16,18 @@ const Hero: React.FC<ComponentProps> = () => {
   return (
     <section className="relative h-auto overflow-hidden xl:h-max xl:min-h-[80vh]">
       <div className="container relative z-10 mx-auto px-4 pt-28">
-        <div className="mx-auto flex w-full flex-col items-center gap-6 text-center md:w-10/12 lg:w-full xl:justify-start">
+        <div className="mx-auto flex w-full flex-col items-center gap-6 text-center md:w-11/12 lg:w-full xl:justify-start">
           <div className="inline-flex items-center justify-center gap-3 rounded-full bg-[#EBF0FC] px-4 py-3 text-sm font-medium text-main-100">
             <span>
               <ElementEqual size="24" />
             </span>{" "}
             The world of localised and organic data
           </div>
-          <h1 className="z-10 w-full text-[2rem] font-semibold text-[#101828] xl:w-2/4 xl:text-4xl">
-            Empower Your Decisions with <br className="hidden lg:block" />
+          <h1 className="z-10 w-full text-[2rem] font-semibold text-[#101828] md:text-4xl md:leading-normal xl:w-2/4">
+            Empower Your Decisions with <br className="hidden md:block" />
             <span className="text-main-100">Quality Data Collection</span>
           </h1>
-          <p className="text-center text-[#434343]">
+          <p className="text-center leading-normal text-[#434343]">
             Our product provides real-time, highly-localised, spatial-enriched
             insights and analytics to empower businesses, governments, and
             third-sector organisations to make smarter decisions, increase
@@ -45,7 +45,7 @@ const Hero: React.FC<ComponentProps> = () => {
 
         {/* -- image */}
         <div className="mt-10 w-full grid-cols-[1.5fr_1fr] gap-6 sm:mx-auto sm:grid sm:w-10/12">
-          <div className="hidden sm:block">
+          <div className="hidden sm:block md:col-span-2">
             <AspectRatio ratio={30 / 12}>
               <Image
                 src={Hero1}
@@ -58,7 +58,7 @@ const Hero: React.FC<ComponentProps> = () => {
           <Image
             src={Hero2}
             alt="hero-img"
-            className="h-auto w-full max-w-full"
+            className="h-auto w-full max-w-full md:hidden lg:block"
           />
           {/* </AspectRatio> */}
         </div>

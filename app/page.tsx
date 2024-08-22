@@ -53,7 +53,7 @@ const page = () => {
       {/* ####################################### */}
       <section className="py-10">
         <div className="wrapper">
-          <div className="mb-16 flex flex-col items-center gap-6 md:mx-auto md:w-7/12">
+          <div className="mb-16 flex flex-col items-center gap-6 md:mx-auto lg:w-10/12">
             <div className="mx-auto inline-flex items-center justify-center gap-3 rounded-full bg-[#EBF0FC] px-4 py-3 text-sm font-medium text-main-100">
               <span>
                 <Image src={Star} alt="star icon" />
@@ -211,7 +211,7 @@ const page = () => {
               </span>{" "}
               Goloka for organization
             </div>
-            <h2 className="mb-4 text-2xl font-semibold text-[#333]">
+            <h2 className="mb-4 text-2xl font-semibold text-[#333] md:text-[2rem] md:leading-snug">
               Unlock <span className="text-main-100">Valuable Insights</span>{" "}
               with Goloka’s Data-Driven Solutions
             </h2>
@@ -219,7 +219,7 @@ const page = () => {
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Amet
               habitant dui consectetur sed nam amet, magna. Iet se
             </p>
-            <Button className="mt-6 h-auto w-full rounded-full bg-main-100 py-3.5 text-white hover:bg-blue-700">
+            <Button className="mt-6 h-auto w-full rounded-full bg-main-100 py-3.5 text-white hover:bg-blue-700 md:w-auto">
               Get started with localised data
             </Button>
           </div>
@@ -227,7 +227,7 @@ const page = () => {
             <Image
               src={cta1}
               alt="cta"
-              className="origin-top-left scale-[2.5]"
+              className="origin-top-left scale-[2.5] md:scale-100"
             />
           </div>
         </div>
@@ -244,15 +244,15 @@ const page = () => {
               </span>{" "}
               The world of localised and organic data
             </div>
-            <h2 className="mb-4 text-2xl font-semibold text-[#333]">
+            <h2 className="mb-4 text-2xl font-semibold text-[#333] md:text-balance md:text-[2rem] md:leading-snug">
               Share Your Thoughts and&nbsp;
               <span className="text-main-100">Earn Cash Today!</span>
             </h2>
-            <p className="text-[#434343]">
+            <p className="text-[#434343] md:text-balance">
               Our product provides real-time, highly-localised, spatial-enriched
               insights and analytics to empower businesses,
             </p>
-            <Button className="mt-6 h-auto w-full rounded-full bg-main-100 py-3.5 text-white hover:bg-blue-700">
+            <Button className="mt-6 h-auto w-full rounded-full bg-main-100 py-3.5 text-white hover:bg-blue-700 md:w-auto">
               Start earning in 2 minutes
             </Button>
           </div>
@@ -261,11 +261,11 @@ const page = () => {
               <Image
                 src={cta2}
                 alt="cta"
-                className="origin-top-left scale-[1]"
+                className="origin-top-left scale-[1] md:mx-auto md:w-8/12"
               />
             </div>
 
-            <div className="absolute left-0 top-[280px] grid grid-cols-[40px_1fr_30px] gap-3 rounded-full border border-[#14342C0F] bg-white p-2">
+            <div className="absolute left-0 top-[280px] grid grid-cols-[40px_1fr_30px] gap-3 rounded-full border border-[#14342C0F] bg-white p-2 md:left-6">
               <Image
                 src={userResp}
                 alt="user-profile"
@@ -282,7 +282,7 @@ const page = () => {
               <span className="text-xl">🎉</span>
             </div>
 
-            <div className="absolute -right-3 top-10 grid grid-cols-[40px_1fr_30px] gap-3 rounded-full border border-[#14342C0F] bg-white p-2">
+            <div className="absolute -right-3 top-10 grid grid-cols-[40px_1fr_30px] items-center justify-items-center gap-3 rounded-full border border-[#14342C0F] bg-white p-2 md:right-6 md:top-16">
               <Image
                 src={FinIcon}
                 alt="FInance icon"
@@ -294,7 +294,7 @@ const page = () => {
                   Mohh_Jumah Organisation
                 </p>
               </div>
-              <span className="text-xl font-medium text-main-100">$32</span>
+              <span className="text-base font-medium text-main-100">$32</span>
             </div>
           </div>
         </div>
@@ -304,14 +304,14 @@ const page = () => {
       {/* ####################################### */}
       <section className="py-16">
         <div className="wrapper">
-          <div className="mb-16 flex flex-col items-center gap-6">
+          <div className="mb-16 flex flex-col items-center gap-6 md:mx-auto lg:w-10/12 xl:w-7/12">
             <div className="mx-auto inline-flex items-center justify-center gap-3 rounded-full bg-[#EBF0FC] px-4 py-3 text-sm font-medium text-main-100">
               <span>
                 <Image src={Star} alt="star icon" />
               </span>{" "}
               Key benefits of Goloka
             </div>
-            <h2 className="text-center text-2xl font-semibold text-[#333] md:text-balance">
+            <h2 className="text-center text-2xl font-semibold text-[#333] md:text-balance md:text-[2rem] md:leading-normal">
               Data generating platforms that serves organisation and
               contributors
             </h2>
@@ -379,15 +379,15 @@ const page = () => {
       {/* ####################################### */}
       <section className="py-16">
         <div className="wrapper">
-          <div>
-            <h2 className="text-center text-2xl font-semibold text-[#333]">
+          <div className="md:mx-auto md:flex md:flex-col md:items-center lg:w-10/12 xl:w-7/12">
+            <h2 className="text-center text-2xl font-semibold text-[#333] md:text-[2rem]">
               Trending on Goloka🔥
             </h2>
-            <p className="mb-6 mt-4 text-center leading-7 text-[#434343]">
+            <p className="mb-6 mt-4 text-center leading-7 text-[#434343] md:text-balance">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Amet
               habitant dui consectetur sed nam amet, magna. Iet se
             </p>
-            <Button className="mt-4 h-auto w-full rounded-full bg-main-100 py-3.5 text-white hover:bg-blue-700">
+            <Button className="mt-4 h-auto w-full rounded-full bg-main-100 py-3.5 text-white hover:bg-blue-700 md:w-auto">
               Start earning in 2 minutes
             </Button>
           </div>
@@ -399,48 +399,50 @@ const page = () => {
 
       <section className="bg-[#3365E305] py-16">
         <div className="wrapper">
-          <div>
+          <div className="mb-9 md:mx-auto md:mb-12 lg:w-10/12 xl:w-7/12">
             <h2 className="text-center text-2xl font-semibold text-[#333]">
               Explore news from <span className="text-main-100">Goloka</span>
             </h2>
-            <p className="mt-4 text-center leading-7 text-[#434343]">
+            <p className="mt-4 text-center leading-7 text-[#434343] md:text-balance">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Amet
               habitant dui consectetur sed nam amet, magna. Iet se
             </p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {Array.from({ length: 3 }, (_: any, i: number) => (
-              <div
-                className="rounded-2xl bg-white p-4 shadow-[0px_0px_64.8px_0px_rgba(8,_0,_81,_0.08)]"
-                key={i}
-              >
-                <AspectRatio
-                  ratio={3 / 2}
-                  className="overflow-hidden rounded-lg"
+          <div className="no-scrollbar md:w-full md:overflow-x-auto">
+            <div className="grid gap-6 md:flex md:w-max lg:grid-cols-2 xl:grid-cols-3">
+              {Array.from({ length: 3 }, (_: any, i: number) => (
+                <div
+                  className="rounded-2xl bg-white p-4 shadow-[0px_0px_64.8px_0px_rgba(8,_0,_81,_0.08)] md:w-[380px] md:shadow-none"
+                  key={i}
                 >
-                  <Image src={Agric} alt="Agricultural" fill />
-                </AspectRatio>
-                <h3 className="mb-3.5 mt-4 text-xl font-medium text-[#333]">
-                  Agricultural & Food Security
-                </h3>
-                <p className="mb-6 leading-6 text-[#333]">
-                  Lorem ipsum dolor sit amet consectetur. Sed et in massa sit
-                  vestibulum sit dignissim suspendisse nam. Mi ut donec tellus
-                  at. Laoreet faucibus ac sed sit sem. Amet nibh dignissim nunc
-                  tempor.
-                </p>
-                <Link
-                  href="/"
-                  className="inline-flex items-center gap-1 text-sm text-main-100"
-                >
-                  <span>Learn more</span>
-                  <span>
-                    <ArrowRight size={16} />
-                  </span>
-                </Link>
-              </div>
-            ))}
+                  <AspectRatio
+                    ratio={3 / 2}
+                    className="overflow-hidden rounded-lg"
+                  >
+                    <Image src={Agric} alt="Agricultural" fill />
+                  </AspectRatio>
+                  <h3 className="mb-3.5 mt-4 text-xl font-medium text-[#333]">
+                    Agricultural & Food Security
+                  </h3>
+                  <p className="mb-6 leading-6 text-[#333]">
+                    Lorem ipsum dolor sit amet consectetur. Sed et in massa sit
+                    vestibulum sit dignissim suspendisse nam. Mi ut donec tellus
+                    at. Laoreet faucibus ac sed sit sem. Amet nibh dignissim
+                    nunc tempor.
+                  </p>
+                  <Link
+                    href="/"
+                    className="inline-flex items-center gap-1 text-sm text-main-100"
+                  >
+                    <span>Learn more</span>
+                    <span>
+                      <ArrowRight size={16} />
+                    </span>
+                  </Link>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
