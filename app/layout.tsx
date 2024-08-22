@@ -25,6 +25,8 @@ import { Poppins } from "next/font/google";
 
 // import { Satoshi } from "@/assets/fonts/font";
 import TanstackProvider from "@/components/layout/tanstackProvider";
+import LandingNavbar from "@/components/lib/navigation/landing_navbar";
+import Footer from "@/components/landing-comps/footer";
 
 export const metadata: Metadata = {
   title: "Goloka | Write with ease",
@@ -44,7 +46,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={poppins.className}>
-        <TanstackProvider>{children}</TanstackProvider>
+        <TanstackProvider>
+          <LandingNavbar />
+          {children}
+          <Footer />
+        </TanstackProvider>
       </body>
     </html>
   );
