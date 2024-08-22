@@ -16,7 +16,7 @@ const Hero: React.FC<ComponentProps> = () => {
   return (
     <section className="relative h-auto overflow-hidden xl:h-max xl:min-h-[80vh]">
       <div className="container relative z-10 mx-auto px-4 pt-28">
-        <div className="mx-auto flex w-full flex-col items-center gap-6 text-center md:w-10/12 xl:justify-start">
+        <div className="mx-auto flex w-full flex-col items-center gap-6 text-center md:w-10/12 lg:w-full xl:justify-start">
           <div className="inline-flex items-center justify-center gap-3 rounded-full bg-[#EBF0FC] px-4 py-3 text-sm font-medium text-main-100">
             <span>
               <ElementEqual size="24" />
@@ -36,7 +36,7 @@ const Hero: React.FC<ComponentProps> = () => {
           <div className="w-full">
             <Button
               onClick={() => router.push("/signin")}
-              className="h-auto w-10/12 rounded-full bg-main-100 py-3.5 text-sm font-light text-white"
+              className="h-auto w-10/12 rounded-full bg-main-100 py-3.5 text-sm font-light text-white md:w-auto"
             >
               Get access to Goloka free
             </Button>

@@ -13,7 +13,7 @@ const Footer = (props: Props) => {
   return (
     <>
       <div className="py-10">
-        <div className="container mx-auto grid gap-6 px-4">
+        <div className="wrapper grid gap-6 lg:grid-cols-3">
           <div>
             {/* -- logo */}
             <div className="w-24 lg:w-32">
@@ -21,9 +21,10 @@ const Footer = (props: Props) => {
                 <Image src={LogoImg} alt="logo" fill />
               </AspectRatio>
             </div>
-            <p className="mt-6 text-sm font-medium text-[#4F4F4F] md:text-lg">
-              Lorem ipsum dolor sit amet consectetur. <br /> Aliquet sed
-              scelerisque id cursus interdum.
+            <p className="mt-6 text-sm font-medium text-[#4F4F4F] md:text-base">
+              Lorem ipsum dolor sit amet consectetur.{" "}
+              <br className="lg:hidden" /> Aliquet sed scelerisque id cursus
+              interdum.
             </p>
           </div>
 
@@ -32,7 +33,7 @@ const Footer = (props: Props) => {
               <h3 className="items-end text-base font-semibold text-[#333]">
                 Company
               </h3>
-              <ul className="mt-4 space-y-2 text-sm font-medium text-[#4F4F4F] md:text-lg">
+              <ul className="mt-4 space-y-2 text-sm font-medium text-[#4F4F4F] md:text-base">
                 <li>
                   <Link href="/about-us">About Us</Link>
                 </li>
@@ -49,7 +50,7 @@ const Footer = (props: Props) => {
             </div>
             <div>
               <h3 className="text-base font-semibold text-[#333]">Legal</h3>
-              <ul className="mt-4 space-y-2 text-sm font-medium text-[#4F4F4F] md:text-lg">
+              <ul className="mt-4 space-y-2 text-sm font-medium text-[#4F4F4F] md:text-base">
                 <li>
                   <Link href="/privacy">Privacy</Link>
                 </li>

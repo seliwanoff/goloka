@@ -52,24 +52,24 @@ const page = () => {
       {/* -- Choices Section */}
       {/* ####################################### */}
       <section className="py-10">
-        <div className="container mx-auto px-4">
-          <div className="mb-16 flex flex-col items-center gap-6">
+        <div className="wrapper">
+          <div className="mb-16 flex flex-col items-center gap-6 md:mx-auto md:w-7/12">
             <div className="mx-auto inline-flex items-center justify-center gap-3 rounded-full bg-[#EBF0FC] px-4 py-3 text-sm font-medium text-main-100">
               <span>
                 <Image src={Star} alt="star icon" />
               </span>{" "}
               Your best choice is here
             </div>
-            <h2 className="text-center text-2xl font-semibold text-[#333] md:text-balance">
+            <h2 className="text-center text-2xl font-semibold text-[#333] md:text-balance md:text-[2rem] md:leading-normal">
               Data generating platforms that serves organisation and
               contributors
             </h2>
           </div>
 
           {/* BENTO GRID */}
-          <div className="space-y-8 md:grid md:grid-cols-2 md:gap-5 md:space-y-0">
+          <div className="space-y-8 md:grid md:grid-cols-2 md:gap-5 md:space-y-0 lg:grid-cols-6 lg:grid-rows-[400px_1fr] lg:gap-8">
             {/* CARD1 */}
-            <div className="space-y-6 rounded-3xl bg-main-100 p-6 pb-0">
+            <div className="space-y-6 overflow-hidden rounded-3xl bg-main-100 p-6 pb-0 lg:col-span-2">
               <h3 className="text-2xl font-medium leading-8 text-white">
                 Access quality and organic data
               </h3>
@@ -81,7 +81,7 @@ const page = () => {
               <Image src={Choice1} alt="Access quality and organic data" />
             </div>
             {/* CARD2 */}
-            <div className="max-h-[460px] space-y-6 overflow-hidden rounded-3xl bg-[#F8F8F8] p-6 pb-0">
+            <div className="max-h-[460px] space-y-6 overflow-hidden rounded-3xl bg-[#F8F8F8] p-6 pb-0 lg:col-span-4 lg:h-full">
               <h3 className="text-2xl font-medium leading-8 text-[#071E3B]">
                 Cost effective solution for gathering data
               </h3>
@@ -98,7 +98,7 @@ const page = () => {
               />
             </div>
             {/* CARD3 */}
-            <div className="max-h-[480px] space-y-6 overflow-clip rounded-3xl bg-[#F8F8F8] p-6 pb-0">
+            <div className="max-h-[480px] space-y-6 overflow-clip rounded-3xl bg-[#F8F8F8] p-6 pb-0 lg:col-span-3">
               <h3 className="text-2xl font-medium leading-8 text-[#071E3B]">
                 Earn by Sharing Your Valuable Opinions and Insights
               </h3>
@@ -115,7 +115,7 @@ const page = () => {
               />
             </div>
             {/* CARD4 */}
-            <div className="max-h-[480px] space-y-6 overflow-clip rounded-3xl bg-[#F8F8F8] p-6 pb-0">
+            <div className="max-h-[480px] space-y-6 overflow-clip rounded-3xl bg-[#F8F8F8] p-6 pb-0 lg:col-span-3">
               <h3 className="text-2xl font-medium leading-8 text-[#071E3B]">
                 Secure and Confidential: Advanced Privacy Measures
               </h3>
@@ -125,11 +125,15 @@ const page = () => {
               </p>
 
               <figure className="relative">
-                <Image src={Choice4} alt="Access quality and organic data" />
+                <Image
+                  src={Choice4}
+                  alt="Access quality and organic data"
+                  className="md:w-7/12"
+                />
                 <Image
                   src={overlay}
                   alt="Access quality and organic data"
-                  className="absolute -right-16 top-28 z-10 w-[65%]"
+                  className="absolute -right-16 top-28 z-10 w-[65%] md:right-10 md:w-[50%]"
                 />
               </figure>
             </div>
@@ -140,7 +144,7 @@ const page = () => {
       {/* -- Stats Section */}
       {/* ####################################### */}
       <section className="py-16">
-        <div className="container mx-auto px-4">
+        <div className="wrapper">
           <div className="mb-16 flex flex-col items-center gap-6">
             <div className="mx-auto inline-flex items-center justify-center gap-3 rounded-full bg-[#EBF0FC] px-4 py-3 text-sm font-medium text-main-100">
               <span>
@@ -150,8 +154,8 @@ const page = () => {
             </div>
           </div>
 
-          <div className="grid gap-8 md:grid-cols-2">
-            <div className="space-y-9 rounded-3xl bg-[#F3F3F3] p-6 md:col-span-2">
+          <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3 xl:items-end">
+            <div className="space-y-9 rounded-3xl bg-[#F3F3F3] p-6 md:col-span-2 xl:col-span-1">
               <h3 className="text-3xl font-extrabold leading-[40px]">
                 10k+
                 <br />
@@ -162,7 +166,7 @@ const page = () => {
                 faucibus leo nibh sem at sit orci.
               </p>
             </div>
-            <div className="relative overflow-hidden rounded-3xl bg-[#004378] p-6">
+            <div className="relative overflow-hidden rounded-3xl bg-[#004378] p-6 xl:h-[400px]">
               <div className="relative z-10 space-y-9">
                 <h3 className="text-3xl font-extrabold leading-[40px] text-white">
                   25k+
@@ -199,7 +203,7 @@ const page = () => {
       {/* -- CTA 1 Section */}
       {/* ####################################### */}
       <section className="bg-[#3365E305] py-16">
-        <div className="container mx-auto px-4">
+        <div className="wrapper lg:grid lg:grid-cols-2 lg:gap-8">
           <div className="mb-16">
             <div className="mb-6 inline-flex items-center justify-center gap-3 rounded-full bg-[#EBF0FC] px-4 py-3 text-sm font-medium text-main-100">
               <span>
@@ -232,8 +236,8 @@ const page = () => {
       {/* -- CTA2 Section */}
       {/* ####################################### */}
       <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="mb-16">
+        <div className="wrapper lg:grid lg:grid-cols-2 lg:gap-8">
+          <div className="mb-16 lg:col-[2/4]">
             <div className="mb-6 inline-flex items-center justify-center gap-3 rounded-full bg-[#EBF0FC] px-4 py-3 text-sm font-medium text-main-100">
               <span>
                 <Category2 size="20" variant="Bold" />
@@ -252,7 +256,7 @@ const page = () => {
               Start earning in 2 minutes
             </Button>
           </div>
-          <div className="relative">
+          <div className="relative lg:col-[1/2] lg:row-[1]">
             <div className="h-[450px] overflow-hidden rounded-3xl bg-[#3365E30A] p-8">
               <Image
                 src={cta2}
@@ -299,7 +303,7 @@ const page = () => {
       {/* -- KEY Benefits Section */}
       {/* ####################################### */}
       <section className="py-16">
-        <div className="container mx-auto px-4">
+        <div className="wrapper">
           <div className="mb-16 flex flex-col items-center gap-6">
             <div className="mx-auto inline-flex items-center justify-center gap-3 rounded-full bg-[#EBF0FC] px-4 py-3 text-sm font-medium text-main-100">
               <span>
@@ -313,7 +317,7 @@ const page = () => {
             </h2>
           </div>
 
-          <div className="space-y-6 md:grid md:grid-cols-2 md:gap-6 md:space-y-0 lg:grid-cols-3">
+          <div className="space-y-6 md:grid md:grid-cols-2 md:gap-6 md:space-y-0 xl:grid-cols-3">
             {Array.from({ length: 6 }, (_: any, i: number) => (
               <div className="border border-[#F2F2F2] bg-[#FCFCFC] p-4" key={i}>
                 <span className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-main-100 bg-opacity-5">
@@ -338,17 +342,17 @@ const page = () => {
       {/* -- Dowload app Section */}
       {/* ####################################### */}
       <section className="bg-main-100 py-16">
-        <div className="container mx-auto px-4">
+        <div className="wrapper lg:grid lg:grid-cols-2 xl:grid-cols-[2fr_1fr]">
           <div>
-            <h2 className="mb-4 text-[2rem] font-semibold leading-[42px] text-white md:text-center md:text-5xl md:leading-[1.4]">
+            <h2 className="mb-4 text-[2rem] font-semibold leading-[42px] text-white md:text-center md:text-5xl md:leading-[1.4] lg:text-left lg:text-4xl">
               Get effortless earning experience on GoloKa Mobile
             </h2>
-            <p className="text-base leading-7 text-white md:text-center md:text-lg">
+            <p className="text-base leading-7 text-white md:text-center md:text-lg lg:text-left">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc
               integer sit nascetur.
             </p>
 
-            <div className="mt-12 grid grid-cols-2 gap-3 md:mx-auto md:w-[500px]">
+            <div className="mt-12 grid grid-cols-2 gap-3 md:mx-auto md:w-[500px] lg:mx-0 lg:w-[300px]">
               <Link href="/" aria-label="download on apple store">
                 <Image src={AppleStore} alt="Apple store" className="w-full" />
               </Link>
@@ -374,7 +378,7 @@ const page = () => {
       {/* -- Trending Section */}
       {/* ####################################### */}
       <section className="py-16">
-        <div className="container mx-auto px-4">
+        <div className="wrapper">
           <div>
             <h2 className="text-center text-2xl font-semibold text-[#333]">
               Trending on Goloka🔥
@@ -394,7 +398,7 @@ const page = () => {
       {/* ####################################### */}
 
       <section className="bg-[#3365E305] py-16">
-        <div className="container mx-auto px-4">
+        <div className="wrapper">
           <div>
             <h2 className="text-center text-2xl font-semibold text-[#333]">
               Explore news from <span className="text-main-100">Goloka</span>
@@ -405,7 +409,7 @@ const page = () => {
             </p>
           </div>
 
-          <div className="grid gap-6">
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
             {Array.from({ length: 3 }, (_: any, i: number) => (
               <div
                 className="rounded-2xl bg-white p-4 shadow-[0px_0px_64.8px_0px_rgba(8,_0,_81,_0.08)]"
@@ -443,8 +447,8 @@ const page = () => {
       {/* ####################################### */}
       {/* -- CALL TO ACTION Section */}
       {/* ####################################### */}
-      <section className="px-4 py-10">
-        <div className="container relative mx-auto rounded-3xl bg-[radial-gradient(135.58%_135.58%_at_50%_35.83%,#3365E3_0%,#1C387D_100%)] px-4 py-10">
+      <section className="wrapper py-10">
+        <div className="relative rounded-3xl bg-[radial-gradient(135.58%_135.58%_at_50%_35.83%,#3365E3_0%,#1C387D_100%)] px-4 py-10">
           <div className="relative z-10 text-center">
             <h2 className="text-2xl font-semibold text-white">
               Drive Business Success and Earn Rewards Together
