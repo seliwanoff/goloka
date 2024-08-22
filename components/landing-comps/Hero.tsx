@@ -27,7 +27,7 @@ const Hero: React.FC<ComponentProps> = () => {
             Empower Your Decisions with <br className="hidden md:block" />
             <span className="text-main-100">Quality Data Collection</span>
           </h1>
-          <p className="text-center leading-normal text-[#434343]">
+          <p className="text-center leading-normal text-[#434343] lg:mx-auto lg:w-[630px]">
             Our product provides real-time, highly-localised, spatial-enriched
             insights and analytics to empower businesses, governments, and
             third-sector organisations to make smarter decisions, increase
@@ -36,7 +36,7 @@ const Hero: React.FC<ComponentProps> = () => {
           <div className="w-full">
             <Button
               onClick={() => router.push("/signin")}
-              className="h-auto w-10/12 rounded-full bg-main-100 py-3.5 text-sm font-light text-white md:w-auto"
+              className="h-auto w-10/12 rounded-full bg-main-100 px-7 py-3.5 text-sm font-light text-white hover:bg-blue-700 md:w-auto"
             >
               Get access to Goloka free
             </Button>
@@ -45,7 +45,7 @@ const Hero: React.FC<ComponentProps> = () => {
 
         {/* -- image */}
         <div className="mt-10 w-full grid-cols-[1.5fr_1fr] gap-6 sm:mx-auto sm:grid sm:w-10/12">
-          <div className="hidden sm:block md:col-span-2">
+          <div className="hidden sm:block md:col-span-2 lg:col-span-1">
             <AspectRatio ratio={30 / 12}>
               <Image
                 src={Hero1}

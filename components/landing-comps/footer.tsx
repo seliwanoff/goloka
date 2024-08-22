@@ -13,8 +13,8 @@ const Footer = (props: Props) => {
   return (
     <>
       <div className="py-10">
-        <div className="wrapper grid gap-6 lg:grid-cols-3">
-          <div>
+        <div className="wrapper grid gap-6 md:grid-cols-4">
+          <div className="md:col-span-3">
             {/* -- logo */}
             <div className="w-24 lg:w-32">
               <AspectRatio ratio={25 / 9}>
@@ -28,7 +28,7 @@ const Footer = (props: Props) => {
             </p>
           </div>
 
-          <div className="flex justify-between">
+          <div className="col-span-2 flex justify-between">
             <div>
               <h3 className="items-end text-base font-semibold text-[#333]">
                 Company
@@ -64,7 +64,7 @@ const Footer = (props: Props) => {
             </div>
           </div>
 
-          <div>
+          <div className="col-span-2">
             <div className="flex items-center justify-normal space-x-6 text-main-100 md:justify-end">
               <Link href={"#"}>
                 <FaFacebook size={20} />
@@ -87,9 +87,9 @@ const Footer = (props: Props) => {
           </div>
 
           {/* COPYRIGHT */}
-          <hr />
 
-          <p className="text-center text-xs text-[#797B89]">
+          <p className="text-center text-xs text-[#797B89] md:col-span-4">
+            <hr className="mb-3" />
             Copyright © 2024 SWOFON
           </p>
         </div>
