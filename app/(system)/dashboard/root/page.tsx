@@ -36,7 +36,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Calendar as CalenderDate } from "@/components/ui/calendar";
-import { useState } from "react";
+import { MouseEvent, useState } from "react";
 // import { tasks } from "@/utils";
 import { useUserStore } from "@/stores/use-user-store";
 import { useQuery } from "@tanstack/react-query";
@@ -48,7 +48,7 @@ type PageProps = {};
 const DashboardRoot: React.FC<PageProps> = ({}) => {
   const [date, setDate] = useState<Date>();
   const currentUser = useUserStore((state) => state.currentUser);
-  const { data: tasks, isLoading} = useQuery({
+  const { data: tasks, isLoading } = useQuery({
     queryKey: ["Get task list"],
     queryFn: getAllTask,
   });
@@ -266,6 +266,7 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
             </div>
           </div>
 
+
           {/* Task list */}
           <div className="my-4 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {isLoading
@@ -286,5 +287,81 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
 export default DashboardRoot;
 
 
+// const MapX = () => {
+//   const [tooltip, setTooltip] = useState({
+//     display: false,
+//     x: 0,
+//     y: 0,
+//     content: "",
+//   });
+
+//   const handleMouseOver = (
+//     event: MouseEvent<SVGPathElement, MouseEvent>,
+//     locationName: string,
+//     taskCount: number,
+//   ) => {
+//     setTooltip({
+//       display: true,
+//       x: event.pageX + 10,
+//       y: event.pageY + 10,
+//       content: `${locationName} - Tasks: ${taskCount}`,
+//     });
+//   };
+
+//   const handleMouseMove = (event: { pageX: number; pageY: number }) => {
+//     setTooltip((prevTooltip) => ({
+//       ...prevTooltip,
+//       x: event.pageX + 10,
+//       y: event.pageY + 10,
+//     }));
+//   };
+
+//   const handleMouseOut = () => {
+//     setTooltip({ display: false, x: 0, y: 0, content: "" });
+//   };
+
+//   return (
+//     <div className="relative h-screen w-full">
+//       {/* SVG Map */}
+//       <svg
+//         id="map"
+//         className="h-full w-full"
+//         viewBox="0 0 500 500"
+//         preserveAspectRatio="xMidYMid meet"
+//       >
+//         {/* Example Location */}
+//         <path
+//           id="location-1"
+//           className="cursor-pointer fill-gray-300 transition duration-300 hover:fill-blue-500"
+//           d="M50 50 L150 50 L150 150 L50 150 Z"
+//           onMouseOver={(e) => handleMouseOver(e, "City A", 15)}
+//           onMouseMove={handleMouseMove}
+//           onMouseOut={handleMouseOut}
+//         />
+//         <path
+//           id="location-2"
+//           className="cursor-pointer fill-gray-300 transition duration-300 hover:fill-blue-500"
+//           d="M200 50 L300 50 L300 150 L200 150 Z"
+//           onMouseOver={(e) => handleMouseOver(e, "City B", 20)}
+//           onMouseMove={handleMouseMove}
+//           onMouseOut={handleMouseOut}
+//         />
+//       </svg>
+
+//       {/* Tooltip */}
+//       {tooltip.display && (
+//         <div
+//           className="pointer-events-none absolute rounded bg-black px-2 py-1 text-sm text-white shadow-md"
+//           style={{
+//             left: `${tooltip.x}px`,
+//             top: `${tooltip.y}px`,
+//           }}
+//         >
+//           {tooltip.content}
+//         </div>
+//       )}
+//     </div>
+//   );
+// };
 
 
