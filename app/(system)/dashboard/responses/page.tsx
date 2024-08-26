@@ -44,6 +44,7 @@ import { responsesTableData } from "@/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "@/components/lib/widgets/DataTable";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 type PageProps = {};
 
@@ -70,84 +71,87 @@ export const responseStatus = (status: string) => {
   }
 };
 
-export const columns: ColumnDef<Response>[] = [
-  {
-    accessorKey: "category",
-    header: "Campaign title",
-  },
-  {
-    accessorKey: "company",
-    header: "Organisation",
-    cell: ({ row }) => {
-      console.log(row);
-
-      return (
-        <div className="inline-flex items-start gap-2">
-          <span className="text-sm">{row?.original?.company}</span>
-          {row?.original?.unread > 0 && (
-            <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#FF4C4C] text-xs text-white">
-              {row?.original?.unread}
-            </span>
-          )}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "price",
-    header: "Amount",
-  },
-  {
-    accessorKey: "date",
-    header: () => <div className="text-left">Date submitted</div>,
-    cell: ({ row }) => {
-      console.log(row);
-
-      return (
-        <div className="">
-          {row?.original?.date} - {row?.original?.time}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "status",
-    header: () => <div className="text-left">Status</div>,
-    cell: ({ row }) => {
-      return (
-        <span
-          className={cn(
-            "rounded-full px-2 py-1 text-xs font-medium",
-            responseStatus(row?.original?.status),
-          )}
-        >
-          {row?.original?.status}
-        </span>
-      );
-    },
-  },
-
-  {
-    accessorKey: "",
-    header: " ",
-    cell: ({ row }) => {
-      return (
-        <>
-          <span className="cursor-pointer">
-            <Eye size={20} />
-          </span>
-        </>
-      );
-    },
-  },
-];
-
 const ResponsesPage: React.FC<PageProps> = ({}) => {
   const [openFilter, setOpenFilter] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState("on-review");
   const [date, setDate] = useState<Date>();
+  const router = useRouter();
 
-  console.log(activeTab, activeTab);
+  // TABLE COLUMNS
+  const columns: ColumnDef<Response>[] = [
+    {
+      accessorKey: "category",
+      header: "Campaign title",
+    },
+    {
+      accessorKey: "company",
+      header: "Organisation",
+      cell: ({ row }) => {
+        console.log(row);
+
+        return (
+          <div className="inline-flex items-start gap-2">
+            <span className="text-sm">{row?.original?.company}</span>
+            {row?.original?.unread > 0 && (
+              <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#FF4C4C] text-xs text-white">
+                {row?.original?.unread}
+              </span>
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "price",
+      header: "Amount",
+    },
+    {
+      accessorKey: "date",
+      header: () => <div className="text-left">Date submitted</div>,
+      cell: ({ row }) => {
+        console.log(row);
+
+        return (
+          <div className="">
+            {row?.original?.date} - {row?.original?.time}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "status",
+      header: () => <div className="text-left">Status</div>,
+      cell: ({ row }) => {
+        return (
+          <span
+            className={cn(
+              "rounded-full px-2 py-1 text-xs font-medium",
+              responseStatus(row?.original?.status),
+            )}
+          >
+            {row?.original?.status}
+          </span>
+        );
+      },
+    },
+
+    {
+      accessorKey: "",
+      header: " ",
+      cell: ({ row }) => {
+        return (
+          <>
+            <span
+              className="cursor-pointer"
+              onClick={() => router.push("/dashboard/responses/1")}
+            >
+              <Eye size={20} />
+            </span>
+          </>
+        );
+      },
+    },
+  ];
 
   return (
     <>
@@ -345,12 +349,8 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
               <span>Filter</span>
             </div>
           </div>
-          <Card className="lg:hidden">
-            <CardHeader className="px-7">
-              <CardTitle>Orders</CardTitle>
-              <CardDescription>Recent orders from your store.</CardDescription>
-            </CardHeader>
-            <CardContent>
+          <Card className="border-0 lg:hidden">
+            <CardContent className="p-0">
               <Table>
                 <TableHeader>
                   <TableRow>

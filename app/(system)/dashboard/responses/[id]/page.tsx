@@ -8,23 +8,43 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { responseStatus } from "../page";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dot } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import { useMediaQuery } from "@react-hook/media-query";
 import Map from "@/public/assets/images/tasks/tasks.png";
+import { X } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Send2 } from "iconsax-react";
+import ChatWidget from "@/components/lib/widgets/response-chat-widget";
 
 const page = () => {
   const [activeTab, setActiveTab] = useState("questions");
-
-  console.log(responseStatus);
+  const [open, setOpen] = useState(false);
+  const isDesktop = useMediaQuery("(min-width: 768px)");
 
   return (
     <>
@@ -51,7 +71,7 @@ const page = () => {
 
           <span
             className={cn(
-              "rounded-full px-8 py-2.5 text-xs font-medium",
+              "self-end rounded-full px-3 py-2 text-xs font-medium md:self-center md:px-8 md:py-2.5",
               //@ts-ignore
               responseStatus("Pending"),
             )}
@@ -60,14 +80,16 @@ const page = () => {
           </span>
         </div>
 
-        <div className="bg-white p-4 lg:p-6">
+        <div className="rounded-2xl bg-white p-4 lg:p-6">
           <Tabs
             value={activeTab}
             onValueChange={setActiveTab}
-            className="grid w-full grid-cols-2 gap-y-8"
+            className="grid w-full grid-cols-2 gap-4 md:gap-y-8"
           >
             <TabsList
-              className={cn("w-[300px] rounded-full bg-[#F1F1F1] px-1 py-6")}
+              className={cn(
+                "col-span-2 w-full rounded-full bg-[#F1F1F1] px-1 py-6 md:col-span-1 md:w-[300px]",
+              )}
             >
               <TabsTrigger
                 value="questions"
@@ -86,14 +108,146 @@ const page = () => {
                 Task details
               </TabsTrigger>
             </TabsList>
-            <Button className="h-full w-[150px] gap-3 place-self-end rounded-full bg-[#3365E314] py-3 font-medium text-main-100">
-              Message{" "}
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#f10] text-xs font-normal text-white">
-                2
-              </span>
-            </Button>
+
+            {/* MESSAGE CHAT SHEET */}
+            <div className="col-span-2 md:col-span-1 md:place-self-end">
+              {isDesktop ? (
+                <>
+                  <Sheet open={open} onOpenChange={setOpen}>
+                    <SheetTrigger asChild className="relative flex justify-end">
+                      <Button className="h-full w-[150px] gap-3 rounded-full bg-[#3365E314] py-3 font-medium text-main-100 hover:bg-[#3365E314]">
+                        Message{" "}
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#f10] text-xs font-normal text-white">
+                          2
+                        </span>
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent className="border-0 p-0 md:max-w-md lg:max-w-xl">
+                      <SheetHeader className="absolute right-0 top-0 z-10 w-full bg-main-100 p-5">
+                        <SheetTitle className="font-normal text-white">
+                          Messages
+                        </SheetTitle>
+                        <SheetDescription className="text-white">
+                          24
+                        </SheetDescription>
+                        {/* CUSTOM CLOSE */}
+                        <span
+                          onClick={() => setOpen(false)}
+                          className="absolute right-4 mt-0 flex h-8 w-8 -translate-y-[calc(50%_-_20px)] cursor-pointer items-center justify-center rounded-full bg-white text-main-100"
+                        >
+                          <X size={20} />
+                        </span>
+                      </SheetHeader>
+
+                      {/* CHAT WIDGET */}
+                      <div className="mt-24">
+                        <ChatWidget />
+                      </div>
+
+                      {/* CHAT MESSAGE INPUT */}
+                      <SheetFooter className="absolute bottom-0 left-0 w-full border-t md:flex-row md:justify-start md:p-4">
+                        <form id="chat-box" className="block w-full">
+                          <div className="flex w-full items-center gap-6">
+                            <Input
+                              type="text"
+                              name="message"
+                              id="message"
+                              aria-label="Message"
+                              placeholder="Input your message"
+                              className="form-input h-[50px] rounded-full border border-[#DAD8DF] bg-[#F5F5F5] focus:ring-main-100 focus:ring-offset-0 focus-visible:outline-none"
+                            />
+                            <Button className="h-[50px] items-center gap-2 rounded-full bg-main-100 px-5 font-medium text-white">
+                              <span className="">
+                                <Send2 size="24" />
+                              </span>
+                              Send
+                            </Button>
+                          </div>
+                        </form>
+                      </SheetFooter>
+                    </SheetContent>
+                  </Sheet>
+                </>
+              ) : (
+                <>
+                  <Drawer open={open} onOpenChange={setOpen}>
+                    <DrawerTrigger asChild>
+                      <Button className="h-full w-full gap-3 place-self-end rounded-full bg-[#3365E314] py-3 font-medium text-main-100 hover:bg-[#3365E314] focus-visible:ring-0 focus-visible:ring-offset-0 md:w-[150px]">
+                        Message{" "}
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#f10] text-xs font-normal text-white">
+                          2
+                        </span>
+                      </Button>
+                    </DrawerTrigger>
+                    <DrawerContent className="overflow-hidden border-0 focus-visible:outline-none">
+                      <DrawerHeader className="absolute left-0 top-0 z-10 w-full bg-main-100 p-5 text-left">
+                        <DrawerTitle className="font-normal text-white">
+                          {" "}
+                          Messages
+                        </DrawerTitle>
+                        <DrawerDescription className="text-white">
+                          24
+                        </DrawerDescription>
+                        <span
+                          onClick={() => setOpen(false)}
+                          className="absolute right-4 mt-0 flex h-8 w-8 translate-y-[24px] cursor-pointer items-center justify-center rounded-full bg-white text-main-100"
+                        >
+                          <X size={20} />
+                        </span>
+                      </DrawerHeader>
+                      <div className="mt-24" />
+                      <ChatWidget />
+                      <DrawerFooter className="border-t">
+                        <form id="chat-box">
+                          <div className="flex items-center gap-6">
+                            <Input
+                              type="text"
+                              name="message"
+                              id="message"
+                              aria-label="Message"
+                              placeholder="Input your message"
+                              className="form-input h-[50px] rounded-full border border-[#DAD8DF] bg-[#F5F5F5] focus:ring-main-100 focus:ring-offset-0 focus-visible:outline-none"
+                            />
+                            <Button className="h-[50px] items-center gap-2 rounded-full bg-main-100 px-5 font-medium text-white">
+                              <span className="">
+                                <Send2 size="24" />
+                              </span>
+                              Send
+                            </Button>
+                          </div>
+                        </form>
+                      </DrawerFooter>
+                    </DrawerContent>
+                  </Drawer>
+                </>
+              )}
+            </div>
+
+            {/* TAB CONTENT */}
             <TabsContent value="questions" className="col-span-2">
-              <div>
+              {/* MOBILE VIEW */}
+              <div className="md:hidden">
+                {tableData?.map((data: any, index: number) => (
+                  <div
+                    key={index}
+                    className="space-y-3 border-t border-[#E5E5EA] pb-4 pt-4 first:border-0"
+                  >
+                    <div className="text-sm">
+                      <h3 className="mb-1.5 text-sm text-[#828282]">
+                        Question
+                      </h3>
+                      <p className="text-sm text-[#333333]">{data?.Question}</p>
+                    </div>
+                    <div className="text-sm">
+                      <h3 className="mb-1.5 text-sm text-[#828282]">Answers</h3>
+                      <p className="text-sm text-[#333333]">{data?.Answers}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* DESKTOP VIEW */}
+              <div className="hidden md:block">
                 <Table>
                   <TableHeader>
                     <TableRow className="border-0 bg-[#FBFBFB]">
