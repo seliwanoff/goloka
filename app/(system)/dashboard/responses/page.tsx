@@ -3,8 +3,6 @@ import DashboardWidget from "@/components/lib/widgets/dashboard_card";
 import { DocumentCopy, Eye, Note, NoteRemove, TickSquare } from "iconsax-react";
 import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -43,8 +41,106 @@ import { Calendar as CalenderDate } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { Calendar, Setting4 } from "iconsax-react";
 import { responsesTableData } from "@/utils";
+import { ColumnDef } from "@tanstack/react-table";
+import DataTable from "@/components/lib/widgets/DataTable";
+import { cn } from "@/lib/utils";
 
 type PageProps = {};
+
+type Response = {
+  category: string;
+  company: string;
+  status: string;
+  price: string;
+  date: string;
+  time: string;
+  unread: number;
+};
+
+export const responseStatus = (status: string) => {
+  switch (status) {
+    case "On Review":
+      return "bg-violet-500 border border-violet-500 bg-opacity-5 text-violet-500";
+    case "Pending":
+      return "bg-orange-400 border border-orange-400 bg-opacity-5 text-orange-400";
+    case "Accepted":
+      return "bg-emerald-700 border border-emerald-700 bg-opacity-5 text-emerald-700";
+    case "Rejected":
+      return "bg-[#FF0000] border border-[#FF0000] bg-opacity-5 text-[#FF0000]";
+  }
+};
+
+export const columns: ColumnDef<Response>[] = [
+  {
+    accessorKey: "category",
+    header: "Campaign title",
+  },
+  {
+    accessorKey: "company",
+    header: "Organisation",
+    cell: ({ row }) => {
+      console.log(row);
+
+      return (
+        <div className="inline-flex items-start gap-2">
+          <span className="text-sm">{row?.original?.company}</span>
+          {row?.original?.unread > 0 && (
+            <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#FF4C4C] text-xs text-white">
+              {row?.original?.unread}
+            </span>
+          )}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "price",
+    header: "Amount",
+  },
+  {
+    accessorKey: "date",
+    header: () => <div className="text-left">Date submitted</div>,
+    cell: ({ row }) => {
+      console.log(row);
+
+      return (
+        <div className="">
+          {row?.original?.date} - {row?.original?.time}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "status",
+    header: () => <div className="text-left">Status</div>,
+    cell: ({ row }) => {
+      return (
+        <span
+          className={cn(
+            "rounded-full px-2 py-1 text-xs font-medium",
+            responseStatus(row?.original?.status),
+          )}
+        >
+          {row?.original?.status}
+        </span>
+      );
+    },
+  },
+
+  {
+    accessorKey: "",
+    header: " ",
+    cell: ({ row }) => {
+      return (
+        <>
+          <span className="cursor-pointer">
+            <Eye size={20} />
+          </span>
+        </>
+      );
+    },
+  },
+];
 
 const ResponsesPage: React.FC<PageProps> = ({}) => {
   const [openFilter, setOpenFilter] = useState<boolean>(false);
@@ -52,19 +148,6 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
   const [date, setDate] = useState<Date>();
 
   console.log(activeTab, activeTab);
-
-  const responseStatus = (status: string) => {
-    switch (status) {
-      case "On Review":
-        return "bg-violet-500 border border-violet-500 bg-opacity-5 text-violet-500";
-      case "Pending":
-        return "bg-orange-400 border border-orange-400 bg-opacity-5 text-orange-400";
-      case "Accepted":
-        return "bg-emerald-700 border border-emerald-700 bg-opacity-5 text-emerald-700";
-      case "Rejected":
-        return "bg-[#FF0000] border border-[#FF0000] bg-opacity-5 text-[#FF0000]";
-    }
-  };
 
   return (
     <>
@@ -154,18 +237,18 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
                 </TabsTrigger>
               ))}{" "}
             </TabsList>
-            <TabsContent value="on-review">
+            {/* <TabsContent value="on-review">
               Make changes to your account here.
             </TabsContent>
             <TabsContent value="pending">
               Change your password here.
-            </TabsContent>
+            </TabsContent> */}
           </Tabs>
         </div>
 
-        <div>
+        <div className="rounded-2xl bg-white p-[14px]">
           {/* OPTIONS */}
-          <div className="my-4 flex justify-between lg:justify-start lg:gap-4 lg:rounded-full lg:bg-white lg:p-2">
+          <div className="flex justify-between lg:justify-start lg:gap-4">
             {/* -- search section */}
             <div className="relative flex w-[200px] items-center justify-center md:w-[300px]">
               <Search className="absolute left-3 text-gray-500" size={18} />
@@ -262,7 +345,7 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
               <span>Filter</span>
             </div>
           </div>
-          <Card>
+          <Card className="lg:hidden">
             <CardHeader className="px-7">
               <CardTitle>Orders</CardTitle>
               <CardDescription>Recent orders from your store.</CardDescription>
@@ -272,12 +355,10 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Campaign Title</TableHead>
-                    <TableHead className="hidden md:table-cell">
+                    <TableHead className="hidden lg:table-cell">
                       Organisation
                     </TableHead>
-                    <TableHead className="hidden sm:table-cell">
-                      Amount
-                    </TableHead>
+                    <TableHead className="table-cell">Amount</TableHead>
                     <TableHead className="hidden md:table-cell">
                       Date submitted
                     </TableHead>
@@ -293,7 +374,7 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
                       <TableCell>
                         <div>
                           <h4>{res.category}</h4>
-                          <div className="inline-flex items-center gap-2 md:hidden">
+                          <div className="inline-flex items-center gap-2 lg:hidden">
                             <span className="text-[#828282]">
                               {res.company}
                             </span>
@@ -305,7 +386,7 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="hidden md:table-cell">
+                      <TableCell className="hidden lg:table-cell">
                         <div className="inline-flex flex-col items-start gap-2">
                           <span className="text-sm font-medium">
                             {res.company}
@@ -341,7 +422,7 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
                           {res.status}
                         </span>
                       </TableCell>
-                      <TableCell className="hidden lg:table-cell">
+                      <TableCell className="hidden sm:table-cell">
                         <span className="cursor-pointer">
                           <Eye size={20} />
                         </span>
@@ -352,6 +433,10 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
               </Table>
             </CardContent>
           </Card>
+
+          <div className="mx-auto hidden py-10 lg:block">
+            <DataTable columns={columns} data={responsesTableData} />
+          </div>
         </div>
       </section>
     </>
