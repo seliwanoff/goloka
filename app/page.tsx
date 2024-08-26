@@ -26,6 +26,7 @@ import Link from "next/link";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { TiArrowRight } from "react-icons/ti";
 import Testimonials from "@/components/landing-comps/testimonials";
+import Marquee from "@/components/ui/marquee";
 
 const page = () => {
   return (
@@ -42,11 +43,15 @@ const page = () => {
           <p className="text-center text-base text-[#071E3B]">
             Over 200 companies growing with Goloka
           </p>
-          <div className="grid grid-cols-3 gap-5">
-            <Image src={GoogleImg} alt="google logo" />
-            <Image src={MetaImg} alt="meta logo" />
-            <Image src={GoogleImg} alt="google logo" />
-          </div>
+          <Marquee pauseOnHover className="relative mt-10 [--duration:40s]">
+            <div className="grid grid-cols-5 gap-5">
+              <Image src={GoogleImg} alt="google logo" />
+              <Image src={MetaImg} alt="meta logo" />
+              <Image src={GoogleImg} alt="google logo" />
+              <Image src={GoogleImg} alt="google logo" />
+              <Image src={GoogleImg} alt="google logo" />
+            </div>
+          </Marquee>
         </div>
       </section>
       {/* ####################################### */}
@@ -400,8 +405,8 @@ const page = () => {
         </div>
         <div className="no-scrollbar wrapper md:w-full md:overflow-x-auto">
           <div className="grid gap-6 md:flex md:w-max lg:grid-cols-2 xl:grid-cols-3">
-            {Array.from({ length: 3 }, (_: any, i: number) => (
-              <div className="rounded-2xl md:w-[380px]" key={i}>
+            {Array.from({ length: 4 }, (_: any, i: number) => (
+              <div className="rounded-2xl hover:shadow-md md:w-[380px]" key={i}>
                 <AspectRatio
                   ratio={3 / 1}
                   className="overflow-hidden rounded-lg"
@@ -458,7 +463,7 @@ const page = () => {
         </div>
         <div className="no-scrollbar wrapper md:w-full md:overflow-x-auto md:py-16">
           <div className="grid gap-6 md:flex md:w-max lg:grid-cols-2 xl:grid-cols-3">
-            {Array.from({ length: 3 }, (_: any, i: number) => (
+            {Array.from({ length: 4 }, (_: any, i: number) => (
               <div
                 className="rounded-2xl bg-white p-4 shadow-[0px_0px_64.8px_0px_rgba(8,_0,_81,_0.08)] md:w-[380px]"
                 key={i}

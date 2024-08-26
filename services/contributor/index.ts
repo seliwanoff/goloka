@@ -67,14 +67,40 @@ export const createContributor = async (
 // ~ =============================================>
 // ~ ======= Get campaign user  -->
 // ~ =============================================>
-export const getAllTask = async () => {
+interface GetAllTaskParams {
+  per_page?: number;
+  page?: number;
+  search?: string;
+  type?: string;
+  min_price?: number;
+  max_price?: number;
+}
+
+export const getAllTask = async (params: GetAllTaskParams) => {
   try {
-    return await fetchData<ServerResponse<any>>("/contributor/campaigns");
+    const query = new URLSearchParams();
+
+
+    if (params.per_page) query.append("per_page", params.per_page.toString());
+    if (params.page) query.append("page", params.page.toString());
+    if (params.search) query.append("search", params.search);
+    if (params.type) query.append("type", params.type);
+    if (params.min_price)
+      query.append("min_price", params.min_price.toString());
+    if (params.max_price)
+      query.append("max_price", params.max_price.toString());
+
+    const queryString = query.toString();
+    const endpoint = `/contributor/campaigns?${queryString}`;
+
+
+    return await fetchData<ServerResponse<any>>(endpoint);
   } catch (error) {
-    console.log(error);
+    console.error("Error fetching campaigns:", error);
     return null;
   }
 };
+
 
 // ~ =============================================>
 // ~ ======= get task by id  -->

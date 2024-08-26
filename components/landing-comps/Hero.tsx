@@ -21,7 +21,7 @@ const Hero: React.FC<ComponentProps> = () => {
             <span>
               <ElementEqual size="24" />
             </span>{" "}
-            The world of localised and organic data
+            The world of localized and organic data
           </div>
           <h1 className="z-10 w-full text-[2rem] font-semibold text-[#101828] md:text-4xl md:leading-normal xl:w-2/4">
             Empower Your Decisions with <br className="hidden md:block" />

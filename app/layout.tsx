@@ -49,7 +49,7 @@ export default function RootLayout({
         <TanstackProvider>
           <LandingNavbar />
           {children}
-          <Footer />
+          {/* <Footer /> */}
         </TanstackProvider>
       </body>
     </html>

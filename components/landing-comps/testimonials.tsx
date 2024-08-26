@@ -35,19 +35,14 @@ const Testimonials: FC<ComponentProps> = ({}) => {
         <div className="absolute left-0 top-0 z-10 h-full w-[300px] bg-gradient-to-tr from-white to-transparent" />
         <div className="absolute right-0 top-0 z-10 h-full w-[300px] bg-gradient-to-tl from-white to-transparent" />
         <Marquee pauseOnHover className="relative mt-10 [--duration:40s]">
-          {Array.from({ length: 8 }, (data, idx) => (
+          {testimonialData.map((data, idx) => (
             <div
               key={idx}
               className="flex w-[400px] cursor-pointer flex-col gap-5 rounded-2xl bg-[#F8F8F8] p-4 hover:shadow-lg"
             >
-              <p className="text-right text-sm">
-                Monday 16th of January 2024 by 01:20 AM
-              </p>
+              <p className="text-right text-sm">{data?.date}</p>
               <p className="text-gray-600 group-hover:text-gray-800">
-                The Cybersecurity training with EvolveHQ so far has been
-                beneficial for a newcomer like me. The content is presented in a
-                way that's understandable, and the practical exercises have
-                helped reinforce my understanding.
+                {data.content}
               </p>
 
               <div className="flex items-end gap-2">
@@ -62,8 +57,10 @@ const Testimonials: FC<ComponentProps> = ({}) => {
                   </AspectRatio>
                 </div>
                 <div className="flex flex-col">
-                  <p className="m-0 text-sm font-medium">Benjamin </p>
-                  <p className="m-0 text-sm text-muted-foreground">Austria</p>
+                  <p className="m-0 text-sm font-medium">{data?.name} </p>
+                  <p className="m-0 text-sm text-muted-foreground">
+                    {data?.location}
+                  </p>
                 </div>
               </div>
             </div>
@@ -82,7 +79,7 @@ const Testimonials: FC<ComponentProps> = ({}) => {
               <p className="text-gray-600 group-hover:text-gray-800">
                 The Cybersecurity training with EvolveHQ so far has been
                 beneficial for a newcomer like me. The content is presented in a
-                way that's understandable, and the practical exercises have
+                way that&apos;s understandable, and the practical exercises have
                 helped reinforce my understanding.
               </p>
 
@@ -116,54 +113,87 @@ const testimonialData: {
   name: string;
   content: string;
   img: any;
-  role: string;
+  location: string;
+  date: string;
 }[] = [
   {
-    name: "John Abah",
-    role: "ceo dataphyte",
-    content: "Lorem ipsum content for review of a user using Nubia",
-    img: Customer,
+    date: "Monday 16th of January 2024 by 01:20 AM",
+    content:
+      "The Cybersecurity training with EvolveHQ so far has been beneficial for a newcomer like me. The content is presented in a way that's understandable, and the practical exercises have helped reinforce my understanding.",
+    img: "/images/customer1.jpg",
+    name: "Benjamin",
+    location: "Austria",
   },
   {
-    name: "Samuel Moses",
-    role: "ceo dataphyte",
-    content: "Lorem ipsum content for review of a user using Nubia",
-    img: Customer,
+    date: "Wednesday 3rd of February 2024 by 10:45 AM",
+    content:
+      "EvolveHQ's Data Science program was a game changer. The mentorship and detailed explanations helped me transition into a new career.",
+    img: "/images/customer2.jpg",
+    name: "Emily",
+    location: "Canada",
   },
   {
-    name: "Daniel Michel",
-    role: "ceo dataphyte",
-    content: "Lorem ipsum content for review of a user using Nubia",
-    img: Customer,
+    date: "Friday 5th of March 2024 by 04:30 PM",
+    content:
+      "The hands-on projects during the AI course were exactly what I needed. EvolveHQ provided practical examples that helped solidify my understanding.",
+    img: "/images/customer3.jpg",
+    name: "Arjun",
+    location: "India",
   },
   {
-    name: "Sanduk Ray",
-    role: "ceo dataphyte",
-    content: "Lorem ipsum content for review of a user using Nubia",
-    img: Customer,
+    date: "Tuesday 10th of April 2024 by 11:00 AM",
+    content:
+      "The UI/UX design course was fantastic. I was able to land a freelance job right after completing the course!",
+    img: "/images/customer4.jpg",
+    name: "Sophia",
+    location: "Germany",
   },
   {
-    name: "Miss Kent",
-    role: "ceo dataphyte",
-    content: "Lorem ipsum content for review of a user using Nubia",
-    img: Customer,
+    date: "Thursday 7th of May 2024 by 09:15 AM",
+    content:
+      "EvolveHQ's coding bootcamp made coding fun and accessible for someone like me who was new to the field. I would highly recommend it to others.",
+    img: "/images/customer5.jpg",
+    name: "Michael",
+    location: "USA",
   },
   {
-    name: "Donald Troy",
-    role: "ceo dataphyte",
-    content: "Lorem ipsum content for review of a user using Nubia",
-    img: Customer,
+    date: "Monday 12th of June 2024 by 08:00 AM",
+    content:
+      "The Blockchain course was extremely detailed, and the instructors were always willing to help. I learned so much more than I expected!",
+    img: "/images/customer6.jpg",
+    name: "Chen",
+    location: "China",
   },
   {
-    name: "John Doe",
-    role: "ceo dataphyte",
-    content: "Lorem ipsum content for review of a user using Nubia",
-    img: Customer,
+    date: "Friday 20th of July 2024 by 02:45 PM",
+    content:
+      "The project-based learning in the Cybersecurity track has been the highlight for me. It’s one of the best training programs I have participated in.",
+    img: "/images/customer7.jpg",
+    name: "Maria",
+    location: "Spain",
   },
   {
-    name: "Samson Telsman",
-    role: "ceo dataphyte",
-    content: "Lorem ipsum content for review of a user using Nubia",
-    img: Customer,
+    date: "Sunday 25th of August 2024 by 05:30 PM",
+    content:
+      "The AI course at EvolveHQ provided me with both theoretical and practical skills that I now use daily in my work.",
+    img: "/images/customer8.jpg",
+    name: "James",
+    location: "Australia",
+  },
+  {
+    date: "Wednesday 30th of September 2024 by 06:00 PM",
+    content:
+      "EvolveHQ's web development program gave me the skills I needed to start building real-world applications. The community was also very supportive.",
+    img: "/images/customer9.jpg",
+    name: "Luna",
+    location: "Brazil",
+  },
+  {
+    date: "Tuesday 15th of October 2024 by 07:20 AM",
+    content:
+      "The practical exercises in the Cloud Computing course were so valuable. I now feel confident in setting up and managing cloud environments.",
+    img: "/images/customer10.jpg",
+    name: "Oliver",
+    location: "United Kingdom",
   },
 ];

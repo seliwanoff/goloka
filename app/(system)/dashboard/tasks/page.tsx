@@ -33,7 +33,15 @@ import { tasks } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { getAllTask } from "@/services/contributor";
 import { SkeletonLoader } from "@/components/lib/loader";
-
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 type ComponentProps = {};
 
@@ -41,14 +49,80 @@ const TaskPage: React.FC<ComponentProps> = ({}) => {
   const [openFilter, setOpenFilter] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
   const [date, setDate] = useState<Date>();
-const { data: tasks, isLoading } = useQuery({
-  queryKey: ["Get task list"],
-  queryFn: getAllTask,
-});
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  // const { data: tasks, isLoading } = useQuery({
+  //   queryKey: ["Get task list"],
+  //   queryFn: getAllTask,
+  // });
+  const {
+    data: tasks,
+    isLoading,
+    isFetching,
+    isError,
+  } = useQuery({
+    queryKey: ["Get task list", currentPage],
+    queryFn: () => getAllTask({ page: currentPage, per_page: 9 }),
+    // keepPreviousData: true,
+  });
+  console.log(tasks, "tasks");
+  //@ts-ignore
+  const totalPages = tasks?.pagination?.total_pages || 1;
 
+  // Event handlers for pagination
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage((prevPage) => prevPage + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prevPage) => prevPage - 1);
+    }
+  };
+
+  const handlePageSelect = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
   const handleUpdateLocation = () => {
     setOpen(false);
     // setTask(tasks);
+  };
+
+  // Render ellipsis if necessary
+  const renderPageNumbers = () => {
+    const pageNumbers = [];
+    for (let i = 1; i <= totalPages; i++) {
+      if (
+        i === 1 ||
+        i === totalPages ||
+        (i >= currentPage - 2 && i <= currentPage + 2)
+      ) {
+        pageNumbers.push(
+          <PaginationItem key={i}>
+            <PaginationLink
+              href="#"
+              isActive={i === currentPage}
+              onClick={(e) => {
+                e.preventDefault();
+                handlePageSelect(i);
+              }}
+            >
+              {i}
+            </PaginationLink>
+          </PaginationItem>,
+        );
+      } else if (i === currentPage - 3 || i === currentPage + 3) {
+        pageNumbers.push(
+          <PaginationItem key={`ellipsis-${i}`}>
+            <PaginationEllipsis />
+          </PaginationItem>,
+        );
+      }
+    }
+    return pageNumbers;
   };
 
   return (
@@ -177,17 +251,47 @@ const { data: tasks, isLoading } = useQuery({
             </button>
           </div>
         ) : (
-          <div className="my-4 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {isLoading
-              ? Array.from({ length: 6 }).map((_, index) => (
-                  <SkeletonLoader key={index} />
-                ))
-                :
-                //@ts-ignore
-                tasks?.data.map((task: any, index: number) => (
-                  <TaskCardWidget {...task} key={index} />
-                ))}
-          </div>
+          <>
+            <div className="my-4 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {isLoading
+                ? Array.from({ length: 6 }).map((_, index) => (
+                    <SkeletonLoader key={index} />
+                  ))
+                : //@ts-ignore
+                  tasks?.data.map((task: any, index: number) => (
+                    <TaskCardWidget {...task} key={index} />
+                  ))}
+            </div>
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handlePreviousPage();
+                    }}
+                    isActive={currentPage === 1 || isLoading || isFetching}
+                  />
+                </PaginationItem>
+
+                {renderPageNumbers()}
+
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleNextPage();
+                    }}
+                    isActive={
+                      currentPage === totalPages || isLoading || isFetching
+                    }
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </>
         )}
       </section>
 
