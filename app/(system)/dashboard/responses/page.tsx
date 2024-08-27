@@ -1,15 +1,9 @@
 "use client";
 import DashboardWidget from "@/components/lib/widgets/dashboard_card";
 import { DocumentCopy, Eye, Note, NoteRemove, TickSquare } from "iconsax-react";
-import React, { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import React, { useEffect, useState } from "react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -18,8 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import Img from "@/public/assets/images/svg/task-empty-state-icon.svg";
-import { CalendarIcon, ChevronDown, Search } from "lucide-react";
+import { ChevronDown, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Popover,
@@ -43,8 +36,9 @@ import { Calendar, Setting4 } from "iconsax-react";
 import { responsesTableData } from "@/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "@/components/lib/widgets/DataTable";
-import { cn } from "@/lib/utils";
+import { chunkArray, cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import Pagination from "@/components/lib/navigation/Pagination";
 
 type PageProps = {};
 
@@ -57,6 +51,82 @@ type Response = {
   time: string;
   unread: number;
 };
+
+// TABLE COLUMNS
+// const columns: ColumnDef<Response>[] = [
+//   {
+//     accessorKey: "category",
+//     header: "Campaign title",
+//   },
+//   {
+//     accessorKey: "company",
+//     header: "Organisation",
+//     cell: ({ row }) => {
+//       console.log(row);
+
+//       return (
+//         <div className="inline-flex items-start gap-2">
+//           <span className="text-sm">{row?.original?.company}</span>
+//           {row?.original?.unread > 0 && (
+//             <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#FF4C4C] text-xs text-white">
+//               {row?.original?.unread}
+//             </span>
+//           )}
+//         </div>
+//       );
+//     },
+//   },
+//   {
+//     accessorKey: "price",
+//     header: "Amount",
+//   },
+//   {
+//     accessorKey: "date",
+//     header: () => <div className="text-left">Date submitted</div>,
+//     cell: ({ row }) => {
+//       console.log(row);
+
+//       return (
+//         <div className="">
+//           {row?.original?.date} - {row?.original?.time}
+//         </div>
+//       );
+//     },
+//   },
+//   {
+//     accessorKey: "status",
+//     header: () => <div className="text-left">Status</div>,
+//     cell: ({ row }) => {
+//       return (
+//         <span
+//           className={cn(
+//             "rounded-full px-2 py-1 text-xs font-medium",
+//             responseStatus(row?.original?.status),
+//           )}
+//         >
+//           {row?.original?.status}
+//         </span>
+//       );
+//     },
+//   },
+
+//   {
+//     accessorKey: "",
+//     header: " ",
+//     cell: ({ row }) => {
+//       return (
+//         <>
+//           <span
+//             className="cursor-pointer"
+//             // onClick={() => router.push("/dashboard/responses/1")}
+//           >
+//             <Eye size={20} />
+//           </span>
+//         </>
+//       );
+//     },
+//   },
+// ];
 
 export const responseStatus = (status: string) => {
   switch (status) {
@@ -73,94 +143,35 @@ export const responseStatus = (status: string) => {
 
 const ResponsesPage: React.FC<PageProps> = ({}) => {
   const [openFilter, setOpenFilter] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState("on-review");
+  const [activeTab, setActiveTab] = useState("On Review");
+  const [filteredData, setFilteredData] = useState<Response[]>(
+    responsesTableData?.filter((item) => item?.status === activeTab),
+  );
   const [date, setDate] = useState<Date>();
   const router = useRouter();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState<number>(10);
+  const pages = chunkArray(filteredData, pageSize);
+  console.log(pages, "pages");
 
-  // TABLE COLUMNS
-  const columns: ColumnDef<Response>[] = [
-    {
-      accessorKey: "category",
-      header: "Campaign title",
-    },
-    {
-      accessorKey: "company",
-      header: "Organisation",
-      cell: ({ row }) => {
-        console.log(row);
+  useEffect(() => {
+    const filter = (status: string) =>
+      responsesTableData?.filter((item) => item?.status === status);
 
-        return (
-          <div className="inline-flex items-start gap-2">
-            <span className="text-sm">{row?.original?.company}</span>
-            {row?.original?.unread > 0 && (
-              <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#FF4C4C] text-xs text-white">
-                {row?.original?.unread}
-              </span>
-            )}
-          </div>
-        );
-      },
-    },
-    {
-      accessorKey: "price",
-      header: "Amount",
-    },
-    {
-      accessorKey: "date",
-      header: () => <div className="text-left">Date submitted</div>,
-      cell: ({ row }) => {
-        console.log(row);
-
-        return (
-          <div className="">
-            {row?.original?.date} - {row?.original?.time}
-          </div>
-        );
-      },
-    },
-    {
-      accessorKey: "status",
-      header: () => <div className="text-left">Status</div>,
-      cell: ({ row }) => {
-        return (
-          <span
-            className={cn(
-              "rounded-full px-2 py-1 text-xs font-medium",
-              responseStatus(row?.original?.status),
-            )}
-          >
-            {row?.original?.status}
-          </span>
-        );
-      },
-    },
-
-    {
-      accessorKey: "",
-      header: " ",
-      cell: ({ row }) => {
-        return (
-          <>
-            <span
-              className="cursor-pointer"
-              onClick={() => router.push("/dashboard/responses/1")}
-            >
-              <Eye size={20} />
-            </span>
-          </>
-        );
-      },
-    },
-  ];
-
+    switch (activeTab) {
+      case "On Review":
+        return setFilteredData(filter(activeTab));
+      case "Pending":
+        return setFilteredData(filter(activeTab));
+      case "Accepted":
+        return setFilteredData(filter(activeTab));
+      case "Rejected":
+        return setFilteredData(filter(activeTab));
+    }
+  }, [activeTab]);
   return (
     <>
       <section className="pb-10 pt-[34px]">
-        {/* <CustomBreadCrumbs /> */}
-        {/* <h1 className="mb-6 text-2xl font-semibold text-[#333]">
-          Tasks for you
-        </h1> */}
-
         {/* ####################################### */}
         {/* -- stats card section */}
         {/* ####################################### */}
@@ -222,44 +233,44 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
           </div>
         </div>
 
+        {/* FILTER TABS */}
         <div>
           <Tabs
             value={activeTab}
             onValueChange={setActiveTab}
-            className="mt-7 w-max md:mt-12"
+            className="mb-6 mt-7 w-full md:mt-12 md:w-max"
           >
-            <TabsList className={cn("rounded-full bg-white px-1 py-6")}>
+            <TabsList
+              className={cn(
+                "w-full justify-start rounded-full bg-white px-1 py-6 sm:w-auto md:justify-center",
+              )}
+            >
               {tabs.map((tab: any, index: number) => (
                 <TabsTrigger
                   value={tab?.value}
                   key={index}
                   className={cn(
-                    "rounded-full py-2.5 text-sm font-normal data-[state=active]:bg-blue-700 data-[state=active]:text-white",
+                    "flex-grow rounded-full py-2.5 text-sm font-normal data-[state=active]:bg-blue-700 data-[state=active]:text-white sm:flex-grow-0",
                   )}
                 >
                   {tab.label}
                 </TabsTrigger>
               ))}{" "}
             </TabsList>
-            {/* <TabsContent value="on-review">
-              Make changes to your account here.
-            </TabsContent>
-            <TabsContent value="pending">
-              Change your password here.
-            </TabsContent> */}
           </Tabs>
         </div>
 
+        {/* TABLE */}
         <div className="rounded-2xl bg-white p-[14px]">
           {/* OPTIONS */}
-          <div className="flex justify-between lg:justify-start lg:gap-4">
+          <div className="mb-5 flex justify-between gap-4 lg:justify-start">
             {/* -- search section */}
-            <div className="relative flex w-[200px] items-center justify-center md:w-[300px]">
+            <div className="relative flex w-[250px] items-center justify-center md:w-[300px]">
               <Search className="absolute left-3 text-gray-500" size={18} />
               <Input
                 placeholder="Search task, organisation"
                 type="text"
-                className="rounded-full bg-gray-50 pl-10"
+                className="w-full rounded-full bg-gray-50 pl-10"
               />
             </div>
 
@@ -349,94 +360,114 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
               <span>Filter</span>
             </div>
           </div>
-          <Card className="border-0 lg:hidden">
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Campaign Title</TableHead>
-                    <TableHead className="hidden lg:table-cell">
-                      Organisation
-                    </TableHead>
-                    <TableHead className="table-cell">Amount</TableHead>
-                    <TableHead className="hidden md:table-cell">
-                      Date submitted
-                    </TableHead>
-                    <TableHead className="hidden lg:table-cell">
-                      Status{" "}
-                    </TableHead>
-                    <TableHead className="hidden lg:table-cell"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {responsesTableData?.map((res: any, index: number) => (
-                    <TableRow key={index}>
-                      <TableCell>
-                        <div>
-                          <h4>{res.category}</h4>
-                          <div className="inline-flex items-center gap-2 lg:hidden">
-                            <span className="text-[#828282]">
-                              {res.company}
-                            </span>
+          <div className="">
+            <Card className="border-0">
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Campaign Title</TableHead>
+                      <TableHead className="hidden lg:table-cell">
+                        Organisation
+                      </TableHead>
+                      <TableHead className="table-cell">Amount</TableHead>
+                      <TableHead className="hidden lg:table-cell">
+                        Date submitted
+                      </TableHead>
+                      <TableHead className="hidden md:table-cell">
+                        Status{" "}
+                      </TableHead>
+                      <TableHead className="hidden lg:table-cell"></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {pages[currentPage - 1].map((res: any, index: number) => (
+                      <TableRow key={index}>
+                        <TableCell>
+                          <div>
+                            <h4
+                              onClick={() =>
+                                router.push("/dashboard/responses/1")
+                              }
+                            >
+                              {res.category}
+                            </h4>
+                            <div className="inline-flex items-center gap-2 lg:hidden">
+                              <span className="text-[#828282]">
+                                {res.company}
+                              </span>
+                              {res?.unread > 0 && (
+                                <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#FF4C4C] text-xs text-white">
+                                  {res?.unread}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="hidden lg:table-cell">
+                          <div className="inline-flex items-start gap-2">
+                            <span className="text-sm">{res.company}</span>
                             {res?.unread > 0 && (
                               <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#FF4C4C] text-xs text-white">
                                 {res?.unread}
                               </span>
                             )}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="hidden lg:table-cell">
-                        <div className="inline-flex flex-col items-start gap-2">
-                          <span className="text-sm font-medium">
-                            {res.company}
-                          </span>
-                          {res?.unread > 0 && (
-                            <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#FF4C4C] text-xs text-white">
-                              {res?.unread}
+                          </div>{" "}
+                        </TableCell>
+
+                        <TableCell className="table-cell">
+                          <div className="inline-flex flex-col items-start gap-2">
+                            <span className="text-sm font-medium lg:font-normal">
+                              {res.price}
                             </span>
-                          )}
-                        </div>{" "}
-                      </TableCell>
-
-                      <TableCell className="table-cell">
-                        <div className="inline-flex flex-col items-start gap-2">
-                          <span className="text-sm font-medium">
-                            {res.price}
+                            <span className="text-xs lg:hidden">
+                              {res?.date} - {res?.time}
+                            </span>
+                          </div>{" "}
+                        </TableCell>
+                        <TableCell className="hidden lg:table-cell">
+                          {res?.date} - {res?.time}
+                        </TableCell>
+                        <TableCell className={cn("hidden md:table-cell")}>
+                          <span
+                            className={cn(
+                              "rounded-full px-2 py-1 text-xs font-medium",
+                              responseStatus(res?.status),
+                            )}
+                          >
+                            {res.status}
                           </span>
-                          <span className="text-xs md:hidden">
-                            {res?.date} - {res?.time}
+                        </TableCell>
+                        <TableCell className="hidden sm:table-cell">
+                          <span
+                            className="cursor-pointer"
+                            onClick={() =>
+                              router.push("/dashboard/responses/1")
+                            }
+                          >
+                            <Eye size={20} />
                           </span>
-                        </div>{" "}
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        {res?.date} - {res?.time}
-                      </TableCell>
-                      <TableCell className={cn("hidden lg:table-cell")}>
-                        <span
-                          className={cn(
-                            "rounded-full px-2 py-1 text-xs font-medium",
-                            responseStatus(res?.status),
-                          )}
-                        >
-                          {res.status}
-                        </span>
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        <span className="cursor-pointer">
-                          <Eye size={20} />
-                        </span>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
 
-          <div className="mx-auto hidden py-10 lg:block">
-            <DataTable columns={columns} data={responsesTableData} />
+            <div className="mt-6">
+              <Pagination
+                totalPages={pages?.length}
+                currentPage={currentPage}
+                onPageChange={setCurrentPage}
+                RowSize={pageSize}
+                onRowSizeChange={setPageSize}
+              />
+            </div>
           </div>
+          {/* <div className="mx-auto hidden py-10 lg:hidden">
+            <DataTable columns={columns} data={responsesTableData} />
+          </div> */}
         </div>
       </section>
     </>
@@ -447,19 +478,19 @@ export default ResponsesPage;
 
 const tabs = [
   {
-    label: "On review",
-    value: "on-review",
+    label: "On Review",
+    value: "On Review",
   },
   {
     label: "Pending",
-    value: "pending",
+    value: "Pending",
   },
   {
     label: "Accepted",
-    value: "accepted",
+    value: "Accepted",
   },
   {
     label: "Rejected",
-    value: "rejected",
+    value: "Rejected",
   },
 ];
