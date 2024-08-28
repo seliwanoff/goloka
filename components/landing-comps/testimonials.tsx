@@ -103,6 +103,7 @@ const Testimonials: FC<ComponentProps> = ({}) => {
           ))}
         </Marquee>
       </div>
+      
     </section>
   );
 };

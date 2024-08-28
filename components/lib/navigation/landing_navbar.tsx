@@ -88,7 +88,7 @@ const LandingNavbar: React.FC<ComponentProps> = ({}) => {
 
       <Button
         variant={scrollValue > 0 ? "default" : "secondary"}
-        className="hidden rounded-full bg-main-100 px-6 text-white md:block"
+        className="hidden rounded-full bg-main-100 px-6 text-white md:block mr-16"
         onClick={() => router.push("/signin")}
       >
         Get Started

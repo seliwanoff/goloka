@@ -27,6 +27,7 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { TiArrowRight } from "react-icons/ti";
 import Testimonials from "@/components/landing-comps/testimonials";
 import Marquee from "@/components/ui/marquee";
+import Footer from "@/components/landing-comps/footer";
 
 const page = () => {
   return (
@@ -345,32 +346,35 @@ const page = () => {
         </div>
       </section>
       {/* ####################################### */}
-      {/* -- Dowload app Section */}
+      {/* -- Download app Section */}
       {/* ####################################### */}
-      <section className="bg-main-100 py-16">
+      <section className="relative bg-main-100 py-16">
         <div className="wrapper lg:grid lg:grid-cols-[1.5fr_1fr] lg:items-center xl:grid-cols-[2fr_1.5fr]">
           <div>
-            <h2 className="mb-4 text-[2rem] font-semibold leading-[42px] text-white md:text-balance md:text-center md:text-[2rem] md:leading-[1.4] lg:text-pretty lg:text-left lg:text-4xl lg:leading-normal xl:text-5xl xl:leading-normal">
-              Get effortless earning experience on GoloKa Mobile
+            <h2 className="z-40 mb-4 text-[2rem] font-semibold leading-[42px] text-white md:text-balance md:text-center md:text-[2rem] md:leading-[1.4] lg:text-pretty lg:text-left lg:text-4xl lg:leading-normal xl:text-5xl xl:leading-normal">
+              Get effortless earning <br /> experience on GoloKa Mobile
             </h2>
-            <p className="text-base leading-7 text-white md:text-balance md:text-center md:text-lg lg:text-left">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc
-              integer sit nascetur.
+            <p className="z-40 text-base leading-7 text-white md:text-balance md:text-center md:text-lg lg:text-left">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. <br />{" "}
+              Nunc integer sit nascetur.
             </p>
 
             <div className="mt-12 flex gap-3 md:justify-center lg:mx-0 lg:w-[300px]">
-              <Link href="/" aria-label="download on apple store">
+              <Link
+                href="/"
+                aria-label="download on apple store cursor-pointer"
+              >
                 <Image
                   src={AppleStore}
                   alt="Apple store"
-                  className="w-[150px]"
+                  className="z-40 w-[150px]"
                 />
               </Link>
-              <Link href="/" aria-label="download on play store">
+              <Link href="/" aria-label="download on play store cursor-pointer">
                 <Image
                   src={PlayStore}
                   alt="Apple store"
-                  className="w-[150px]"
+                  className="z-40 w-[150px]"
                 />
               </Link>
             </div>
@@ -379,10 +383,15 @@ const page = () => {
             <Image
               src={AppPreview}
               alt="Apple store"
-              className="w-full max-w-[340px] xl:max-w-full"
+              className="z-40 w-full max-w-[340px] xl:max-w-full"
             />
           </div>
         </div>
+        <Image
+          src={Pattern}
+          alt="BgPattern"
+          className="absolute left-0 top-0 z-0 h-full w-full object-cover opacity-20"
+        />
       </section>
 
       {/* ####################################### */}
@@ -528,6 +537,7 @@ const page = () => {
       {/* -- Testimonials Section */}
       {/* ####################################### */}
       <Testimonials />
+      <Footer />
     </div>
   );
 };
