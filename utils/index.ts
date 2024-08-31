@@ -117,6 +117,7 @@ export const questions3 = [
     ],
   },
 ];
+
 export const questions4 = [
   {
     id: "Q7",
@@ -163,3 +164,96 @@ export const questions5 = [
   },
 ];
 
+export const transactions = [
+  {
+    invoiceid: "Invoice #1838942022",
+    amount: "$84",
+    beneficiary: "Muhammed Jamiu",
+    bank: "UBA",
+    date: "15/5/2024",
+    status: "successful",
+  },
+  {
+    invoiceid: "Invoice #1838942022",
+    amount: "$84",
+    beneficiary: "Muhammed Jamiu",
+    bank: "UBA",
+    date: "15/5/2024",
+    status: "pending",
+  },
+  {
+    invoiceid: "Invoice #1838942022",
+    amount: "$84",
+    beneficiary: "Muhammed Jamiu",
+    bank: "UBA",
+    date: "15/5/2024",
+    status: "failed",
+  },
+  {
+    invoiceid: "Invoice #1838942022",
+    amount: "$84",
+    beneficiary: "Muhammed Jamiu",
+    bank: "UBA",
+    date: "15/5/2024",
+    status: "successful",
+  },
+  {
+    invoiceid: "Invoice #1838942022",
+    amount: "$84",
+    beneficiary: "Muhammed Jamiu",
+    bank: "UBA",
+    date: "15/5/2024",
+    status: "successful",
+  },
+  {
+    invoiceid: "Invoice #1838942022",
+    amount: "$84",
+    beneficiary: "Muhammed Jamiu",
+    bank: "UBA",
+    date: "15/5/2024",
+    status: "pending",
+  },
+  {
+    invoiceid: "Invoice #1838942022",
+    amount: "$84",
+    beneficiary: "Muhammed Jamiu",
+    bank: "UBA",
+    date: "15/5/2024",
+    status: "pending",
+  },
+  {
+    invoiceid: "Invoice #1838942022",
+    amount: "$84",
+    beneficiary: "Muhammed Jamiu",
+    bank: "UBA",
+    date: "15/5/2024",
+    status: "successful",
+  },
+];
+
+export const myBeneficiaries = [
+  {
+    name: "Jimoh Jamiu Muhammed",
+    accountNumber: "1738937382973",
+    bank: "United Bank Of Africa",
+    value: "1738937382973-uba",
+  },
+  {
+    name: "Adeola Adebayo",
+    accountNumber: "1234567890123",
+    bank: "Guaranty Trust Bank",
+    value: "1234567890123-gtb",
+  },
+  {
+    name: "Chidinma Okoro",
+    accountNumber: "9876543210987",
+    bank: "First Bank of Nigeria",
+    value: "9876543210987-fbn",
+  },
+  {
+    name: "Olumide Olatunji",
+    accountNumber: "2345678901234",
+    bank: "Access Bank",
+    value: "2345678901234-access",
+  },
+];

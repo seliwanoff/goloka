@@ -14,11 +14,26 @@ import { transactions } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { DocumentDownload } from "iconsax-react";
 import { cn } from "@/lib/utils";
+import { useInvoiceOverlay } from "@/stores/overlay";
 
-type ComponentProps = {};
+interface Transaction {
+  invoiceid: string;
+  amount: string;
+  beneficiary: string;
+  bank: string;
+  date: string;
+  status: "pending" | "successful" | "failed";
+}
+[];
 
-const WalletTable: React.FC<ComponentProps> = () => {
-  const router = useRouter();
+type ComponentProps = {
+  data: Transaction[];
+};
+
+const WalletTable: React.FC<ComponentProps> = ({ data }) => {
+  const { open, setOpen } = useInvoiceOverlay();
+  // const router = useRouter();
+
   return (
     <>
       <Table>
@@ -39,12 +54,12 @@ const WalletTable: React.FC<ComponentProps> = () => {
         </TableHeader>
         <TableBody>
           {/* {pages[currentPage - 1].map((res: any, index: number) => ( */}
-          {transactions.map((res: any, index: number) => (
+          {data?.map((res: any, index: number) => (
             <TableRow key={index}>
               {/* INCVOICE ID */}
               <TableCell>
                 <div
-                  onClick={() => router.push("/dashboard/wallet/1")}
+                  onClick={() => setOpen(true)}
                   className="flex items-center gap-3"
                 >
                   <span>
@@ -100,7 +115,7 @@ const WalletTable: React.FC<ComponentProps> = () => {
               <TableCell className="hidden md:table-cell">
                 <Button
                   className="items-center gap-3 rounded-full bg-[#3365E30F] text-main-100 hover:bg-[#3365E30F] hover:text-main-100"
-                  onClick={() => router.push("/dashboard/wallet/1")}
+                  onClick={() => setOpen(true)}
                 >
                   <span>
                     <DocumentDownload size={20} />

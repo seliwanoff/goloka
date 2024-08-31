@@ -20,10 +20,18 @@ import { Calendar, Setting4 } from "iconsax-react";
 import { Search } from "lucide-react";
 import { Calendar as CalenderDate } from "@/components/ui/calendar";
 import { useShowFilter } from "@/stores/overlay";
+import { useWalletFilter } from "@/stores/misc";
 
 const WalletTableOptions = () => {
   const [date, setDate] = useState<Date | undefined>();
   const { setOpenFilter } = useShowFilter();
+  const { filterType, setFilterType } = useWalletFilter();
+  const [searchVal, setSearchVal] = useState("");
+
+  const onSearch = (val: string) => {
+    const inputedVal = val.toLowerCase();
+    setSearchVal(inputedVal);
+  };
 
   return (
     <div className="mb-5 flex justify-between gap-4 lg:justify-start">
@@ -31,7 +39,11 @@ const WalletTableOptions = () => {
       <div className="relative flex w-[250px] items-center justify-center md:w-[300px]">
         <Search className="absolute left-3 text-gray-500" size={18} />
         <Input
-          placeholder="Search task, organisation"
+          id="search-wallet"
+          name="search-wallet"
+          value={searchVal}
+          onChange={(e) => onSearch(e.target.value)}
+          placeholder="Search  products, quantity, cate..."
           type="text"
           className="w-full rounded-full bg-gray-50 pl-10"
         />
@@ -39,7 +51,7 @@ const WalletTableOptions = () => {
 
       <div className="hidden lg:flex lg:gap-4">
         {/* PRICE */}
-        <Select>
+        <Select value={filterType} onValueChange={setFilterType}>
           <SelectTrigger className="w-max gap-3 rounded-full focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0">
             <SelectValue placeholder="All type" className="line-clamp-none" />
           </SelectTrigger>
@@ -47,7 +59,7 @@ const WalletTableOptions = () => {
             <SelectGroup>
               <SelectItem value="all">All type</SelectItem>
               <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="completed">Completed</SelectItem>
+              <SelectItem value="successful">Completed</SelectItem>
               <SelectItem value="failed">Failed</SelectItem>
             </SelectGroup>
           </SelectContent>
