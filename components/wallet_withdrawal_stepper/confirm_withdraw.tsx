@@ -3,20 +3,25 @@ import React from "react";
 import { Button } from "../ui/button";
 import { useWithdrawOverlay } from "@/stores/overlay";
 import { useWithdrawStepper } from "@/stores/misc";
+import { useMediaQuery } from "@react-hook/media-query";
 
 const ConfirmWithdrawal = () => {
   const { setOpen } = useWithdrawOverlay();
-  const { setStep, clearTransaction } = useWithdrawStepper();
+  const { step, setStep, clearTransaction } = useWithdrawStepper();
+  const isMobile = useMediaQuery("(max-width: 640px)");
 
   const handleProceed = () => {
-    try {
-    } catch (error) {}
-
-    setStep(3);
+    if (isMobile) {
+      setStep((prev: number) => prev + 1);
+    } else {
+      setStep(3);
+    }
   };
 
   const handleClose = () => {
     setOpen(false);
+    clearTransaction();
+    setStep(0);
   };
 
   return (

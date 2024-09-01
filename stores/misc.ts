@@ -40,7 +40,7 @@ export type ITransaction = {
 
 interface FundState {
   step: number;
-  setStep: (value: number) => void;
+  setStep: (value: number | ((prev: number) => number)) => void;
   transaction: ITransaction | null;
   setTransaction: (
     value: ITransaction | ((prev: ITransaction) => ITransaction),
@@ -50,7 +50,10 @@ interface FundState {
 
 const useWithdrawStepper = create<FundState>((set) => ({
   step: 0,
-  setStep: (value) => set({ step: value }),
+  setStep: (value) =>
+    set((state) => ({
+      step: typeof value === "function" ? value(state.step!) : value,
+    })),
   transaction: {
     beneficiary: "",
     accountNumber: "",

@@ -92,3 +92,14 @@ export function chunkArray<T>(array: T[], size: number) {
   }
   return result;
 }
+
+export const walletStatus = (status: string) => {
+  switch (status?.toLowerCase()) {
+    case "pending":
+      return "bg-orange-400 border border-orange-400 bg-opacity-5 text-orange-400";
+    case "successful":
+      return "bg-emerald-700 border border-emerald-700 bg-opacity-5 text-emerald-700";
+    case "failed":
+      return "bg-[#FF0000] border border-[#FF0000] bg-opacity-5 text-[#FF0000]";
+  }
+};

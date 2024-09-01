@@ -50,7 +50,7 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
     : "";
   return (
     <>
-      <div className="absolute left-0 top-0 flex h-[72px] w-full items-center justify-between bg-white px-4 py-2 shadow-sm lg:px-8">
+      <div className="absolute left-0 top-0 z-[50] flex h-[72px] w-full items-center justify-between bg-white px-4 py-2 shadow-sm sm:z-0 lg:px-8">
         <div className="flex gap-4">
           {/* -- Mobile nav */}
           <DashSideBarMobile />

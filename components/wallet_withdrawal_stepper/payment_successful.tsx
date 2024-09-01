@@ -1,9 +1,20 @@
 import React from "react";
 import { Button } from "../ui/button";
-import { cn } from "@/lib/utils";
+import { cn, walletStatus } from "@/lib/utils";
 import { TickCircle } from "iconsax-react";
+import { useWithdrawOverlay } from "@/stores/overlay";
+import { useWithdrawStepper } from "@/stores/misc";
 
 const PaymentSuccessful = () => {
+  const { setOpen } = useWithdrawOverlay();
+  const { setStep, clearTransaction } = useWithdrawStepper();
+
+  const handleComplete = () => {
+    clearTransaction();
+    setStep(0);
+    setOpen(false);
+  };
+
   return (
     <div>
       <span className="relative z-20 mx-auto flex h-16 w-16 items-center justify-center rounded-full text-[#27AE60]">
@@ -22,7 +33,14 @@ const PaymentSuccessful = () => {
           <h3 className="font-bold text-[#101828]">$32</h3>
           <p className="text-sm text-[#828282]">Amount</p>
         </div>
-        <span className={cn("justify-self-end text-xs")}>Completed</span>
+        <span
+          className={cn(
+            "justify-self-end rounded-full px-4 py-2 text-xs",
+            walletStatus("successful"),
+          )}
+        >
+          Completed
+        </span>
 
         <div className="col-span-2 mt-6 rounded-lg border border-[#F2F2F2] bg-[#f8f8f8] p-6">
           <span className="inline-block rounded-full border bg-white p-2 px-4 text-sm text-[#333]">
@@ -64,7 +82,10 @@ const PaymentSuccessful = () => {
         </div>
 
         <div className="col-span-2 mt-4 grid gap-4">
-          <Button className="h-11 items-center gap-3 rounded-full bg-main-100 text-sm font-medium text-white hover:bg-blue-700 hover:text-blue-50">
+          <Button
+            onClick={handleComplete}
+            className="h-11 items-center gap-3 rounded-full bg-main-100 text-sm font-medium text-white hover:bg-blue-700 hover:text-blue-50"
+          >
             Okay
           </Button>
         </div>
