@@ -15,10 +15,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useWithdrawOverlay } from "@/stores/overlay";
+import { useAddBeneficiaryOverlay, useWithdrawOverlay } from "@/stores/overlay";
 import WithdrawalStepper from "@/components/wallet_withdrawal_stepper/withdrawal_stepper";
 import Pagination from "@/components/lib/navigation/Pagination";
 import { useMediaQuery } from "@react-hook/media-query";
+import AddBeneficiary from "@/components/lib/widgets/add_beneficiary";
 
 const page = () => {
   const [expenses, setExpenses] = useState<any[]>([]);
@@ -29,6 +30,7 @@ const page = () => {
   const [pageSize, setPageSize] = useState<number>(10);
   const pages = chunkArray(expenses, pageSize);
   const isDesktop = useMediaQuery("(min-width: 640px)");
+  const { show, setShow } = useAddBeneficiaryOverlay();
 
   const handleWithdraw = () => {
     setOpen(true);
@@ -216,6 +218,79 @@ const page = () => {
 
               <div className="mt-11">
                 <WithdrawalStepper />
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/*------------------------------*/}
+      {/*---------- ADD BENEFICIARY ----------*/}
+      {/*------------------------------*/}
+
+      {isDesktop ? (
+        <>
+          {/* DESTOP */}
+
+          {/* ADD BENEFICIARY MODAL */}
+          <Dialog open={show} onOpenChange={setShow}>
+            <DialogContent className="overflow-hidden rounded-lg border-0 focus-visible:outline-none">
+              <DialogHeader
+                className={cn(
+                  "absolute left-0 top-0 z-10 w-full space-y-0 border-b border-[#F2F2F2] bg-white p-5 text-left",
+                )}
+              >
+                <DialogTitle className={cn("text-lg font-medium text-[#333]")}>
+                  Add beneficiary
+                </DialogTitle>
+                <DialogDescription className="sr-only text-white">
+                  Add beneficiary
+                </DialogDescription>
+                <span
+                  onClick={() => setShow(false)}
+                  className="absolute right-4 top-1/2 mt-0 flex h-8 w-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-[#F2F2F2] text-[#424242]"
+                >
+                  <X size={20} />
+                </span>
+              </DialogHeader>
+              <div className={cn("mt-16")} />
+              <AddBeneficiary />
+            </DialogContent>
+          </Dialog>
+        </>
+      ) : (
+        <>
+          {/* MOBILE */}
+
+          <div
+            className={cn(
+              "fixed left-0 top-0 h-svh w-full overflow-y-auto bg-white px-4 pb-8 pt-24",
+              show ? "block" : "hidden",
+            )}
+          >
+            <div className="h-min">
+              <div className="flex items-center justify-between">
+                <div className="inline-flex items-center gap-4">
+                  <span
+                    className="cursor-pointer"
+                    onClick={() => setShow(false)}
+                  >
+                    <ArrowLeft size="24" />
+                  </span>
+                  <h3 className="text-lg font-medium text-[#333333]">
+                    Add beneficiary
+                  </h3>
+                </div>
+                <span
+                  onClick={() => setShow(false)}
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-[#F2F2F2] text-[#424242]"
+                >
+                  <X size={20} />
+                </span>
+              </div>
+
+              <div className="mt-11">
+                <AddBeneficiary />
               </div>
             </div>
           </div>

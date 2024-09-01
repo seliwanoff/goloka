@@ -3,11 +3,23 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
 import { ITransaction, useWithdrawStepper } from "@/stores/misc";
+import { useAddBeneficiaryOverlay, useWithdrawOverlay } from "@/stores/overlay";
 import { myBeneficiaries } from "@/utils";
 import { Add } from "iconsax-react";
 import { useEffect, useState } from "react";
+import AddBeneficiary from "../lib/widgets/add_beneficiary";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
+import { X } from "lucide-react";
 
 const SelectBeneficiary = () => {
+  const { setOpen } = useWithdrawOverlay();
+  const { show, setShow } = useAddBeneficiaryOverlay();
   const [beneficiaries, setBeneficiaries] = useState(myBeneficiaries);
   const { setStep, setTransaction, transaction } = useWithdrawStepper();
   const [selectedValue, setSelectedValue] = useState("");
@@ -18,6 +30,11 @@ const SelectBeneficiary = () => {
     } else {
       return;
     }
+  };
+
+  const handleAddBeneficiary = () => {
+    setOpen(false); // close withdraw modal
+    setShow(true); // open add beneficiary modal
   };
 
   useEffect(() => {
@@ -109,7 +126,10 @@ const SelectBeneficiary = () => {
         </div>
 
         {/* ADD BENEFICIARY */}
-        <Button className="my-11 h-14 w-full items-center justify-start gap-3 rounded-full bg-[#F8F8F8] p-3 hover:bg-current">
+        <Button
+          onClick={handleAddBeneficiary}
+          className="my-11 h-14 w-full items-center justify-start gap-3 rounded-full bg-[#F8F8F8] p-3 hover:bg-current"
+        >
           <span className="flex h-10 w-10 items-center justify-center rounded-full border border-dashed border-[#E0E0E0] bg-[#F4F4F4] text-[#333]">
             <Add size={24} />
           </span>
