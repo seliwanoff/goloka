@@ -5,7 +5,7 @@ import Verify from "@/components/auth-comps/Verify";
 import PrimaryGoal from "@/components/auth-comps/PrimaryGoal";
 import SignUpForm from "@/components/auth-comps/SignUpForm";
 import UpdateLocationModal from "@/components/contributor/UpdateLocationModal";
-import useShowOverlay from "@/stores/overlay";
+import { useShowOverlay } from "@/stores/overlay";
 
 type PageProps = {};
 
@@ -34,7 +34,7 @@ const SignUpContent: React.FC<PageProps> = ({}) => {
 
   return (
     <>
-      <div className=" md:mx-auto md:w-[70%] lg:w-[80%]">
+      <div className="md:mx-auto md:w-[70%] lg:w-[80%]">
         {step === 1 && <SignUpForm setStep={handleStepChange} />}
         {step === 2 && <Verify setStep={handleStepChange} />}
         {step === 3 && <PrimaryGoal setStep={handleStepChange} />}

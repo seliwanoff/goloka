@@ -50,6 +50,7 @@ const LandingNavbar: React.FC<ComponentProps> = ({}) => {
         "flex w-full items-center justify-between px-3 py-2 " +
           "transit fixed top-0 z-50 bg-white md:px-8 lg:px-20",
         scrollValue > 0 ? "shadow-md" : "shadow-none",
+        pathname.includes("/dashboard") && "hidden",
       )}
     >
       {/* -- logo */}
