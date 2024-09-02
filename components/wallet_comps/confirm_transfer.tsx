@@ -1,22 +1,32 @@
 import { Import } from "iconsax-react";
 import React from "react";
 import { Button } from "../ui/button";
-import { useWithdrawOverlay } from "@/stores/overlay";
-import { useWithdrawStepper } from "@/stores/misc";
+import { useTransferOverlay, useWithdrawOverlay } from "@/stores/overlay";
+import { useTransferStepper } from "@/stores/misc";
+import { useMediaQuery } from "@react-hook/media-query";
 
-const ConfirmWithdrawal = () => {
-  const { setOpen } = useWithdrawOverlay();
-  const { setStep, clearTransaction } = useWithdrawStepper();
+type ComponentProps = {
+  setOpenModal?: (open: boolean) => void;
+};
+
+const ConfirmTransfer: React.FC<ComponentProps> = ({ setOpenModal }) => {
+  const { setOpenTransfer } = useTransferOverlay();
+  const { step, setStep, clearTransaction } = useTransferStepper();
+  const isMobile = useMediaQuery("(max-width: 640px)");
 
   const handleProceed = () => {
-    try {
-    } catch (error) {}
-
-    setStep(3);
+    if (isMobile) {
+      setStep((prev: number) => prev + 1);
+    } else {
+      setStep(2);
+    }
   };
 
   const handleClose = () => {
-    setOpen(false);
+    // isMobile && setOpenModal(false);
+    setOpenTransfer(false);
+    clearTransaction();
+    setStep(0);
   };
 
   return (
@@ -26,12 +36,12 @@ const ConfirmWithdrawal = () => {
           <Import size={28} />
         </span>
         <h3 className="mb-3.5 mt-4 text-center text-base font-semibold text-black">
-          Withdraw money
+          Transfer money
         </h3>
         <p className="text-center text-[#333333]">
-          Are you sure you want to withdraw <strong>₦$32</strong> from your{" "}
-          <br className="hidden sm:block" />
-          wallet?
+          Are you sure you want to transfer
+          <strong> ₦$32</strong> to Jamiu&apos;s organisation wallet? You
+          can&apos;t withdraw money from organisation wallet{" "}
         </p>
 
         <div className="mt-10 grid w-full grid-cols-2 gap-6">
@@ -56,4 +66,4 @@ const ConfirmWithdrawal = () => {
   );
 };
 
-export default ConfirmWithdrawal;
+export default ConfirmTransfer;

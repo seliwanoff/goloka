@@ -13,7 +13,7 @@ import Image from "next/image";
 import { transactions } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { DocumentDownload } from "iconsax-react";
-import { cn } from "@/lib/utils";
+import { cn, walletStatus } from "@/lib/utils";
 import { useInvoiceOverlay } from "@/stores/overlay";
 
 interface Transaction {
@@ -104,8 +104,8 @@ const WalletTable: React.FC<ComponentProps> = ({ data }) => {
               <TableCell className={cn("hidden lg:table-cell")}>
                 <span
                   className={cn(
-                    "rounded-full px-2 py-1 text-xs font-medium",
-                    // responseStatus(res?.status),
+                    "flex w-[84px] items-center justify-center rounded-full px-2 py-1.5 text-xs font-medium capitalize",
+                    walletStatus(res?.status),
                   )}
                 >
                   {res.status}

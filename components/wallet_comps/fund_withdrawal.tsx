@@ -5,8 +5,19 @@ import { cn } from "@/lib/utils";
 import { ITransaction, useWithdrawStepper } from "@/stores/misc";
 import { useWithdrawOverlay } from "@/stores/overlay";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useMediaQuery } from "@react-hook/media-query";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
+import ConfirmWithdrawal from "./confirm_withdraw";
+import { X } from "lucide-react";
 
 const schema = yup.object().shape({
   amount_usd: yup.string().required(),
@@ -14,8 +25,10 @@ const schema = yup.object().shape({
 });
 
 const FundWithdraw = () => {
-  const { setOpen } = useWithdrawOverlay();
-  const { setStep, transaction, setTransaction } = useWithdrawStepper();
+  const [showModal, setShowModal] = useState(false);
+  const { step, setStep, transaction, setTransaction } = useWithdrawStepper();
+  const isMobile = useMediaQuery("(max-width: 640px)");
+
   const {
     handleSubmit,
     register,
@@ -31,7 +44,12 @@ const FundWithdraw = () => {
         ...data,
       };
     });
-    setStep(2);
+
+    if (isMobile) {
+      setShowModal(true);
+    } else {
+      setStep((prev: number) => prev + 1);
+    }
     console.log(data, transaction, "Withdrawal");
   };
 
@@ -78,7 +96,7 @@ const FundWithdraw = () => {
             <div className="mt-14 grid grid-cols-2 gap-4">
               <Button
                 type="button"
-                onClick={() => setStep(0)}
+                onClick={() => setStep((prev: number) => prev - 1)}
                 variant="outline"
                 className="h-12 rounded-full border-main-100 py-3 text-main-100 hover:border-current hover:text-current"
               >
@@ -94,6 +112,40 @@ const FundWithdraw = () => {
           </form>
         </div>
       </div>
+
+      {/* CONFIRM WITHDRAW MOBILE */}
+      {isMobile && (
+        <Dialog open={showModal} onOpenChange={setShowModal}>
+          <DialogContent className="overflow-hidden rounded-lg border-0 focus-visible:outline-none">
+            <DialogHeader
+              className={cn(
+                "absolute left-0 top-0 z-10 w-full space-y-0 border-b border-[#F2F2F2] bg-white p-5 text-left",
+                step === 1 && "border-0",
+              )}
+            >
+              <DialogTitle
+                className={cn(
+                  "text-lg font-medium text-[#333]",
+                  step === 1 && "text-opacity-0",
+                )}
+              >
+                Confirm Withdraw
+              </DialogTitle>
+              <DialogDescription className="sr-only text-white">
+                Transaction ID
+              </DialogDescription>
+              <span
+                onClick={() => setShowModal(false)}
+                className="absolute right-4 top-1/2 mt-0 flex h-8 w-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-[#F2F2F2] text-[#424242]"
+              >
+                <X size={20} />
+              </span>
+            </DialogHeader>
+            <div className={cn("mt-16", step === 1 && "mt-0")} />
+            <ConfirmWithdrawal />
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   );
 };

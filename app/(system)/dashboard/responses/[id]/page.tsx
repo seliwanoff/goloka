@@ -5,8 +5,8 @@ import Image from "next/image";
 import Task1 from "@/public/assets/images/tasks/task1.png";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { responseStatus } from "../page";
+import { cn, responseStatus } from "@/lib/utils";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Sheet,
@@ -41,7 +41,7 @@ import { Input } from "@/components/ui/input";
 import { Send2 } from "iconsax-react";
 import ChatWidget from "@/components/lib/widgets/response-chat-widget";
 
-const page = () => {
+const ResponseDetails = () => {
   const [activeTab, setActiveTab] = useState("questions");
   const [open, setOpen] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
@@ -346,7 +346,7 @@ const page = () => {
   );
 };
 
-export default page;
+export default ResponseDetails;
 
 const tableData = [
   {

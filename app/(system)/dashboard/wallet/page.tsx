@@ -1,32 +1,27 @@
 "use client";
-import { cn } from "@/lib/utils";
-import { Add, ExportSquare, Login } from "iconsax-react";
+import { chunkArray } from "@/lib/utils";
+import { ExportSquare, Login } from "iconsax-react";
 import React, { useEffect, useState } from "react";
 import WalletTable from "@/components/lib/widgets/wallet_table";
 import WalletTableOptions from "@/components/lib/widgets/WalletTableOptions";
-import { useWalletFilter, useWithdrawStepper } from "@/stores/misc";
-import { myBeneficiaries, transactions } from "@/utils";
+import { useWalletFilter } from "@/stores/misc";
+import { transactions } from "@/utils";
 import InvoiceModal from "@/components/lib/modals/invoice_modal";
-import { X } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { useWithdrawOverlay } from "@/stores/overlay";
-import WithdrawalStepper from "@/components/wallet_withdrawal_stepper/withdrawal_stepper";
 
-const page = () => {
+import { useTransferOverlay, useWithdrawOverlay } from "@/stores/overlay";
+import Pagination from "@/components/lib/navigation/Pagination";
+import CreateWithdrawal from "@/components/lib/modals/create_withdrawal";
+import CreateBeneficiary from "@/components/lib/modals/create_beneficiary";
+import CreateTransfer from "@/components/lib/modals/create_transfer";
+
+const Wallet = () => {
   const [expenses, setExpenses] = useState<any[]>([]);
   const { filterType } = useWalletFilter();
-  const { open, setOpen } = useWithdrawOverlay();
-  const { step, setStep } = useWithdrawStepper();
-
-  const handleWithdraw = () => {
-    setOpen(true);
-  };
+  const { setOpen } = useWithdrawOverlay();
+  const { setOpenTransfer } = useTransferOverlay();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState<number>(10);
+  const pages = chunkArray(expenses, pageSize);
 
   // FILTERING TABLE DATA
   useEffect(() => {
@@ -85,7 +80,10 @@ const page = () => {
                 </p>
               </div>
             </div>
-            <div className="grid cursor-pointer grid-cols-[40px_1fr] items-center gap-4 rounded-[12px] bg-[#F8F8F8] p-3.5">
+            <div
+              onClick={() => setOpenTransfer(true)}
+              className="grid cursor-pointer grid-cols-[40px_1fr] items-center gap-4 rounded-[12px] bg-[#F8F8F8] p-3.5"
+            >
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#E0E0E0]">
                 <Login size={20} />
               </span>
@@ -113,14 +111,13 @@ const page = () => {
             </div>
 
             <div className="mt-6">
-              {/*   
               <Pagination
                 totalPages={pages?.length}
                 currentPage={currentPage}
                 onPageChange={setCurrentPage}
                 RowSize={pageSize}
                 onRowSizeChange={setPageSize}
-              /> */}
+              />
             </div>
           </div>
         </div>
@@ -131,47 +128,16 @@ const page = () => {
         <InvoiceModal />
       </div>
 
-      {/* WITHDRAW */}
-      <div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogContent className="overflow-hidden border-0 focus-visible:outline-none">
-            <DialogHeader
-              className={cn(
-                "absolute left-0 top-0 z-10 w-full space-y-0 border-b border-[#F2F2F2] bg-white p-5 text-left",
-                step === 2 && "border-0",
-              )}
-            >
-              <DialogTitle
-                className={cn(
-                  "text-lg font-medium text-[#333]",
-                  step === 2 && "text-opacity-0",
-                )}
-              >
-                {step === 3 ? "Payment successful" : "Withdraw fund"}
-              </DialogTitle>
-              <DialogDescription className="sr-only text-white">
-                Transaction ID
-              </DialogDescription>
-              <span
-                onClick={() => setOpen(false)}
-                className="absolute right-4 top-1/2 mt-0 flex h-8 w-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-[#F2F2F2] text-[#424242]"
-              >
-                <X size={20} />
-              </span>
-            </DialogHeader>
-            <div
-              className={cn(
-                "mt-16",
-                step === 2 && "mt-0",
-                step === 3 && "mt-8",
-              )}
-            />
-            <WithdrawalStepper />
-          </DialogContent>
-        </Dialog>
-      </div>
+      {/*---------- WITHDRAW ----------*/}
+      <CreateWithdrawal />
+
+      {/*---------- ADD BENEFICIARY ----------*/}
+      <CreateBeneficiary />
+
+      {/*---------- TRANSFER ----------*/}
+      <CreateTransfer />
     </>
   );
 };
 
-export default page;
+export default Wallet;
