@@ -145,7 +145,7 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
   const [openFilter, setOpenFilter] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState("On Review");
   const [filteredData, setFilteredData] = useState<Response[]>(
-    responsesTableData?.filter((item) => item?.status === activeTab),
+    responsesTableData?.filter((item: { status: string; }) => item?.status === activeTab),
   );
   const [date, setDate] = useState<Date>();
   const router = useRouter();
@@ -156,7 +156,7 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
 
   useEffect(() => {
     const filter = (status: string) =>
-      responsesTableData?.filter((item) => item?.status === status);
+      responsesTableData?.filter((item: { status: string; }) => item?.status === status);
 
     switch (activeTab) {
       case "On Review":
@@ -268,7 +268,7 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
             <div className="relative flex w-[250px] items-center justify-center md:w-[300px]">
               <Search className="absolute left-3 text-gray-500" size={18} />
               <Input
-                placeholder="Search task, organisation"
+                placeholder="Search task, organization"
                 type="text"
                 className="w-full rounded-full bg-gray-50 pl-10"
               />
@@ -381,7 +381,7 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {pages[currentPage - 1].map((res: any, index: number) => (
+                    {pages[currentPage - 1]?.map((res: any, index: number) => (
                       <TableRow key={index}>
                         <TableCell>
                           <div>
