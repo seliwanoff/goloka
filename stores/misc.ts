@@ -38,6 +38,12 @@ export type ITransaction = {
   amount_ngn: string;
 };
 
+export type ITransfer = {
+  walletID: string;
+  organisation: string;
+  amount: string;
+};
+
 interface FundState {
   step: number;
   setStep: (value: number | ((prev: number) => number)) => void;
@@ -45,6 +51,14 @@ interface FundState {
   setTransaction: (
     value: ITransaction | ((prev: ITransaction) => ITransaction),
   ) => void;
+  clearTransaction: () => void;
+}
+
+interface TransferState {
+  step: number;
+  setStep: (value: number | ((prev: number) => number)) => void;
+  transaction: ITransfer | null;
+  setTransaction: (value: ITransfer | ((prev: ITransfer) => ITransfer)) => void;
   clearTransaction: () => void;
 }
 
@@ -78,4 +92,35 @@ const useWithdrawStepper = create<FundState>((set) => ({
     })),
 }));
 
-export { useLoadingStore, useWalletFilter, useWithdrawStepper };
+const useTransferStepper = create<TransferState>((set) => ({
+  step: 0,
+  setStep: (value) =>
+    set((state) => ({
+      step: typeof value === "function" ? value(state.step!) : value,
+    })),
+  transaction: {
+    walletID: "",
+    organisation: "",
+    amount: "",
+  },
+  setTransaction: (value) =>
+    set((state) => ({
+      transaction:
+        typeof value === "function" ? value(state.transaction!) : value,
+    })),
+  clearTransaction: () =>
+    set(() => ({
+      transaction: {
+        walletID: "",
+        organisation: "",
+        amount: "",
+      },
+    })),
+}));
+
+export {
+  useLoadingStore,
+  useWalletFilter,
+  useWithdrawStepper,
+  useTransferStepper,
+};

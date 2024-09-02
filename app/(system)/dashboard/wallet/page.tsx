@@ -7,34 +7,28 @@ import WalletTableOptions from "@/components/lib/widgets/WalletTableOptions";
 import { useWalletFilter, useWithdrawStepper } from "@/stores/misc";
 import { myBeneficiaries, transactions } from "@/utils";
 import InvoiceModal from "@/components/lib/modals/invoice_modal";
-import { X } from "lucide-react";
+
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { useAddBeneficiaryOverlay, useWithdrawOverlay } from "@/stores/overlay";
-import WithdrawalStepper from "@/components/wallet_withdrawal_stepper/withdrawal_stepper";
+  useAddBeneficiaryOverlay,
+  useTransferOverlay,
+  useWithdrawOverlay,
+} from "@/stores/overlay";
+import WithdrawalStepper from "@/components/wallet_comps/withdrawal_stepper";
 import Pagination from "@/components/lib/navigation/Pagination";
 import { useMediaQuery } from "@react-hook/media-query";
 import AddBeneficiary from "@/components/lib/widgets/add_beneficiary";
+import CreateWithdrawal from "@/components/lib/modals/create_withdrawal";
+import CreateBeneficiary from "@/components/lib/modals/create_beneficiary";
+import CreateTransfer from "@/components/lib/modals/create_transfer";
 
 const page = () => {
   const [expenses, setExpenses] = useState<any[]>([]);
   const { filterType } = useWalletFilter();
-  const { open, setOpen } = useWithdrawOverlay();
-  const { step, setStep } = useWithdrawStepper();
+  const { setOpen } = useWithdrawOverlay();
+  const { setOpenTransfer } = useTransferOverlay();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState<number>(10);
   const pages = chunkArray(expenses, pageSize);
-  const isDesktop = useMediaQuery("(min-width: 640px)");
-  const { show, setShow } = useAddBeneficiaryOverlay();
-
-  const handleWithdraw = () => {
-    setOpen(true);
-  };
 
   // FILTERING TABLE DATA
   useEffect(() => {
@@ -93,7 +87,10 @@ const page = () => {
                 </p>
               </div>
             </div>
-            <div className="grid cursor-pointer grid-cols-[40px_1fr] items-center gap-4 rounded-[12px] bg-[#F8F8F8] p-3.5">
+            <div
+              onClick={() => setOpenTransfer(true)}
+              className="grid cursor-pointer grid-cols-[40px_1fr] items-center gap-4 rounded-[12px] bg-[#F8F8F8] p-3.5"
+            >
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#E0E0E0]">
                 <Login size={20} />
               </span>
@@ -138,164 +135,14 @@ const page = () => {
         <InvoiceModal />
       </div>
 
-      {/*------------------------------*/}
       {/*---------- WITHDRAW ----------*/}
-      {/*------------------------------*/}
+      <CreateWithdrawal />
 
-      {isDesktop ? (
-        <>
-          {/* DESTOP */}
-
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent className="overflow-hidden border-0 focus-visible:outline-none">
-              <DialogHeader
-                className={cn(
-                  "absolute left-0 top-0 z-10 w-full space-y-0 border-b border-[#F2F2F2] bg-white p-5 text-left",
-                  step === 2 && "border-0",
-                )}
-              >
-                <DialogTitle
-                  className={cn(
-                    "text-lg font-medium text-[#333]",
-                    step === 2 && "text-opacity-0",
-                  )}
-                >
-                  {step === 3 ? "Payment successful" : "Withdraw fund"}
-                </DialogTitle>
-                <DialogDescription className="sr-only text-white">
-                  Transaction ID
-                </DialogDescription>
-                <span
-                  onClick={() => setOpen(false)}
-                  className="absolute right-4 top-1/2 mt-0 flex h-8 w-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-[#F2F2F2] text-[#424242]"
-                >
-                  <X size={20} />
-                </span>
-              </DialogHeader>
-              <div
-                className={cn(
-                  "mt-16",
-                  step === 2 && "mt-0",
-                  step === 3 && "mt-8",
-                )}
-              />
-              <WithdrawalStepper />
-            </DialogContent>
-          </Dialog>
-        </>
-      ) : (
-        <>
-          {/* MOBILE */}
-
-          <div
-            className={cn(
-              "fixed left-0 top-0 h-svh w-full overflow-y-auto bg-white px-4 pb-8 pt-24",
-              open ? "block" : "hidden",
-            )}
-          >
-            <div className="h-min">
-              <div className="flex items-center justify-between">
-                <div className="inline-flex items-center gap-4">
-                  <span
-                    className="cursor-pointer"
-                    onClick={() =>
-                      setStep((prev: number) => (prev >= 1 ? prev - 1 : prev))
-                    }
-                  >
-                    <ArrowLeft size="24" />
-                  </span>
-                  <h3 className="text-lg font-medium text-[#333333]">
-                    {step === 2 ? "Payment successful" : "Withdraw"}
-                  </h3>
-                </div>
-                <span
-                  onClick={() => setOpen(false)}
-                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-[#F2F2F2] text-[#424242]"
-                >
-                  <X size={20} />
-                </span>
-              </div>
-
-              <div className="mt-11">
-                <WithdrawalStepper />
-              </div>
-            </div>
-          </div>
-        </>
-      )}
-
-      {/*------------------------------*/}
       {/*---------- ADD BENEFICIARY ----------*/}
-      {/*------------------------------*/}
+      <CreateBeneficiary />
 
-      {isDesktop ? (
-        <>
-          {/* DESTOP */}
-
-          {/* ADD BENEFICIARY MODAL */}
-          <Dialog open={show} onOpenChange={setShow}>
-            <DialogContent className="overflow-hidden rounded-lg border-0 focus-visible:outline-none">
-              <DialogHeader
-                className={cn(
-                  "absolute left-0 top-0 z-10 w-full space-y-0 border-b border-[#F2F2F2] bg-white p-5 text-left",
-                )}
-              >
-                <DialogTitle className={cn("text-lg font-medium text-[#333]")}>
-                  Add beneficiary
-                </DialogTitle>
-                <DialogDescription className="sr-only text-white">
-                  Add beneficiary
-                </DialogDescription>
-                <span
-                  onClick={() => setShow(false)}
-                  className="absolute right-4 top-1/2 mt-0 flex h-8 w-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-[#F2F2F2] text-[#424242]"
-                >
-                  <X size={20} />
-                </span>
-              </DialogHeader>
-              <div className={cn("mt-16")} />
-              <AddBeneficiary />
-            </DialogContent>
-          </Dialog>
-        </>
-      ) : (
-        <>
-          {/* MOBILE */}
-
-          <div
-            className={cn(
-              "fixed left-0 top-0 h-svh w-full overflow-y-auto bg-white px-4 pb-8 pt-24",
-              show ? "block" : "hidden",
-            )}
-          >
-            <div className="h-min">
-              <div className="flex items-center justify-between">
-                <div className="inline-flex items-center gap-4">
-                  <span
-                    className="cursor-pointer"
-                    onClick={() => setShow(false)}
-                  >
-                    <ArrowLeft size="24" />
-                  </span>
-                  <h3 className="text-lg font-medium text-[#333333]">
-                    Add beneficiary
-                  </h3>
-                </div>
-                <span
-                  onClick={() => setShow(false)}
-                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-[#F2F2F2] text-[#424242]"
-                >
-                  <X size={20} />
-                </span>
-              </div>
-
-              <div className="mt-11">
-                <AddBeneficiary />
-              </div>
-            </div>
-          </div>
-        </>
-      )}
+      {/*---------- TRANSFER ----------*/}
+      <CreateTransfer />
     </>
   );
 };

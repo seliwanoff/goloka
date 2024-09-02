@@ -2,10 +2,12 @@ import React from "react";
 import { Button } from "../ui/button";
 import { cn, walletStatus } from "@/lib/utils";
 import { TickCircle } from "iconsax-react";
-import { useWithdrawOverlay } from "@/stores/overlay";
-import { useWithdrawStepper } from "@/stores/misc";
+import { useTransferOverlay, useWithdrawOverlay } from "@/stores/overlay";
+import { useTransferStepper, useWithdrawStepper } from "@/stores/misc";
 
-const PaymentSuccessful = () => {
+type ComponentProps = {};
+
+const PaymentSuccessful: React.FC<ComponentProps> = ({}) => {
   const { setOpen } = useWithdrawOverlay();
   const { setStep, clearTransaction } = useWithdrawStepper();
 
@@ -35,7 +37,7 @@ const PaymentSuccessful = () => {
         </div>
         <span
           className={cn(
-            "justify-self-end rounded-full px-4 py-2 text-xs",
+            "justify-self-end rounded-full px-4 py-2 text-xs capitalize",
             walletStatus("successful"),
           )}
         >
