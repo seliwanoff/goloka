@@ -39,7 +39,7 @@ const TaskCardWidget: React.FC<TaskCardProps> = ({
     <div className="space-y-[18px] rounded-[16px] border border-[#F2F2F2] bg-white p-4">
       <figure className="relative h-[200px] w-full overflow-hidden rounded-[8px]">
         <Image
-          src={image_path[0]}
+          src={image_path?.[0]}
           alt={title}
           className="h-full w-full object-cover"
           width={640}
@@ -109,7 +109,7 @@ const TaskCardWidget: React.FC<TaskCardProps> = ({
             <Location size="18" color="#828282" />
           </span>
           <p className="text-[14px] leading-[21px] text-[#4F4F4F]">
-            {locations.map((location, index) => (
+            {locations?.map((location, index) => (
               <React.Fragment key={index}>
                 {location.state.split(", ")[0]}
                 {index < locations.length - 1 && ", "}

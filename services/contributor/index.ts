@@ -74,12 +74,16 @@ interface GetAllTaskParams {
   type?: string;
   min_price?: number;
   max_price?: number;
+  min_question?: number;
+  max_question?: number;
+  allows_multiple_responses?: boolean | number;
+  campaign_end_date?: string;
 }
+
 
 export const getAllTask = async (params: GetAllTaskParams) => {
   try {
     const query = new URLSearchParams();
-
 
     if (params.per_page) query.append("per_page", params.per_page.toString());
     if (params.page) query.append("page", params.page.toString());
@@ -89,10 +93,20 @@ export const getAllTask = async (params: GetAllTaskParams) => {
       query.append("min_price", params.min_price.toString());
     if (params.max_price)
       query.append("max_price", params.max_price.toString());
+    if (params.min_question)
+      query.append("min_question", params.min_question.toString());
+    if (params.max_question)
+      query.append("max_question", params.max_question.toString());
+    if (params.allows_multiple_responses !== undefined)
+      query.append(
+        "allows_multiple_responses",
+        params.allows_multiple_responses.toString(),
+      );
+    if (params.campaign_end_date)
+      query.append("campaign_end_date", params.campaign_end_date);
 
     const queryString = query.toString();
     const endpoint = `/contributor/campaigns?${queryString}`;
-
 
     return await fetchData<ServerResponse<any>>(endpoint);
   } catch (error) {
@@ -100,6 +114,7 @@ export const getAllTask = async (params: GetAllTaskParams) => {
     return null;
   }
 };
+
 
 
 // ~ =============================================>

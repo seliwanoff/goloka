@@ -36,7 +36,7 @@ import { Calendar, Setting4 } from "iconsax-react";
 import { responsesTableData } from "@/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "@/components/lib/widgets/DataTable";
-import { chunkArray, cn } from "@/lib/utils";
+import { chunkArray, cn, responseStatus } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import Pagination from "@/components/lib/navigation/Pagination";
 
@@ -128,24 +128,11 @@ type Response = {
 //   },
 // ];
 
-export const responseStatus = (status: string) => {
-  switch (status) {
-    case "On Review":
-      return "bg-violet-500 border border-violet-500 bg-opacity-5 text-violet-500";
-    case "Pending":
-      return "bg-orange-400 border border-orange-400 bg-opacity-5 text-orange-400";
-    case "Accepted":
-      return "bg-emerald-700 border border-emerald-700 bg-opacity-5 text-emerald-700";
-    case "Rejected":
-      return "bg-[#FF0000] border border-[#FF0000] bg-opacity-5 text-[#FF0000]";
-  }
-};
-
 const ResponsesPage: React.FC<PageProps> = ({}) => {
   const [openFilter, setOpenFilter] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState("On Review");
   const [filteredData, setFilteredData] = useState<Response[]>(
-    responsesTableData?.filter((item) => item?.status === activeTab),
+    responsesTableData?.filter((item: { status: string; }) => item?.status === activeTab),
   );
   const [date, setDate] = useState<Date>();
   const router = useRouter();
@@ -156,7 +143,7 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
 
   useEffect(() => {
     const filter = (status: string) =>
-      responsesTableData?.filter((item) => item?.status === status);
+      responsesTableData?.filter((item: { status: string; }) => item?.status === status);
 
     switch (activeTab) {
       case "On Review":
@@ -268,7 +255,7 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
             <div className="relative flex w-[250px] items-center justify-center md:w-[300px]">
               <Search className="absolute left-3 text-gray-500" size={18} />
               <Input
-                placeholder="Search task, organisation"
+                placeholder="Search task, organization"
                 type="text"
                 className="w-full rounded-full bg-gray-50 pl-10"
               />
@@ -381,7 +368,7 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {pages[currentPage - 1].map((res: any, index: number) => (
+                    {pages[currentPage - 1]?.map((res: any, index: number) => (
                       <TableRow key={index}>
                         <TableCell>
                           <div>
