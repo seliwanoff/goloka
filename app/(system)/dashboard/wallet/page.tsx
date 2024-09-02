@@ -1,27 +1,20 @@
 "use client";
-import { chunkArray, cn } from "@/lib/utils";
-import { Add, ArrowLeft, ExportSquare, Login } from "iconsax-react";
+import { chunkArray } from "@/lib/utils";
+import { ExportSquare, Login } from "iconsax-react";
 import React, { useEffect, useState } from "react";
 import WalletTable from "@/components/lib/widgets/wallet_table";
 import WalletTableOptions from "@/components/lib/widgets/WalletTableOptions";
-import { useWalletFilter, useWithdrawStepper } from "@/stores/misc";
-import { myBeneficiaries, transactions } from "@/utils";
+import { useWalletFilter } from "@/stores/misc";
+import { transactions } from "@/utils";
 import InvoiceModal from "@/components/lib/modals/invoice_modal";
 
-import {
-  useAddBeneficiaryOverlay,
-  useTransferOverlay,
-  useWithdrawOverlay,
-} from "@/stores/overlay";
-import WithdrawalStepper from "@/components/wallet_comps/withdrawal_stepper";
+import { useTransferOverlay, useWithdrawOverlay } from "@/stores/overlay";
 import Pagination from "@/components/lib/navigation/Pagination";
-import { useMediaQuery } from "@react-hook/media-query";
-import AddBeneficiary from "@/components/lib/widgets/add_beneficiary";
 import CreateWithdrawal from "@/components/lib/modals/create_withdrawal";
 import CreateBeneficiary from "@/components/lib/modals/create_beneficiary";
 import CreateTransfer from "@/components/lib/modals/create_transfer";
 
-const page = () => {
+const Wallet = () => {
   const [expenses, setExpenses] = useState<any[]>([]);
   const { filterType } = useWalletFilter();
   const { setOpen } = useWithdrawOverlay();
@@ -147,4 +140,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Wallet;

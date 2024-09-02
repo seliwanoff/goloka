@@ -93,6 +93,19 @@ export function chunkArray<T>(array: T[], size: number) {
   return result;
 }
 
+export const responseStatus = (status: string) => {
+  switch (status) {
+    case "On Review":
+      return "bg-violet-500 border border-violet-500 bg-opacity-5 text-violet-500";
+    case "Pending":
+      return "bg-orange-400 border border-orange-400 bg-opacity-5 text-orange-400";
+    case "Accepted":
+      return "bg-emerald-700 border border-emerald-700 bg-opacity-5 text-emerald-700";
+    case "Rejected":
+      return "bg-[#FF0000] border border-[#FF0000] bg-opacity-5 text-[#FF0000]";
+  }
+};
+
 export const walletStatus = (status: string) => {
   switch (status?.toLowerCase()) {
     case "pending":
