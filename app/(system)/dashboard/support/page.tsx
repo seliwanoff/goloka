@@ -1,15 +1,25 @@
-import React from "react";
-
+"use client";
+import React, { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowRight, ChevronRight } from "lucide-react";
 import ContactTab from "@/components/support_comps/contact_tab";
 import HelpTab from "@/components/support_comps/help_tab";
 import ChatTab from "@/components/support_comps/chat_tab";
 import ReportTab from "@/components/support_comps/report_tab";
+import { usePathname, useRouter } from "next/navigation";
 
 type PageProps = {};
 
 const SupportPage: React.FC<PageProps> = ({}) => {
+  const [tab, setTab] = useState("contact");
+  const router = useRouter();
+  const pathname = usePathname();
+
+  console.log(pathname);
+
+  useEffect(() => {
+    router.replace(`${pathname}?tab=${tab}`);
+  }, [tab]);
   return (
     <>
       <section className="pb-10 pt-[34px]">
@@ -21,8 +31,9 @@ const SupportPage: React.FC<PageProps> = ({}) => {
         </div> */}
 
         <Tabs
-          defaultValue="contact"
-          className="grid h-[80vh] w-full grid-cols-[1fr_2fr] gap-5"
+          defaultValue={tab}
+          onValueChange={setTab}
+          className="grid h-[80vh] w-full gap-5 md:grid-cols-[1fr_2fr]"
         >
           <TabsList className="block h-auto space-y-4 rounded-2xl bg-white p-4 lg:px-6 lg:py-8">
             {supportTabs?.map((tab: any, index: number) => (
@@ -51,6 +62,10 @@ const SupportPage: React.FC<PageProps> = ({}) => {
             </TabsContent>
           ))}
         </Tabs>
+
+        <div className="h-s">
+
+        </div>
       </section>
     </>
   );

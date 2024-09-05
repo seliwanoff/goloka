@@ -19,6 +19,7 @@ const HelpTab = () => {
         <Accordion type="single" collapsible className="space-y-6">
           {help.map((item: any, index: number) => (
             <AccordionItem
+              key={`item-${index + 1}`}
               className="rounded-xl border border-[#E0E0E0] p-4"
               value={`item-${index + 1}`}
             >

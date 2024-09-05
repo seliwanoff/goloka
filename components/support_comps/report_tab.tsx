@@ -1,9 +1,12 @@
+"use client";
+
 import React from "react";
 import { Label } from "../ui/label";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { cn } from "@/lib/utils";
 import { useForm } from "react-hook-form";
+import { Button } from "../ui/button";
 
 const schema = yup.object().shape({
   suggestion: yup.string().required(),
@@ -41,12 +44,16 @@ const ReportTab = () => {
               {...register("suggestion")}
               id="suggesstion"
               className={cn(
-                "form-textarea rounded-lg border border-[#D9DCE0] p-4 focus:border-main-100 focus:ring-main-100",
+                "form-textarea w-full rounded-lg border border-[#D9DCE0] p-4 focus:border-main-100 focus:ring-main-100",
                 errors.suggestion && "border-red-600 focus:ring-red-600",
               )}
               placeholder="input your suggestion here"
             ></textarea>
           </div>
+
+          <Button className="rounded-full bg-main-100 px-6 py-2 text-white hover:bg-blue-700 hover:text-white">
+            Submit suggestion
+          </Button>
         </form>
       </div>
     </>
