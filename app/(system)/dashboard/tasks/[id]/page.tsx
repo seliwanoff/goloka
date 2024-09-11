@@ -158,9 +158,12 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
               <div className="grid grid-cols-[56px_1fr] items-center gap-4">
                 <AspectRatio ratio={1 / 1}>
                   <Image
-                    src={Task1}
+                    //@ts-ignore
+                    src={task?.data?.image_path[0]}
                     alt="Task image"
                     className="h-14 w-14 rounded-lg object-cover"
+                    width={100}
+                    height={100}
                   />
                 </AspectRatio>
 
@@ -206,7 +209,10 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
                     <p className="text-sm text-gray-400">Task Ends on</p>
                   </div>
                   <div>
-                    <h4 className="text-[#101828]">$4 </h4>
+                    <h4 className="text-[#101828]">
+                      {/* @ts-ignore */}${" "}
+                      {task?.data?.payment_rate_for_response}{" "}
+                    </h4>
                     <p className="text-sm text-gray-400">Per response</p>
                   </div>
                   <div>
@@ -214,7 +220,10 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
                     <p className="text-sm text-gray-400">Response type </p>
                   </div>
                   <div className="md:text-right">
-                    <h4 className="font-medium text-[#101828]">Survey </h4>
+                    <h4 className="font-medium text-[#101828]">
+                    {/* @ts-ignore */}
+                      {task?.data?.type}{" "}
+                    </h4>
                     <p className="text-sm text-gray-400">Campaign</p>
                   </div>
                 </div>
@@ -243,9 +252,11 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
                     </span>
                   </div>
                   <div className="text-sm font-semibold text-[#101828]">
-                    24{" "}
+                    {/* @ts-ignore */}
+                    {task?.data?.number_of_responses_received}{" "}
                     <span className="font-normal text-[#828282]">
-                      0f 64 responses
+                      {/* @ts-ignore */}
+                      0f {task?.data?.number_of_responses} responses
                     </span>
                   </div>
                 </div>

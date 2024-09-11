@@ -1,7 +1,7 @@
 "use client";
 import DashboardWidget from "@/components/lib/widgets/dashboard_card";
 import { DocumentCopy, Eye, Note, NoteRemove, TickSquare } from "iconsax-react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -41,6 +41,8 @@ import { useRouter } from "next/navigation";
 import Pagination from "@/components/lib/navigation/Pagination";
 import { useQuery } from "@tanstack/react-query";
 import { getAllResponses, getResponseStats } from "@/services/response";
+import { SkeletonXLoader } from "../root/page";
+import { numberWithCommas } from "@/helper";
 
 type PageProps = {};
 
@@ -129,6 +131,19 @@ type Response = {
 //     },
 //   },
 // ];
+type Stats = {
+  count: number;
+  percentage_increase: number;
+};
+
+type DashboardData = {
+  data: {
+    campaign_count: Stats;
+    response_stats: Stats;
+    accepted_response_stats: Stats;
+    rejected_response_stats: Stats;
+  };
+};
 
 const ResponsesPage: React.FC<PageProps> = ({}) => {
   const [openFilter, setOpenFilter] = useState<boolean>(false);
@@ -138,29 +153,44 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
       (item: { status: string }) => item?.status === activeTab,
     ),
   );
+  const [data, setData] = useState<DashboardData | null>(null);
+
   const [date, setDate] = useState<Date>();
-  const router = useRouter();
+
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState<number>(10);
   const pages = chunkArray(filteredData, pageSize);
+
+  const router = useRouter();
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [type, setType] = useState<string>("");
+  const [page, setPage] = useState<number>(1);
+  const [perPage, setPerPage] = useState<number>(9);
+  const [min_payment, setmin_payment] = useState<number | undefined>(undefined);
+  const responseRef = useRef<HTMLDivElement>(null);
+  const [max_payment, setmax_payment] = useState<number | undefined>(undefined);
+  const [debouncedSearchTerm, setDebouncedSearchTerm] =
+    useState<string>(searchTerm);
   console.log(pages, "pages");
   const { data: stats } = useQuery({
     queryKey: ["Get response stats"],
     queryFn: getResponseStats,
   });
-
-    const fetchData = () => {
-      return getAllResponses({
-        // search: debouncedSearchTerm,
-        // type,
-        // page,
-        // per_page: perPage,
-        // min_price: minPrice,
-        // max_price: maxPrice,
-      });
-    };
-
-  
+  useEffect(() => {
+    if (stats?.data) {
+      setData(stats.data);
+    }
+  }, [stats]);
+  const fetchData = () => {
+    return getAllResponses({
+      // search: debouncedSearchTerm,
+      // type,
+      // page,
+      // per_page: perPage,
+      // min_price: min_payment,
+      // max_price: max_payment,
+    });
+  };
 
   console.log(stats, "stats");
   useEffect(() => {
@@ -180,6 +210,59 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
         return setFilteredData(filter(activeTab));
     }
   }, [activeTab]);
+
+  useEffect(() => {
+    const params = {
+      search: debouncedSearchTerm,
+      type,
+      page,
+      per_page: perPage,
+      min_price: min_payment,
+      max_price: max_payment,
+    };
+
+    const newParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value) newParams.set(key, value.toString());
+    });
+
+    router.push(`?${newParams.toString()}`);
+
+    // Fetch tasks with updated params
+    //  if (tasksRef.current && searchTerm) {
+    //    tasksRef.current.scrollIntoView({ behavior: "smooth" });
+    //  }
+    fetchData();
+  }, [
+    debouncedSearchTerm,
+    type,
+    page,
+    perPage,
+    min_payment,
+    max_payment,
+    router,
+  ]);
+
+  const {
+    data: responseData,
+    isLoading,
+    isFetching,
+    isRefetching,
+  } = useQuery({
+    queryKey: [
+      "Get task list",
+      //    debouncedSearchTerm,
+      //    type,
+      //    page,
+      //    perPage,
+      //    min_payment,
+      //    max_payment,
+    ],
+    queryFn: fetchData,
+  });
+
+
+  console.log(responseData, "responseData");
   return (
     <>
       <section className="pb-10 pt-[34px]">
@@ -189,58 +272,85 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
         <div className="no-scrollbar col-span-5 mt-4 w-full overflow-x-auto">
           <div className="col-span-5 flex w-min gap-4 1xl:grid 1xl:grid-cols-4 xl:w-full">
             {/* Projects Card */}
-            <div className="w-[300px] xl:w-full">
-              <DashboardWidget
-                title="Total response"
-                bg="bg-[#079455] bg-opacity-[12%]"
-                fg="text-[#079455]"
-                icon={DocumentCopy}
-                value={"256"}
-                footer="vs last month"
-                isAnalytics
-                increase={true}
-                percents={40}
-              />
-            </div>
-            <div className="w-[300px] xl:w-full">
-              <DashboardWidget
-                title="Total campaign"
-                bg="bg-[#FEC53D] bg-opacity-[12%]"
-                fg="text-[#FEC53D]"
-                icon={Note}
-                value={100}
-                footer="vs last month"
-                isAnalytics
-                increase={true}
-                percents={40}
-              />
-            </div>
-            <div className="w-[300px] xl:w-full">
-              <DashboardWidget
-                title="Accepted response"
-                bg="bg-[#7F55DA] bg-opacity-[12%]"
-                fg="text-[#7F55DA]"
-                icon={TickSquare}
-                value={160}
-                footer="vs last month"
-                isAnalytics
-                increase={true}
-                percents={40}
-              />
-            </div>{" "}
-            <div className="w-[300px] xl:w-full">
-              <DashboardWidget
-                title="Rejected response"
-                bg="bg-[#EB5757] bg-opacity-[12%]"
-                fg="text-[#EB5757]"
-                icon={NoteRemove}
-                value={82}
-                footer="vs last month"
-                isAnalytics
-                increase={true}
-                percents={40}
-              />
-            </div>
+            {!data ? (
+              <>
+                <SkeletonXLoader />
+
+                <SkeletonXLoader />
+
+                <SkeletonXLoader />
+
+                <SkeletonXLoader />
+                {/* <SkeletonXLoader /> */}
+              </>
+            ) : (
+              <>
+                <div className="w-[300px] xl:w-full">
+                  <DashboardWidget
+                    title="Total response"
+                    bg="bg-[#079455] bg-opacity-[12%]"
+                    fg="text-[#079455]"
+                    icon={DocumentCopy}
+                    //@ts-ignore
+                    value={numberWithCommas(data?.response_stats.count)}
+                    footer="vs last month"
+                    isAnalytics
+                    increase={true}
+                    //@ts-ignore
+                    percents={(data?.response_stats.percentage_increase).toString()}
+                  />
+                </div>
+                <div className="w-[300px] xl:w-full">
+                  <DashboardWidget
+                    title="Total campaign"
+                    bg="bg-[#FEC53D] bg-opacity-[12%]"
+                    fg="text-[#FEC53D]"
+                    icon={Note}
+                    //@ts-ignore
+                    value={numberWithCommas(data?.campaign_count?.count)}
+                    footer="vs last month"
+                    isAnalytics
+                    increase={true}
+                    //@ts-ignore
+                    percents={(data?.campaign_count?.percentage_increase).toString()}
+                  />
+                </div>
+                <div className="w-[300px] xl:w-full">
+                  <DashboardWidget
+                    title="Accepted response"
+                    bg="bg-[#7F55DA] bg-opacity-[12%]"
+                    fg="text-[#7F55DA]"
+                    icon={TickSquare}
+                    value={numberWithCommas(
+                      //@ts-ignore
+                      data?.accepted_response_stats?.count,
+                    )}
+                    footer="vs last month"
+                    isAnalytics
+                    increase={true}
+                    //@ts-ignore
+                    percents={(data?.accepted_response_stats?.percentage_increase).toString()}
+                  />
+                </div>{" "}
+                <div className="w-[300px] xl:w-full">
+                  <DashboardWidget
+                    title="Rejected response"
+                    bg="bg-[#EB5757] bg-opacity-[12%]"
+                    fg="text-[#EB5757]"
+                    icon={NoteRemove}
+                    value={numberWithCommas(
+                      //@ts-ignore
+                      data?.accepted_response_stats.count,
+                    )}
+                    footer="vs last month"
+                    isAnalytics
+                    increase={true}
+                    //@ts-ignore
+                    percents={(data?.accepted_response_stats.percentage_increase).toString()}
+                  />
+                </div>
+              </>
+            )}
           </div>
         </div>
 

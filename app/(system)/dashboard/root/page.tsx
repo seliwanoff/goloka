@@ -13,7 +13,7 @@ import {
 import Map from "@/public/assets/images/tasks/tasks.png";
 import Image from "next/image";
 import Link from "next/link";
-import { CalendarIcon, ChevronDown, Search } from "lucide-react";
+import { ChevronDown, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import TaskCardWidget from "@/components/lib/widgets/task_card";
 import {
@@ -25,7 +25,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 import {
   Popover,
   PopoverContent,
@@ -37,15 +36,26 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Calendar as CalenderDate } from "@/components/ui/calendar";
 import { MouseEvent, useEffect, useRef, useState } from "react";
-// import { tasks } from "@/utils";
 import { useUserStore } from "@/stores/use-user-store";
 import { useQuery } from "@tanstack/react-query";
 import { getAllTask } from "@/services/contributor";
 import { SkeletonLoader } from "@/components/lib/loader";
 import { useRouter } from "next/navigation";
 import { getDashboardStats } from "@/services/response";
+import { numberWithCommas } from "@/helper";
 
 type PageProps = {};
+
+interface DashboardData {
+  wallet_balance: number;
+  total_earnings: number;
+  total_campaigns_taken: number;
+  responses_awaiting_approval: number;
+}
+
+type Stats = {
+  data: DashboardData;
+};
 
 const DashboardRoot: React.FC<PageProps> = ({}) => {
   const [date, setDate] = useState<Date>();
@@ -58,11 +68,14 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
   const [minPrice, setMinPrice] = useState<number | undefined>(undefined);
   const tasksRef = useRef<HTMLDivElement>(null);
   const [maxPrice, setMaxPrice] = useState<number | undefined>(undefined);
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
+  const [debouncedSearchTerm, setDebouncedSearchTerm] =
+    useState<string>(searchTerm);
+
+  const [data, setData] = useState<DashboardData | null>(null);
   const fetchData = () => {
     return getAllTask({
-      search: debouncedSearchTerm,
-      type,
+      // search: debouncedSearchTerm as string,
+      // type,
       page,
       per_page: perPage,
       min_price: minPrice,
@@ -76,10 +89,15 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
 
   console.log(stats, "stats");
   useEffect(() => {
+    if (stats?.data) {
+      setData(stats.data);
+    }
+  }, [stats]);
+  useEffect(() => {
     console.log("temrds");
     const handler = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
-    }, 300); // Debounce delay (300ms)
+    }, 300);
 
     return () => {
       clearTimeout(handler);
@@ -156,65 +174,84 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
         {/* ####################################### */}
         <div className="no-scrollbar col-span-5 w-full overflow-x-auto">
           <div className="col-span-5 flex w-min gap-4 1xl:grid 1xl:grid-cols-4 xl:w-full">
-            {/* Projects Card */}
-            <div className="w-[300px] xl:w-full">
-              <DashboardWidget
-                title="Wallet balance"
-                bg="bg-white bg-opacity-[12%]"
-                fg="text-white"
-                containerBg="bg-gradient-to-tr from-[100%] to-[100%] from-[#3365E3] to-[#1C387D]"
-                textColor="text-white"
-                icon={Wallet3}
-                value="₦200,500"
-                footer={
-                  <>
-                    <span className="font-medium">₦5,250</span> Pending balance
-                  </>
-                }
-                isAnalytics={false}
-                increase={true}
-                percents={40}
-              />
-            </div>
-            <div className="w-[300px] xl:w-full">
-              <DashboardWidget
-                title="Total earning"
-                bg="bg-[#FEC53D] bg-opacity-[12%]"
-                fg="text-[#FEC53D]"
-                icon={TrendUp}
-                value={"₦750,000"}
-                footer="vs last month"
-                isAnalytics
-                increase={true}
-                percents={40}
-              />
-            </div>
-            <div className="w-[300px] xl:w-full">
-              <DashboardWidget
-                title="Tasks taken"
-                bg="bg-main-100 bg-opacity-[12%]"
-                fg="text-main-100"
-                icon={Note}
-                value={640}
-                footer="vs last month"
-                isAnalytics
-                increase={true}
-                percents={40}
-              />
-            </div>
-            <div className="w-[300px] xl:w-full">
-              <DashboardWidget
-                title="Awaiting approval"
-                bg="bg-[#EB5757] bg-opacity-[12%]"
-                fg="text-[#EB5757]"
-                icon={ClipboardExport}
-                value={36}
-                footer="vs last month"
-                isAnalytics
-                increase={true}
-                percents={40}
-              />
-            </div>
+            {!data ? (
+              <>
+                <SkeletonXLoader />
+
+                <SkeletonXLoader />
+
+                <SkeletonXLoader />
+
+                <SkeletonXLoader />
+                {/* <SkeletonXLoader /> */}
+              </>
+            ) : (
+              <>
+                {/* Wallet Balance */}
+                <DashboardWidget
+                  title="Wallet balance"
+                  bg="bg-white bg-opacity-[12%]"
+                  fg="text-white"
+                  containerBg="bg-gradient-to-tr from-[#3365E3] to-[#1C387D]"
+                  textColor="text-white"
+                  icon={Wallet3}
+                  //@ts-ignore
+                  value={`₦ ${numberWithCommas(data?.wallet_balance)}`}
+                  footer={
+                    <span className="font-medium">₦5,250 Pending balance</span>
+                  }
+                  isAnalytics={false}
+                  increase={true}
+                  percents={40}
+                />
+
+                {/* Total Earnings */}
+                <DashboardWidget
+                  title="Total earnings"
+                  bg="bg-[#FEC53D] bg-opacity-[12%]"
+                  fg="text-[#FEC53D]"
+                  icon={TrendUp}
+                  value={
+                    //@ts-ignore
+                    data?.total_earnings
+                      ? `₦ ${numberWithCommas(data?.total_earnings)}`
+                      : "0.00"
+                  }
+                  footer="vs last month"
+                  isAnalytics={true}
+                  increase={true}
+                  percents={40}
+                />
+
+                {/* Total Tasks */}
+                <DashboardWidget
+                  title="Tasks taken"
+                  bg="bg-main-100 bg-opacity-[12%]"
+                  fg="text-main-100"
+                  icon={Note}
+                  //@ts-ignore
+                  value={data?.total_campaigns_taken}
+                  footer="vs last month"
+                  isAnalytics={true}
+                  increase={true}
+                  percents={40}
+                />
+
+                {/* Awaiting Approval */}
+                <DashboardWidget
+                  title="Awaiting approval"
+                  bg="bg-[#EB5757] bg-opacity-[12%]"
+                  fg="text-[#EB5757]"
+                  icon={ClipboardExport}
+                  //@ts-ignore
+                  value={data?.responses_awaiting_approval}
+                  footer="vs last month"
+                  isAnalytics={true}
+                  increase={false}
+                  percents={40}
+                />
+              </>
+            )}
           </div>
         </div>
 
@@ -361,79 +398,29 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
 
 export default DashboardRoot;
 
-// const MapX = () => {
-//   const [tooltip, setTooltip] = useState({
-//     display: false,
-//     x: 0,
-//     y: 0,
-//     content: "",
-//   });
+export const SkeletonXLoader = () => {
+  return (
+    <div className="rounded-lg bg-gray-200 p-4 shadow-md">
+      {/* Flex container for title and icon */}
+      <div className="flex items-center justify-between">
+        {/* Title loader */}
+        <div className="flex items-center space-x-2">
+          <div className="h-4 w-24 animate-pulse rounded bg-gray-300 md:w-40 lg:w-48"></div>
+        </div>
 
-//   const handleMouseOver = (
-//     event: MouseEvent<SVGPathElement, MouseEvent>,
-//     locationName: string,
-//     taskCount: number,
-//   ) => {
-//     setTooltip({
-//       display: true,
-//       x: event.pageX + 10,
-//       y: event.pageY + 10,
-//       content: `${locationName} - Tasks: ${taskCount}`,
-//     });
-//   };
+        {/* Icon loader */}
+        <div className="h-8 w-8 animate-pulse rounded-full bg-gray-300 sm:h-10 sm:w-10 md:h-12 md:w-12"></div>
+      </div>
 
-//   const handleMouseMove = (event: { pageX: number; pageY: number }) => {
-//     setTooltip((prevTooltip) => ({
-//       ...prevTooltip,
-//       x: event.pageX + 10,
-//       y: event.pageY + 10,
-//     }));
-//   };
+      {/* Value loader */}
+      <div className="mt-3">
+        <div className="h-6 w-20 animate-pulse rounded bg-gray-300 sm:w-32 md:w-40 lg:w-48"></div>
+      </div>
 
-//   const handleMouseOut = () => {
-//     setTooltip({ display: false, x: 0, y: 0, content: "" });
-//   };
-
-//   return (
-//     <div className="relative h-screen w-full">
-//       {/* SVG Map */}
-//       <svg
-//         id="map"
-//         className="h-full w-full"
-//         viewBox="0 0 500 500"
-//         preserveAspectRatio="xMidYMid meet"
-//       >
-//         {/* Example Location */}
-//         <path
-//           id="location-1"
-//           className="cursor-pointer fill-gray-300 transition duration-300 hover:fill-blue-500"
-//           d="M50 50 L150 50 L150 150 L50 150 Z"
-//           onMouseOver={(e) => handleMouseOver(e, "City A", 15)}
-//           onMouseMove={handleMouseMove}
-//           onMouseOut={handleMouseOut}
-//         />
-//         <path
-//           id="location-2"
-//           className="cursor-pointer fill-gray-300 transition duration-300 hover:fill-blue-500"
-//           d="M200 50 L300 50 L300 150 L200 150 Z"
-//           onMouseOver={(e) => handleMouseOver(e, "City B", 20)}
-//           onMouseMove={handleMouseMove}
-//           onMouseOut={handleMouseOut}
-//         />
-//       </svg>
-
-//       {/* Tooltip */}
-//       {tooltip.display && (
-//         <div
-//           className="pointer-events-none absolute rounded bg-black px-2 py-1 text-sm text-white shadow-md"
-//           style={{
-//             left: `${tooltip.x}px`,
-//             top: `${tooltip.y}px`,
-//           }}
-//         >
-//           {tooltip.content}
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
+      {/* Footer loader */}
+      <div className="mt-2">
+        <div className="h-4 w-16 animate-pulse rounded bg-gray-300 sm:w-20 md:w-24 lg:w-28"></div>
+      </div>
+    </div>
+  );
+};
