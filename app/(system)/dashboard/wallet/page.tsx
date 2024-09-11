@@ -13,6 +13,8 @@ import Pagination from "@/components/lib/navigation/Pagination";
 import CreateWithdrawal from "@/components/lib/modals/create_withdrawal";
 import CreateBeneficiary from "@/components/lib/modals/create_beneficiary";
 import CreateTransfer from "@/components/lib/modals/create_transfer";
+import { useQuery } from "@tanstack/react-query";
+import { getContributorsBalance } from "@/services/wallets";
 
 const Wallet = () => {
   const [expenses, setExpenses] = useState<any[]>([]);
@@ -23,6 +25,11 @@ const Wallet = () => {
   const [pageSize, setPageSize] = useState<number>(10);
   const pages = chunkArray(expenses, pageSize);
 
+  const { data: balance } = useQuery({
+    queryKey: ["Get balance"],
+    queryFn: getContributorsBalance,
+  });
+  console.log({balance});
   // FILTERING TABLE DATA
   useEffect(() => {
     console.log(filterType);
