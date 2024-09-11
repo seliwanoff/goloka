@@ -11,11 +11,13 @@ const ChatTab = () => {
         Chat with Goloka
       </div>
 
-      <div className="pt-14">
-        <ChatWidget />
+      <div className="no-scrollbar h-[400px] w-full overflow-y-auto md:h-auto md:pt-14">
+        <div className="">
+          <ChatWidget />
+        </div>
       </div>
 
-      <div className="absolute bottom-0 left-0 w-full border-t px-6 py-4">
+      <div className="absolute bottom-0 left-0 z-10 w-full border-t bg-white px-6 py-4">
         <form id="chat-box" className="block w-full">
           <div className="flex w-full items-center gap-6">
             <Input

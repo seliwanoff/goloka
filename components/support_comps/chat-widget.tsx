@@ -4,7 +4,7 @@ import Image from "next/image";
 const ChatWidget = () => {
   return (
     <>
-      <div className="flex flex-col space-y-8 p-4 pb-20 md:self-stretch md:pb-4">
+      <div className="flex flex-col space-y-8 px-4 pb-20 md:self-stretch md:p-4 md:pb-4">
         {/* Receiver's Message  */}
         <div className="flex justify-end">
           <div className="max-w-xs rounded-2xl bg-gray-200 p-4">

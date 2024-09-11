@@ -24,6 +24,7 @@ const ReportTab = () => {
 
   const onReport = (data: any) => {
     console.log(data);
+    reset();
   };
 
   return (
@@ -34,7 +35,7 @@ const ReportTab = () => {
         Lobortis ac sit arcu.
       </p>
 
-      <div className="mt-10">
+      <div className="mt-10 max-w-96">
         <form id="report-issue" onSubmit={handleSubmit(onReport)}>
           <div>
             <Label htmlFor="suggestion" className="sr-only">
@@ -51,7 +52,7 @@ const ReportTab = () => {
             ></textarea>
           </div>
 
-          <Button className="rounded-full bg-main-100 px-6 py-2 text-white hover:bg-blue-700 hover:text-white">
+          <Button className="mt-4 rounded-full bg-main-100 px-6 py-2 text-white hover:bg-blue-700 hover:text-white">
             Submit suggestion
           </Button>
         </form>
