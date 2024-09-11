@@ -111,8 +111,8 @@ const config = {
     extend: {
       colors: {
         main: {
-          100: "#3365E3",
-          200: "#001C62",
+          "100": "#3365E3",
+          "200": "#001C62",
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -153,22 +153,6 @@ const config = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
-      // keyframes: {
-      //   "accordion-down": {
-      //     from: { height: "0" },
-      //     to: { height: "var(--radix-accordion-content-height)" },
-      //   },
-      //   "accordion-up": {
-      //     from: { height: "var(--radix-accordion-content-height)" },
-      //     to: { height: "0" },
-      //   },
-      //   "caret-blink": {
-      //     "0%, 70%, 100%": { opacity: "1" },
-      //     "20%, 50%": { opacity: "0" },
-      //   },
-      // },
-
-      // ~ ======= animation -->
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
@@ -177,31 +161,48 @@ const config = {
         shimmer: "shimmer 8s infinite",
         "spin-around": "spin-around calc(var(--speed) * 2) infinite linear",
         slide: "slide var(--speed) ease-in-out infinite alternate",
-
         "caret-blink": "caret-blink 1.25s ease-out infinite",
       },
-
-      // ~ ======= keyframes -->
       keyframes: {
         "accordion-down": {
-          from: { height: "0" },
-          to: { height: "var(--radix-accordion-content-height)" },
+          from: {
+            height: "0",
+          },
+          to: {
+            height: "var(--radix-accordion-content-height)",
+          },
         },
         "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
+          from: {
+            height: "var(--radix-accordion-content-height)",
+          },
+          to: {
+            height: "0",
+          },
         },
         marquee: {
-          from: { transform: "translateX(0)" },
-          to: { transform: "translateX(calc(-100% - var(--gap)))" },
+          from: {
+            transform: "translateX(0)",
+          },
+          to: {
+            transform: "translateX(calc(-100% - var(--gap)))",
+          },
         },
         "caret-blink": {
-          "0%, 70%, 100%": { opacity: "1" },
-          "20%, 50%": { opacity: "0" },
+          "0%, 70%, 100%": {
+            opacity: "1",
+          },
+          "20%, 50%": {
+            opacity: "0",
+          },
         },
         "marquee-vertical": {
-          from: { transform: "translateY(0)" },
-          to: { transform: "translateY(calc(-100% - var(--gap)))" },
+          from: {
+            transform: "translateY(0)",
+          },
+          to: {
+            transform: "translateY(calc(-100% - var(--gap)))",
+          },
         },
         shimmer: {
           "0%, 90%, 100%": {
@@ -232,9 +233,9 @@ const config = {
         },
       },
       spacing: {
-        "1.25": "5px", // Gap
-        "16.25": "65px", // Width
-        "15.75": "63px", // Height
+        "1.25": "5px",
+        "16.25": "65px",
+        "15.75": "63px",
       },
       screens: {
         "1xl": "1200px",

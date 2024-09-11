@@ -164,7 +164,6 @@ export const questions5 = [
   },
 ];
 
-
 export const responsesTableData = [
   // On Review (with unread)
   {
@@ -607,5 +606,24 @@ export const myBeneficiaries = [
     accountNumber: "2345678901234",
     bank: "Access Bank",
     value: "2345678901234-access",
+  },
+];
+
+export const supportTabs = [
+  {
+    label: "Contact Goloka",
+    value: "contact",
+  },
+  {
+    label: "Help center",
+    value: "help",
+  },
+  {
+    label: "Chat with Goloka",
+    value: "chat",
+  },
+  {
+    label: "Report an issue",
+    value: "report",
   },
 ];
