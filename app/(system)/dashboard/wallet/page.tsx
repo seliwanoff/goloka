@@ -15,6 +15,7 @@ import CreateBeneficiary from "@/components/lib/modals/create_beneficiary";
 import CreateTransfer from "@/components/lib/modals/create_transfer";
 import { useQuery } from "@tanstack/react-query";
 import { getContributorsBalance } from "@/services/wallets";
+import { numberWithCommas } from "@/helper";
 
 const Wallet = () => {
   const [expenses, setExpenses] = useState<any[]>([]);
@@ -29,7 +30,7 @@ const Wallet = () => {
     queryKey: ["Get balance"],
     queryFn: getContributorsBalance,
   });
-  console.log({balance});
+  // console.log(balance?.balance);
   // FILTERING TABLE DATA
   useEffect(() => {
     console.log(filterType);
@@ -58,8 +59,11 @@ const Wallet = () => {
         {/* ####################################### */}
         <div className="mb-8 grid gap-6 md:grid-cols-2">
           <div className="flex flex-col items-center justify-between rounded-[8px] bg-main-100 p-6">
-            <div>
-              <h1 className="text-[2rem] font-bold text-white">$3,200</h1>
+            <div className="text-center">
+              <h1 className="text-[2rem] font-bold text-white">
+              {/* @ts-ignore */}
+                $ {numberWithCommas(balance?.balance)}
+              </h1>
               <p className="text-sm font-medium text-white">Wallet balance</p>
             </div>
             <p className="text-sm font-medium text-white">

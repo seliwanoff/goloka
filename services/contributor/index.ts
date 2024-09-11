@@ -16,6 +16,32 @@ import { AxiosResponse } from "axios";
 
 export type ServerResponseOrNull<T> = ServerResponse<T> | null;
 
+interface BankAccount {
+  account_number: string;
+  account_name: string;
+  bank_name: string;
+  id: number;
+}
+
+interface UserData {
+  id: number;
+  birth_date: string; // ISO 8601 date string
+  gender: string;
+  religion: string | null;
+  ethnicity: string | null;
+  primary_language: string;
+  spoken_languages: string[];
+  latitude: number;
+  longitude: number;
+  location: string | null;
+  location_updated_at: string; // Date-time string
+  bank_accounts: BankAccount[];
+}
+
+interface ApiResponse {
+  data: UserData;
+}
+
 interface TaskData {
   id: number;
   title: string;
@@ -45,7 +71,6 @@ interface TaskData {
 interface TaskResponse {
   data: TaskData;
 }
-
 
 // ~ =============================================>
 // ~ ======= Create a user  -->
@@ -80,7 +105,6 @@ interface GetAllTaskParams {
   campaign_end_date?: string;
 }
 
-
 export const getAllTask = async (params: GetAllTaskParams) => {
   try {
     const query = new URLSearchParams();
@@ -113,9 +137,6 @@ export const getAllTask = async (params: GetAllTaskParams) => {
   }
 };
 
-
-
-
 // ~ =============================================>
 // ~ ======= get task by id  -->
 // ~ =============================================>
@@ -127,6 +148,22 @@ export const getTaskById = async (
     queryFn: async () => {
       try {
         return await fetchData(`/contributor/campaigns/${Id}`);
+      } catch (error) {
+        return null;
+      }
+    },
+  });
+// ~ =============================================>
+// ~ ======= get contributors profile  -->
+// ~ =============================================>
+export const getContributorsProfile = async (): Promise<
+  UseQueryResult<AxiosResponse<TaskResponse>>
+> =>
+  await queryClient.fetchQuery({
+    queryKey: ["contributors profile"],
+    queryFn: async () => {
+      try {
+        return await fetchData(`/contributor-profile`);
       } catch (error) {
         return null;
       }

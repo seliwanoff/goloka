@@ -38,11 +38,12 @@ import { Calendar as CalenderDate } from "@/components/ui/calendar";
 import { MouseEvent, useEffect, useRef, useState } from "react";
 import { useUserStore } from "@/stores/use-user-store";
 import { useQuery } from "@tanstack/react-query";
-import { getAllTask } from "@/services/contributor";
+import { getAllTask, getContributorsProfile } from "@/services/contributor";
 import { SkeletonLoader } from "@/components/lib/loader";
 import { useRouter } from "next/navigation";
 import { getDashboardStats } from "@/services/response";
 import { numberWithCommas } from "@/helper";
+import { SkeletonXLoader } from "@/helper/loader";
 
 type PageProps = {};
 
@@ -59,6 +60,7 @@ type Stats = {
 
 const DashboardRoot: React.FC<PageProps> = ({}) => {
   const [date, setDate] = useState<Date>();
+
   const currentUser = useUserStore((state) => state.currentUser);
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -70,7 +72,11 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
   const [maxPrice, setMaxPrice] = useState<number | undefined>(undefined);
   const [debouncedSearchTerm, setDebouncedSearchTerm] =
     useState<string>(searchTerm);
-
+  const { data: remoteUser } = useQuery({
+    queryKey: ["Get dashboard stats"],
+    queryFn: getContributorsProfile,
+  });
+  console.log(remoteUser, "remoteUser");
   const [data, setData] = useState<DashboardData | null>(null);
   const fetchData = () => {
     return getAllTask({
@@ -103,7 +109,7 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
       clearTimeout(handler);
     };
   }, [searchTerm]);
-
+  console.log(currentUser, "currentUser");
   useEffect(() => {
     const params = {
       search: debouncedSearchTerm,
@@ -398,29 +404,4 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
 
 export default DashboardRoot;
 
-export const SkeletonXLoader = () => {
-  return (
-    <div className="rounded-lg bg-gray-200 p-4 shadow-md">
-      {/* Flex container for title and icon */}
-      <div className="flex items-center justify-between">
-        {/* Title loader */}
-        <div className="flex items-center space-x-2">
-          <div className="h-4 w-24 animate-pulse rounded bg-gray-300 md:w-40 lg:w-48"></div>
-        </div>
 
-        {/* Icon loader */}
-        <div className="h-8 w-8 animate-pulse rounded-full bg-gray-300 sm:h-10 sm:w-10 md:h-12 md:w-12"></div>
-      </div>
-
-      {/* Value loader */}
-      <div className="mt-3">
-        <div className="h-6 w-20 animate-pulse rounded bg-gray-300 sm:w-32 md:w-40 lg:w-48"></div>
-      </div>
-
-      {/* Footer loader */}
-      <div className="mt-2">
-        <div className="h-4 w-16 animate-pulse rounded bg-gray-300 sm:w-20 md:w-24 lg:w-28"></div>
-      </div>
-    </div>
-  );
-};

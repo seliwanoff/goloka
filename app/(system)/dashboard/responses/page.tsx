@@ -41,8 +41,9 @@ import { useRouter } from "next/navigation";
 import Pagination from "@/components/lib/navigation/Pagination";
 import { useQuery } from "@tanstack/react-query";
 import { getAllResponses, getResponseStats } from "@/services/response";
-import { SkeletonXLoader } from "../root/page";
+
 import { numberWithCommas } from "@/helper";
+import { SkeletonXLoader } from "@/helper/loader";
 
 type PageProps = {};
 
