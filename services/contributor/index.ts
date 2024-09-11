@@ -85,35 +85,34 @@ export const getAllTask = async (params: GetAllTaskParams) => {
   try {
     const query = new URLSearchParams();
 
-    if (params.per_page) query.append("per_page", params.per_page.toString());
-    if (params.page) query.append("page", params.page.toString());
-    if (params.search) query.append("search", params.search);
-    if (params.type) query.append("type", params.type);
-    if (params.min_price)
-      query.append("min_price", params.min_price.toString());
-    if (params.max_price)
-      query.append("max_price", params.max_price.toString());
-    if (params.min_question)
-      query.append("min_question", params.min_question.toString());
-    if (params.max_question)
-      query.append("max_question", params.max_question.toString());
-    if (params.allows_multiple_responses !== undefined)
-      query.append(
-        "allows_multiple_responses",
-        params.allows_multiple_responses.toString(),
-      );
-    if (params.campaign_end_date)
-      query.append("campaign_end_date", params.campaign_end_date);
+    // Add query parameters conditionally
+    const appendQuery = (key: string, value: any) => {
+      if (value !== undefined && value !== null) {
+        query.append(key, value.toString());
+      }
+    };
 
-    const queryString = query.toString();
-    const endpoint = `/contributor/campaigns?${queryString}`;
+    appendQuery("per_page", params.per_page);
+    appendQuery("page", params.page);
+    appendQuery("search", params.search);
+    appendQuery("type", params.type);
+    appendQuery("min_price", params.min_price);
+    appendQuery("max_price", params.max_price);
+    appendQuery("min_question", params.min_question);
+    appendQuery("max_question", params.max_question);
+    appendQuery("allows_multiple_responses", params.allows_multiple_responses);
+    appendQuery("campaign_end_date", params.campaign_end_date);
 
-    return await fetchData<ServerResponse<any>>(endpoint);
+    const endpoint = `/campaigns?${query.toString()}`;
+    const response = await fetchData<ServerResponse<any>>(endpoint);
+
+    return response;
   } catch (error) {
-    console.error("Error fetching campaigns:", error);
-    return null;
+    console.error("Error fetching tasks:", error);
+    throw new Error("Failed to fetch tasks. Please try again later.");
   }
 };
+
 
 
 

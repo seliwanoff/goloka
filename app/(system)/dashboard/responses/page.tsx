@@ -39,6 +39,8 @@ import DataTable from "@/components/lib/widgets/DataTable";
 import { chunkArray, cn, responseStatus } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import Pagination from "@/components/lib/navigation/Pagination";
+import { useQuery } from "@tanstack/react-query";
+import { getAllResponses, getResponseStats } from "@/services/response";
 
 type PageProps = {};
 
@@ -132,7 +134,9 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
   const [openFilter, setOpenFilter] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState("On Review");
   const [filteredData, setFilteredData] = useState<Response[]>(
-    responsesTableData?.filter((item: { status: string; }) => item?.status === activeTab),
+    responsesTableData?.filter(
+      (item: { status: string }) => item?.status === activeTab,
+    ),
   );
   const [date, setDate] = useState<Date>();
   const router = useRouter();
@@ -140,10 +144,30 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
   const [pageSize, setPageSize] = useState<number>(10);
   const pages = chunkArray(filteredData, pageSize);
   console.log(pages, "pages");
+  const { data: stats } = useQuery({
+    queryKey: ["Get response stats"],
+    queryFn: getResponseStats,
+  });
 
+    const fetchData = () => {
+      return getAllResponses({
+        // search: debouncedSearchTerm,
+        // type,
+        // page,
+        // per_page: perPage,
+        // min_price: minPrice,
+        // max_price: maxPrice,
+      });
+    };
+
+  
+
+  console.log(stats, "stats");
   useEffect(() => {
     const filter = (status: string) =>
-      responsesTableData?.filter((item: { status: string; }) => item?.status === status);
+      responsesTableData?.filter(
+        (item: { status: string }) => item?.status === status,
+      );
 
     switch (activeTab) {
       case "On Review":

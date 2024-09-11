@@ -43,6 +43,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getAllTask } from "@/services/contributor";
 import { SkeletonLoader } from "@/components/lib/loader";
 import { useRouter } from "next/navigation";
+import { getDashboardStats } from "@/services/response";
 
 type PageProps = {};
 
@@ -68,6 +69,12 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
       max_price: maxPrice,
     });
   };
+  const { data: stats } = useQuery({
+    queryKey: ["Get dashboard stats"],
+    queryFn: getDashboardStats,
+  });
+
+  console.log(stats, "stats");
   useEffect(() => {
     console.log("temrds");
     const handler = setTimeout(() => {
