@@ -22,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Controller } from "react-hook-form";
 
 interface InputProps {
   type: string;
@@ -32,82 +33,58 @@ interface InputProps {
   value: string;
 }
 
-const CustomInput: React.FC<InputProps> = ({
-  type,
-  placeholder,
-  required,
-  err_message,
-  onChange,
-  value,
-}) => {
-  switch (type) {
-    case "text":
-      return (
-        <input
-          type="text"
-          placeholder={placeholder}
-          required={required}
-          onChange={(e) => onChange(e.target.value)}
-          value={value}
-        />
-      );
+const CustomInput = ({ errors, data, register, control, options }: any) => {
+  switch (data?.type) {
     case "tel":
-      return (
-        <PhoneInput
-          international
-          defaultCountry="US"
-          value={value}
-          onChange={onChange}
-        />
-      );
+    // return (
+    //   <PhoneInput
+    //     international
+    //     defaultCountry="US"
+    //     value={value}
+    //     onChange={onChange}
+    //   />
+    // );
     case "date":
-      return <DatePicker onChange={onChange} value={value} />;
+      return <DatePicker {...{ errors, data, control }} />;
     case "select":
-      return (
-        <SelectInput
-          onChange={onChange}
-          options={[
-            { label: "Male", value: "male" },
-            { label: "Female", value: "female" },
-            // Add more options as needed
-          ]}
-          value={value}
-          placeholder={placeholder}
-        />
-      );
+      // return <CustomSelectField {...{ errors, data, control, options }} />;
+
+    case "text":
     default:
-      return null;
+      // return <TextField {...{ errors, data, register }} />;
   }
 };
 
 export default CustomInput;
 
-const DatePicker = ({ onChange, value }: { onChange: any; value: any }) => {
+const DatePicker = ({ errors, data, control }: any) => {
   const [date, setDate] = React.useState<Date>();
 
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          variant={"outline"}
-          className={cn(
-            "w-[280px] justify-start text-left font-normal",
-            !date && "text-muted-foreground",
-          )}
-        >
-          <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, "PPP") : <span>Pick a date</span>}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto p-0">
-        <Calendar
-          mode="single"
-          selected={date}
-          onSelect={setDate}
-          initialFocus
-        />
-      </PopoverContent>
-    </Popover>
+    <div>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            variant={"outline"}
+            className={cn(
+              "w-[280px] justify-start text-left font-normal",
+              !date && "text-muted-foreground",
+            )}
+          >
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            {date ? format(date, "PPP") : <span>Pick a date</span>}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0">
+          <Calendar
+            mode="single"
+            selected={date}
+            onSelect={setDate}
+            initialFocus
+          />
+        </PopoverContent>
+      </Popover>
+    </div>
   );
 };
 
@@ -123,32 +100,25 @@ type SelectProps = {
   value: string;
 };
 
-const SelectInput: React.FC<SelectProps> = ({
-  onChange,
-  options,
-  placeholder,
-  value,
-}) => {
-  return (
-    <>
-      <Select defaultValue={value} onValueChange={onChange}>
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder={placeholder} />
-        </SelectTrigger>
-        <SelectContent>
-          {options?.map((opt: any) => (
-            <SelectItem key={opt?.value} value={opt?.value}>
-              {opt?.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </>
-  );
-};
 
 
 
-const TextField = ({ errors, data, register, infoColor }: any) => {
-  
-}
+
+// const CustomInput = ({ errors, data, register, control }: any) => {
+//   switch (data.type) {
+//     case "amount":
+//     // return <CustomAmountField {...{ errors, data, register, control }} />;
+//     case "autocomplete":
+//     // return <CustomAutoComplete {...{ errors, data, register, control }} />;
+//     case "richText":
+//     // return <CustomTextArea {...{ errors, data, register }} />;
+//     case "select":
+//       return <CustomSelectField {...{ errors, data, control }} />;
+//     case "textarea":
+//     // return <CustomTextArea {...{ errors, data, register }} />;
+//     default:
+//       return <TextField {...{ errors, data, register }} />;
+//   }
+// };
+
+// export default CustomInput;
