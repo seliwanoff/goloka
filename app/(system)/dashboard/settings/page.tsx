@@ -1,5 +1,6 @@
 "use client";
 import CustomInput from "@/components/lib/widgets/custom_inputs";
+import CustomSelectField from "@/components/settings-comp/select_field";
 import TextField from "@/components/settings-comp/text_field";
 import { yupResolver } from "@hookform/resolvers/yup";
 import React from "react";
@@ -71,12 +72,29 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
             <p className="text-sm text-red-600"></p>
           </div> */}
           {personalInfo.map((data: any, index: number) => {
-            if (data?.type === "select") {
-              
+            console.log(
+              data?.type === "select",
+              data?.name === "gender",
+              data.type,
+              data.name,
+            );
+            if (data?.type === "select" && data?.name === "gender") {
+              <CustomSelectField
+                data={data}
+                control={control}
+                errors={errors}
+                options={gender}
+                key={data?.name + index}
+              />;
             }
             return (
               <>
-                <TextField data={data} register={register} errors={errors} />
+                <TextField
+                  data={data}
+                  register={register}
+                  errors={errors}
+                  key={data?.name + index}
+                />
               </>
             );
           })}
@@ -146,7 +164,13 @@ const personalInfo = [
     type: "select",
     required: true,
     err_message: "Input your first name",
-    name: "firstName",
+    name: "gender",
     placeholder: "Input first name",
   },
+];
+
+const gender = [
+  { label: "Male", value: "male" },
+  { label: "Female", value: "female" },
+  { label: "Others", value: "others" },
 ];
