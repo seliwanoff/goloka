@@ -17,7 +17,11 @@ import TaskStepper from "@/components/task-stepper/TaskStepper";
 import { Toaster } from "@/components/ui/sonner";
 import { tasks } from "@/utils";
 import { cn } from "@/lib/utils";
-import { getTaskById } from "@/services/contributor";
+import {
+  createContributorResponse,
+  getCampaignQuestion,
+  getTaskById,
+} from "@/services/contributor";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import moment from "moment";
@@ -96,15 +100,49 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
     queryKey: ["Get task"],
     queryFn: async () => await getTaskById(taskId as string),
   });
+  // const {
+  //   data: quest,
+  //   // isLoading,
+  //   // refetch,
+  // } = useQuery({
+  //   queryKey: ["campaign questions"],
+  //   queryFn: async () => await getCampaignQuestion(taskId as string),
+  // });
 
-  console.log(task, "juju");
+const {
+  data: quest,
+  isLoading: questLoading,
+  error: questError,
+} = useQuery({
+  queryKey: ["campaign questions", taskId], // The key used for caching
+  queryFn: () => getCampaignQuestion(taskId as string), // Function to fetch data
+  enabled: !!taskId, // Ensures the query only runs when taskId exists
+  retry: 2, // Retry failed queries up to 2 times
+});
+
+
+
+  const onContribute = async () => {
+    // const response = await createContributorResponse(taskId as string, {});
+    // console.log(response, "success");
+    // //@ts-ignore
+    // if (response?.message === "Response created successfully") {
+    setIsStepper(true);
+    // }
+  };
+
+  console.log(quest, "quest");
+
   //@ts-ignore
   const Date = moment(task?.data?.ends_at).format("DD MMMM YYYY");
   //@ts-ignore
   const Time = moment(task?.data?.ends_at).format("hh:mm A");
+
+
   if (isLoading) {
     return <SkeletonLoader />;
   }
+  
   return (
     <>
       <Toaster richColors position={"top-right"} />
@@ -144,7 +182,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
               </div>
 
               <div className="mt-6">
-                <TaskStepper />
+                <TaskStepper quest={quest} />
               </div>
             </div>
           </>
@@ -177,7 +215,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
               </div>
               <div className="hidden items-center justify-center space-x-2 md:flex">
                 <Button
-                  onClick={() => setIsStepper(true)}
+                  onClick={onContribute}
                   className="h-auto gap-3 rounded-full bg-main-100 px-10 py-3 text-sm shadow-lg shadow-blue-50 hover:bg-blue-700"
                 >
                   <span>
@@ -221,7 +259,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
                   </div>
                   <div className="md:text-right">
                     <h4 className="font-medium text-[#101828]">
-                    {/* @ts-ignore */}
+                      {/* @ts-ignore */}
                       {task?.data?.type}{" "}
                     </h4>
                     <p className="text-sm text-gray-400">Campaign</p>
@@ -291,7 +329,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
             {/* MOBILE CTA */}
             <div className="fixed bottom-0 left-0 z-10 flex w-full items-center justify-start space-x-2 bg-white p-5 md:hidden">
               <Button
-                onClick={() => setIsStepper(true)}
+                onClick={onContribute}
                 className="h-auto flex-grow gap-3 rounded-full bg-main-100 px-10 py-3 text-sm shadow-lg shadow-blue-50 hover:bg-blue-700"
               >
                 <span>

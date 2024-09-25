@@ -75,20 +75,40 @@ interface TaskResponse {
 // ~ =============================================>
 // ~ ======= Create a user  -->
 // ~ =============================================>
-export const createContributor = async (
+  export const createContributor = async (
+    data: any,
+  ): Promise<UseQueryResult<ServerResponse<any>>> => {
+    return queryClient.fetchQuery({
+      queryKey: ["create contributor"],
+      queryFn: async () => {
+        return await postData<ServerResponse<any>>(
+          "/contributor-profile/update",
+          data,
+        );
+      },
+    });
+  };
+
+
+  // ~ =============================================>
+  // ~ ======= Create a contributor Response  -->
+  // ~ =============================================>
+
+
+export const createContributorResponse = async (
+  id: string,
   data: any,
 ): Promise<UseQueryResult<ServerResponse<any>>> => {
   return queryClient.fetchQuery({
-    queryKey: ["create contributor"],
+    queryKey: ["create contributor response"],
     queryFn: async () => {
       return await postData<ServerResponse<any>>(
-        "/contributor-profile/update",
+        `/contributor/campaigns/${id}/responses/create`,
         data,
       );
     },
   });
-};
-
+ }
 // ~ =============================================>
 // ~ ======= Get campaign user  -->
 // ~ =============================================>
@@ -153,6 +173,33 @@ export const getTaskById = async (
       }
     },
   });
+// ~ =============================================>
+// ~ ======= get campaign question -->
+// ~ =============================================>
+// export const getCampaignQuestion = async (
+//   id: string,
+// ): Promise<UseQueryResult<AxiosResponse<TaskResponse>>> =>
+//   await queryClient.fetchQuery({
+//     queryKey: ["campaign questions"],
+//     queryFn: async () => {
+//       try {
+//         return await fetchData(`/contributor/campaigns/${id}/questions`);
+//       } catch (error) {
+//         return null;
+//       }
+//     },
+//   });
+
+export const getCampaignQuestion = async (
+  id: string,
+): Promise<AxiosResponse<TaskResponse>> => {
+  try {
+    return await fetchData(`/contributor/campaigns/${id}/questions`);
+  } catch (error) {
+    console.error("Error fetching campaign questions:", error);
+    throw error; // Throw the error so it can be caught in the useQuery hook
+  }
+};
 // ~ =============================================>
 // ~ ======= get contributors profile  -->
 // ~ =============================================>

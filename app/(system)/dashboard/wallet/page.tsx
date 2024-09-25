@@ -30,8 +30,7 @@ const Wallet = () => {
     queryKey: ["Get balance"],
     queryFn: getContributorsBalance,
   });
-  // console.log(balance?.balance);
-  // FILTERING TABLE DATA
+
   useEffect(() => {
     console.log(filterType);
 
