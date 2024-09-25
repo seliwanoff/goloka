@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Location from "@/public/assets/images/location.svg";
 import { X } from "lucide-react";
-import useShowOverlay from "@/stores/overlay";
+import {useShowOverlay} from "@/stores/overlay";
 import { cn } from "@/lib/utils";
 import { createContributor } from "@/services/contributor";
 import { FaSpinner } from "react-icons/fa";

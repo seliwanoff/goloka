@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useForm, Controller } from "react-hook-form";
-import useShowOverlay from "@/stores/overlay";
+import {useShowOverlay} from "@/stores/overlay";
 import { useContributorStore } from "@/stores/contributors";
 import { useLoadingStore } from "@/stores/misc";
 import { FaSpinner } from "react-icons/fa";

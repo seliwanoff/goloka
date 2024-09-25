@@ -30,6 +30,18 @@ import UpdateLocationDialog from "@/components/lib/modals/task_update_location";
 import TaskCardWidget from "@/components/lib/widgets/task_card";
 import TaskFilterDrawerMobile from "@/components/lib/modals/task_filter";
 import { tasks } from "@/utils";
+import { useQuery } from "@tanstack/react-query";
+import { getAllTask } from "@/services/contributor";
+import { SkeletonLoader } from "@/components/lib/loader";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 type ComponentProps = {};
 
@@ -37,11 +49,80 @@ const TaskPage: React.FC<ComponentProps> = ({}) => {
   const [openFilter, setOpenFilter] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
   const [date, setDate] = useState<Date>();
-  const [task, setTask] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  // const { data: tasks, isLoading } = useQuery({
+  //   queryKey: ["Get task list"],
+  //   queryFn: getAllTask,
+  // });
+  const {
+    data: tasks,
+    isLoading,
+    isFetching,
+    isError,
+  } = useQuery({
+    queryKey: ["Get task list", currentPage],
+    queryFn: () => getAllTask({ page: currentPage, per_page: 9 }),
+    // keepPreviousData: true,
+  });
+  console.log(tasks, "tasks");
+  //@ts-ignore
+  const totalPages = tasks?.pagination?.total_pages || 1;
 
+  // Event handlers for pagination
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage((prevPage) => prevPage + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prevPage) => prevPage - 1);
+    }
+  };
+
+  const handlePageSelect = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
   const handleUpdateLocation = () => {
     setOpen(false);
-    setTask(tasks);
+    // setTask(tasks);
+  };
+
+  // Render ellipsis if necessary
+  const renderPageNumbers = () => {
+    const pageNumbers = [];
+    for (let i = 1; i <= totalPages; i++) {
+      if (
+        i === 1 ||
+        i === totalPages ||
+        (i >= currentPage - 2 && i <= currentPage + 2)
+      ) {
+        pageNumbers.push(
+          <PaginationItem key={i}>
+            <PaginationLink
+              href="#"
+              isActive={i === currentPage}
+              onClick={(e) => {
+                e.preventDefault();
+                handlePageSelect(i);
+              }}
+            >
+              {i}
+            </PaginationLink>
+          </PaginationItem>,
+        );
+      } else if (i === currentPage - 3 || i === currentPage + 3) {
+        pageNumbers.push(
+          <PaginationItem key={`ellipsis-${i}`}>
+            <PaginationEllipsis />
+          </PaginationItem>,
+        );
+      }
+    }
+    return pageNumbers;
   };
 
   return (
@@ -152,7 +233,7 @@ const TaskPage: React.FC<ComponentProps> = ({}) => {
 
         {/* EMPTY STATE */}
 
-        {task?.length < 1 ? (
+        {tasks?.data?.length < 1 ? (
           <div className="mx-auto mt-9 flex max-w-96 flex-col items-center lg:mt-[100px]">
             <Image src={Img} alt="No task illustrations" />
             <h3 className="mb-4 mt-11 text-center text-2xl font-medium text-main-100">
@@ -171,12 +252,45 @@ const TaskPage: React.FC<ComponentProps> = ({}) => {
           </div>
         ) : (
           <>
-            {/* Task list */}
-            <div className="grid gap-5 md:grid-cols-2 1xl:grid-cols-3 xl:grid-cols-3">
-              {tasks.map((task: any, index: number) => (
-                <TaskCardWidget {...task} key={index} />
-              ))}
+            <div className="my-4 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {isLoading
+                ? Array.from({ length: 6 }).map((_, index) => (
+                    <SkeletonLoader key={index} />
+                  ))
+                : //@ts-ignore
+                  tasks?.data.map((task: any, index: number) => (
+                    <TaskCardWidget {...task} key={index} />
+                  ))}
             </div>
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handlePreviousPage();
+                    }}
+                    isActive={currentPage === 1 || isLoading || isFetching}
+                  />
+                </PaginationItem>
+
+                {renderPageNumbers()}
+
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleNextPage();
+                    }}
+                    isActive={
+                      currentPage === totalPages || isLoading || isFetching
+                    }
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
           </>
         )}
       </section>

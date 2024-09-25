@@ -74,16 +74,19 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
     };
     const response = await createUser(userData);
     console.log(response, "response");
+    //@ts-ignore
+    const { access_token, token_type, refresh_token } = response?.tokens;
+    localStorage.setItem("access_token", JSON.stringify(access_token));
+    localStorage.setItem("refresh_token", JSON.stringify(refresh_token));
+    localStorage.setItem("token_type", JSON.stringify(token_type));
     if (response) {
-      //@ts-ignore
-      toast.success(response?.message)
-      //@ts-ignore
-      const token = response?.tokens;
-      localStorage.setItem("my_id", JSON.stringify(token));
       const res = await getOTP({});
+
       if (res) {
-        console.log(res, "response")
+        console.log(res, "response");
         setIsLoading(false);
+        //@ts-ignore
+        toast.success(response?.message);
         setStep(2, data.email);
       }
     } else {
@@ -94,7 +97,7 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
   };
 
   return (
-    <div className="lg:w-[80%] relative z-10 md:w-[70%]">
+    <div className="relative z-10 md:w-[70%] lg:w-[80%]">
       {/* HEADING */}
       <div className="mb-8 flex flex-col items-center gap-2 pt-24 lg:pt-12">
         <Image src={Logo} alt="goloka_logo" />

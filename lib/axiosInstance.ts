@@ -14,6 +14,7 @@ const axiosInstance = axios.create({
 // Request interceptor to add Authorization header and Content-Type
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    console.log(config, "configuration")
     const token = tokenExtractor();
     console.log(token, "Request");
     if (token?.authHeader) {

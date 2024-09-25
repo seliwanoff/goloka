@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { classMerge } from "@/lib/utils";
@@ -25,12 +25,28 @@ import {
   Settings,
   LogOut,
   LucideIcon,
+  LucideX,
 } from "lucide-react";
 // import { getCurrentUser } from "@/services/user_service";
 import { useQuery } from "@tanstack/react-query";
 import DashNotificationPopOver from "../popover/dash_notification";
 import DashSideBarMobile from "./dash_sidebar_mobile";
 import { useUserStore } from "@/stores/use-user-store";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { ArrowLeft } from "iconsax-react";
+import { useMediaQuery } from "@react-hook/media-query";
+import { Close } from "@radix-ui/react-dialog";
 
 type ComponentProps = {};
 
@@ -42,15 +58,18 @@ const data = {
 };
 
 const DashTopNav: React.FC<ComponentProps> = ({}) => {
+  const [open, setOpen] = useState(false);
   const user = { data };
   const currentUser = useUserStore((state) => state.currentUser);
   const Name = currentUser?.data?.name;
   const FirstName = Name
     ? Name.charAt(0).toUpperCase() + Name.slice(1).toLowerCase()
     : "";
+  const isMobile = useMediaQuery("(max-width: 640px)");
+
   return (
     <>
-      <div className="absolute left-0 top-0 flex h-[72px] w-full items-center justify-between bg-white px-4 py-2 shadow-sm lg:px-8">
+      <div className="absolute left-0 top-0 z-[50] flex h-[72px] w-full items-center justify-between bg-white px-4 py-2 shadow-sm sm:z-0 lg:px-8">
         <div className="flex gap-4">
           {/* -- Mobile nav */}
           <DashSideBarMobile />
@@ -69,25 +88,50 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
         {/* -- activity section */}
         <div className="flex items-center justify-center gap-4">
           {/* notification icon */}
-          <Popover>
-            <PopoverTrigger className="w-10">
-              <AspectRatio
-                ratio={1 / 1}
-                className="transit flex cursor-pointer items-center justify-center rounded-full bg-gray-50 text-gray-500 hover:bg-gray-100 hover:text-gray-800"
-              >
-                <Bell strokeWidth={1.5} size={22} />
+
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild>
+              <div className="transit relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-gray-50 text-gray-500 hover:bg-gray-100 hover:text-gray-800">
+                <Bell size={22} />
                 <span
                   className={classMerge(
                     "absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-rose-500",
                     sampleNotifications.length > 0 ? "block" : "hidden",
                   )}
                 />
-              </AspectRatio>
-            </PopoverTrigger>
-            <PopoverContent className="w-max">
-              <DashNotificationPopOver notificationList={sampleNotifications} />
-            </PopoverContent>
-          </Popover>
+              </div>
+            </SheetTrigger>
+            <SheetContent className="w-full border-0 px-4 sm:w-3/4">
+              <SheetHeader className="absolute left-0 top-0 z-10 w-full flex-row items-center justify-between space-y-0 bg-main-100 px-4 py-4">
+                <SheetTitle
+                  onClick={() => (isMobile ? setOpen(false) : null)}
+                  className="inline-flex cursor-pointer items-center gap-3.5 text-lg font-normal text-white sm:cursor-auto md:text-xl"
+                >
+                  <span className="sm:hidden">
+                    <ArrowLeft size={20} />
+                  </span>{" "}
+                  Notification
+                </SheetTitle>
+                <SheetDescription className="sr-only">
+                  You will be notified here about all your activities on the app
+                </SheetDescription>
+
+                <span
+                  onClick={() => setOpen(false)}
+                  className="hidden cursor-pointer text-white sm:inline-block"
+                >
+                  <LucideX size={20} />
+                </span>
+              </SheetHeader>
+
+              {/* SHEET CONTENT */}
+              <div className="no-scrollbar h-full overflow-y-auto pb-11 pt-10">
+                <DashNotificationPopOver
+                  notificationList={sampleNotifications}
+                />
+              </div>
+            </SheetContent>
+          </Sheet>
 
           {/* user profile bubble */}
           {user && user.data && (
@@ -213,33 +257,70 @@ const UserBubbleLinks: { icon: LucideIcon; title: string; href: string }[] = [
 
 // todo: fetch and request for only the latest 5
 const sampleNotifications: {
-  type: "RESOURCE" | "MESSAGE" | "INFO" | "PRODUCT";
+  type: "TASK" | "ORGANISATIONAL" | "FINANCIAL" | "FEEDBACK";
   message: string;
   time: string;
 }[] = [
   {
-    type: "RESOURCE",
-    message: "New file uploaded successfully",
-    time: "Today at 9:20AM",
+    type: "ORGANISATIONAL",
+    message: "Mohh_Jumah Organisation accepted your response",
+    time: "Today at 9:20 AM",
   },
   {
-    type: "MESSAGE",
-    message: "New message from admin",
-    time: "Today at 9:20AM",
+    type: "TASK",
+    message: "42 tasks related to you!",
+    time: "Today at 9:20 AM",
   },
   {
-    type: "PRODUCT",
-    message: "checkout our new update!!",
-    time: "Today at 9:20AM",
+    type: "ORGANISATIONAL",
+    message: "New message from Jamiu’s organization",
+    time: "Today at 9:20 AM",
   },
   {
-    type: "RESOURCE",
-    message: "New file uploaded successfully",
-    time: "Today at 9:20AM",
+    type: "FEEDBACK",
+    message:
+      "Your response was rejected: Effects of agriculture to Nigeria economy",
+    time: "Today at 9:20 AM",
   },
   {
-    type: "RESOURCE",
-    message: "New file uploaded successfully",
-    time: "Today at 9:20AM",
+    type: "ORGANISATIONAL",
+    message: "Muhammad Just messaged you",
+    time: "Today at 9:20 AM",
+  },
+  {
+    type: "FINANCIAL",
+    message: "You have been credited $5",
+    time: "Today at 9:20 AM",
+  },
+  {
+    type: "ORGANISATIONAL",
+    message: "Mohh_Jumah Organisation accepted your response",
+    time: "Today at 9:20 AM",
+  },
+  {
+    type: "TASK",
+    message: "42 tasks related to you!",
+    time: "Today at 9:20 AM",
+  },
+  {
+    type: "ORGANISATIONAL",
+    message: "New message from Jamiu’s organization",
+    time: "Today at 9:20 AM",
+  },
+  {
+    type: "FEEDBACK",
+    message:
+      "Your response was rejected: Effects of agriculture to Nigeria economy",
+    time: "Today at 9:20 AM",
+  },
+  {
+    type: "ORGANISATIONAL",
+    message: "Muhammad Just messaged you",
+    time: "Today at 9:20 AM",
+  },
+  {
+    type: "FINANCIAL",
+    message: "You have been credited $5",
+    time: "Today at 9:20 AM",
   },
 ];

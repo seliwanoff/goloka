@@ -13,7 +13,7 @@ import {
 import Map from "@/public/assets/images/tasks/tasks.png";
 import Image from "next/image";
 import Link from "next/link";
-import { CalendarIcon, ChevronDown, Search } from "lucide-react";
+import { ChevronDown, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import TaskCardWidget from "@/components/lib/widgets/task_card";
 import {
@@ -25,7 +25,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 import {
   Popover,
   PopoverContent,
@@ -36,28 +35,127 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Calendar as CalenderDate } from "@/components/ui/calendar";
-import { useState } from "react";
-// import { tasks } from "@/utils";
+import { MouseEvent, useEffect, useRef, useState } from "react";
 import { useUserStore } from "@/stores/use-user-store";
 import { useQuery } from "@tanstack/react-query";
-import { getAllTask } from "@/services/contributor";
+import { getAllTask, getContributorsProfile } from "@/services/contributor";
+import { SkeletonLoader } from "@/components/lib/loader";
+import { useRouter } from "next/navigation";
+import { getDashboardStats } from "@/services/response";
+import { numberWithCommas } from "@/helper";
+import { SkeletonXLoader } from "@/helper/loader";
 
 type PageProps = {};
 
+interface DashboardData {
+  wallet_balance: number;
+  total_earnings: number;
+  total_campaigns_taken: number;
+  responses_awaiting_approval: number;
+}
+
+type Stats = {
+  data: DashboardData;
+};
+
 const DashboardRoot: React.FC<PageProps> = ({}) => {
   const [date, setDate] = useState<Date>();
+
   const currentUser = useUserStore((state) => state.currentUser);
-  const { data: tasks } = useQuery({
-    queryKey: ["Get task list"],
-    queryFn: getAllTask,
+  const router = useRouter();
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [type, setType] = useState<string>("");
+  const [page, setPage] = useState<number>(1);
+  const [perPage, setPerPage] = useState<number>(9);
+  const [minPrice, setMinPrice] = useState<number | undefined>(undefined);
+  const tasksRef = useRef<HTMLDivElement>(null);
+  const [maxPrice, setMaxPrice] = useState<number | undefined>(undefined);
+  const [debouncedSearchTerm, setDebouncedSearchTerm] =
+    useState<string>(searchTerm);
+  const { data: remoteUser } = useQuery({
+    queryKey: ["Get dashboard stats"],
+    queryFn: getContributorsProfile,
   });
+  console.log(remoteUser, "remoteUser");
+  const [data, setData] = useState<DashboardData | null>(null);
+  const fetchData = () => {
+    return getAllTask({
+      // search: debouncedSearchTerm as string,
+      // type,
+      page,
+      per_page: perPage,
+      min_price: minPrice,
+      max_price: maxPrice,
+    });
+  };
+  const { data: stats } = useQuery({
+    queryKey: ["Get dashboard stats"],
+    queryFn: getDashboardStats,
+  });
+
+  console.log(stats, "stats");
+  useEffect(() => {
+    if (stats?.data) {
+      setData(stats.data);
+    }
+  }, [stats]);
+  useEffect(() => {
+    console.log("temrds");
+    const handler = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 300);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchTerm]);
+  console.log(currentUser, "currentUser");
+  useEffect(() => {
+    const params = {
+      search: debouncedSearchTerm,
+      type,
+      page,
+      per_page: perPage,
+      min_price: minPrice,
+      max_price: maxPrice,
+    };
+
+    const newParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value) newParams.set(key, value.toString());
+    });
+
+    router.push(`?${newParams.toString()}`);
+
+    // Fetch tasks with updated params
+    if (tasksRef.current && searchTerm) {
+      tasksRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+    fetchData();
+  }, [debouncedSearchTerm, type, page, perPage, minPrice, maxPrice, router]);
+
   const Name = currentUser?.data?.name?.split(" ")[0];
   const FirstName = Name
     ? Name.charAt(0).toUpperCase() + Name.slice(1).toLowerCase()
     : "";
 
-
-  console.log(tasks, "tasks");
+  const {
+    data: tasks,
+    isLoading,
+    isFetching,
+    isRefetching,
+  } = useQuery({
+    queryKey: [
+      "Get task list",
+      debouncedSearchTerm,
+      type,
+      page,
+      perPage,
+      minPrice,
+      maxPrice,
+    ],
+    queryFn: fetchData,
+  });
   return (
     <>
       <div className="grid h-max grid-cols-5 gap-6 py-10">
@@ -82,65 +180,84 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
         {/* ####################################### */}
         <div className="no-scrollbar col-span-5 w-full overflow-x-auto">
           <div className="col-span-5 flex w-min gap-4 1xl:grid 1xl:grid-cols-4 xl:w-full">
-            {/* Projects Card */}
-            <div className="w-[300px] xl:w-full">
-              <DashboardWidget
-                title="Wallet balance"
-                bg="bg-white bg-opacity-[12%]"
-                fg="text-white"
-                containerBg="bg-gradient-to-tr from-[100%] to-[100%] from-[#3365E3] to-[#1C387D]"
-                textColor="text-white"
-                icon={Wallet3}
-                value="₦200,500"
-                footer={
-                  <>
-                    <span className="font-medium">₦5,250</span> Pending balance
-                  </>
-                }
-                isAnalytics={false}
-                increase={true}
-                percents={40}
-              />
-            </div>
-            <div className="w-[300px] xl:w-full">
-              <DashboardWidget
-                title="Total earning"
-                bg="bg-[#FEC53D] bg-opacity-[12%]"
-                fg="text-[#FEC53D]"
-                icon={TrendUp}
-                value={"₦750,000"}
-                footer="vs last month"
-                isAnalytics
-                increase={true}
-                percents={40}
-              />
-            </div>
-            <div className="w-[300px] xl:w-full">
-              <DashboardWidget
-                title="Tasks taken"
-                bg="bg-main-100 bg-opacity-[12%]"
-                fg="text-main-100"
-                icon={Note}
-                value={640}
-                footer="vs last month"
-                isAnalytics
-                increase={true}
-                percents={40}
-              />
-            </div>
-            <div className="w-[300px] xl:w-full">
-              <DashboardWidget
-                title="Awaiting approval"
-                bg="bg-[#EB5757] bg-opacity-[12%]"
-                fg="text-[#EB5757]"
-                icon={ClipboardExport}
-                value={36}
-                footer="vs last month"
-                isAnalytics
-                increase={true}
-                percents={40}
-              />
-            </div>
+            {!data ? (
+              <>
+                <SkeletonXLoader />
+
+                <SkeletonXLoader />
+
+                <SkeletonXLoader />
+
+                <SkeletonXLoader />
+                {/* <SkeletonXLoader /> */}
+              </>
+            ) : (
+              <>
+                {/* Wallet Balance */}
+                <DashboardWidget
+                  title="Wallet balance"
+                  bg="bg-white bg-opacity-[12%]"
+                  fg="text-white"
+                  containerBg="bg-gradient-to-tr from-[#3365E3] to-[#1C387D]"
+                  textColor="text-white"
+                  icon={Wallet3}
+                  //@ts-ignore
+                  value={`₦ ${numberWithCommas(data?.wallet_balance)}`}
+                  footer={
+                    <span className="font-medium">₦5,250 Pending balance</span>
+                  }
+                  isAnalytics={false}
+                  increase={true}
+                  percents={40}
+                />
+
+                {/* Total Earnings */}
+                <DashboardWidget
+                  title="Total earnings"
+                  bg="bg-[#FEC53D] bg-opacity-[12%]"
+                  fg="text-[#FEC53D]"
+                  icon={TrendUp}
+                  value={
+                    //@ts-ignore
+                    data?.total_earnings
+                      ? `₦ ${numberWithCommas(data?.total_earnings)}`
+                      : "0.00"
+                  }
+                  footer="vs last month"
+                  isAnalytics={true}
+                  increase={true}
+                  percents={40}
+                />
+
+                {/* Total Tasks */}
+                <DashboardWidget
+                  title="Tasks taken"
+                  bg="bg-main-100 bg-opacity-[12%]"
+                  fg="text-main-100"
+                  icon={Note}
+                  //@ts-ignore
+                  value={data?.total_campaigns_taken}
+                  footer="vs last month"
+                  isAnalytics={true}
+                  increase={true}
+                  percents={40}
+                />
+
+                {/* Awaiting Approval */}
+                <DashboardWidget
+                  title="Awaiting approval"
+                  bg="bg-[#EB5757] bg-opacity-[12%]"
+                  fg="text-[#EB5757]"
+                  icon={ClipboardExport}
+                  //@ts-ignore
+                  value={data?.responses_awaiting_approval}
+                  footer="vs last month"
+                  isAnalytics={true}
+                  increase={false}
+                  percents={40}
+                />
+              </>
+            )}
           </div>
         </div>
 
@@ -160,7 +277,7 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
         {/* ####################################### */}
         {/* -- Tasks section */}
         {/* ####################################### */}
-        <div className="col-span-5 mt-4">
+        <div className="col-span-5 mt-4" ref={tasksRef}>
           <div className="flex justify-between">
             <h3 className="text-lg font-semibold text-[#333]">Tasks for you</h3>
 
@@ -178,6 +295,8 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
               <Input
                 placeholder="Search task, organisation"
                 type="text"
+                value={searchTerm} // Bind the input value to the searchTerm state
+                onChange={(e) => setSearchTerm(e.target.value)} // Update the searchTerm state on change
                 className="rounded-full bg-gray-50 pl-10"
               />
             </div>
@@ -267,11 +386,16 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
           </div>
 
           {/* Task list */}
-          {/* <div className="grid gap-5 md:grid-cols-2 1xl:grid-cols-3 xl:grid-cols-3">
-            {tasks.map((task: any, index: number) => (
-              <TaskCardWidget {...task} key={index} />
-            ))}
-          </div> */}
+          <div className="my-4 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {isLoading
+              ? Array.from({ length: 6 }).map((_, index) => (
+                  <SkeletonLoader key={index} />
+                ))
+              : //@ts-ignore
+                tasks?.data.map((task: any, index: number) => (
+                  <TaskCardWidget {...task} key={index} />
+                ))}
+          </div>
         </div>
       </div>
     </>
@@ -279,3 +403,5 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
 };
 
 export default DashboardRoot;
+
+

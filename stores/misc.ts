@@ -1,3 +1,4 @@
+import { transactions } from "@/utils";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
@@ -6,7 +7,7 @@ interface LoadingState {
   setLoading: (loading: boolean) => void;
 }
 
-export const useLoadingStore = create<LoadingState>()(
+const useLoadingStore = create<LoadingState>()(
   persist(
     (set) => ({
       loading: false,
@@ -18,3 +19,108 @@ export const useLoadingStore = create<LoadingState>()(
     },
   ),
 );
+
+interface FilterTypeState {
+  filterType: string;
+  setFilterType: (value: string) => void;
+}
+
+const useWalletFilter = create<FilterTypeState>((set) => ({
+  filterType: "all",
+  setFilterType: (value) => set({ filterType: value }),
+}));
+
+export type ITransaction = {
+  beneficiary: string;
+  accountNumber: number | string;
+  bank: string;
+  amount_usd: string;
+  amount_ngn: string;
+};
+
+export type ITransfer = {
+  walletID: string;
+  organisation: string;
+  amount: string;
+};
+
+interface FundState {
+  step: number;
+  setStep: (value: number | ((prev: number) => number)) => void;
+  transaction: ITransaction | null;
+  setTransaction: (
+    value: ITransaction | ((prev: ITransaction) => ITransaction),
+  ) => void;
+  clearTransaction: () => void;
+}
+
+interface TransferState {
+  step: number;
+  setStep: (value: number | ((prev: number) => number)) => void;
+  transaction: ITransfer | null;
+  setTransaction: (value: ITransfer | ((prev: ITransfer) => ITransfer)) => void;
+  clearTransaction: () => void;
+}
+
+const useWithdrawStepper = create<FundState>((set) => ({
+  step: 0,
+  setStep: (value) =>
+    set((state) => ({
+      step: typeof value === "function" ? value(state.step!) : value,
+    })),
+  transaction: {
+    beneficiary: "",
+    accountNumber: "",
+    bank: "",
+    amount_usd: "",
+    amount_ngn: "",
+  },
+  setTransaction: (value) =>
+    set((state) => ({
+      transaction:
+        typeof value === "function" ? value(state.transaction!) : value,
+    })),
+  clearTransaction: () =>
+    set(() => ({
+      transaction: {
+        beneficiary: "",
+        accountNumber: "",
+        bank: "",
+        amount_usd: "",
+        amount_ngn: "",
+      },
+    })),
+}));
+
+const useTransferStepper = create<TransferState>((set) => ({
+  step: 0,
+  setStep: (value) =>
+    set((state) => ({
+      step: typeof value === "function" ? value(state.step!) : value,
+    })),
+  transaction: {
+    walletID: "",
+    organisation: "",
+    amount: "",
+  },
+  setTransaction: (value) =>
+    set((state) => ({
+      transaction:
+        typeof value === "function" ? value(state.transaction!) : value,
+    })),
+  clearTransaction: () =>
+    set(() => ({
+      transaction: {
+        walletID: "",
+        organisation: "",
+        amount: "",
+      },
+    })),
+}));
+
+export {
+  useLoadingStore,
+  useWalletFilter,
+  useWithdrawStepper,
+  useTransferStepper,
+};

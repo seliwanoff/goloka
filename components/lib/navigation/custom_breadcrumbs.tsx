@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import React, { Fragment, useState, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
+import React, { Fragment, useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import {
   Breadcrumb,
   BreadcrumbList,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb';
-import { classMerge } from '@/lib/utils';
+} from "@/components/ui/breadcrumb";
+import { classMerge } from "@/lib/utils";
 
 type ComponentProps = {};
 
@@ -19,27 +19,27 @@ const CustomBreadCrumbs: React.FC<ComponentProps> = ({}) => {
 
   useEffect(() => {
     // ~ ======= extract paths from pathname into array -->
-    setCurrentPath(() => pathname.split('/').filter(Boolean));
+    setCurrentPath(() => pathname.split("/").filter(Boolean));
   }, [pathname]);
 
   return (
-    <div className='w-full py-1 hidden lg:block'>
+    <div className="hidden w-full py-1 lg:block">
       <Breadcrumb>
         <BreadcrumbList>
           {currentPath.map((path, idx) => {
             const route = currentPath
               // ~ ======= create routes for each item in bread crumb -->
-              .map((path, pathIdx) => (pathIdx <= idx ? path : ''))
-              .join('/');
+              .map((path, pathIdx) => (pathIdx <= idx ? path : ""))
+              .join("/");
             return (
               <Fragment key={idx}>
                 <BreadcrumbItem>
                   <BreadcrumbLink
                     href={`/${route}`}
                     className={classMerge(
-                      'cursor-pointer',
+                      "cursor-pointer",
                       idx + 1 === currentPath.length &&
-                        'text-primary font-semibold'
+                        "font-semibold text-primary",
                     )}
                   >
                     {path}

@@ -28,11 +28,12 @@ export const userSignIn = async (email: string, password: string) => {
             },
           },
         );
-        return response;
+        console.log(response, "enduee");
+        return response?.data?.tokens;
       } catch (error) {
         if (axios.isAxiosError(error)) {
           console.error("Axios error during sign in:", error.message);
-          throw error; 
+          throw error;
         } else {
           console.error("Unexpected error during sign in:", error);
           throw error;
@@ -41,7 +42,6 @@ export const userSignIn = async (email: string, password: string) => {
     },
   });
 };
-
 
 // =============================================
 // ======= forgot password  -->

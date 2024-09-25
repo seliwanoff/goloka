@@ -36,9 +36,16 @@ const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
             /*remoteUser*/ true ? (
               <>
                 <DashSideBarDesktop />
-                <main className="relative col-span-6 flex h-screen flex-col overflow-hidden pb-10 pt-[70px] xl:col-span-5 xl:bg-[#F8F8F8]">
+                {/* <main className="relative col-span-6 flex h-screen flex-col overflow-hidden pb-10 pt-[70px] xl:col-span-5 xl:bg-[#F8F8F8]">
                   <DashTopNav />
                   <div className="h-[calc(100% - 72px)] tablet:px-8 w-full overflow-auto px-5 pb-10 lg:px-10">
+                    {children}
+                  </div>
+                </main> */}
+
+                <main className="relative col-span-6 flex h-screen flex-col overflow-hidden pb-10 pt-[70px] xl:col-span-5 xl:bg-[#F8F8F8]">
+                  <DashTopNav />
+                  <div className="h-[calc(100% - 72px)] tablet:px-8 w-full overflow-auto px-5 lg:px-10">
                     {children}
                   </div>
                 </main>

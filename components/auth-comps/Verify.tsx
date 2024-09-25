@@ -39,10 +39,15 @@ const Verify: React.FC<PageProps> = ({ setStep }) => {
 
     setIsSubmitting(true);
     try {
-      const { data } = await verifyOTP({ otp: otpValue });
-      console.log(data);
-      setStep(3);
-      setIsSubmitting(false);
+      const response = await verifyOTP({ otp: otpValue });
+      const { data, status } = response;
+
+      // if (status === 200) {
+        // }
+
+        console.log(data, "dgtg");
+        setIsSubmitting(false);
+        setStep(3);
     } catch (error) {
       toast("Failed to verify OTP. Please try again.");
       setIsSubmitting(false);
@@ -77,7 +82,7 @@ const Verify: React.FC<PageProps> = ({ setStep }) => {
     if (otpValues.every((val) => val !== "")) {
       handleOtpSubmit();
     }
-  }, [handleOtpSubmit, otpValues]);
+  }, [otpValues]);
 
   return (
     <div className="flex w-full flex-col gap-8">
