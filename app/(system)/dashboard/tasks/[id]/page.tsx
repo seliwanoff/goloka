@@ -132,13 +132,17 @@ const {
   };
 
   console.log(quest, "quest");
+
   //@ts-ignore
   const Date = moment(task?.data?.ends_at).format("DD MMMM YYYY");
   //@ts-ignore
   const Time = moment(task?.data?.ends_at).format("hh:mm A");
+
+
   if (isLoading) {
     return <SkeletonLoader />;
   }
+  
   return (
     <>
       <Toaster richColors position={"top-right"} />
@@ -178,7 +182,7 @@ const {
               </div>
 
               <div className="mt-6">
-                <TaskStepper />
+                <TaskStepper quest={quest} />
               </div>
             </div>
           </>
