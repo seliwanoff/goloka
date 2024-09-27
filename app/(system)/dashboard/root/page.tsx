@@ -178,18 +178,16 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
         {/* ####################################### */}
         {/* -- stats card section */}
         {/* ####################################### */}
-        <div className="no-scrollbar col-span-5 w-full overflow-x-auto">
+        {/* <div className="no-scrollbar col-span-5 w-full overflow-x-auto">
+          <div className="flex w-max gap-4 1xl:grid 1xl:grid-cols-4 xl:w-full"> */}
+        <div className="no-scrollbar col-span-5 mt-4 w-full overflow-x-auto">
           <div className="col-span-5 flex w-min gap-4 1xl:grid 1xl:grid-cols-4 xl:w-full">
             {!data ? (
               <>
                 <SkeletonXLoader />
-
                 <SkeletonXLoader />
-
                 <SkeletonXLoader />
-
                 <SkeletonXLoader />
-                {/* <SkeletonXLoader /> */}
               </>
             ) : (
               <>
@@ -403,5 +401,3 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
 };
 
 export default DashboardRoot;
-
-

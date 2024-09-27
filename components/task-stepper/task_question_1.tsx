@@ -138,6 +138,23 @@
 
 // export default QuestionOne;
 
+type Question = {
+  id: string | number;
+  type:
+    | "text"
+    | "textarea"
+    | "radio"
+    | "checkbox"
+    | "dropdown"
+    | "date"
+    | "number";
+};
+
+type SelectedValues = Record<
+  string | number,
+  string | string[] | number | null
+>;
+
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Label } from "../ui/label";
@@ -147,7 +164,6 @@ import StepperControl from "./StepperControl";
 import { toast } from "sonner";
 import { Checkbox } from "../ui/checkbox";
 import { cn } from "@/lib/utils";
-
 
 const options = (index: number) => {
   switch (index) {
@@ -169,25 +185,93 @@ const DynamicQuestion = ({ questions }: any) => {
   // Initialize selected values from answers
   useEffect(() => {
     const initialAnswers = {};
-    questions.forEach((ques: { id: string | number; }) => {
+    questions.forEach((ques: { id: string | number }) => {
+      //@ts-ignore
       initialAnswers[ques.id] = answers[ques.id] || "";
     });
     setSelectedValues(initialAnswers);
   }, [questions, answers]);
 
   // Handle answer changes
-  const handleInputChange = (value: string | boolean | File, quesId: string) => {
+  const handleInputChange = (
+    value: string | boolean | File,
+    quesId: string,
+  ) => {
     setSelectedValues((prev) => ({
       ...prev,
       [quesId]: value,
     }));
+    //@ts-ignore
     updateAnswer(quesId, value);
   };
 
-  const handleNext = () => {
-    const allAnswered = questions.every(
-      (ques: { id: string | number; }) => selectedValues[ques.id]?.length > 0,
-    );
+  // const handleNext = () => {
+  //   const allAnswered = questions.every(
+  //     (ques: { id: string | number }) => selectedValues[ques.id]?.length > 0,
+  //   );
+
+  //   if (allAnswered) {
+  //     nextStep();
+  //   } else {
+  //     toast.error("Please provide all answers");
+  //   }
+  // };
+
+  const handleChange = (value: string, quesId: string) => {
+    setSelectedValues(value);
+    updateAnswer(quesId, value);
+  };
+
+  const handleCheckboxChange = (
+    checked: boolean,
+    quesId: number,
+    option: string,
+  ) => {
+    setSelectedValues((prevValues) => {
+      //@ts-ignore
+      const currentSelections = prevValues[quesId] || [];
+      if (checked) {
+        // Add the option if it was checked
+        return {
+          ...prevValues,
+          [quesId]: [...currentSelections, option],
+        };
+      } else {
+        // Remove the option if it was unchecked
+        return {
+          ...prevValues,
+          [quesId]: currentSelections.filter((opt: string) => opt !== option),
+        };
+      }
+    });
+  };
+
+  const handleNext = (
+    questions: Question[],
+    selectedValues: SelectedValues,
+    nextStep: () => void,
+    toast: { error: (msg: string) => void },
+  ) => {
+    const allAnswered = questions.every(({ id, type }) => {
+      const value = selectedValues?.[id];
+
+      switch (type) {
+        case "text":
+        case "textarea":
+          return typeof value === "string" && value.trim().length > 0; // Ensure non-empty string
+        case "radio":
+        case "dropdown":
+          return value !== null && value !== ""; // Ensure a non-null, non-empty value
+        case "checkbox":
+          return Array.isArray(value) && value.length > 0; // Ensure it's an array with at least one item
+        case "date":
+          return typeof value === "string" && !isNaN(new Date(value).getTime()); // Ensure valid date
+        case "number":
+          return typeof value === "number" && !isNaN(value); // Ensure valid number
+        default:
+          return true; // Return true for any unknown types
+      }
+    });
 
     if (allAnswered) {
       nextStep();
@@ -195,11 +279,6 @@ const DynamicQuestion = ({ questions }: any) => {
       toast.error("Please provide all answers");
     }
   };
-
-    const handleChange = (value: string, quesId: string) => {
-      setSelectedValues(value);
-      updateAnswer(quesId, value);
-    };
 
   return (
     <div className="space-y-5">
@@ -264,30 +343,56 @@ const DynamicQuestion = ({ questions }: any) => {
         </div>
       ))} */}
 
-      {questions.map((ques: { id: React.Key | null | undefined; name: string | undefined; label: string | number | bigint | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<React.AwaitedReactNode> | null | undefined; type: string; placeholder: any; options: any[]; attributes: { accept: any; min: string | number | undefined; max: string | number | undefined; step: string | number | undefined; }; }) => (
-        <div key={ques.id} className="grid grid-cols-[24px_1fr] gap-3">
-          <Label
-            htmlFor={ques.name}
-            className="w-60 truncate text-base leading-7 tracking-[3%] text-[#333333]"
-          >
-            {ques.label}
-          </Label>
+      {questions.map(
+        (ques: {
+          id: React.Key | null | undefined;
+          name: string | undefined;
+          label:
+            | string
+            | number
+            | bigint
+            | boolean
+            | React.ReactElement<any, string | React.JSXElementConstructor<any>>
+            | Iterable<React.ReactNode>
+            | React.ReactPortal
+            | Promise<React.AwaitedReactNode>
+            | null
+            | undefined;
+          type: string;
+          placeholder: any;
+          options: any[];
+          attributes: {
+            accept: any;
+            min: string | number | undefined;
+            max: string | number | undefined;
+            step: string | number | undefined;
+          };
+        }) => (
+          <div key={ques.id} className="grid grid-cols-[24px_1fr] gap-3">
+            <Label
+              htmlFor={ques.name}
+              className="w-60 truncate text-base leading-7 tracking-[3%] text-[#333333]"
+            >
+              {ques.label}
+            </Label>
 
-          {/* Textarea Input */}
-          {ques.type === "text" && (
-            <div className="col-span-2">
-              <textarea
-                value={selectedValues[ques.id]}
-                id={ques.name}
-                placeholder={ques.placeholder || "Input your answer here"}
-                onChange={(e) => handleInputChange(e.target.value, ques.id)}
-                className="form-textarea h-32 w-full resize-none rounded-lg border-[#D9DCE0] p-4 placeholder:text-sm placeholder:text-[#828282]"
-              />
-            </div>
-          )}
+            {/* Textarea Input */}
+            {ques.type === "text" && (
+              <div className="col-span-2">
+                <textarea
+                  //@ts-ignore
+                  value={selectedValues[ques.id]}
+                  id={ques.name}
+                  placeholder={ques.placeholder || "Input your answer here"}
+                  //@ts-ignore
+                  onChange={(e) => handleInputChange(e.target.value, ques.id)}
+                  className="form-textarea h-32 w-full resize-none rounded-lg border-[#D9DCE0] p-4 placeholder:text-sm placeholder:text-[#828282]"
+                />
+              </div>
+            )}
 
-          {/* Radio Input */}
-          {ques.type === "radio" && (
+            {/* Radio Input */}
+            {/* {ques.type === "radio" && (
             // <RadioGroup
             //   value={selectedValues[ques.id]}
             //   onValueChange={(val) => handleInputChange(val, ques.id)}
@@ -348,93 +453,199 @@ const DynamicQuestion = ({ questions }: any) => {
                 ))}
               </RadioGroup>
             </div>
-          )}
+          )} */}
+            {ques.type === "radio" && (
+              <div className="col-span-2">
+                <RadioGroup
+                  //@ts-ignore
+                  value={selectedValues[ques.id]} // Ensure each question has its own state
+                  //@ts-ignore
+                  onValueChange={(val) => handleChange(val, ques.id)}
+                  className="grid grid-cols-2 gap-5"
+                >
+                  {ques.options?.map((opt: string, indexOpt: number) => (
+                    <div className="group w-full" key={indexOpt}>
+                      <RadioGroupItem
+                        value={opt} // Assuming options are strings; use opt directly
+                        id={`q${ques.id}-${indexOpt}`}
+                        className="hidden"
+                      />
+                      <Label
+                        htmlFor={`q${ques.id}-${indexOpt}`}
+                        className={cn(
+                          "flex items-center gap-3 rounded-lg border border-[#D9DCE0] p-2.5 pr-3 transition-colors duration-200 ease-in-out",
+                          //@ts-ignore
+                          selectedValues[ques.id] === opt && "border-main-100",
+                        )}
+                      >
+                        <span
+                          className={cn(
+                            "flex h-7 w-7 items-center justify-center rounded-md bg-[#F8F8F8] text-[#828282] transition-colors duration-200 ease-in-out",
+                            //@ts-ignore
+                            selectedValues[ques.id] === opt &&
+                              "bg-main-100 text-white",
+                          )}
+                        >
+                          {indexOpt + 1} {/* Using index for numbering */}
+                        </span>
+                        <p
+                          className={cn(
+                            "text-sm text-[#101828] transition-colors duration-200 ease-in-out",
+                            //@ts-ignore
+                            selectedValues[ques.id] === opt && "text-main-100",
+                          )}
+                        >
+                          {opt}
+                        </p>
+                      </Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              </div>
+            )}
 
-          {/* Date Input */}
-          {ques.type === "date" && (
-            <div className="col-span-2">
-              <input
-                type="date"
-                value={selectedValues[ques.id]}
-                id={ques.name}
-                onChange={(e) => handleInputChange(e.target.value, ques.id)}
-                className="form-input w-full rounded-lg border-[#D9DCE0]"
-              />
-            </div>
-          )}
+            {/* Date Input */}
+            {ques.type === "date" && (
+              <div className="col-span-2">
+                <input
+                  type="date"
+                  //@ts-ignore
+                  value={selectedValues[ques.id]}
+                  id={ques.name}
+                  //@ts-ignore
+                  onChange={(e) => handleInputChange(e.target.value, ques.id)}
+                  className="form-input w-full rounded-lg border-[#D9DCE0]"
+                />
+              </div>
+            )}
 
-          {/* Image Upload */}
-          {ques.type === "image" && (
-            <div className="col-span-2">
-              <input
-                type="file"
-                accept={ques.attributes?.accept || "image/*"}
-                id={ques.name}
-                onChange={(e) => handleInputChange(e.target.files[0], ques.id)}
-                className="form-input w-full rounded-lg border-[#D9DCE0]"
-              />
-            </div>
-          )}
+            {/* Image Upload */}
+            {ques.type === "file" && (
+              <div className="col-span-2">
+                <input
+                  type="file"
+                  accept={ques.attributes?.accept || "image/*"}
+                  id={ques.name}
+                  onChange={(e) =>
+                    //@ts-ignore
+                    handleInputChange(e.target.files[0], ques.id)
+                  }
+                  className="form-input w-full rounded-lg border-[#D9DCE0]"
+                />
+              </div>
+            )}
 
-          {/* Checkbox Input */}
-          {ques.type === "checkbox" && (
-            <div className="col-span-2">
-              <Checkbox
-                id={ques.name}
-                checked={selectedValues[ques.id]}
-                onCheckedChange={(checked) =>
-                  handleInputChange(checked, ques.id)
-                }
-                className="form-checkbox"
-              />
-            </div>
-          )}
-
-          {/* Select Input */}
-          {ques.type === "select" && (
-            <div className="col-span-2">
-              <select
-                id={ques.name}
-                value={selectedValues[ques.id]}
-                onChange={(e) => handleInputChange(e.target.value, ques.id)}
-                className="form-select w-full rounded-lg border-[#D9DCE0]"
-              >
-                {ques.options?.map((opt: { value: string | number | readonly string[] | undefined; label: string | number | bigint | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<React.AwaitedReactNode> | null | undefined; }, index: React.Key | null | undefined) => (
-                  <option key={index} value={opt.value}>
-                    {opt.label}
-                  </option>
+            {/* Checkbox Input */}
+            {/* {ques.type === "checkbox" && (
+              <div className="col-span-2">
+                <Checkbox
+                  id={ques.name}
+                  checked={selectedValues[ques.id]}
+                  onCheckedChange={(checked) =>
+                    handleInputChange(checked, ques.id)
+                  }
+                  className="form-checkbox"
+                />
+              </div>
+            )} */}
+            {ques.type === "checkbox" && (
+              <div className="col-span-2 grid grid-cols-2 gap-5">
+                {ques.options?.map((opt: string, indexOpt: number) => (
+                  <div key={indexOpt} className="group flex items-center gap-3">
+                    <Checkbox
+                      id={`q${ques.id}-${indexOpt}`}
+                      //@ts-ignore
+                      checked={selectedValues[ques.id]?.includes(opt) || false}
+                      onCheckedChange={(checked) =>
+                        //@ts-ignore
+                        handleCheckboxChange(checked, ques.id, opt)
+                      }
+                      className="form-checkbox h-5 w-5 text-main-100"
+                    />
+                    <Label
+                      htmlFor={`q${ques.id}-${indexOpt}`}
+                      className="text-sm text-[#101828]"
+                    >
+                      {opt}
+                    </Label>
+                  </div>
                 ))}
-              </select>
-            </div>
-          )}
+              </div>
+            )}
 
-          {/* Number Input */}
-          {ques.type === "number" && (
-            <input
-              type="number"
-              value={selectedValues[ques.id]}
-              id={ques.name}
-              onChange={(e) => handleInputChange(e.target.value, ques.id)}
-              className="form-input w-full rounded-lg border-[#D9DCE0]"
-            />
-          )}
+            {/* Select Input */}
+            {ques.type === "select" && (
+              <div className="col-span-2">
+                <select
+                  id={ques.name}
+                  //@ts-ignore
+                  value={selectedValues[ques.id]}
+                  //@ts-ignore
+                  onChange={(e) => handleInputChange(e.target.value, ques.id)}
+                  className="form-select w-full rounded-lg border-[#D9DCE0]"
+                >
+                  {ques.options?.map(
+                    (
+                      opt: {
+                        value: string | number | readonly string[] | undefined;
+                        label:
+                          | string
+                          | number
+                          | bigint
+                          | boolean
+                          | React.ReactElement<
+                              any,
+                              string | React.JSXElementConstructor<any>
+                            >
+                          | Iterable<React.ReactNode>
+                          | React.ReactPortal
+                          | Promise<React.AwaitedReactNode>
+                          | null
+                          | undefined;
+                      },
+                      index: React.Key | null | undefined,
+                    ) => (
+                      <option key={index} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ),
+                  )}
+                </select>
+              </div>
+            )}
 
-          {/* Range Slider */}
-          {ques.type === "range" && (
-            <input
-              type="range"
-              value={selectedValues[ques.id]}
-              id={ques.name}
-              onChange={(e) => handleInputChange(e.target.value, ques.id)}
-              className="form-range w-full rounded-lg"
-              min={ques.attributes?.min}
-              max={ques.attributes?.max}
-              step={ques.attributes?.step}
-            />
-          )}
-        </div>
-      ))}
+            {/* Number Input */}
+            {ques.type === "number" && (
+              <input
+                type="number"
+                //@ts-ignore
+                value={selectedValues[ques.id]}
+                id={ques.name}
+                //@ts-ignore
+                onChange={(e) => handleInputChange(e.target.value, ques.id)}
+                className="form-input w-full rounded-lg border-[#D9DCE0]"
+              />
+            )}
 
+            {/* Range Slider */}
+            {ques.type === "range" && (
+              <input
+                type="range"
+                //@ts-ignore
+                value={selectedValues[ques.id]}
+                id={ques.name}
+                //@ts-ignore
+                onChange={(e) => handleInputChange(e.target.value, ques.id)}
+                className="form-range w-full rounded-lg"
+                min={ques.attributes?.min}
+                max={ques.attributes?.max}
+                step={ques.attributes?.step}
+              />
+            )}
+          </div>
+        ),
+      )}
+      {/* @ts-ignore */}
       <StepperControl next={handleNext} />
     </div>
   );
