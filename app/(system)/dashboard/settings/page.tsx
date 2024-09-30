@@ -1,5 +1,7 @@
 "use client";
 import CustomInput from "@/components/lib/widgets/custom_inputs";
+import DatePicker from "@/components/settings-comp/date_picker";
+import PhoneInputField from "@/components/settings-comp/phone_input";
 import CustomSelectField from "@/components/settings-comp/select_field";
 import TextField from "@/components/settings-comp/text_field";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -54,48 +56,15 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
         </div>
 
         <form id="personal-info" onSubmit={handleSubmit(onSubmit)}>
-          {/* <div>
-            <label
-              htmlFor="firstName"
-              className="mb-2 inline-block text-base text-[#4F4F4F]"
-            >
-              First name
-            </label>
-            <input
-              {...register("firstName")}
-              type="text"
-              id="firstName"
-              name="firstName"
-              placeholder="Input your first name"
-              className="form-input h-14 w-full rounded-lg border border-[#D9DCE0] p-4 placeholder:text-sm placeholder:text-[#828282]"
-            />
-            <p className="text-sm text-red-600"></p>
-          </div> */}
           {personalInfo.map((data: any, index: number) => {
-            console.log(
-              data?.type === "select",
-              data?.name === "gender",
-              data.type,
-              data.name,
-            );
-            if (data?.type === "select" && data?.name === "gender") {
-              <CustomSelectField
-                data={data}
-                control={control}
-                errors={errors}
-                options={gender}
-                key={data?.name + index}
-              />;
-            }
             return (
-              <>
-                <TextField
-                  data={data}
-                  register={register}
-                  errors={errors}
-                  key={data?.name + index}
-                />
-              </>
+              <CustomInput
+                data={data}
+                errors={errors}
+                register={register}
+                control={control}
+                key={data?.name + index}
+              />
             );
           })}
 
@@ -155,17 +124,69 @@ const personalInfo = [
     label: "Date of birth",
     type: "date",
     required: true,
-    err_message: "Input your first name",
+    err_message: "Pick your date of birth",
     name: "dateOfBirth",
-    placeholder: "Input first name",
+    placeholder: "Pick date of birth",
   },
   {
     label: "Gender",
     type: "select",
     required: true,
-    err_message: "Input your first name",
+    err_message: "Select your gender",
     name: "gender",
-    placeholder: "Input first name",
+    placeholder: "Select your gender",
+  },
+];
+
+const otherInfo = [
+  {
+    label: "Date of birth",
+    type: "date",
+    required: true,
+    err_message: "Select your date of birth",
+    name: "dateOfBirth",
+    placeholder: "Select date",
+  },
+  {
+    label: "Gender",
+    type: "select",
+    required: true,
+    err_message: "Select your gender",
+    name: "gender",
+    placeholder: "Select your gender",
+  },
+
+  {
+    label: "Religion",
+    type: "select",
+    required: true,
+    err_message: "Select your religion",
+    name: "religion",
+    placeholder: "Select religion",
+  },
+  {
+    label: "Ethnicity",
+    type: "select",
+    required: true,
+    err_message: "Select your religion",
+    name: "religion",
+    placeholder: "Select ethnicity",
+  },
+  {
+    label: "Primary language",
+    type: "select",
+    required: true,
+    err_message: "Select your primary language",
+    name: "primaryLanguage",
+    placeholder: "Select primary language",
+  },
+  {
+    label: "Spoken language",
+    type: "select",
+    required: true,
+    err_message: "Select your spoken language",
+    name: "spokenLanguage",
+    placeholder: "Select spoken language ",
   },
 ];
 
@@ -174,3 +195,54 @@ const gender = [
   { label: "Female", value: "female" },
   { label: "Others", value: "others" },
 ];
+
+const displayPersonalInfo = (
+  type: string,
+  data: any,
+  control: any,
+  register: any,
+  errors: any,
+  index: number,
+  options: any[],
+) => {
+  switch (type) {
+    case "select":
+      return (
+        <CustomSelectField
+          data={data}
+          control={control}
+          errors={errors}
+          options={options}
+          key={data?.name + index}
+        />
+      );
+    case "phone":
+      return (
+        <PhoneInputField
+          data={data}
+          control={control}
+          errors={errors}
+          key={data?.name + index}
+        />
+      );
+    case "date":
+      return (
+        <DatePicker
+          data={data}
+          control={control}
+          errors={errors}
+          key={data?.name + index}
+        />
+      );
+
+    default:
+      return (
+        <TextField
+          data={data}
+          register={register}
+          errors={errors}
+          key={data?.name + index}
+        />
+      );
+  }
+};

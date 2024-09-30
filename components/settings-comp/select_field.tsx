@@ -6,6 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 const CustomSelectField = ({
   errors,
@@ -27,8 +28,17 @@ const CustomSelectField = ({
         control={control}
         render={({ field: { value, onChange } }) => (
           <Select defaultValue={value} onValueChange={onChange}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder={data?.placeholder} />
+            <SelectTrigger
+              className={cn(
+                "h-14 w-full rounded-lg focus:ring-1 focus:ring-main-100 focus:ring-offset-0 focus-visible:ring-0",
+                errors[data?.name] &&
+                  "border-red-600 focus:border-red-600 focus:ring-red-600",
+              )}
+            >
+              <SelectValue
+                className="text-[#828282]"
+                placeholder={data?.placeholder}
+              />
             </SelectTrigger>
             <SelectContent>
               {options?.map((opt: any) => (
@@ -40,6 +50,10 @@ const CustomSelectField = ({
           </Select>
         )}
       />
+
+      <p className="p-1 text-sm text-red-600">
+        {errors[data.name] && (data?.err_message as string)}
+      </p>
     </div>
   );
 };
