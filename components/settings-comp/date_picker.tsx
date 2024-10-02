@@ -28,8 +28,8 @@ const DatePicker = ({ errors, data, control }: any) => {
             variant={"outline"}
             className={cn(
               "h-14 w-full justify-between rounded-lg text-left font-normal",
-              !date && "text-muted-foreground",
-              errors[data?.name] &&
+              !date &&
+                errors[data?.name] &&
                 "border-red-600 focus:border-red-600 focus:ring-red-600",
             )}
           >
@@ -45,8 +45,11 @@ const DatePicker = ({ errors, data, control }: any) => {
               return (
                 <Calendar
                   mode="single"
-                  selected={value}
-                  onSelect={setDate || onChange}
+                  selected={date}
+                  onSelect={(val) => {
+                    setDate(val);
+                    onChange();
+                  }}
                   initialFocus
                 />
               );
@@ -54,6 +57,9 @@ const DatePicker = ({ errors, data, control }: any) => {
           />
         </PopoverContent>
       </Popover>
+      <p className="mt-1 text-sm text-red-600">
+        {errors[data.name] && (data?.err_message as string)}
+      </p>
     </div>
   );
 };

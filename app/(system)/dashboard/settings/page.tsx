@@ -10,6 +10,8 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 const SettingsPage = () => {
   return (
     <>
@@ -47,6 +49,22 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
     <>
       <div className="rounded-2xl bg-white p-4">
         <div>
+          <Tabs defaultValue="account" className="w-[400px]">
+            <TabsList>
+              {settingTabs.map((tab: any, index: number) => (
+                <TabsTrigger value={tab.value}>{tab.label}</TabsTrigger>
+              ))}
+            </TabsList>
+            <TabsContent value="account">
+              Make changes to your account here.
+            </TabsContent>
+            <TabsContent value="password">
+              Change your password here.
+            </TabsContent>
+          </Tabs>
+        </div>
+
+        <div>
           <h3 className="mb-1 text-lg font-semibold text-[#101828]">
             Personal info
           </h3>
@@ -56,17 +74,31 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
         </div>
 
         <form id="personal-info" onSubmit={handleSubmit(onSubmit)}>
-          {personalInfo.map((data: any, index: number) => {
-            return (
-              <CustomInput
-                data={data}
-                errors={errors}
-                register={register}
-                control={control}
-                key={data?.name + index}
-              />
-            );
-          })}
+          <div className="space-y-4">
+            {personalInfo.map((data: any, index: number) => {
+              if (data.type === "select") {
+                return (
+                  <CustomSelectField
+                    data={data}
+                    errors={errors}
+                    register={register}
+                    control={control}
+                    key={data?.name + index}
+                    options={gender}
+                  />
+                );
+              }
+              return (
+                <CustomInput
+                  data={data}
+                  errors={errors}
+                  register={register}
+                  control={control}
+                  key={data?.name + index}
+                />
+              );
+            })}
+          </div>
 
           <button type="submit">Hellp</button>
         </form>
@@ -94,6 +126,14 @@ const Payment: React.FC<ComponentProps> = ({}) => {
 const Notification: React.FC<ComponentProps> = ({}) => {
   return <></>;
 };
+
+const settingTabs = [
+  { label: "Profile", value: "profile" },
+  { label: "Password", value: "password" },
+  { label: "Location", value: "location" },
+  { label: "Payment", value: "payment" },
+  { label: "Notification", value: "notification" },
+];
 
 const personalInfo = [
   {
