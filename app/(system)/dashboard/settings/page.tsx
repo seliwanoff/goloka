@@ -5,7 +5,7 @@ import PhoneInputField from "@/components/settings-comp/phone_input";
 import CustomSelectField from "@/components/settings-comp/select_field";
 import TextField from "@/components/settings-comp/text_field";
 import { yupResolver } from "@hookform/resolvers/yup";
-import React from "react";
+import React, { useState } from "react";
 
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
@@ -32,6 +32,7 @@ const schema = yup.object().shape({
 
 type ComponentProps = {};
 const PersonalInfo: React.FC<ComponentProps> = ({}) => {
+  const [activeTab, setActiveTab] = useState("profile");
   const {
     handleSubmit,
     register,
@@ -49,8 +50,8 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
     <>
       <div className="mt-2.5">
         <Tabs
-          // defaultValue={tab}
-          // onValueChange={setTab}
+          defaultValue={activeTab}
+          onValueChange={setActiveTab}
           className="relative w-full bg-transparent"
         >
           <div className="absolute left-0 top-0 block h-14 w-[2000px] -translate-x-[2%] bg-white"></div>
@@ -66,27 +67,13 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
               </TabsTrigger>
             ))}
           </TabsList>
+          <TabsContent value="account">
+            Make changes to your account here.
+          </TabsContent>
+          <TabsContent value="password">Change your password here.</TabsContent>
         </Tabs>
       </div>
       <div className="mt-9 rounded-2xl bg-white p-4">
-        <div>
-          <Tabs defaultValue="account" className="w-[400px]">
-            <TabsList>
-              {settingTabs.map((tab: any, index: number) => (
-                <TabsTrigger value={tab.value} key={index}>
-                  {tab.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-            <TabsContent value="account">
-              Make changes to your account here.
-            </TabsContent>
-            <TabsContent value="password">
-              Change your password here.
-            </TabsContent>
-          </Tabs>
-        </div>
-
         <div>
           <h3 className="mb-1 text-lg font-semibold text-[#101828]">
             Personal info
