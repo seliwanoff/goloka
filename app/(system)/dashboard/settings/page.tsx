@@ -47,12 +47,35 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
   };
   return (
     <>
-      <div className="rounded-2xl bg-white p-4">
+      <div className="mt-2.5">
+        <Tabs
+          // defaultValue={tab}
+          // onValueChange={setTab}
+          className="relative w-full bg-transparent"
+        >
+          <div className="absolute left-0 top-0 block h-14 w-[2000px] -translate-x-[2%] bg-white"></div>
+
+          <TabsList className="relative flex h-auto items-center justify-start gap-6 bg-transparent">
+            {settingTabs?.map((tab: any, index: number) => (
+              <TabsTrigger
+                value={tab.value}
+                key={index}
+                className="flex items-center justify-between rounded-none border-b-2 border-transparent pb-4 pt-2.5 text-base font-light text-[#071E3B] data-[state=active]:border-main-100 data-[state=active]:bg-transparent data-[state=active]:text-main-100 data-[state=active]:shadow-none"
+              >
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+      </div>
+      <div className="mt-9 rounded-2xl bg-white p-4">
         <div>
           <Tabs defaultValue="account" className="w-[400px]">
             <TabsList>
               {settingTabs.map((tab: any, index: number) => (
-                <TabsTrigger value={tab.value}>{tab.label}</TabsTrigger>
+                <TabsTrigger value={tab.value} key={index}>
+                  {tab.label}
+                </TabsTrigger>
               ))}
             </TabsList>
             <TabsContent value="account">
