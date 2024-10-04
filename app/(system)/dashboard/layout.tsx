@@ -42,7 +42,7 @@ const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
 
                 <main className="relative col-span-6 flex h-screen flex-col overflow-hidden pb-10 pt-[70px] xl:col-span-5 xl:bg-[#F8F8F8]">
                   <DashTopNav />
-                  <div className="h-[calc(100% - 72px)] w-full overflow-hidden px-5 md:px-8 lg:px-10">
+                  <div className="h-[calc(100% - 72px)] w-full overflow-x-hidden px-5 md:px-8 lg:px-10">
                     {children}
                   </div>
                 </main>

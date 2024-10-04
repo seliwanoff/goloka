@@ -1,6 +1,9 @@
 import { cn } from "@/lib/utils";
 
 const TextField = ({ errors, data, register }: any) => {
+  const allowedTypes = ["text", "email"];
+  const inputType = allowedTypes.includes(data?.type) ? data.type : "text";
+
   return (
     <div>
       <label
@@ -11,10 +14,10 @@ const TextField = ({ errors, data, register }: any) => {
       </label>
       <input
         {...register(data?.name)}
-        type="text"
+        type={inputType}
         id={data?.name}
         name={data?.name}
-        placeholder="Input your first name"
+        placeholder={data?.placeholder}
         className={cn(
           "form-input h-14 w-full rounded-lg border border-[#D9DCE0] p-4 placeholder:text-sm placeholder:text-[#828282]",
           errors[data?.name] &&

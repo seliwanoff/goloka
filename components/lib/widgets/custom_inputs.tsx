@@ -4,7 +4,7 @@ import CustomSelectField from "@/components/settings-comp/select_field";
 import TextField from "@/components/settings-comp/text_field";
 import { FieldErrors, UseFormRegister, Control } from "react-hook-form";
 
-interface FormProps {
+export interface FormProps {
   errors: FieldErrors;
   data: Record<string, any>;
   register?: UseFormRegister<any>;

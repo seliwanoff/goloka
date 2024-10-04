@@ -1,5 +1,5 @@
 "use client";
-import CustomInput from "@/components/lib/widgets/custom_inputs";
+import CustomInput, { FormProps } from "@/components/lib/widgets/custom_inputs";
 import DatePicker from "@/components/settings-comp/date_picker";
 import PhoneInputField from "@/components/settings-comp/phone_input";
 import CustomSelectField from "@/components/settings-comp/select_field";
@@ -11,6 +11,12 @@ import { useForm } from "react-hook-form";
 import * as yup from "yup";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import Avatar from "@/public/assets/images/chat-user-profile.png";
+import Image, { StaticImageData } from "next/image";
+import { Camera } from "iconsax-react";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 const SettingsPage = () => {
   return (
@@ -28,11 +34,14 @@ const schema = yup.object().shape({
   dateOfBirth: yup.string().required(),
   phoneNo: yup.string().required(),
   gender: yup.string().required(),
+  email: yup.string().email().required(),
 });
 
 type ComponentProps = {};
 const PersonalInfo: React.FC<ComponentProps> = ({}) => {
   const [activeTab, setActiveTab] = useState("profile");
+  const [imgUrl, setImgUrl] = useState<string>(Avatar?.src);
+  const [image, setImage] = useState<File | null>(null);
   const {
     handleSubmit,
     register,
@@ -42,6 +51,14 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
   } = useForm({
     resolver: yupResolver(schema),
   });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files && e.target.files[0];
+    const url = URL.createObjectURL(file as Blob);
+    setImgUrl(url);
+    setImage(file);
+    console.log(file, url, image);
+  };
 
   const onSubmit = (data: any) => {
     console.log(data);
@@ -67,58 +84,273 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
               </TabsTrigger>
             ))}
           </TabsList>
-          <TabsContent value="account">
-            Make changes to your account here.
+          <TabsContent value="profile">
+            <form
+              className="mt-9 block max-w-4xl"
+              id="personal-info"
+              onSubmit={handleSubmit(onSubmit)}
+            >
+              <div className="rounded-2xl bg-white p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="mb-1 text-lg font-semibold text-[#101828]">
+                      Personal info
+                    </h3>
+                    <p className="text-sm text-[#475467]">
+                      Update your photo and personal details here.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="rounded-full px-6"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="rounded-full bg-main-100 text-white"
+                    >
+                      Save Changes
+                    </Button>
+                  </div>
+                </div>
+
+                {/* PROFILE IMAGE */}
+                <div className="flex items-center justify-center">
+                  <div className="relative sm:inline-block">
+                    <Image
+                      src={imgUrl}
+                      alt="avatar"
+                      width={100}
+                      height={100}
+                      className="h-[100px] w-[100px] rounded-full object-cover object-center"
+                    />
+                    <label
+                      htmlFor="avatar"
+                      aria-label="avatar"
+                      className="absolute -bottom-1.5 right-1 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border-2 border-white bg-[#F2F2F2] text-neutral-500"
+                    >
+                      <Camera size={20} />
+                    </label>
+                    <input
+                      type="file"
+                      name="avatar"
+                      id="avatar"
+                      className="hidden"
+                      accept="image/png, image/jpeg, image/webp"
+                      onChange={(e) => handleChange(e)}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-4 md:mt-8 md:grid md:grid-cols-2 md:gap-x-[18px] md:gap-y-6 md:space-y-0">
+                  {personalInfo.map((data: any, index: number) => {
+                    if (data.type === "select") {
+                      return (
+                        <CustomSelectField
+                          data={data}
+                          errors={errors}
+                          register={register}
+                          control={control}
+                          key={data?.name + index}
+                          options={gender}
+                        />
+                      );
+                    }
+                    return (
+                      <CustomInput
+                        data={data}
+                        errors={errors}
+                        register={register}
+                        control={control}
+                        key={data?.name + index}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* OTHER PERSONAL INFO */}
+              <OtherPersonalInfo
+                errors={errors}
+                register={register}
+                control={control}
+              />
+            </form>
           </TabsContent>
-          <TabsContent value="password">Change your password here.</TabsContent>
+          <TabsContent value="password">
+            <form className="block" id="password">
+              <div className="rounded-2xl bg-white p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="mb-1 text-lg font-semibold text-[#101828]">
+                      Password
+                    </h3>
+                    <p className="text-sm text-[#475467]">
+                      Please enter your current password to change your
+                      password.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="rounded-full px-6"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="rounded-full bg-main-100 text-white"
+                    >
+                      Save Changes
+                    </Button>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="">
+                    <Label htmlFor="old-password"></Label>
+                    <input
+                      type="password"
+                      name="old-password"
+                      id="old-password"
+                      className={cn(
+                        "form-input h-14 w-full rounded-lg border border-[#D9DCE0] p-4 placeholder:text-sm placeholder:text-[#828282]",
+                        false &&
+                          "border-red-600 focus:border-red-600 focus:ring-red-600",
+                      )}
+                    />
+                  </div>
+                </div>
+              </div>
+            </form>
+          </TabsContent>
+          <TabsContent value="location">
+            <form className="block" id="location">
+              <div className="rounded-2xl bg-white p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="mb-1 text-lg font-semibold text-[#101828]">
+                      Location
+                    </h3>
+                    <p className="text-sm text-[#475467]">
+                      Edit your location preference
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="rounded-full px-6"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="rounded-full bg-main-100 text-white"
+                    >
+                      Save Changes
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </TabsContent>
+          <TabsContent value="payment">
+            {" "}
+            <form className="block" id="payment">
+              <div className="rounded-2xl bg-white p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="mb-1 text-lg font-semibold text-[#101828]">
+                      Beneficiary accounts
+                    </h3>
+                    <p className="text-sm text-[#475467]">
+                      Add or remove beneficiary account
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="rounded-full px-6"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="rounded-full bg-main-100 text-white"
+                    >
+                      Save Changes
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </TabsContent>
+          <TabsContent value="notification">
+            <form className="block" id="notification">
+              <div className="rounded-2xl bg-white p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="mb-1 text-lg font-semibold text-[#101828]">
+                      Push Notification
+                    </h3>
+                    <p className="text-sm text-[#475467]">
+                      Messages you receive from the app
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="rounded-full px-6"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="rounded-full bg-main-100 text-white"
+                    >
+                      Save Changes
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </TabsContent>
         </Tabs>
-      </div>
-      <div className="mt-9 rounded-2xl bg-white p-4">
-        <div>
-          <h3 className="mb-1 text-lg font-semibold text-[#101828]">
-            Personal info
-          </h3>
-          <p className="text-sm text-[#475467]">
-            Update your photo and personal details here.
-          </p>
-        </div>
-
-        <form id="personal-info" onSubmit={handleSubmit(onSubmit)}>
-          <div className="space-y-4">
-            {personalInfo.map((data: any, index: number) => {
-              if (data.type === "select") {
-                return (
-                  <CustomSelectField
-                    data={data}
-                    errors={errors}
-                    register={register}
-                    control={control}
-                    key={data?.name + index}
-                    options={gender}
-                  />
-                );
-              }
-              return (
-                <CustomInput
-                  data={data}
-                  errors={errors}
-                  register={register}
-                  control={control}
-                  key={data?.name + index}
-                />
-              );
-            })}
-          </div>
-
-          <button type="submit">Hellp</button>
-        </form>
       </div>
     </>
   );
 };
 
-const OtherPersonalInfo: React.FC<ComponentProps> = ({}) => {
-  return <></>;
+const OtherPersonalInfo: React.FC<any> = ({ errors, register, control }) => {
+  return (
+    <div className="mt-8 rounded-2xl bg-white p-6">
+      <div>
+        <h3 className="mb-1 text-lg font-semibold text-[#101828]">
+          Other info
+        </h3>
+        <p className="text-sm text-[#475467]">Edit your location preference</p>
+      </div>
+      <div className="space-y-4 md:mt-8 md:grid md:grid-cols-2 md:gap-x-[18px] md:gap-y-6 md:space-y-0">
+        {otherInfo.map((data, index) => (
+          <CustomSelectField
+            key={data.name + index} // or `index` for unique keys
+            data={data}
+            errors={errors}
+            register={register}
+            control={control}
+            options={getOptionsByName(data.name)} // Pass the respective options
+          />
+        ))}
+      </div>
+    </div>
+  );
 };
 
 const ChangePassword: React.FC<ComponentProps> = ({}) => {
@@ -161,6 +393,14 @@ const personalInfo = [
     err_message: "Input your first name",
     name: "lastName",
     placeholder: "Input first name",
+  },
+  {
+    label: "Email address",
+    type: "email",
+    required: true,
+    err_message: "Input your email address",
+    name: "email",
+    placeholder: "Input email address",
   },
   {
     label: "Phone number",
@@ -219,7 +459,7 @@ const otherInfo = [
     type: "select",
     required: true,
     err_message: "Select your religion",
-    name: "religion",
+    name: "ethnicity",
     placeholder: "Select ethnicity",
   },
   {
@@ -294,5 +534,54 @@ const displayPersonalInfo = (
           key={data?.name + index}
         />
       );
+  }
+};
+
+// OTHER OPTIONS
+const genderOptions = [
+  { label: "Male", value: "male" },
+  { label: "Female", value: "female" },
+  { label: "Other", value: "other" },
+];
+
+const religionOptions = [
+  { label: "Christianity", value: "christianity" },
+  { label: "Islam", value: "islam" },
+  { label: "Hinduism", value: "hinduism" },
+];
+
+const ethnicityOptions = [
+  { label: "Yoruba", value: "yoruba" },
+  { label: "Igbo", value: "igbo" },
+  { label: "Hausa", value: "hausa" },
+];
+
+const primaryLanguageOptions = [
+  { label: "English", value: "english" },
+  { label: "French", value: "french" },
+  { label: "Spanish", value: "spanish" },
+];
+
+const spokenLanguageOptions = [
+  { label: "English", value: "english" },
+  { label: "French", value: "french" },
+  { label: "Spanish", value: "spanish" },
+];
+
+// Map the respective options based on the name
+const getOptionsByName = (name: string) => {
+  switch (name) {
+    case "gender":
+      return genderOptions;
+    case "religion":
+      return religionOptions;
+    case "ethnicity":
+      return ethnicityOptions;
+    case "primaryLanguage":
+      return primaryLanguageOptions;
+    case "spokenLanguage":
+      return spokenLanguageOptions;
+    default:
+      return [];
   }
 };
