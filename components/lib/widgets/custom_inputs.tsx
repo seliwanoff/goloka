@@ -2,6 +2,7 @@ import DatePicker from "@/components/settings-comp/date_picker";
 import PhoneInputField from "@/components/settings-comp/phone_input";
 import CustomSelectField from "@/components/settings-comp/select_field";
 import TextField from "@/components/settings-comp/text_field";
+import { watch } from "fs";
 import { FieldErrors, UseFormRegister, Control } from "react-hook-form";
 
 export interface FormProps {
@@ -9,6 +10,7 @@ export interface FormProps {
   data: Record<string, any>;
   register?: UseFormRegister<any>;
   control?: Control<any>;
+  watch?: any;
   options?: Option[];
 }
 
@@ -43,6 +45,7 @@ const CustomInput = ({
   data,
   register,
   control,
+  watch,
   options,
 }: FormProps) => {
   switch (data?.type) {
@@ -54,7 +57,7 @@ const CustomInput = ({
       return <DatePicker {...{ errors, data, control }} />;
 
     default:
-      return <TextField {...{ errors, data, register }} />;
+      return <TextField {...{ errors, data, register, watch }} />;
   }
 };
 

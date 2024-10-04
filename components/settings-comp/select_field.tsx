@@ -52,7 +52,7 @@ const CustomSelectField = ({
       />
 
       <p className="p-1 text-sm text-red-600">
-        {errors[data.name] && (data?.err_message as string)}
+        {errors[data?.name] && (data?.err_message as string)}
       </p>
     </div>
   );
