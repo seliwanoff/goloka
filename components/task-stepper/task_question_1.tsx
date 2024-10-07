@@ -677,6 +677,7 @@ const DynamicQuestion = ({
       ...prev,
       [quesId]: value,
     }));
+    //@ts-ignore
     updateAnswer(quesId, value);
   };
 
@@ -875,7 +876,7 @@ const DynamicQuestion = ({
               type="file"
               accept={ques.attributes?.accept || "image/*"}
               id={ques.name}
-              onChange={(e) => handleInputChange(e.target.files[0], ques.id)}
+              onChange={(e) => handleInputChange(e?.target?.files?.[0]!, ques.id)}
               className="form-input w-full rounded-lg border-[#D9DCE0]"
             />
           </div>
