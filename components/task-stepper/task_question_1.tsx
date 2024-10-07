@@ -1,143 +1,3 @@
-// import React, { useEffect, useState } from "react";
-// import { useStepper } from "@/context/TaskStepperContext.tsx";
-// import Numbering from "./Numbering";
-// import { Label } from "../ui/label";
-// import { Checkbox } from "../ui/checkbox";
-// import { cn } from "@/lib/utils";
-// import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-
-// import { useForm } from "react-hook-form";
-// import * as yup from "yup";
-// import StepperControl from "./StepperControl";
-// import { toast } from "sonner";
-// import { questions1 } from "@/utils";
-
-// const options = (index: number) => {
-//   switch (index) {
-//     case 0:
-//       return "A";
-//     case 1:
-//       return "B";
-//     case 2:
-//       return "C";
-//     case 3:
-//       return "D";
-//   }
-// };
-
-// const QuestionOne: React.FC = () => {
-//   const { answers, nextStep, updateAnswer } = useStepper();
-//   const [answer, setAnswer] = useState("");
-//   const [selectedValue, setSelectedValue] = useState("");
-
-//   const handleNext = () => {
-//     if (answer?.length > 1 && selectedValue?.length > 1) {
-//       nextStep();
-//       console.log(answers, "questions");
-//     } else {
-//       toast.error("Please provide all answers");
-//     }
-//   };
-
-//   const handleChange = (value: string, quesId: string) => {
-//     setSelectedValue(value);
-//     updateAnswer(quesId, value);
-//   };
-
-//   const handleAnsInput = (value: string, quesId: string) => {
-//     setAnswer(value);
-//     updateAnswer(quesId, value);
-//   };
-
-//   useEffect(() => {
-//     setAnswer(answers.Q1);
-//     setSelectedValue(answers.Q2);
-//   }, []);
-
-//   return (
-//     <div className="space-y-5">
-//       {questions1.map((ques: any, index: number) => {
-//         return (
-//           <>
-//             <div className="grid grid-cols-[24px_1fr] gap-3">
-//               <Numbering questionNumber={index + 1} />{" "}
-//               <Label
-//                 htmlFor={ques?.value}
-//                 className="text-base leading-7 tracking-[3%] text-[#333333]"
-//               >
-//                 {ques?.question}
-//               </Label>
-//               {ques?.type === "text" ? (
-//                 // QUESTION ANSWER INPUT
-//                 <div className="col-span-2">
-//                   <textarea
-//                     value={answer}
-//                     id={ques?.value}
-//                     name={ques?.value}
-//                     placeholder="Input your answer here"
-//                     onChange={(e) => handleAnsInput(e.target.value, ques?.id)}
-//                     className="form-textarea h-32 w-full resize-none rounded-lg border-[#D9DCE0] p-4 placeholder:text-sm placeholder:text-[#828282]"
-//                   />
-//                 </div>
-//               ) : (
-//                 // QUESTION OPTIONS
-//                 <div className="col-span-2">
-//                   <RadioGroup
-//                     value={selectedValue}
-//                     onValueChange={(val) => handleChange(val, ques?.id)}
-//                     className="grid grid-cols-2 gap-5"
-//                   >
-//                     {ques?.options?.map((opt: any, indexOpt: number) => (
-//                       <div className="group w-full" key={indexOpt}>
-//                         <RadioGroupItem
-//                           value={opt?.value}
-//                           id={`q${indexOpt}`}
-//                           className="hidden"
-//                         />
-//                         <Label
-//                           htmlFor={`q${indexOpt}`}
-//                           className={cn(
-//                             "flex items-center gap-3 rounded-lg border border-[#D9DCE0] p-2.5 pr-3",
-//                             selectedValue === opt?.value && "border-main-100",
-//                           )}
-//                         >
-//                           <span
-//                             className={cn(
-//                               "flex h-7 w-7 items-center justify-center rounded-md bg-[#F8F8F8] text-[#828282]",
-//                               selectedValue === opt?.value &&
-//                                 "bg-main-100 text-white",
-//                             )}
-//                           >
-//                             {options(indexOpt)}
-//                           </span>
-//                           <p
-//                             className={cn(
-//                               "text-sm text-[#101828]",
-//                               selectedValue === opt?.value && "text-main-100",
-//                             )}
-//                           >
-//                             {opt?.label}
-//                           </p>
-//                         </Label>
-//                       </div>
-//                     ))}
-//                   </RadioGroup>
-//                 </div>
-//               )}
-//             </div>
-//           </>
-//         );
-//       })}
-
-//       <div className="">
-//         <StepperControl next={handleNext} />
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default QuestionOne;
-
 type Question = {
   id: string | number;
   type:
@@ -155,7 +15,7 @@ type SelectedValues = Record<
   string | string[] | number | null
 >;
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { Label } from "../ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -164,6 +24,9 @@ import StepperControl from "./StepperControl";
 import { toast } from "sonner";
 import { Checkbox } from "../ui/checkbox";
 import { cn } from "@/lib/utils";
+import { useParams } from "next/navigation";
+import { createContributorAnswers } from "@/services/contributor";
+import Image from "next/image";
 
 const options = (index: number) => {
   switch (index) {
@@ -178,488 +41,33 @@ const options = (index: number) => {
   }
 };
 
-// const DynamicQuestion = ({ questions }: any) => {
-//   const { answers, nextStep, updateAnswer } = useStepper();
-//   const [selectedValues, setSelectedValues] = useState({});
-
-//   // Initialize selected values from answers
-//   useEffect(() => {
-//     const initialAnswers = {};
-//     questions.forEach((ques: { id: string | number }) => {
-//       //@ts-ignore
-//       initialAnswers[ques.id] = answers[ques.id] || "";
-//     });
-//     setSelectedValues(initialAnswers);
-//   }, [questions, answers]);
-
-//   // Handle answer changes
-//   const handleInputChange = (
-//     value: string | boolean | File,
-//     quesId: string,
-//   ) => {
-//     setSelectedValues((prev) => ({
-//       ...prev,
-//       [quesId]: value,
-//     }));
-//     //@ts-ignore
-//     updateAnswer(quesId, value);
-//   };
-
-//   // const handleNext = () => {
-//   //   const allAnswered = questions.every(
-//   //     (ques: { id: string | number }) => selectedValues[ques.id]?.length > 0,
-//   //   );
-
-//   //   if (allAnswered) {
-//   //     nextStep();
-//   //   } else {
-//   //     toast.error("Please provide all answers");
-//   //   }
-//   // };
-
-//   const handleChange = (value: string, quesId: string) => {
-//     setSelectedValues(value);
-//     updateAnswer(quesId, value);
-//   };
-
-//   const handleCheckboxChange = (
-//     checked: boolean,
-//     quesId: number,
-//     option: string,
-//   ) => {
-//     setSelectedValues((prevValues) => {
-//       //@ts-ignore
-//       const currentSelections = prevValues[quesId] || [];
-//       if (checked) {
-//         // Add the option if it was checked
-//         return {
-//           ...prevValues,
-//           [quesId]: [...currentSelections, option],
-//         };
-//       } else {
-//         // Remove the option if it was unchecked
-//         return {
-//           ...prevValues,
-//           [quesId]: currentSelections.filter((opt: string) => opt !== option),
-//         };
-//       }
-//     });
-//   };
-
-//   const handleNext = (
-//     questions: Question[],
-//     selectedValues: SelectedValues,
-//     nextStep: () => void,
-//     toast: { error: (msg: string) => void },
-//   ) => {
-//     const allAnswered = questions.every(({ id, type }) => {
-//       const value = selectedValues?.[id];
-
-//       switch (type) {
-//         case "text":
-//         case "textarea":
-//           return typeof value === "string" && value.trim().length > 0; // Ensure non-empty string
-//         case "radio":
-//         case "dropdown":
-//           return value !== null && value !== ""; // Ensure a non-null, non-empty value
-//         case "checkbox":
-//           return Array.isArray(value) && value.length > 0; // Ensure it's an array with at least one item
-//         case "date":
-//           return typeof value === "string" && !isNaN(new Date(value).getTime()); // Ensure valid date
-//         case "number":
-//           return typeof value === "number" && !isNaN(value); // Ensure valid number
-//         default:
-//           return true; // Return true for any unknown types
-//       }
-//     });
-
-//     if (allAnswered) {
-//       nextStep();
-//     } else {
-//       toast.error("Please provide all answers");
-//     }
-//   };
-
-//   return (
-//     <div className="space-y-5">
-//       {/* {questions.map((ques) => (
-//         <div key={ques.id} className="grid grid-cols-[24px_1fr] gap-3">
-//           <Label
-//             htmlFor={ques.name}
-//             className="text-base leading-7 tracking-[3%] text-[#333333] truncate w-60"
-//           >
-//             {ques.label}
-//           </Label>
-
-//           {ques.type === "text" && (
-//             <textarea
-//               value={selectedValues[ques.id]}
-//               id={ques.name}
-//               placeholder={ques.placeholder || "Input your answer here"}
-//               onChange={(e) => handleInputChange(e.target.value, ques.id)}
-//               className="form-textarea h-32 w-full resize-none rounded-lg border-[#D9DCE0] p-4 placeholder:text-sm placeholder:text-[#828282]"
-//             />
-//           )}
-
-//           {ques.type === "radio" && (
-//             <RadioGroup
-//               value={selectedValues[ques.id]}
-//               onValueChange={(val) => handleInputChange(val, ques.id)}
-//               className="grid grid-cols-2 gap-5"
-//             >
-//               {ques.options?.map((opt, index) => (
-//                 <div className="group w-full" key={index}>
-//                   <RadioGroupItem value={opt.value} id={`q${opt.id}`} />
-//                   <Label
-//                     htmlFor={`q${opt.id}`}
-//                     className="flex items-center gap-3"
-//                   >
-//                     <span>{opt.label}</span>
-//                   </Label>
-//                 </div>
-//               ))}
-//             </RadioGroup>
-//           )}
-
-//           {ques.type === "date" && (
-//             <input
-//               type="date"
-//               value={selectedValues[ques.id]}
-//               id={ques.name}
-//               onChange={(e) => handleInputChange(e.target.value, ques.id)}
-//               className="form-input w-full"
-//             />
-//           )}
-
-//           {ques.type === "image" && (
-//             <input
-//               type="file"
-//               accept={ques.attributes?.accept}
-//               id={ques.name}
-//               onChange={(e) => handleInputChange(e.target.files[0], ques.id)}
-//               className="form-input w-full"
-//             />
-//           )}
-//         </div>
-//       ))} */}
-
-//       {questions.map(
-//         (ques: {
-//           id: React.Key | null | undefined;
-//           name: string | undefined;
-//           label:
-//             | string
-//             | number
-//             | bigint
-//             | boolean
-//             | React.ReactElement<any, string | React.JSXElementConstructor<any>>
-//             | Iterable<React.ReactNode>
-//             | React.ReactPortal
-//             | Promise<React.AwaitedReactNode>
-//             | null
-//             | undefined;
-//           type: string;
-//           placeholder: any;
-//           options: any[];
-//           attributes: {
-//             accept: any;
-//             min: string | number | undefined;
-//             max: string | number | undefined;
-//             step: string | number | undefined;
-//           };
-//         }) => (
-//           <div key={ques.id} className="grid grid-cols-[24px_1fr] gap-3">
-//             <Label
-//               htmlFor={ques.name}
-//               className="w-60 truncate text-base leading-7 tracking-[3%] text-[#333333]"
-//             >
-//               {ques.label}
-//             </Label>
-
-//             {/* Textarea Input */}
-//             {ques.type === "textarea" && (
-//               <div className="col-span-2">
-//                 <textarea
-//                   //@ts-ignore
-//                   value={selectedValues[ques.id]}
-//                   id={ques.name}
-//                   placeholder={ques.placeholder || "Input your answer here"}
-//                   //@ts-ignore
-//                   onChange={(e) => handleInputChange(e.target.value, ques.id)}
-//                   className="form-textarea h-32 w-full resize-none rounded-lg border-[#D9DCE0] p-4 placeholder:text-sm placeholder:text-[#828282]"
-//                 />
-//               </div>
-//             )}
-//             {/* Textarea Input */}
-//             {ques.type === "text" && (
-//               <div className="col-span-2">
-//                 <input
-//                   //@ts-ignore
-//                   value={selectedValues[ques.id]}
-//                   id={ques.name}
-//                   placeholder={ques.placeholder || "Input your answer here"}
-//                   type="text"
-//                   //@ts-ignore
-//                   onChange={(e) => handleInputChange(e.target.value, ques.id)}
-//                   className="form-textarea w-full resize-none rounded-lg border-[#D9DCE0] p-4 placeholder:text-sm placeholder:text-[#828282]"
-//                 />
-//               </div>
-//             )}
-
-//             {/* Radio Input */}
-//             {/* {ques.type === "radio" && (
-//             // <RadioGroup
-//             //   value={selectedValues[ques.id]}
-//             //   onValueChange={(val) => handleInputChange(val, ques.id)}
-//             //   className="grid grid-cols-2 gap-5"
-//             // >
-//             //   {ques.options?.map((opt, index) => (
-//             //     <div className="group w-full" key={index}>
-//             //       <RadioGroupItem value={opt.value} id={`q${opt.id}`} />
-//             //       <Label
-//             //         htmlFor={`q${opt.id}`}
-//             //         className="flex items-center gap-3"
-//             //       >
-//             //         <span>{opt.label}</span>
-//             //       </Label>
-//             //     </div>
-//             //   ))}
-//             // </RadioGroup>
-
-//             <div className="col-span-2">
-//               <RadioGroup
-//                 value={selectedValues}
-//                 onValueChange={(val) => handleChange(val, ques?.id)}
-//                 className="grid grid-cols-2 gap-5"
-//               >
-//                 {ques?.options?.map((opt: any, indexOpt: number) => (
-//                   <div className="group w-full" key={indexOpt}>
-//                     <RadioGroupItem
-//                       value={opt?.value}
-//                       id={`q${indexOpt}`}
-//                       className="hidden"
-//                     />
-//                     <Label
-//                       htmlFor={`q${indexOpt}`}
-//                       className={cn(
-//                         "flex items-center gap-3 rounded-lg border border-[#D9DCE0] p-2.5 pr-3",
-//                         selectedValues === opt?.value && "border-main-100",
-//                       )}
-//                     >
-//                       <span
-//                         className={cn(
-//                           "flex h-7 w-7 items-center justify-center rounded-md bg-[#F8F8F8] text-[#828282]",
-//                           selectedValues === opt?.value &&
-//                             "bg-main-100 text-white",
-//                         )}
-//                       >
-//                         {options(indexOpt)}
-//                       </span>
-//                       <p
-//                         className={cn(
-//                           "text-sm text-[#101828]",
-//                           selectedValues === opt?.value && "text-main-100",
-//                         )}
-//                       >
-//                         {opt?.label}
-//                       </p>
-//                     </Label>
-//                   </div>
-//                 ))}
-//               </RadioGroup>
-//             </div>
-//           )} */}
-//             {ques.type === "radio" && (
-//               <div className="col-span-2">
-//                 <RadioGroup
-//                   //@ts-ignore
-//                   value={selectedValues[ques.id]} // Ensure each question has its own state
-//                   //@ts-ignore
-//                   onValueChange={(val) => handleChange(val, ques.id)}
-//                   className="grid grid-cols-2 gap-5"
-//                 >
-//                   {ques.options?.map((opt: string, indexOpt: number) => (
-//                     <div className="group w-full" key={indexOpt}>
-//                       <RadioGroupItem
-//                         value={opt} // Assuming options are strings; use opt directly
-//                         id={`q${ques.id}-${indexOpt}`}
-//                         className="hidden"
-//                       />
-//                       <Label
-//                         htmlFor={`q${ques.id}-${indexOpt}`}
-//                         className={cn(
-//                           "flex items-center gap-3 rounded-lg border border-[#D9DCE0] p-2.5 pr-3 transition-colors duration-200 ease-in-out",
-//                           //@ts-ignore
-//                           selectedValues[ques.id] === opt && "border-main-100",
-//                         )}
-//                       >
-//                         <span
-//                           className={cn(
-//                             "flex h-7 w-7 items-center justify-center rounded-md bg-[#F8F8F8] text-[#828282] transition-colors duration-200 ease-in-out",
-//                             //@ts-ignore
-//                             selectedValues[ques.id] === opt &&
-//                               "bg-main-100 text-white",
-//                           )}
-//                         >
-//                           {indexOpt + 1} {/* Using index for numbering */}
-//                         </span>
-//                         <p
-//                           className={cn(
-//                             "text-sm text-[#101828] transition-colors duration-200 ease-in-out",
-//                             //@ts-ignore
-//                             selectedValues[ques.id] === opt && "text-main-100",
-//                           )}
-//                         >
-//                           {opt}
-//                         </p>
-//                       </Label>
-//                     </div>
-//                   ))}
-//                 </RadioGroup>
-//               </div>
-//             )}
-
-//             {/* Date Input */}
-//             {ques.type === "date" && (
-//               <div className="col-span-2">
-//                 <input
-//                   type="date"
-//                   //@ts-ignore
-//                   value={selectedValues[ques.id]}
-//                   id={ques.name}
-//                   //@ts-ignore
-//                   onChange={(e) => handleInputChange(e.target.value, ques.id)}
-//                   className="form-input w-full rounded-lg border-[#D9DCE0]"
-//                 />
-//               </div>
-//             )}
-
-//             {/* Image Upload */}
-//             {ques.type === "file" && (
-//               <div className="col-span-2">
-//                 <input
-//                   type="file"
-//                   accept={ques.attributes?.accept || "image/*"}
-//                   id={ques.name}
-//                   onChange={(e) =>
-//                     //@ts-ignore
-//                     handleInputChange(e.target.files[0], ques.id)
-//                   }
-//                   className="form-input w-full rounded-lg border-[#D9DCE0]"
-//                 />
-//               </div>
-//             )}
-
-//             {/* Checkbox Input */}
-//             {/* {ques.type === "checkbox" && (
-//               <div className="col-span-2">
-//                 <Checkbox
-//                   id={ques.name}
-//                   checked={selectedValues[ques.id]}
-//                   onCheckedChange={(checked) =>
-//                     handleInputChange(checked, ques.id)
-//                   }
-//                   className="form-checkbox"
-//                 />
-//               </div>
-//             )} */}
-//             {ques.type === "checkbox" && (
-//               <div className="col-span-2 grid grid-cols-2 gap-5">
-//                 {ques.options?.map((opt: string, indexOpt: number) => (
-//                   <div key={indexOpt} className="group flex items-center gap-3">
-//                     <Checkbox
-//                       id={`q${ques.id}-${indexOpt}`}
-//                       //@ts-ignore
-//                       checked={selectedValues[ques.id]?.includes(opt) || false}
-//                       onCheckedChange={(checked) =>
-//                         //@ts-ignore
-//                         handleCheckboxChange(checked, ques.id, opt)
-//                       }
-//                       className="form-checkbox h-5 w-5 text-main-100"
-//                     />
-//                     <Label
-//                       htmlFor={`q${ques.id}-${indexOpt}`}
-//                       className="text-sm text-[#101828]"
-//                     >
-//                       {opt}
-//                     </Label>
-//                   </div>
-//                 ))}
-//               </div>
-//             )}
-
-//             {/* Select Input */}
-//             {ques.type === "select" && (
-//               <div className="col-span-2">
-//                 <select
-//                   id={ques.name}
-//                   //@ts-ignore
-//                   value={selectedValues[ques.id]}
-//                   //@ts-ignore
-//                   onChange={(e) => handleInputChange(e.target.value, ques.id)}
-//                   className="form-select w-full rounded-lg border-[#D9DCE0]"
-//                 >
-//                   {ques.options?.map(
-//                     (opt: any, index: React.Key | null | undefined) => (
-//                       <option key={index} value={opt}>
-//                         {opt}
-//                       </option>
-//                     ),
-//                   )}
-//                 </select>
-//               </div>
-//             )}
-
-//             {/* Number Input */}
-//             {ques.type === "number" && (
-//               <input
-//                 type="number"
-//                 //@ts-ignore
-//                 value={selectedValues[ques.id]}
-//                 id={ques.name}
-//                 //@ts-ignore
-//                 onChange={(e) => handleInputChange(e.target.value, ques.id)}
-//                 className="form-input w-full rounded-lg border-[#D9DCE0]"
-//               />
-//             )}
-
-//             {/* Range Slider */}
-//             {ques.type === "range" && (
-//               <input
-//                 type="range"
-//                 //@ts-ignore
-//                 value={selectedValues[ques.id]}
-//                 id={ques.name}
-//                 //@ts-ignore
-//                 onChange={(e) => handleInputChange(e.target.value, ques.id)}
-//                 className="form-range w-full rounded-lg"
-//                 min={ques.attributes?.min}
-//                 max={ques.attributes?.max}
-//                 step={ques.attributes?.step}
-//               />
-//             )}
-//           </div>
-//         ),
-//       )}
-//       {/* @ts-ignore */}
-//       <StepperControl next={handleNext} />
-//     </div>
-//   );
-// };
 const DynamicQuestion = ({
   questions,
   isUngrouped = false,
   isLastStep,
+  title,
+  questionsLength,
+  totalQuestions,
 }: {
   questions: Question[];
   isUngrouped?: boolean;
   isLastStep?: boolean;
+  title?: string;
+  questionsLength: number;
+  totalQuestions: number;
 }) => {
-  const { answers, nextStep, updateAnswer } = useStepper();
+  const { answers, nextStep, updateAnswer, step } = useStepper();
   const [selectedValues, setSelectedValues] = useState<
     Record<string | number, any>
   >({});
-
+  const [filePreviews, setFilePreviews] = useState<
+    Record<string | number, string>
+  >({});
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const inputRefs = useRef<
+    Record<string | number, HTMLInputElement | HTMLTextAreaElement | null>
+  >({});
+  const { id: taskId } = useParams();
   useEffect(() => {
     const initialAnswers: Record<string | number, any> = {};
     questions.forEach((ques) => {
@@ -672,16 +80,55 @@ const DynamicQuestion = ({
   const handleInputChange = (
     value: string | boolean | File | string[],
     quesId: string | number,
+    type?: string,
   ) => {
+    if (type === "file" && value instanceof File) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFilePreviews((prev) => ({
+          ...prev,
+          [quesId]: reader.result as string,
+        }));
+      };
+      reader.readAsDataURL(value);
+    }
+
     setSelectedValues((prev) => ({
       ...prev,
       [quesId]: value,
     }));
-    //@ts-ignore
-    updateAnswer(quesId, value);
   };
 
-  const handleNext = () => {
+  // const handleNext = () => {
+  //   const allAnswered = questions.every(({ id, type }) => {
+  //     const value = selectedValues[id];
+
+  //     switch (type) {
+  //       case "text":
+  //       case "textarea":
+  //         return typeof value === "string" && value.trim().length > 0;
+  //       case "radio":
+  //       case "dropdown":
+  //         return value !== null && value !== "";
+  //       case "checkbox":
+  //         return Array.isArray(value) && value.length > 0;
+  //       case "date":
+  //         return typeof value === "string" && !isNaN(new Date(value).getTime());
+  //       case "number":
+  //         return typeof value === "number" && !isNaN(value);
+  //       default:
+  //         return true;
+  //     }
+  //   });
+  //   console.log(allAnswered, "allAnswered");
+  //   if (allAnswered) {
+  //     nextStep();
+  //   } else {
+  //     toast.error("Please answer all questions before proceeding");
+  //   }
+  // };
+
+  const handleNext = async () => {
     const allAnswered = questions.every(({ id, type }) => {
       const value = selectedValues[id];
 
@@ -698,15 +145,36 @@ const DynamicQuestion = ({
           return typeof value === "string" && !isNaN(new Date(value).getTime());
         case "number":
           return typeof value === "number" && !isNaN(value);
+        //@ts-ignore
+        case "file":
+          return value instanceof File;
         default:
           return true;
       }
     });
 
-    if (allAnswered) {
-      nextStep();
-    } else {
+    if (!allAnswered) {
       toast.error("Please answer all questions before proceeding");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const formattedAnswers = {
+        answers: Object.keys(selectedValues).map((key) => ({
+          question_id: Number(key),
+          value: Array.isArray(selectedValues[key])
+            ? { answer: selectedValues[key] }
+            : { answer: selectedValues[key] },
+        })),
+      };
+
+      await createContributorAnswers(taskId as string, formattedAnswers);
+      nextStep();
+    } catch (err) {
+      toast.error("Failed to save answers. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -718,6 +186,8 @@ const DynamicQuestion = ({
           <div className="col-span-2">
             {ques.type === "textarea" ? (
               <textarea
+                //@ts-ignore
+                ref={(el) => (inputRefs.current[ques.id] = el)}
                 value={selectedValues[ques.id] || ""}
                 id={ques.name}
                 placeholder={ques.placeholder || "Enter your answer"}
@@ -726,6 +196,8 @@ const DynamicQuestion = ({
               />
             ) : (
               <input
+                //@ts-ignore
+                ref={(el) => (inputRefs.current[ques.id] = el)}
                 type="text"
                 value={selectedValues[ques.id] || ""}
                 id={ques.name}
@@ -749,6 +221,8 @@ const DynamicQuestion = ({
                 (opt: any, index: React.Key | null | undefined) => (
                   <div className="group w-full" key={index}>
                     <RadioGroupItem
+                      //@ts-ignore
+                      ref={(el) => (inputRefs.current[ques.id] = el)}
                       value={opt!}
                       id={`q${ques.id}-${index}`}
                       className="hidden"
@@ -792,6 +266,8 @@ const DynamicQuestion = ({
               (opt: any, index: React.Key | null | undefined) => (
                 <div key={index} className="group flex items-center gap-3">
                   <Checkbox
+                    //@ts-ignore
+                    ref={(el) => (inputRefs.current[ques.id] = el)}
                     id={`q${ques.id}-${index}`}
                     checked={selectedValues[ques.id]?.includes(opt) || false}
                     onCheckedChange={(checked) => {
@@ -824,6 +300,8 @@ const DynamicQuestion = ({
         return (
           <div className="col-span-2">
             <input
+              //@ts-ignore
+              ref={(el) => (inputRefs.current[ques.id] = el)}
               type="number"
               value={selectedValues[ques.id] || ""}
               id={ques.name}
@@ -837,6 +315,8 @@ const DynamicQuestion = ({
         return (
           <div className="col-span-2">
             <input
+              //@ts-ignore
+              ref={(el) => (inputRefs.current[ques.id] = el)}
               type="range"
               value={selectedValues[ques.id] || ""}
               id={ques.name}
@@ -853,6 +333,8 @@ const DynamicQuestion = ({
         return (
           <div className="col-span-2">
             <select
+              //@ts-ignore
+              ref={(el) => (inputRefs.current[ques.id] = el)}
               id={ques.name}
               value={selectedValues[ques.id] || ""}
               onChange={(e) => handleInputChange(e.target.value, ques.id)}
@@ -871,14 +353,70 @@ const DynamicQuestion = ({
 
       case "file":
         return (
+          // <div className="col-span-2">
+          //   <input
+          //     type="file"
+          //     accept={"*/*"}
+          //     id={ques.name}
+          //     onChange={(e) => {
+          //       const file = e.target.files?.[0];
+          //       if (file) {
+          //         handleInputChange(file, ques.id);
+          //       }
+          //     }}
+          //     className="form-input w-full rounded-lg border-[#D9DCE0]"
+          //   />
+          // </div>
+
           <div className="col-span-2">
             <input
               type="file"
-              accept={ques.attributes?.accept || "image/*"}
+              accept="image/*"
               id={ques.name}
-              onChange={(e) => handleInputChange(e?.target?.files?.[0]!, ques.id)}
-              className="form-input w-full rounded-lg border-[#D9DCE0]"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  handleInputChange(file, ques.id, "file");
+                }
+              }}
+              className="hidden"
+              //@ts-ignore
+              ref={(el) => (inputRefs.current[ques.id] = el)}
             />
+            <div className="flex flex-col gap-4">
+              <button
+                type="button"
+                onClick={() => inputRefs.current[ques.id]?.click()}
+                className="w-fit rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200"
+              >
+                Choose File
+              </button>
+              {filePreviews[ques.id] && (
+                <div className="relative h-32 w-32">
+                  <Image
+                    src={filePreviews[ques.id]}
+                    alt="Preview"
+                    className="h-full w-full rounded-lg object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedValues((prev) => ({
+                        ...prev,
+                        [ques.id]: null,
+                      }));
+                      setFilePreviews((prev) => ({
+                        ...prev,
+                        [ques.id]: "",
+                      }));
+                    }}
+                    className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
+                  >
+                    ×
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         );
 
@@ -886,6 +424,8 @@ const DynamicQuestion = ({
         return (
           <div className="col-span-2">
             <input
+              //@ts-ignore
+              ref={(el) => (inputRefs.current[ques.id] = el)}
               type="date"
               value={selectedValues[ques.id] || ""}
               id={ques.name}
@@ -900,6 +440,8 @@ const DynamicQuestion = ({
         return (
           <div className="col-span-2">
             <input
+              //@ts-ignore
+              ref={(el) => (inputRefs.current[ques.id] = el)}
               type="url"
               value={selectedValues[ques.id] || ""}
               id={ques.name}
@@ -914,6 +456,8 @@ const DynamicQuestion = ({
         return (
           <div className="col-span-2">
             <input
+              //@ts-ignore
+              ref={(el) => (inputRefs.current[ques.id] = el)}
               type="tel"
               value={selectedValues[ques.id] || ""}
               id={ques.name}
@@ -928,6 +472,8 @@ const DynamicQuestion = ({
         return (
           <div className="col-span-2">
             <input
+              //@ts-ignore
+              ref={(el) => (inputRefs.current[ques.id] = el)}
               type="time"
               value={selectedValues[ques.id] || ""}
               id={ques.name}
@@ -942,11 +488,51 @@ const DynamicQuestion = ({
     }
   };
 
+  console.log(selectedValues, "gjgjfgkgf");
+
   return (
     <div className="space-y-5">
-      {isUngrouped && (
-        <h2 className="mb-4 text-xl font-semibold">Additional Questions</h2>
-      )}
+      <>
+        {isUngrouped ? (
+          <h2 className="mb-6 text-xl font-semibold text-neutral-900">
+            Additional Questions
+          </h2>
+        ) : (
+          <h3 className="mb-6 text-xl font-semibold text-neutral-900">
+            {title}
+          </h3>
+        )}
+        <div className="flex items-center justify-between">
+          <div>
+            <span className="inline-block font-medium text-neutral-600">
+              <span className="text-main-100">{step}</span>/{questionsLength}
+            </span>
+            <div className="flex gap-1">
+              {Array.from(
+                { length: questionsLength },
+                (_: any, index: number) => (
+                  <span
+                    key={index}
+                    className={cn(
+                      "inline-block h-1 w-3 rounded-full bg-neutral-200",
+                      step >= index + 1 && "bg-main-100",
+                      step === index + 1 && "w-5",
+                    )}
+                  ></span>
+                ),
+              )}
+            </div>
+          </div>
+
+          <span className="text-sm text-neutral-500">
+            <span className="font-semibold text-neutral-900">
+              {totalQuestions}
+            </span>{" "}
+            Questions
+          </span>
+        </div>
+      </>
+
       {questions.map((ques: any) => (
         <div key={ques.id} className="grid grid-cols-[24px_1fr] gap-3">
           <Label
@@ -958,7 +544,11 @@ const DynamicQuestion = ({
           {renderQuestion(ques)}
         </div>
       ))}
-      <StepperControl next={handleNext} />
+      <StepperControl
+        isLastStep={isLastStep}
+        next={handleNext}
+        isLoading={isLoading}
+      />
     </div>
   );
 };

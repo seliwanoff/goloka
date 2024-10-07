@@ -109,6 +109,25 @@ export const createContributorResponse = async (
     },
   });
  }
+  // ~ =============================================>
+  // ~ ======= Create a contributor Answers  -->
+  // ~ =============================================>
+
+
+export const createContributorAnswers = async (
+  id: string,
+  data: any,
+): Promise<UseQueryResult<ServerResponse<any>>> => {
+  return queryClient.fetchQuery({
+    queryKey: ["create contributor answers"],
+    queryFn: async () => {
+      return await postData<ServerResponse<any>>(
+        `/contributor/responses/${id}/answer`,
+        data,
+      );
+    },
+  });
+ }
 // ~ =============================================>
 // ~ ======= Get campaign user  -->
 // ~ =============================================>
@@ -216,3 +235,5 @@ export const getContributorsProfile = async (): Promise<
       }
     },
   });
+
+

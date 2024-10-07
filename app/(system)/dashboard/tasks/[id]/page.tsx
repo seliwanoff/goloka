@@ -170,34 +170,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
         {isStepper ? (
           <>
             <div className="mx-auto mt-9 w-full rounded-2xl bg-white p-4 sm:w-[500px] md:mt-[96px]">
-              <h3 className="mb-6 text-xl font-semibold text-neutral-900">
-                Agriculture & Food Security
-              </h3>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="inline-block font-medium text-neutral-600">
-                    <span className="text-main-100">{step}</span>/4
-                  </span>
-                  <div className="flex gap-1">
-                    {Array.from({ length: 4 }, (_: any, index: number) => (
-                      <span
-                        key={index}
-                        className={cn(
-                          "inline-block h-1 w-3 rounded-full bg-neutral-200",
-                          step >= index + 1 && "bg-main-100",
-                          step === index + 1 && "w-5",
-                        )}
-                      ></span>
-                    ))}
-                  </div>
-                </div>
-
-                <span className="text-sm text-neutral-500">
-                  <span className="font-semibold text-neutral-900">10</span>{" "}
-                  Questions
-                </span>
-              </div>
+             
 
               <div className="mt-6">
                 {/* @ts-ignore */}
