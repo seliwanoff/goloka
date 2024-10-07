@@ -40,7 +40,7 @@ const CustomSelectField = ({
                 placeholder={data?.placeholder}
               />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent id={data?.name}>
               {options?.map((opt: any) => (
                 <SelectItem key={opt?.value} value={opt?.value}>
                   {opt?.label}

@@ -16,6 +16,8 @@ const PhoneInputField = ({ errors, data, control }: any) => {
       <div
         className={cn(
           "focus-within::ring-1 h-14 w-full rounded-lg border border-[#d9dce0] p-4 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-main-100",
+          errors[data?.name] &&
+            "border-red-600 focus:border-red-600 focus:ring-red-600",
         )}
       >
         <Controller
@@ -31,8 +33,6 @@ const PhoneInputField = ({ errors, data, control }: any) => {
               placeholder={data?.placeholder}
               className={cn(
                 "input-phone h-6 w-full border-transparent outline-0 ring-0",
-                errors[data?.name] &&
-                  "border-red-600 focus:border-red-600 focus:ring-red-600",
               )}
             />
           )}

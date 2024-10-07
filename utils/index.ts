@@ -627,3 +627,339 @@ export const supportTabs = [
     value: "report",
   },
 ];
+
+export const pushNotifications = [
+  {
+    label: "Task Updates",
+    value: "taskUpdates",
+    isActive: true,
+  },
+  {
+    label: "Tasks related to me",
+    value: "tasksRelatedToMe",
+    isActive: true,
+  },
+  {
+    label: "Messages from organization",
+    value: "messagesFromOrganization",
+    isActive: true,
+  },
+  {
+    label: "Payments",
+    value: "payments",
+    isActive: true,
+  },
+];
+
+export const emailNotifications = [
+  {
+    label: "Task Updates",
+    value: "taskUpdates",
+    isActive: true,
+  },
+  {
+    label: "Tasks related to me",
+    value: "tasksRelatedToMe",
+    isActive: false,
+  },
+  {
+    label: "Messages from organization",
+    value: "messagesFromOrganization",
+    isActive: true,
+  },
+  {
+    label: "Payments",
+    value: "payments",
+    isActive: true,
+  },
+];
+
+export const addBeneficiary = [
+  {
+    label: "Currency",
+    type: "select",
+    required: true,
+    err_message: "Select currency",
+    name: "currency",
+    placeholder: "Select currency",
+  },
+  {
+    label: "Bank name",
+    type: "select",
+    required: true,
+    err_message: "Select bank name",
+    name: "bankName",
+    placeholder: "Select bank name",
+  },
+  {
+    label: "Account number",
+    type: "number",
+    required: true,
+    err_message: "Input account number",
+    name: "accountNumber",
+    placeholder: "Input number",
+  },
+  {
+    label: "Account name",
+    type: "text",
+    required: true,
+    err_message: "Input account name",
+    name: "accountName",
+    placeholder: "Input name",
+  },
+];
+
+export const currencyOptions = [
+  { label: "USD", value: "usd" },
+  { label: "EUR", value: "eur" },
+  { label: "NGN", value: "ngn" },
+];
+
+export const bankOptions = [
+  { label: "First Bank", value: "firstBank" },
+  { label: "GT Bank", value: "gtBank" },
+  { label: "Zenith Bank", value: "zenithBank" },
+];
+
+export const passwordFormData = [
+  {
+    label: "Current password",
+    type: "password",
+    required: true,
+    err_message: "Input your old password",
+    name: "oldPassword",
+    placeholder: "Input password",
+  },
+  {
+    label: "New password",
+    type: "password",
+    required: true,
+    err_message: "Input your new password",
+    name: "password",
+    placeholder: "Input password",
+  },
+  {
+    label: "Confirm password",
+    type: "password",
+    required: true,
+    err_message: "Input your confirm password",
+    name: "passwordAgain",
+    placeholder: "Input password",
+  },
+];
+
+export const personalInfo = [
+  {
+    name: "firstName",
+    label: "First name",
+    type: "text",
+    required: true,
+    err_message: "Input your first name",
+    placeholder: "Input first name",
+  },
+  {
+    label: "Last name",
+    type: "text",
+    required: true,
+    err_message: "Input your first name",
+    name: "lastName",
+    placeholder: "Input first name",
+  },
+  {
+    label: "Email address",
+    type: "email",
+    required: true,
+    err_message: "Input your email address",
+    name: "email",
+    placeholder: "Input email address",
+  },
+  {
+    label: "Phone number",
+    type: "phone",
+    required: true,
+    err_message: "Input your phone number",
+    name: "firstName",
+    placeholder: "Input phone number",
+  },
+  {
+    label: "Date of birth",
+    type: "date",
+    required: true,
+    err_message: "Pick your date of birth",
+    name: "dateOfBirth",
+    placeholder: "Pick date of birth",
+  },
+  {
+    label: "Gender",
+    type: "select",
+    required: true,
+    err_message: "Select your gender",
+    name: "gender",
+    placeholder: "Select your gender",
+  },
+];
+
+export const otherInfo = [
+  {
+    label: "Date of birth",
+    type: "date",
+    required: true,
+    err_message: "Select your date of birth",
+    name: "dateOfBirth1",
+    placeholder: "Select date",
+  },
+  {
+    label: "Gender",
+    type: "select",
+    required: true,
+    err_message: "Select your gender",
+    name: "gender1",
+    placeholder: "Select your gender",
+  },
+
+  {
+    label: "Religion",
+    type: "select",
+    required: true,
+    err_message: "Select your religion",
+    name: "religion",
+    placeholder: "Select religion",
+  },
+  {
+    label: "Ethnicity",
+    type: "select",
+    required: true,
+    err_message: "Select your religion",
+    name: "ethnicity",
+    placeholder: "Select ethnicity",
+  },
+  {
+    label: "Primary language",
+    type: "select",
+    required: true,
+    err_message: "Select your primary language",
+    name: "primaryLanguage",
+    placeholder: "Select primary language",
+  },
+  {
+    label: "Spoken language",
+    type: "select",
+    required: true,
+    err_message: "Select your spoken language",
+    name: "spokenLanguage",
+    placeholder: "Select spoken language ",
+  },
+];
+
+export const location = [
+  {
+    name: "address",
+    label: "Address",
+    type: "richtext",
+    required: true,
+    err_message: "Input your address",
+    placeholder: "Input address",
+  },
+  {
+    name: "country",
+    label: "Country",
+    type: "select",
+    required: true,
+    err_message: "Input your country",
+    placeholder: "Input country",
+  },
+  {
+    name: "city",
+    label: "City",
+    type: "select",
+    required: true,
+    err_message: "Input your city",
+    placeholder: "Input city",
+  },
+  {
+    name: "postCode",
+    label: "Post code",
+    type: "number",
+    required: true,
+    err_message: "Input your post code",
+    placeholder: "Input post code",
+  },
+];
+
+export const genderOptions = [
+  { label: "Male", value: "male" },
+  { label: "Female", value: "female" },
+  { label: "Other", value: "other" },
+];
+
+export const religionOptions = [
+  { label: "Christianity", value: "christianity" },
+  { label: "Islam", value: "islam" },
+  { label: "Hinduism", value: "hinduism" },
+];
+
+export const ethnicityOptions = [
+  { label: "Yoruba", value: "yoruba" },
+  { label: "Igbo", value: "igbo" },
+  { label: "Hausa", value: "hausa" },
+];
+
+export const primaryLanguageOptions = [
+  { label: "English", value: "english" },
+  { label: "French", value: "french" },
+  { label: "Spanish", value: "spanish" },
+];
+
+export const spokenLanguageOptions = [
+  { label: "English", value: "english" },
+  { label: "French", value: "french" },
+  { label: "Spanish", value: "spanish" },
+];
+
+export const countriesAndCities = [
+  {
+    country: { label: "Nigeria", value: "nigeria" },
+    cities: [
+      { label: "Lagos", value: "lagos" },
+      { label: "Abuja", value: "abuja" },
+      { label: "Port Harcourt", value: "port_harcourt" },
+      { label: "Kano", value: "kano" },
+    ],
+  },
+  {
+    country: { label: "United States", value: "united_states" },
+    cities: [
+      { label: "New York", value: "new_york" },
+      { label: "Los Angeles", value: "los_angeles" },
+      { label: "Chicago", value: "chicago" },
+      { label: "Houston", value: "houston" },
+    ],
+  },
+  {
+    country: { label: "United Kingdom", value: "united_kingdom" },
+    cities: [
+      { label: "London", value: "london" },
+      { label: "Manchester", value: "manchester" },
+      { label: "Birmingham", value: "birmingham" },
+      { label: "Liverpool", value: "liverpool" },
+    ],
+  },
+  {
+    country: { label: "Canada", value: "canada" },
+    cities: [
+      { label: "Toronto", value: "toronto" },
+      { label: "Vancouver", value: "vancouver" },
+      { label: "Montreal", value: "montreal" },
+      { label: "Calgary", value: "calgary" },
+    ],
+  },
+  {
+    country: { label: "Australia", value: "australia" },
+    cities: [
+      { label: "Sydney", value: "sydney" },
+      { label: "Melbourne", value: "melbourne" },
+      { label: "Brisbane", value: "brisbane" },
+      { label: "Perth", value: "perth" },
+    ],
+  },
+];
