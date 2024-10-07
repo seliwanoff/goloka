@@ -40,7 +40,7 @@ const CustomSelectField = ({
                 placeholder={data?.placeholder}
               />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent id={data?.name}>
               {options?.map((opt: any) => (
                 <SelectItem key={opt?.value} value={opt?.value}>
                   {opt?.label}
@@ -52,7 +52,7 @@ const CustomSelectField = ({
       />
 
       <p className="p-1 text-sm text-red-600">
-        {errors[data.name] && (data?.err_message as string)}
+        {errors[data?.name] && (data?.err_message as string)}
       </p>
     </div>
   );
