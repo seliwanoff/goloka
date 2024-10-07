@@ -2,7 +2,8 @@
 
 import CustomBreadCrumbs from "@/components/lib/navigation/custom_breadcrumbs";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+
 import Task1 from "@/public/assets/images/tasks/task1.png";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Button } from "@/components/ui/button";
@@ -22,7 +23,7 @@ import {
   getCampaignQuestion,
   getTaskById,
 } from "@/services/contributor";
-import { useParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import moment from "moment";
 
@@ -89,6 +90,8 @@ type PageProps = {};
 
 const TaskDetail: React.FC<PageProps> = ({}) => {
   const [isStepper, setIsStepper] = useState<boolean>(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const { id: taskId } = useParams();
   const { step } = useStepper();
   // const { data } = getTaskById("");taskId;
@@ -109,40 +112,55 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
   //   queryFn: async () => await getCampaignQuestion(taskId as string),
   // });
 
-const {
-  data: quest,
-  isLoading: questLoading,
-  error: questError,
-} = useQuery({
-  queryKey: ["campaign questions", taskId], // The key used for caching
-  queryFn: () => getCampaignQuestion(taskId as string), // Function to fetch data
-  enabled: !!taskId, // Ensures the query only runs when taskId exists
-  retry: 2, // Retry failed queries up to 2 times
-});
+  useEffect(() => {
+    const stepperParam = searchParams.get("stepper");
+    const stepParam = searchParams.get("step");
 
+    if (stepperParam === "true" && !isStepper) {
+      setIsStepper(true);
+    }
+  }, [searchParams]);
 
+  const {
+    data: quest,
+    isLoading: questLoading,
+    error: questError,
+  } = useQuery({
+    queryKey: ["campaign questions", taskId], // The key used for caching
+    queryFn: () => getCampaignQuestion(taskId as string), // Function to fetch data
+    enabled: !!taskId, // Ensures the query only runs when taskId exists
+    retry: 2, // Retry failed queries up to 2 times
+  });
 
   const onContribute = async () => {
-    // const response = await createContributorResponse(taskId as string, {});
-    // console.log(response, "success");
-    // //@ts-ignore
-    // if (response?.message === "Response created successfully") {
     setIsStepper(true);
-    // }
+    router.push(`${window.location.pathname}?stepper=true&step=1`);
   };
 
   console.log(quest, "quest");
+  const updateStepUrl = (newStep: number) => {
+    router.push(`${window.location.pathname}?stepper=true&step=${newStep}`);
+  };
+
+  const WrappedTaskStepper = () => (
+    <TaskStepper
+      //@ts-ignore
+      quest={quest}
+      onStepChange={(newStep: any) => {
+        updateStepUrl(newStep);
+      }}
+    />
+  );
 
   //@ts-ignore
   const Date = moment(task?.data?.ends_at).format("DD MMMM YYYY");
   //@ts-ignore
   const Time = moment(task?.data?.ends_at).format("hh:mm A");
 
-
   if (isLoading) {
     return <SkeletonLoader />;
   }
-  
+
   return (
     <>
       <Toaster richColors position={"top-right"} />
@@ -182,7 +200,8 @@ const {
               </div>
 
               <div className="mt-6">
-                <TaskStepper quest={quest} />
+                {/* @ts-ignore */}
+                <WrappedTaskStepper />
               </div>
             </div>
           </>
