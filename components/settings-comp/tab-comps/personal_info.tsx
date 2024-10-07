@@ -70,7 +70,7 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
                 Update your photo and personal details here.
               </p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="fixed bottom-0 left-0 z-30 grid w-full grid-cols-2 items-center gap-3 bg-white p-4 md:static md:inline-flex md:w-min md:p-0">
               <Button
                 type="button"
                 variant="outline"

@@ -51,7 +51,7 @@ const Location: React.FC<ComponentProps> = ({}) => {
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)} className="block" id="location">
-        <div className="rounded-2xl bg-white p-6">
+        <div className="max-w-4xl rounded-2xl bg-white p-6">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="mb-1 text-lg font-semibold text-[#101828]">
@@ -61,7 +61,7 @@ const Location: React.FC<ComponentProps> = ({}) => {
                 Edit your location preference
               </p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="fixed bottom-0 left-0 z-30 grid w-full grid-cols-2 items-center gap-3 bg-white p-4 md:static md:inline-flex md:w-min md:p-0">
               <Button
                 type="button"
                 variant="outline"
@@ -78,7 +78,7 @@ const Location: React.FC<ComponentProps> = ({}) => {
             </div>
           </div>
 
-          <div className="grid gap-6 md:mt-8 md:grid-cols-2 first:md:col-span-2">
+          <div className="mt-8 grid gap-6 md:grid-cols-2 first:md:col-span-2">
             {location.map((data, index) => {
               if (data.type === "select") {
                 return (

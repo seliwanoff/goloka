@@ -7,9 +7,9 @@ import ContactTab from "./contact_tab";
 import HelpTab from "./help_tab";
 import ChatTab from "./chat_tab";
 import ReportTab from "./report_tab";
-
+  
 const supportTabContent = [
-  {
+{
     title: "Contact Goloka",
     label: <ContactTab />,
     value: "contact",

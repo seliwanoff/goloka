@@ -162,7 +162,7 @@ const Payment: React.FC<any> = ({}) => {
               </div>
             </div>
 
-            <div className="mt-[42px] flex items-center gap-3">
+            <div className="fixed bottom-0 left-0 z-30 mt-[42px] grid w-full grid-cols-1 items-center gap-3 bg-white p-4 shadow-[0_0_20px_rgba(0,0,0,0.1)] md:static md:flex md:bg-transparent md:p-0 md:shadow-none">
               <Button
                 type="submit"
                 className="h-auto w-full rounded-full bg-main-100 py-3.5 text-white hover:bg-blue-600"
