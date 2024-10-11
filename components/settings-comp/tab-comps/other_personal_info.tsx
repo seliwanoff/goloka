@@ -8,6 +8,8 @@ import {
 } from "@/utils";
 import CustomSelectField from "../select_field";
 import DatePicker from "../date_picker";
+import { useEffect } from "react";
+import { useRemoteUserStore } from "@/stores/contributors";
 
 const getOptionsByName = (name: string) => {
   switch (name) {
@@ -26,7 +28,28 @@ const getOptionsByName = (name: string) => {
   }
 };
 
-const OtherPersonalInfo: React.FC<any> = ({ errors, register, control }) => {
+const OtherPersonalInfo: React.FC<any> = ({
+  errors,
+  register,
+  control,
+  reset,
+}) => {
+  const { user } = useRemoteUserStore();
+
+  // If user data is updated, reset the form with the new values
+  useEffect(() => {
+    if (user) {
+      reset({
+        gender1: user?.gender || "",
+        religion: user?.religion || "",
+        ethnicity: user?.ethnicity || "",
+        primaryLanguage: user?.primary_language || "",
+        spokenLanguage: user?.spoken_languages || "",
+        dateOfBirth1: user?.birth_date || "",
+      });
+    }
+  }, [user, reset]);
+
   return (
     <div className="mt-8 rounded-2xl bg-white p-6">
       <div>
@@ -64,4 +87,5 @@ const OtherPersonalInfo: React.FC<any> = ({ errors, register, control }) => {
     </div>
   );
 };
+
 export default OtherPersonalInfo;

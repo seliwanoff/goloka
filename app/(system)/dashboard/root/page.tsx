@@ -45,6 +45,7 @@ import { getDashboardStats } from "@/services/response";
 import { numberWithCommas } from "@/helper";
 import { SkeletonXLoader } from "@/helper/loader";
 import React from "react";
+import { useRemoteUserStore } from "@/stores/contributors";
 
 type PageProps = {};
 
@@ -61,7 +62,7 @@ type Stats = {
 
 const DashboardRoot: React.FC<PageProps> = ({}) => {
   const [date, setDate] = useState<Date>();
-
+  const { setUser } = useRemoteUserStore();
   const currentUser = useUserStore((state) => state.currentUser);
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -78,6 +79,13 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
     queryFn: getContributorsProfile,
   });
   console.log(remoteUser, "remoteUser");
+
+  useEffect(() => {
+    if (remoteUser?.data) {
+      //@ts-ignore
+      setUser(remoteUser.data);
+    }
+  }, [remoteUser]);
   const [data, setData] = useState<DashboardData | null>(null);
   const fetchData = () => {
     return getAllTask({

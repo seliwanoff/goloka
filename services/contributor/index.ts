@@ -229,7 +229,7 @@ export const getContributorsProfile = async (): Promise<
     queryKey: ["contributors profile"],
     queryFn: async () => {
       try {
-        return await fetchData(`/contributor-profile`);
+        return await fetchData<IRemoteUser>(`/contributor-profile`);
       } catch (error) {
         return null;
       }
