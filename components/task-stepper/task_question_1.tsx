@@ -7,6 +7,10 @@ type Question = {
     | "checkbox"
     | "dropdown"
     | "date"
+    | "file"
+    | "password"
+    | "email"
+    | "tel"
     | "number";
 };
 
@@ -99,84 +103,65 @@ const DynamicQuestion = ({
     }));
   };
 
-  // const handleNext = () => {
-  //   const allAnswered = questions.every(({ id, type }) => {
-  //     const value = selectedValues[id];
 
-  //     switch (type) {
-  //       case "text":
-  //       case "textarea":
-  //         return typeof value === "string" && value.trim().length > 0;
-  //       case "radio":
-  //       case "dropdown":
-  //         return value !== null && value !== "";
-  //       case "checkbox":
-  //         return Array.isArray(value) && value.length > 0;
-  //       case "date":
-  //         return typeof value === "string" && !isNaN(new Date(value).getTime());
-  //       case "number":
-  //         return typeof value === "number" && !isNaN(value);
-  //       default:
-  //         return true;
-  //     }
-  //   });
-  //   console.log(allAnswered, "allAnswered");
-  //   if (allAnswered) {
-  //     nextStep();
-  //   } else {
-  //     toast.error("Please answer all questions before proceeding");
-  //   }
-  // };
 
-  const handleNext = async () => {
-    const allAnswered = questions.every(({ id, type }) => {
-      const value = selectedValues[id];
+const handleNext = async () => {
+  // Check if all questions have been answered based on their type
+  const allAnswered = questions.every(({ id, type }) => {
+    const value = selectedValues[id];
 
-      switch (type) {
-        case "text":
-        case "textarea":
-          return typeof value === "string" && value.trim().length > 0;
-        case "radio":
-        case "dropdown":
-          return value !== null && value !== "";
-        case "checkbox":
-          return Array.isArray(value) && value.length > 0;
-        case "date":
-          return typeof value === "string" && !isNaN(new Date(value).getTime());
-        case "number":
-          return typeof value === "number" && !isNaN(value);
-        //@ts-ignore
-        case "file":
-          return value instanceof File;
-        default:
-          return true;
-      }
-    });
-
-    if (!allAnswered) {
-      toast.error("Please answer all questions before proceeding");
-      return;
+    switch (type) {
+      case "text":
+      case "textarea":
+      case "email":
+      case "tel":
+      case "password":
+        return typeof value === "string" && value.trim().length > 0;
+      case "radio":
+      case "dropdown":
+        return value !== null && value !== "";
+      case "checkbox":
+        return Array.isArray(value) && value.length > 0;
+      case "date":
+        return typeof value === "string" && !isNaN(new Date(value).getTime());
+      case "number":
+        return typeof value === "number" && !isNaN(value);
+      case "file":
+        return value instanceof File;
+      default:
+        return true;
     }
+  });
 
-    setIsLoading(true);
-    try {
-      const formattedAnswers = {
-        answers: Object.keys(selectedValues).map((key) => ({
+  if (!allAnswered) {
+    toast.error("Please answer all questions before proceeding");
+    return;
+  }
+
+  setIsLoading(true);
+  try {
+    // Format the answers to be submitted
+    const formattedAnswers = {
+      answers: Object.keys(selectedValues).map((key) => {
+        const value = selectedValues[key];
+        return {
           question_id: Number(key),
-          value: Array.isArray(selectedValues[key])
-            ? { answer: selectedValues[key] }
-            : { answer: selectedValues[key] },
-        })),
-      };
+          value: Array.isArray(value) ? value : value,
+          //  value: Array.isArray(value) ? value : [value],
+        };
+      }),
+    };
 
-      await createContributorAnswers(taskId as string, formattedAnswers);
-      nextStep();
-    } catch (err) {
-      toast.error("Failed to save answers. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    // Submit the formatted answers
+    await createContributorAnswers(taskId as string, formattedAnswers);
+    nextStep();
+  } catch (err) {
+    toast.error("Failed to save answers. Please try again.");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   const renderQuestion = (ques: any) => {
     switch (ques.type) {
@@ -303,6 +288,48 @@ const DynamicQuestion = ({
               //@ts-ignore
               ref={(el) => (inputRefs.current[ques.id] = el)}
               type="number"
+              value={selectedValues[ques.id] || ""}
+              id={ques.name}
+              onChange={(e) => handleInputChange(e.target.value, ques.id)}
+              className="form-input w-full rounded-lg border-[#D9DCE0]"
+            />
+          </div>
+        );
+      case "email":
+        return (
+          <div className="col-span-2">
+            <input
+              //@ts-ignore
+              ref={(el) => (inputRefs.current[ques.id] = el)}
+              type="email"
+              value={selectedValues[ques.id] || ""}
+              id={ques.name}
+              onChange={(e) => handleInputChange(e.target.value, ques.id)}
+              className="form-input w-full rounded-lg border-[#D9DCE0]"
+            />
+          </div>
+        );
+      case "tel":
+        return (
+          <div className="col-span-2">
+            <input
+              //@ts-ignore
+              ref={(el) => (inputRefs.current[ques.id] = el)}
+              type="tel"
+              value={selectedValues[ques.id] || ""}
+              id={ques.name}
+              onChange={(e) => handleInputChange(e.target.value, ques.id)}
+              className="form-input w-full rounded-lg border-[#D9DCE0]"
+            />
+          </div>
+        );
+      case "password":
+        return (
+          <div className="col-span-2">
+            <input
+              //@ts-ignore
+              ref={(el) => (inputRefs.current[ques.id] = el)}
+              type="password"
               value={selectedValues[ques.id] || ""}
               id={ques.name}
               onChange={(e) => handleInputChange(e.target.value, ques.id)}

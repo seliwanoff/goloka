@@ -10,8 +10,9 @@ import {
 import { useAddBeneficiaryOverlay } from "@/stores/overlay";
 import { useMediaQuery } from "@react-hook/media-query";
 import { cn } from "@/lib/utils";
-import AddBeneficiary from "../widgets/add_beneficiary";
+
 import { ArrowLeft } from "iconsax-react";
+import AddBeneficiary from "../widgets/add_beneficiary";
 
 const CreateBeneficiary = () => {
   const isDesktop = useMediaQuery("(min-width: 640px)");

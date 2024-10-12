@@ -237,3 +237,41 @@ export const getContributorsProfile = async (): Promise<
   });
 
 
+export const resolveAccountInfo = async (
+  account_number: string,
+  bank_code: string,
+): Promise<UseQueryResult<AxiosResponse<TaskResponse>>> =>
+  await queryClient.fetchQuery({
+    queryKey: ["contributors profile"],
+    queryFn: async () => {
+      try {
+        return await postData(`/resolve-account`, {
+          account_number,
+          bank_code,
+        });
+      } catch (error) {
+        console.error("Failed to resolve account info:", error);
+        return null;
+      }
+    },
+  });
+export const addBeneficiary = async (
+  account_number: string,
+  bank_code: string,
+): Promise<UseQueryResult<AxiosResponse<TaskResponse>>> =>
+  await queryClient.fetchQuery({
+    queryKey: ["contributors bank"],
+    queryFn: async () => {
+      try {
+        return await postData(`/contributor-profile/bank-account`, {
+          account_number,
+          bank_code,
+        });
+      } catch (error) {
+        console.error("Failed:", error);
+        return null;
+      }
+    },
+  });
+
+

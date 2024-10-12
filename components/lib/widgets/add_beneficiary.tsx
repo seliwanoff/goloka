@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Controller, useForm } from "react-hook-form";
 import * as yup from "yup";
+import { Loader } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -16,31 +17,82 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useAddBeneficiaryOverlay } from "@/stores/overlay";
+import { bankList } from "@/utils";
+import { addBeneficiary, resolveAccountInfo } from "@/services/contributor";
+import { toast } from "sonner";
+import { BankAutocomplete } from "./bankAutoComplete";
 
 const schema = yup.object().shape({
   currency: yup.string().required(),
   bankName: yup.string().required(),
   accountName: yup.string().required(),
-  accountNumber: yup.string().required(),
+  accountNumber: yup
+    .string()
+    .required()
+    .min(10, "Account number must be exactly 10 digits")
+    .max(10, "Account number must be exactly 10 digits"),
 });
-
 const AddBeneficiary = () => {
   const { setShow } = useAddBeneficiaryOverlay();
+  const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const {
     control,
     register,
     handleSubmit,
     formState: { errors },
     reset,
+    watch,
+    setValue,
   } = useForm({
     resolver: yupResolver(schema),
   });
 
-  const onAddBeneficiary = (data: any) => {
-    console.log(data, "New Beneficiary");
-    setShow(false);
-    reset();
+  const accountNumber = watch("accountNumber");
+  const bankCode = watch("bankName");
+
+  useEffect(() => {
+    if (accountNumber?.length === 10 && bankCode) {
+      setLoading(true);
+      const fetchAccountName = async () => {
+        try {
+          const response = await resolveAccountInfo(accountNumber, bankCode);
+          if (response) {
+            //@ts-ignore
+            const accountName = response?.data?.account_name;
+            setValue("accountName", accountName);
+
+            console.log(response, "hfhfh");
+            setLoading(false);
+            toast.success("Account Resolved Successfully");
+          }
+        } catch (error) {
+          console.error("Error resolving account info", error);
+        }
+      };
+
+      fetchAccountName();
+    }
+  }, [accountNumber, bankCode, setValue]);
+
+  const onAddBeneficiary = async (data: any) => {
+    const { accountNumber, bankName } = data;
+    try {
+      console.log(data, "New Beneficiary");
+      const res = await addBeneficiary(accountNumber, bankName);
+      toast.success("Beneficiary added successfully!");
+      console.log(res, "Account Added Successfully");
+      setShow(false);
+      reset();
+    } catch (error) {
+      toast.error("Failed to add beneficiary. Please try again.");
+      //@ts-ignore
+      console.error(error?.response?.data?.message);
+         setShow(true);
+    }
   };
+
+  console.log(watch("accountName"), "watch");
 
   return (
     <>
@@ -79,9 +131,11 @@ const AddBeneficiary = () => {
                       <SelectValue
                         placeholder="Select currency"
                         className="placeholder:text-[#828282]"
-                      />
+                      >
+                        {value.toUpperCase() || "Select currency"}
+                      </SelectValue>
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="max-h-48 w-auto overflow-y-auto">
                       <SelectGroup>
                         <SelectLabel>Currency</SelectLabel>
                         <SelectItem value="usd">USD - US Dollar</SelectItem>
@@ -99,52 +153,14 @@ const AddBeneficiary = () => {
             </div>
 
             {/* BANK NAME */}
-            <div>
-              <Label
-                htmlFor="bankName"
-                className="mb-2 inline-block font-light text-[#4F4F4F]"
-              >
-                Bank Name
-              </Label>
-              <Controller
-                name="bankName"
-                control={control}
-                render={({ field: { value, onChange } }) => (
-                  <Select value={value} onValueChange={onChange}>
-                    <SelectTrigger
-                      className={cn(
-                        "w-full focus:ring-1 focus:ring-main-100 focus:ring-offset-0",
-                        errors.bankName &&
-                          "border-red-600 focus:border-red-600 focus:ring-red-600",
-                      )}
-                    >
-                      <SelectValue
-                        placeholder="Select currency"
-                        className="placeholder:text-[#828282]"
-                      />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Bank name</SelectLabel>
-                        <SelectItem value="gtb">
-                          GTB - Guaranty Trust Bank
-                        </SelectItem>
-                        <SelectItem value="uba">
-                          UBA - United Bank for Africa
-                        </SelectItem>
-                        <SelectItem value="access">Access Bank</SelectItem>
-                        <SelectItem value="firstbank">
-                          FirstBank of Nigeria
-                        </SelectItem>
-                        <SelectItem value="stanbic">
-                          Stanbic IBTC Bank
-                        </SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            </div>
+            <BankAutocomplete
+              control={control}
+              name="bankName"
+              label="Bank Name"
+              bankList={bankList}
+              error={!!errors.bankName}
+              required
+            />
 
             {/* ACCOUNT NUMBER */}
             <div>
@@ -154,17 +170,22 @@ const AddBeneficiary = () => {
               >
                 Account number
               </Label>
-              <Input
-                {...register("accountNumber")}
-                id="accountNumber"
-                name="accountNumber"
-                placeholder="Input number"
-                className={cn(
-                  "form-input rounded-lg border border-[#D9DCE0] px-4 py-[18px] outline-0 placeholder:text-[#828282] focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0",
-                  errors.accountNumber &&
-                    "border-red-600 focus:border-red-600 focus-visible:ring-red-600",
+              <div className="relative">
+                <Input
+                  {...register("accountNumber")}
+                  id="accountNumber"
+                  name="accountNumber"
+                  placeholder="Input number"
+                  className={cn(
+                    "form-input rounded-lg border border-[#D9DCE0] px-4 py-[18px] outline-0 placeholder:text-[#828282] focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0",
+                    errors.accountNumber &&
+                      "border-red-600 focus:border-red-600 focus-visible:ring-red-600",
+                  )}
+                />
+                {loading && (
+                  <Loader className="absolute right-2 top-2 animate-spin text-blue-700" />
                 )}
-              />
+              </div>
             </div>
             {/* ACCOUNT NAME */}
             <div>
@@ -174,16 +195,18 @@ const AddBeneficiary = () => {
               >
                 Account name
               </Label>
+
               <Input
                 {...register("accountName")}
                 id="accountName"
                 name="accountName"
-                placeholder="Input name"
+                placeholder="Resolved account name"
                 className={cn(
                   "form-input rounded-lg border border-[#D9DCE0] px-4 py-[18px] outline-0 placeholder:text-[#828282] focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0",
                   errors.accountName &&
                     "border-red-600 focus:border-red-600 focus-visible:ring-red-600",
                 )}
+                disabled
               />
             </div>
 
@@ -191,8 +214,9 @@ const AddBeneficiary = () => {
               <Button
                 className="mt-4 h-auto w-full rounded-full bg-main-100 py-3 text-white hover:bg-blue-700 hover:text-white"
                 type="submit"
+                disabled={watch("accountName") === undefined && true}
               >
-                Add beneficiary
+               {isSubmitting ?   <Loader className=" animate-spin text-[#fff]" /> : " Add beneficiary"}
               </Button>
             </div>
           </form>
