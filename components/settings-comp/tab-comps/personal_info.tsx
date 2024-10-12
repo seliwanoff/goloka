@@ -59,18 +59,18 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
   // If user data is updated, reset the form with the new values
   useEffect(() => {
     if (user) {
-      reset({
-        firstName: "",
-        lastName: "",
-        dateOfBirth: user?.birth_date || "",
-        phoneNo: "",
-        gender: user?.gender || "",
-        email: "",
-        primaryLanguage: user?.primary_language || "",
-        religion: user?.religion || "",
-        ethnicity: user?.ethnicity || "",
-        spokenLanguage: user?.spoken_languages[0] || "",
-      });
+      // reset({
+      //   firstName: "",
+      //   lastName: "",
+      //   dateOfBirth: user?.birth_date || "",
+      //   phoneNo: "",
+      //   gender: user?.gender || "",
+      //   email: "",
+      //   primaryLanguage: user?.primary_language || "",
+      //   religion: user?.religion || "",
+      //   ethnicity: user?.ethnicity || "",
+      //   spokenLanguage: user?.spoken_languages[0] || "",
+      // });
     }
   }, [user, reset]);
 

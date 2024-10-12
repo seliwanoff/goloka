@@ -2,7 +2,7 @@
 
 import CustomBreadCrumbs from "@/components/lib/navigation/custom_breadcrumbs";
 import Image from "next/image";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 
 import Task1 from "@/public/assets/images/tasks/task1.png";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
@@ -26,6 +26,16 @@ import {
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import moment from "moment";
+import { createCampaignResponse } from "@/services/campaign";
+
+import dynamic from "next/dynamic";
+import NigeriaMap from "@/components/map/locationmap";
+import { toast } from "sonner";
+
+// Dynamically import the LocationMap component with SSR disabled
+const LocationMap = dynamic(() => import("@/components/map/locationmap"), {
+  ssr: false,
+});
 
 const SkeletonBox = ({ className }: { className?: string }) => (
   <div className={`animate-pulse bg-gray-300 ${className}`}></div>
@@ -92,6 +102,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
   const [isStepper, setIsStepper] = useState<boolean>(false);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [loading, setLoading] = useState(false);
   const { id: taskId } = useParams();
   const { step } = useStepper();
   // const { data } = getTaskById("");taskId;
@@ -103,14 +114,15 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
     queryKey: ["Get task"],
     queryFn: async () => await getTaskById(taskId as string),
   });
-  // const {
-  //   data: quest,
-  //   // isLoading,
-  //   // refetch,
-  // } = useQuery({
-  //   queryKey: ["campaign questions"],
-  //   queryFn: async () => await getCampaignQuestion(taskId as string),
-  // });
+
+  console.log(task, "task");
+
+  //@ts-ignore
+  const locations = useMemo(() => task?.data?.locations, [task]);
+  //@ts-ignore
+  const responses = useMemo(() => task?.data?.responses, [task]);
+
+  console.log(responses, "response");
 
   useEffect(() => {
     const stepperParam = searchParams.get("stepper");
@@ -133,8 +145,23 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
   });
 
   const onContribute = async () => {
-    setIsStepper(true);
-    router.push(`${window.location.pathname}?stepper=true&step=1`);
+    setLoading(true);
+    createCampaignResponse({}, taskId as string)
+      .then((response) => {
+        //@ts-ignore
+        toast.success(response.message);
+        console.log(response, "response.message");
+        setLoading(false);
+        setIsStepper(true);
+        router.push(
+          //@ts-ignore
+          `${window.location.pathname}?responseID=${response.data?.id}/?stepper=true&step=1`,
+        );
+      })
+      .catch((error) => {
+        console.log(error);
+        setLoading(false);
+      });
   };
 
   console.log(quest, "quest");
@@ -170,8 +197,6 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
         {isStepper ? (
           <>
             <div className="mx-auto mt-9 w-full rounded-2xl bg-white p-4 sm:w-[500px] md:mt-[96px]">
-             
-
               <div className="mt-6">
                 {/* @ts-ignore */}
                 <WrappedTaskStepper />
@@ -213,7 +238,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
                   <span>
                     <Note size={20} />
                   </span>
-                  Contribute
+                  {loading ? "loading..." : "Contribute"}
                 </Button>
                 <span className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[#3365E31F] text-main-100">
                   <ArchiveMinus size={24} />
@@ -273,6 +298,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
                     alt="map"
                     className="h-full w-full rounded-lg object-cover"
                   />
+                  {/* <LocationMap locations={locations} /> */}
                 </figure>
                 <div className="mt-5 flex gap-5">
                   <div className="text-sm font-semibold text-[#101828]">
@@ -327,7 +353,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
                 <span>
                   <Note size={20} />
                 </span>
-                Contribute
+                {loading ? "loading..." : "Contribute"}
               </Button>
               <span className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[#3365E31F] text-main-100">
                 <ArchiveMinus size={24} />

@@ -20,7 +20,7 @@ type SelectedValues = Record<
 >;
 
 import React, { useState, useEffect, useRef } from "react";
-import { useForm } from "react-hook-form";
+import { useRouter } from "next/router";
 import { Label } from "../ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useStepper } from "@/context/TaskStepperContext.tsx";
@@ -60,6 +60,7 @@ const DynamicQuestion = ({
   questionsLength: number;
   totalQuestions: number;
 }) => {
+   const router = useRouter();
   const { answers, nextStep, updateAnswer, step } = useStepper();
   const [selectedValues, setSelectedValues] = useState<
     Record<string | number, any>
@@ -72,6 +73,21 @@ const DynamicQuestion = ({
     Record<string | number, HTMLInputElement | HTMLTextAreaElement | null>
   >({});
   const { id: taskId } = useParams();
+   const [responseID, setResponseID] = useState<string | null>(null);
+
+   useEffect(() => {
+     if (router.isReady) {
+       // Extract the `responseID` query parameter
+       let rawResponseID = router.query.responseID as string;
+
+       // Handle cases where `responseID` has a trailing slash
+       if (rawResponseID?.includes("/")) {
+         rawResponseID = rawResponseID.split("/")[0];
+       }
+
+       setResponseID(rawResponseID);
+     }
+   }, [router.isReady, router.query]);
   useEffect(() => {
     const initialAnswers: Record<string | number, any> = {};
     questions.forEach((ques) => {
@@ -153,7 +169,7 @@ const handleNext = async () => {
     };
 
     // Submit the formatted answers
-    await createContributorAnswers(taskId as string, formattedAnswers);
+    await createContributorAnswers(responseID as string, formattedAnswers);
     nextStep();
   } catch (err) {
     toast.error("Failed to save answers. Please try again.");

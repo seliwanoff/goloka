@@ -69,7 +69,7 @@ const TaskStepper = ({
       totalQuestions={totalQuestions}
     />
   ) : (
-    <div>No questions available for this step</div>
+    <div>No questions available for this Campaign</div>
   );
 };
 
