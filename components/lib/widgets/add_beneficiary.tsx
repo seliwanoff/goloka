@@ -132,7 +132,7 @@ const AddBeneficiary = () => {
                         placeholder="Select currency"
                         className="placeholder:text-[#828282]"
                       >
-                        {value.toUpperCase() || "Select currency"}
+                        {value?.toUpperCase() || "Select currency"}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent className="max-h-48 w-auto overflow-y-auto">
