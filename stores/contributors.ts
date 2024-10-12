@@ -87,3 +87,15 @@ export const useContributorStore = create<UserState>()(
     },
   ),
 );
+
+interface RemoteUserState {
+  user: IRemoteUser | null;
+  setUser: (user: IRemoteUser) => void;
+  clearUser: () => void;
+}
+
+export const useRemoteUserStore = create<RemoteUserState>((set) => ({
+  user: null,
+  setUser: (user: IRemoteUser) => set({ user }),
+  clearUser: () => set({ user: null }),
+}));

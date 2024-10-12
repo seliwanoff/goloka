@@ -109,6 +109,25 @@ export const createContributorResponse = async (
     },
   });
  }
+  // ~ =============================================>
+  // ~ ======= Create a contributor Answers  -->
+  // ~ =============================================>
+
+
+export const createContributorAnswers = async (
+  id: string,
+  data: any,
+): Promise<UseQueryResult<ServerResponse<any>>> => {
+  return queryClient.fetchQuery({
+    queryKey: ["create contributor answers"],
+    queryFn: async () => {
+      return await postData<ServerResponse<any>>(
+        `/contributor/responses/${id}/answer`,
+        data,
+      );
+    },
+  });
+ }
 // ~ =============================================>
 // ~ ======= Get campaign user  -->
 // ~ =============================================>
@@ -210,9 +229,49 @@ export const getContributorsProfile = async (): Promise<
     queryKey: ["contributors profile"],
     queryFn: async () => {
       try {
-        return await fetchData(`/contributor-profile`);
+        return await fetchData<IRemoteUser>(`/contributor-profile`);
       } catch (error) {
         return null;
       }
     },
   });
+
+
+export const resolveAccountInfo = async (
+  account_number: string,
+  bank_code: string,
+): Promise<UseQueryResult<AxiosResponse<TaskResponse>>> =>
+  await queryClient.fetchQuery({
+    queryKey: ["contributors profile"],
+    queryFn: async () => {
+      try {
+        return await postData(`/resolve-account`, {
+          account_number,
+          bank_code,
+        });
+      } catch (error) {
+        console.error("Failed to resolve account info:", error);
+        return null;
+      }
+    },
+  });
+export const addBeneficiary = async (
+  account_number: string,
+  bank_code: string,
+): Promise<UseQueryResult<AxiosResponse<TaskResponse>>> =>
+  await queryClient.fetchQuery({
+    queryKey: ["contributors bank"],
+    queryFn: async () => {
+      try {
+        return await postData(`/contributor-profile/bank-account`, {
+          account_number,
+          bank_code,
+        });
+      } catch (error) {
+        console.error("Failed:", error);
+        return null;
+      }
+    },
+  });
+
+

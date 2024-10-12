@@ -44,6 +44,8 @@ import { useRouter } from "next/navigation";
 import { getDashboardStats } from "@/services/response";
 import { numberWithCommas } from "@/helper";
 import { SkeletonXLoader } from "@/helper/loader";
+import React from "react";
+import { useRemoteUserStore } from "@/stores/contributors";
 
 type PageProps = {};
 
@@ -60,7 +62,7 @@ type Stats = {
 
 const DashboardRoot: React.FC<PageProps> = ({}) => {
   const [date, setDate] = useState<Date>();
-
+  const { setUser } = useRemoteUserStore();
   const currentUser = useUserStore((state) => state.currentUser);
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -77,6 +79,13 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
     queryFn: getContributorsProfile,
   });
   console.log(remoteUser, "remoteUser");
+
+  useEffect(() => {
+    if (remoteUser?.data) {
+      //@ts-ignore
+      setUser(remoteUser.data);
+    }
+  }, [remoteUser]);
   const [data, setData] = useState<DashboardData | null>(null);
   const fetchData = () => {
     return getAllTask({
@@ -178,18 +187,16 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
         {/* ####################################### */}
         {/* -- stats card section */}
         {/* ####################################### */}
-        <div className="no-scrollbar col-span-5 w-full overflow-x-auto">
+        {/* <div className="no-scrollbar col-span-5 w-full overflow-x-auto">
+          <div className="flex w-max gap-4 1xl:grid 1xl:grid-cols-4 xl:w-full"> */}
+        <div className="no-scrollbar col-span-5 mt-4 w-full overflow-x-auto">
           <div className="col-span-5 flex w-min gap-4 1xl:grid 1xl:grid-cols-4 xl:w-full">
             {!data ? (
               <>
                 <SkeletonXLoader />
-
                 <SkeletonXLoader />
-
                 <SkeletonXLoader />
-
                 <SkeletonXLoader />
-                {/* <SkeletonXLoader /> */}
               </>
             ) : (
               <>
@@ -403,5 +410,3 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
 };
 
 export default DashboardRoot;
-
-

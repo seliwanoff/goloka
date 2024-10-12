@@ -47,7 +47,7 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
     formState: { errors },
     watch,
   } = useForm<FormValues>();
-  const { data: country } = useQuery({
+  const { data: country, isLoading: countryLoading } = useQuery({
     queryKey: ["Get Country list"],
     queryFn: getCountry,
   });
@@ -95,6 +95,8 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
     }
     setIsLoading(false);
   };
+
+  console.log(countryData, "countryData");
 
   return (
     <div className="relative z-10 md:w-[70%] lg:w-[80%]">
@@ -177,17 +179,17 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
                   field.onChange(value); // Pass the country id to useForm
                 }}
               >
-                <SelectTrigger className="neutral-400 h-12 w-full rounded-md border bg-transparent focus:ring-1 focus:ring-offset-0 focus-visible:ring-main-100 [&>span]:font-light [&>span]:text-neutral-400">
+                <SelectTrigger className="neutral-400 h-12 w-full rounded-md border bg-transparent focus:ring-1 focus:ring-offset-0 focus-visible:ring-main-100 [&>span]:font-light">
                   <SelectValue
                     placeholder="Select a country"
-                    className="text-sm font-light text-neutral-400"
+                    className="text-neutral-40 placeholder:text-neutral-40 text-sm font-light"
                   >
                     {selectedCountryLabel || "Select a country"}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent className="max-w-full">
                   <SelectGroup>
-                    <SelectLabel>Country</SelectLabel>
+                    <SelectLabel>{countryLoading ? "" : "Country"}</SelectLabel>
                     {countryData?.map((country: any) => (
                       <SelectItem key={country?.id} value={country.id}>
                         {country?.label}

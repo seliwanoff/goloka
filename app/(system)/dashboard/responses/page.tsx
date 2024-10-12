@@ -212,7 +212,7 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
               </>
             ) : (
               <>
-                <div className="w-[300px] xl:w-full">
+                <div className="">
                   <DashboardWidget
                     title="Total response"
                     bg="bg-[#079455] bg-opacity-[12%]"
@@ -227,7 +227,7 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
                     percents={(data?.response_stats.percentage_increase).toString()}
                   />
                 </div>
-                <div className="w-[300px] xl:w-full">
+                <div className="">
                   <DashboardWidget
                     title="Total campaign"
                     bg="bg-[#FEC53D] bg-opacity-[12%]"
@@ -242,7 +242,7 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
                     percents={(data?.campaign_count?.percentage_increase).toString()}
                   />
                 </div>
-                <div className="w-[300px] xl:w-full">
+                <div className="">
                   <DashboardWidget
                     title="Accepted response"
                     bg="bg-[#7F55DA] bg-opacity-[12%]"
@@ -259,7 +259,7 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
                     percents={(data?.accepted_response_stats?.percentage_increase).toString()}
                   />
                 </div>{" "}
-                <div className="w-[300px] xl:w-full">
+                <div className="">
                   <DashboardWidget
                     title="Rejected response"
                     bg="bg-[#EB5757] bg-opacity-[12%]"

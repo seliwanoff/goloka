@@ -2,7 +2,8 @@
 
 import CustomBreadCrumbs from "@/components/lib/navigation/custom_breadcrumbs";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+
 import Task1 from "@/public/assets/images/tasks/task1.png";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Button } from "@/components/ui/button";
@@ -22,9 +23,19 @@ import {
   getCampaignQuestion,
   getTaskById,
 } from "@/services/contributor";
-import { useParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import moment from "moment";
+import { createCampaignResponse } from "@/services/campaign";
+
+import dynamic from "next/dynamic";
+import NigeriaMap from "@/components/map/locationmap";
+import { toast } from "sonner";
+
+// Dynamically import the LocationMap component with SSR disabled
+const LocationMap = dynamic(() => import("@/components/map/locationmap"), {
+  ssr: false,
+});
 
 const SkeletonBox = ({ className }: { className?: string }) => (
   <div className={`animate-pulse bg-gray-300 ${className}`}></div>
@@ -89,6 +100,9 @@ type PageProps = {};
 
 const TaskDetail: React.FC<PageProps> = ({}) => {
   const [isStepper, setIsStepper] = useState<boolean>(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [loading, setLoading] = useState(false);
   const { id: taskId } = useParams();
   const { step } = useStepper();
   // const { data } = getTaskById("");taskId;
@@ -100,45 +114,80 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
     queryKey: ["Get task"],
     queryFn: async () => await getTaskById(taskId as string),
   });
-  // const {
-  //   data: quest,
-  //   // isLoading,
-  //   // refetch,
-  // } = useQuery({
-  //   queryKey: ["campaign questions"],
-  //   queryFn: async () => await getCampaignQuestion(taskId as string),
-  // });
 
-const {
-  data: quest,
-  isLoading: questLoading,
-  error: questError,
-} = useQuery({
-  queryKey: ["campaign questions", taskId], // The key used for caching
-  queryFn: () => getCampaignQuestion(taskId as string), // Function to fetch data
-  enabled: !!taskId, // Ensures the query only runs when taskId exists
-  retry: 2, // Retry failed queries up to 2 times
-});
+  console.log(task, "task");
 
+  //@ts-ignore
+  const locations = useMemo(() => task?.data?.locations, [task]);
+  //@ts-ignore
+  const responses = useMemo(() => task?.data?.responses, [task]);
 
+  console.log(responses, "response");
+
+  useEffect(() => {
+    const stepperParam = searchParams.get("stepper");
+    const stepParam = searchParams.get("step");
+
+    if (stepperParam === "true" && !isStepper) {
+      setIsStepper(true);
+    }
+  }, [searchParams]);
+
+  const {
+    data: quest,
+    isLoading: questLoading,
+    error: questError,
+  } = useQuery({
+    queryKey: ["campaign questions", taskId], // The key used for caching
+    queryFn: () => getCampaignQuestion(taskId as string), // Function to fetch data
+    enabled: !!taskId, // Ensures the query only runs when taskId exists
+    retry: 2, // Retry failed queries up to 2 times
+  });
 
   const onContribute = async () => {
-    // const response = await createContributorResponse(taskId as string, {});
-    // console.log(response, "success");
-    // //@ts-ignore
-    // if (response?.message === "Response created successfully") {
-    setIsStepper(true);
-    // }
+    setLoading(true);
+    createCampaignResponse({}, taskId as string)
+      .then((response) => {
+        //@ts-ignore
+        toast.success(response.message);
+        console.log(response, "response.message");
+        setLoading(false);
+        setIsStepper(true);
+        router.push(
+          //@ts-ignore
+          `${window.location.pathname}?responseID=${response.data?.id}/?stepper=true&step=1`,
+        );
+      })
+      .catch((error) => {
+        console.log(error);
+        setLoading(false);
+      });
   };
 
   console.log(quest, "quest");
+  const updateStepUrl = (newStep: number) => {
+    router.push(`${window.location.pathname}?stepper=true&step=${newStep}`);
+  };
+
+  const WrappedTaskStepper = () => (
+    <TaskStepper
+      //@ts-ignore
+      quest={quest}
+      onStepChange={(newStep: any) => {
+        updateStepUrl(newStep);
+      }}
+    />
+  );
+
   //@ts-ignore
   const Date = moment(task?.data?.ends_at).format("DD MMMM YYYY");
   //@ts-ignore
   const Time = moment(task?.data?.ends_at).format("hh:mm A");
+
   if (isLoading) {
     return <SkeletonLoader />;
   }
+
   return (
     <>
       <Toaster richColors position={"top-right"} />
@@ -148,37 +197,9 @@ const {
         {isStepper ? (
           <>
             <div className="mx-auto mt-9 w-full rounded-2xl bg-white p-4 sm:w-[500px] md:mt-[96px]">
-              <h3 className="mb-6 text-xl font-semibold text-neutral-900">
-                Agriculture & Food Security
-              </h3>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="inline-block font-medium text-neutral-600">
-                    <span className="text-main-100">{step}</span>/4
-                  </span>
-                  <div className="flex gap-1">
-                    {Array.from({ length: 4 }, (_: any, index: number) => (
-                      <span
-                        key={index}
-                        className={cn(
-                          "inline-block h-1 w-3 rounded-full bg-neutral-200",
-                          step >= index + 1 && "bg-main-100",
-                          step === index + 1 && "w-5",
-                        )}
-                      ></span>
-                    ))}
-                  </div>
-                </div>
-
-                <span className="text-sm text-neutral-500">
-                  <span className="font-semibold text-neutral-900">10</span>{" "}
-                  Questions
-                </span>
-              </div>
-
               <div className="mt-6">
-                <TaskStepper />
+                {/* @ts-ignore */}
+                <WrappedTaskStepper />
               </div>
             </div>
           </>
@@ -217,7 +238,7 @@ const {
                   <span>
                     <Note size={20} />
                   </span>
-                  Contribute
+                  {loading ? "loading..." : "Contribute"}
                 </Button>
                 <span className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[#3365E31F] text-main-100">
                   <ArchiveMinus size={24} />
@@ -277,6 +298,7 @@ const {
                     alt="map"
                     className="h-full w-full rounded-lg object-cover"
                   />
+                  {/* <LocationMap locations={locations} /> */}
                 </figure>
                 <div className="mt-5 flex gap-5">
                   <div className="text-sm font-semibold text-[#101828]">
@@ -331,7 +353,7 @@ const {
                 <span>
                   <Note size={20} />
                 </span>
-                Contribute
+                {loading ? "loading..." : "Contribute"}
               </Button>
               <span className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[#3365E31F] text-main-100">
                 <ArchiveMinus size={24} />
