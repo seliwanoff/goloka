@@ -70,7 +70,7 @@ const updateDataById = async <T>(
 
 const deleteDataById = async <T>(
   resource: string,
-  id: string,
+  id?: string,
   options = {},
 ): Promise<T> => {
   const url = `${resource}/${id}`;

@@ -4,33 +4,30 @@ import CustomBreadCrumbs from "@/components/lib/navigation/custom_breadcrumbs";
 import Image from "next/image";
 import React, { useState, useEffect, useMemo } from "react";
 
-import Task1 from "@/public/assets/images/tasks/task1.png";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Button } from "@/components/ui/button";
-import { Dot, SquarePen } from "lucide-react";
+import { Dot, Eye, LoaderCircle, SquarePen, Workflow } from "lucide-react";
 import { ArchiveMinus, Note } from "iconsax-react";
 import Map from "@/public/assets/images/tasks/tasks.png";
 import Link from "next/link";
-import TaskCardWidget from "@/components/lib/widgets/task_card";
 
-import { StepperProvider, useStepper } from "@/context/TaskStepperContext.tsx";
+import { useStepper } from "@/context/TaskStepperContext.tsx";
 import TaskStepper from "@/components/task-stepper/TaskStepper";
 import { Toaster } from "@/components/ui/sonner";
-import { tasks } from "@/utils";
-import { cn } from "@/lib/utils";
-import {
-  createContributorResponse,
-  getCampaignQuestion,
-  getTaskById,
-} from "@/services/contributor";
+
+import { getCampaignQuestion, getTaskById } from "@/services/contributor";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import moment from "moment";
-import { createCampaignResponse } from "@/services/campaign";
+import {
+  bookmarkCampaign,
+  createCampaignResponse,
+  removeBookmark,
+} from "@/services/campaign";
 
 import dynamic from "next/dynamic";
-import NigeriaMap from "@/components/map/locationmap";
 import { toast } from "sonner";
+import { getAResponse } from "@/services/response";
 
 // Dynamically import the LocationMap component with SSR disabled
 const LocationMap = dynamic(() => import("@/components/map/locationmap"), {
@@ -103,7 +100,9 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
+  const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
   const { id: taskId } = useParams();
+  const [responseId, setResponseId] = useState<string | null>(null);
   const { step } = useStepper();
   // const { data } = getTaskById("");taskId;
   const {
@@ -115,7 +114,14 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
     queryFn: async () => await getTaskById(taskId as string),
   });
 
+  const { data: getResponse, refetch: refetchResponse } = useQuery({
+    queryKey: ["get a Response", responseId],
+    queryFn: async () => (responseId ? await getAResponse(responseId) : null),
+    enabled: !!responseId,
+  });
+
   console.log(task, "task");
+  console.log(responseId, "responseId");
 
   //@ts-ignore
   const locations = useMemo(() => task?.data?.locations, [task]);
@@ -144,24 +150,193 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
     retry: 2, // Retry failed queries up to 2 times
   });
 
+  const getButtonText = () => {
+    //@ts-ignore
+    if (!task?.data?.responses || task.data.responses.length === 0) {
+      return "Contribute";
+    }
+    //@ts-ignore
+    const hasDraftResponse = task.data.responses.some(
+      //@ts-ignore
+      (response) => response.status === "draft",
+    );
+    return hasDraftResponse ? "Continue" : "Contribute";
+  };
+  const isContributeDisabled = () => {
+    return (
+      //@ts-ignore
+      task?.data?.responses?.length > 0 &&
+      //@ts-ignore
+      task?.data?.allows_multiple_responses === 0 &&
+      //@ts-ignore
+      !task?.data?.responses.some((response) => response.status === "draft")
+    );
+  };
+
+  // const onContribute = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const response = await createCampaignResponse({}, taskId as string);
+  //     //@ts-ignore
+  //     toast.success(response.message);
+  //     console.log(response, "response.message");
+  //     setLoading(false);
+  //     //@ts-ignore
+  //     if (task?.data?.allows_multiple_responses === 1) {
+  //       setIsStepper(true);
+  //       // router.push(
+  //       //   //@ts-ignore
+  //       //   `${window.location.pathname}?responseID=${response.data?.id}/?stepper=true&step=1`,
+  //       // );
+  //     } else {
+  //       // Navigate to response page
+  //       router.push(
+  //         //@ts-ignore
+  //         `${window.location.pathname}?responseID=${response.data?.id}`,
+  //       );
+  //     }
+  //     router.push(
+  //       //@ts-ignore
+  //       `${window.location.pathname}?responseID=${response.data?.id}/?stepper=true&step=1`,
+  //     );
+  //   } catch (error) {
+  //     console.log(error);
+  //     setLoading(false);
+  //   }
+  // };
+
+  // const onContribute = async () => {
+  //   setLoading(true);
+  //   try {
+  //     //@ts-ignore
+  //     if (task?.data?.responses?.length === 0) {
+  //       // Create new response if there are no responses
+  //       const response = await createCampaignResponse({}, taskId as string);
+  //       //@ts-ignore
+  //       toast.success(response.message);
+  //       router.push(
+  //         //@ts-ignore
+  //         `${window.location.pathname}?responseID=${response.data?.id}/?stepper=true&step=1`,
+  //       );
+  //     } else if (getButtonText() === "Continue") {
+  //       console.log("continue click");
+  //       // Find the draft response and get its details
+  //       //@ts-ignore
+  //       const draftResponse = task.data.responses.find(
+  //         //@ts-ignore
+  //         (response) => response.status === "draft",
+  //       );
+  //       console.log(draftResponse, "draftResponse");
+  //       if (draftResponse?.status === "draft") {
+  //         //@ts-ignore
+  //         const responseDetails = await getResponse(draftResponse.id);
+  //         // Navigate to the response page with the fetched details
+
+  //         console.log(responseDetails, "responseDetails");
+  //         // router.push(
+  //         //   `${window.location.pathname}?responseID=${draftResponse.id}/?stepper=true&step=1`,
+  //         // );
+  //       }
+  //       //@ts-ignore
+  //     } else if (task?.data?.allows_multiple_responses === 1) {
+  //       // Create new response if multiple responses are allowed
+  //       //@ts-ignore
+  //       const response = await createCampaignResponse({}, taskId as string);
+  //       //@ts-ignore
+  //       toast.success(response.message);
+  //       router.push(
+  //         //@ts-ignore
+  //         `${window.location.pathname}?responseID=${response.data?.id}/?stepper=true&step=1`,
+  //       );
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //     toast.error("An error occurred");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
   const onContribute = async () => {
     setLoading(true);
-    createCampaignResponse({}, taskId as string)
-      .then((response) => {
+    try {
+      //@ts-ignore
+      if (task?.data?.responses?.length === 0) {
+        // Create new response if there are no responses
+        const response = await createCampaignResponse({}, taskId as string);
         //@ts-ignore
         toast.success(response.message);
-        console.log(response, "response.message");
-        setLoading(false);
-        setIsStepper(true);
         router.push(
           //@ts-ignore
           `${window.location.pathname}?responseID=${response.data?.id}/?stepper=true&step=1`,
         );
-      })
-      .catch((error) => {
-        console.log(error);
-        setLoading(false);
-      });
+      } else if (getButtonText() === "Continue") {
+        // Find the draft response
+        //@ts-ignore
+        const draftResponse = task.data.responses.find(
+          //@ts-ignore
+          (response) => response.status === "draft",
+        );
+        if (draftResponse?.status === "draft") {
+          // Set the responseId to trigger the query
+          setResponseId(draftResponse.id);
+          // Refetch the response data
+          await refetchResponse();
+
+          console.log(getResponse, "getResponse");
+          // Navigate to the response page with the fetched details
+          // router.push(
+          //   `${window.location.pathname}?responseID=${draftResponse.id}/?stepper=true&step=1`,
+          // );
+        }
+        //@ts-ignore
+      } else if (task?.data?.allows_multiple_responses === 1) {
+        // Create new response if multiple responses are allowed
+        const response = await createCampaignResponse({}, taskId as string);
+        //@ts-ignore
+        toast.success(response.message);
+        router.push(
+          //@ts-ignore
+          `${window.location.pathname}?responseID=${response.data?.id}/?stepper=true&step=1`,
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("An error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onViewResponse = () => {
+    //@ts-ignore
+    if (task?.data?.responses && task.data.responses.length > 0) {
+      const latestResponse =
+        //@ts-ignore
+        task.data.responses[task.data.responses.length - 1];
+      router.push(
+        `${window.location.pathname}?responseID=${latestResponse.id}`,
+      );
+    }
+  };
+
+  const handleBookmark = async () => {
+    setIsBookmarkLoading(true);
+    try {
+      //@ts-ignore
+      if (task?.data?.is_bookmarked) {
+        const response = await removeBookmark(taskId as string);
+        toast.success(response?.message);
+        setIsBookmarkLoading(false);
+      } else {
+        const response = await bookmarkCampaign({}, taskId as string);
+        //@ts-ignore
+        toast.success(response?.message);
+        setIsBookmarkLoading(false);
+      }
+    } catch (err) {
+      setIsBookmarkLoading(false);
+      toast.warning("Error with bookmark operation:");
+    }
   };
 
   console.log(quest, "quest");
@@ -231,18 +406,37 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
                 </div>
               </div>
               <div className="hidden items-center justify-center space-x-2 md:flex">
+                {/* @ts-ignore */}
+                {task?.data?.responses && task.data.responses.length > 0 && (
+                  <Button
+                    onClick={onViewResponse}
+                    className="h-auto gap-3 rounded-full border border-main-100 bg-white px-6 py-3 text-sm text-main-100 hover:bg-main-100 hover:text-white"
+                  >
+                    <span>
+                      <Eye size={20} />
+                    </span>
+                    View Response
+                  </Button>
+                )}
                 <Button
                   onClick={onContribute}
                   className="h-auto gap-3 rounded-full bg-main-100 px-10 py-3 text-sm shadow-lg shadow-blue-50 hover:bg-blue-700"
                 >
                   <span>
-                    <Note size={20} />
+                    {getButtonText() === "Continue" ? (
+                      <Workflow size={20} />
+                    ) : (
+                      <Note size={20} />
+                    )}
                   </span>
-                  {loading ? "loading..." : "Contribute"}
+                  {loading ? "Loading..." : getButtonText()}
                 </Button>
-                <span className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[#3365E31F] text-main-100">
-                  <ArchiveMinus size={24} />
-                </span>
+                <BookmarkButton
+                  loading={isBookmarkLoading}
+                  //@ts-ignore
+                  isBookmarked={task?.data?.is_bookmarked}
+                  handleBookmark={handleBookmark}
+                />
               </div>
             </div>
 
@@ -346,18 +540,37 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
 
             {/* MOBILE CTA */}
             <div className="fixed bottom-0 left-0 z-10 flex w-full items-center justify-start space-x-2 bg-white p-5 md:hidden">
+              {/* @ts-ignore */}
+              {task?.data?.responses && task.data.responses.length > 0 && (
+                <Button
+                  onClick={onViewResponse}
+                  className="h-auto gap-3 rounded-full border border-main-100 bg-white px-8 py-3 text-sm text-main-100 shadow-lg shadow-main-100 hover:bg-main-100 hover:text-white"
+                >
+                  <span>
+                    <Eye size={20} />
+                  </span>
+                  View
+                </Button>
+              )}
               <Button
                 onClick={onContribute}
-                className="h-auto flex-grow gap-3 rounded-full bg-main-100 px-10 py-3 text-sm shadow-lg shadow-blue-50 hover:bg-blue-700"
+                className="h-auto gap-3 rounded-full bg-main-100 px-10 py-3 text-sm shadow-lg shadow-blue-50 hover:bg-blue-700"
               >
                 <span>
-                  <Note size={20} />
+                  {getButtonText() === "Continue" ? (
+                    <Workflow size={20} />
+                  ) : (
+                    <Note size={20} />
+                  )}
                 </span>
-                {loading ? "loading..." : "Contribute"}
+                {loading ? "Loading..." : getButtonText()}
               </Button>
-              <span className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[#3365E31F] text-main-100">
-                <ArchiveMinus size={24} />
-              </span>
+              <BookmarkButton
+                loading={isBookmarkLoading}
+                //@ts-ignore
+                isBookmarked={task?.data?.is_bookmarked}
+                handleBookmark={handleBookmark}
+              />
             </div>
           </>
         )}
@@ -367,3 +580,34 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
 };
 
 export default TaskDetail;
+
+interface BookmarkButtonProps {
+  isBookmarked: boolean;
+  handleBookmark: () => void;
+  loading: boolean;
+}
+
+const BookmarkButton: React.FC<BookmarkButtonProps> = ({
+  isBookmarked,
+  handleBookmark,
+  loading,
+}) => {
+  return (
+    <span
+      onClick={!loading ? handleBookmark : undefined}
+      className={`inline-flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border text-main-100 ${isBookmarked ? "border-[#3365E3]" : "border-[#828282]"} active:scale-75 ${
+        loading ? "cursor-not-allowed opacity-50" : ""
+      }`}
+    >
+      {loading ? (
+        <LoaderCircle size={24} color="#3365E3" className="animate-spin" />
+      ) : (
+        <ArchiveMinus
+          size={24}
+          variant={isBookmarked ? "Bold" : "Outline"}
+          color={isBookmarked ? "#3365E3" : "currentColor"}
+        />
+      )}
+    </span>
+  );
+};

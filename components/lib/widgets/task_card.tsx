@@ -108,14 +108,14 @@ const TaskCardWidget: React.FC<TaskCardProps> = ({
           <span className="text-[#828282]">
             <Location size="18" color="#828282" />
           </span>
-          <p className="text-[14px] leading-[21px] text-[#4F4F4F]">
+          {/* <p className="text-[14px] leading-[21px] text-[#4F4F4F]">
             {locations?.map((location, index) => (
               <React.Fragment key={index}>
                 {location?.state?.split(", ")[0]}
                 {index < locations.length - 1 && ", "}
               </React.Fragment>
             ))}
-          </p>
+          </p> */}
         </div>
       </div>
     </div>
