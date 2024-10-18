@@ -13,8 +13,11 @@ import {
 
 import { UseQueryResult } from "@tanstack/react-query";
 import { ServerResponseOrNull } from "../contributor";
+import { AxiosResponse } from "axios";
 
-export const getDashboardStats = async (): Promise<ServerResponseOrNull<any>> => {
+export const getDashboardStats = async (): Promise<
+  ServerResponseOrNull<any>
+> => {
   try {
     return await fetchData<ServerResponse<any>>(
       "/contributor/analytics/stat-two",
@@ -24,7 +27,9 @@ export const getDashboardStats = async (): Promise<ServerResponseOrNull<any>> =>
     return null;
   }
 };
-export const getResponseStats = async (): Promise<ServerResponseOrNull<any>> => {
+export const getResponseStats = async (): Promise<
+  ServerResponseOrNull<any>
+> => {
   try {
     return await fetchData<ServerResponse<any>>(
       "/contributor/analytics/stat-one",
@@ -79,3 +84,17 @@ export const getAllResponses = async (params: GetResponsesParams) => {
     throw new Error("Failed to fetch responses. Please try again later.");
   }
 };
+
+export const getAResponse = async (
+  Id: string,
+): Promise<UseQueryResult<AxiosResponse<any[]>>> =>
+  await queryClient.fetchQuery({
+    queryKey: ["get a Response"],
+    queryFn: async () => {
+      try {
+        return await fetchData(`/organizations/responses/${Id}`);
+      } catch (error) {
+        return null;
+      }
+    },
+  });
