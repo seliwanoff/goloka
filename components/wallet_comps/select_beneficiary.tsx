@@ -27,12 +27,14 @@ import {
 import { X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getContributorsProfile } from "@/services/contributor";
+import { useNavigate } from "react-router-dom";
 
 const SelectBeneficiary = () => {
   const { setOpen } = useWithdrawOverlay();
   const { show, setShow } = useAddBeneficiaryOverlay();
   const { setStep, setTransaction, transaction } = useWithdrawStepper();
   const [selectedValue, setSelectedValue] = useState("");
+  const navigate = useNavigate();
 
   const { data: remoteUser, isLoading } = useQuery({
     queryKey: ["Get remote user"],
@@ -40,7 +42,6 @@ const SelectBeneficiary = () => {
   });
 
   const beneficiaries = useMemo(
-    //@ts-ignore
     () => remoteUser?.data?.bank_accounts,
     [remoteUser?.data],
   );
@@ -48,18 +49,17 @@ const SelectBeneficiary = () => {
   const handleProceed = () => {
     if (selectedValue) {
       setStep(1);
+      navigate(`/withdraw?beneficiary=${selectedValue}`);
     }
   };
 
   const handleAddBeneficiary = () => {
-    setOpen(false); // close withdraw modal
-    setShow(true); // open add beneficiary modal
+    setOpen(false);
+    setShow(true);
   };
 
   useEffect(() => {
-    const selected = beneficiaries?.find(
-      (item: { id: string }) => item?.id === selectedValue,
-    );
+    const selected = beneficiaries?.find((item) => item?.id === selectedValue);
 
     if (selected) {
       setTransaction((prev) => ({
@@ -74,8 +74,7 @@ const SelectBeneficiary = () => {
   useEffect(() => {
     if (transaction && beneficiaries) {
       const selected = beneficiaries.find(
-        (item: { accountNumber: string | number }) =>
-          item?.accountNumber === transaction?.accountNumber,
+        (item) => item?.accountNumber === transaction?.accountNumber,
       );
 
       setSelectedValue(selected?.id || "");
@@ -90,105 +89,63 @@ const SelectBeneficiary = () => {
           <br /> proceeding
         </h3>
 
-        {/* BENEFICIARIES */}
         <div className="mt-12 h-[245px] overflow-y-auto">
           <div className="p-1">
             {isLoading ? (
               <BeneficiarySkeletonLoader count={3} />
             ) : (
               <RadioGroup
-                defaultValue={selectedValue}
+                value={selectedValue}
                 onValueChange={setSelectedValue}
                 className="gap-6"
               >
-                {beneficiaries?.map(
-                  (
-                    item: {
-                      id: string | undefined;
-                      account_name:
-                        | string
-                        | number
-                        | bigint
-                        | boolean
-                        | ReactElement<any, string | JSXElementConstructor<any>>
-                        | Iterable<ReactNode>
-                        | ReactPortal
-                        | Promise<AwaitedReactNode>
-                        | null
-                        | undefined;
-                      account_number:
-                        | string
-                        | number
-                        | bigint
-                        | boolean
-                        | ReactElement<any, string | JSXElementConstructor<any>>
-                        | Iterable<ReactNode>
-                        | ReactPortal
-                        | Promise<AwaitedReactNode>
-                        | null
-                        | undefined;
-                      bank_name:
-                        | string
-                        | number
-                        | bigint
-                        | boolean
-                        | ReactElement<any, string | JSXElementConstructor<any>>
-                        | Iterable<ReactNode>
-                        | ReactPortal
-                        | Promise<AwaitedReactNode>
-                        | null
-                        | undefined;
-                    },
-                    i: Key | null | undefined,
-                  ) => (
-                    <div className="flex w-full items-center" key={i}>
-                      <RadioGroupItem
-                        value={item.id as string}
-                        id={item.id}
-                        className="peer sr-only"
-                      />
-                      <Label
-                        htmlFor={item.id}
+                {beneficiaries?.map((item, i) => (
+                  <div className="flex w-full items-center" key={i}>
+                    <RadioGroupItem
+                      value={item.id}
+                      id={item.id}
+                      className="peer sr-only"
+                    />
+                    <Label
+                      htmlFor={item.id}
+                      className={cn(
+                        "grid w-full grid-cols-[1.5fr_1fr] gap-y-1 rounded-lg border border-[#14342C0F] bg-[#FDFDFD] p-3",
+                        selectedValue === item?.id &&
+                          "border-main-100 bg-main-100 bg-opacity-5 ring-1 ring-main-100",
+                      )}
+                    >
+                      <h4
                         className={cn(
-                          "grid w-full grid-cols-[1.5fr_1fr] gap-y-1 rounded-lg border border-[#14342C0F] bg-[#FDFDFD] p-3",
-                          selectedValue === item?.id &&
-                            "border-main-100 bg-main-100 bg-opacity-5 ring-1 ring-main-100",
+                          "text-sm font-medium text-[#4F4F4F]",
+                          selectedValue === item?.id && "text-main-100",
                         )}
                       >
-                        <h4
-                          className={cn(
-                            "text-sm font-medium text-[#4F4F4F]",
-                            selectedValue === item?.id && "text-main-100",
-                          )}
-                        >
-                          {item?.account_name}
-                        </h4>
-                        <p
-                          className={cn(
-                            "justify-self-end text-right text-sm font-semibold text-[#333]",
-                            selectedValue === item?.id && "text-main-100",
-                          )}
-                        >
-                          {item.account_number}
-                        </p>
-                        <p
-                          className={cn(
-                            "text-xs text-[#4F4F4F]",
-                            selectedValue === item?.id && "text-main-100",
-                          )}
-                        >
-                          {item.bank_name}
-                        </p>
-                      </Label>
-                    </div>
-                  ),
-                )}
+                        {item?.account_name}
+                      </h4>
+                      <p
+                        className={cn(
+                          "justify-self-end text-right text-sm font-semibold text-[#333]",
+                          selectedValue === item?.id && "text-main-100",
+                        )}
+                      >
+                        {item.account_number}
+                      </p>
+                      <p
+                        className={cn(
+                          "text-xs text-[#4F4F4F]",
+                          selectedValue === item?.id && "text-main-100",
+                        )}
+                      >
+                        {item.bank_name}
+                      </p>
+                    </Label>
+                  </div>
+                ))}
               </RadioGroup>
             )}
           </div>
         </div>
 
-        {/* ADD BENEFICIARY */}
         <Button
           onClick={handleAddBeneficiary}
           className="my-11 h-14 w-full items-center justify-start gap-3 rounded-full bg-[#F8F8F8] p-3 hover:bg-current"

@@ -256,6 +256,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
   //     setLoading(false);
   //   }
   // };
+  
   const onContribute = async () => {
     setLoading(true);
     try {
