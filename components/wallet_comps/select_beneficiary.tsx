@@ -27,14 +27,14 @@ import {
 import { X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getContributorsProfile } from "@/services/contributor";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 const SelectBeneficiary = () => {
   const { setOpen } = useWithdrawOverlay();
   const { show, setShow } = useAddBeneficiaryOverlay();
   const { setStep, setTransaction, transaction } = useWithdrawStepper();
   const [selectedValue, setSelectedValue] = useState("");
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const { data: remoteUser, isLoading } = useQuery({
     queryKey: ["Get remote user"],
@@ -42,6 +42,7 @@ const SelectBeneficiary = () => {
   });
 
   const beneficiaries = useMemo(
+    //@ts-ignore
     () => remoteUser?.data?.bank_accounts,
     [remoteUser?.data],
   );
@@ -49,7 +50,7 @@ const SelectBeneficiary = () => {
   const handleProceed = () => {
     if (selectedValue) {
       setStep(1);
-      navigate(`/withdraw?beneficiary=${selectedValue}`);
+      // navigate(`/withdraw?beneficiary=${selectedValue}`);
     }
   };
 
@@ -59,7 +60,7 @@ const SelectBeneficiary = () => {
   };
 
   useEffect(() => {
-    const selected = beneficiaries?.find((item) => item?.id === selectedValue);
+    const selected = beneficiaries?.find((item: { id: string; }) => item?.id === selectedValue);
 
     if (selected) {
       setTransaction((prev) => ({
@@ -74,7 +75,7 @@ const SelectBeneficiary = () => {
   useEffect(() => {
     if (transaction && beneficiaries) {
       const selected = beneficiaries.find(
-        (item) => item?.accountNumber === transaction?.accountNumber,
+        (item: { accountNumber: string | number; }) => item?.accountNumber === transaction?.accountNumber,
       );
 
       setSelectedValue(selected?.id || "");
@@ -99,7 +100,7 @@ const SelectBeneficiary = () => {
                 onValueChange={setSelectedValue}
                 className="gap-6"
               >
-                {beneficiaries?.map((item, i) => (
+                {beneficiaries?.map((item: { id: string | undefined; account_name: string | number | bigint | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<AwaitedReactNode> | null | undefined; account_number: string | number | bigint | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<AwaitedReactNode> | null | undefined; bank_name: string | number | bigint | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<AwaitedReactNode> | null | undefined; }, i: Key | null | undefined) => (
                   <div className="flex w-full items-center" key={i}>
                     <RadioGroupItem
                       value={item.id}
