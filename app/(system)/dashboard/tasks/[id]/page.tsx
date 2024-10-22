@@ -256,7 +256,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
   //     setLoading(false);
   //   }
   // };
-  
+
   const onContribute = async () => {
     setLoading(true);
     try {
@@ -264,6 +264,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
       if (task?.data?.responses?.length === 0) {
         // Create new response if there are no responses
         const response = await createCampaignResponse({}, taskId as string);
+        console.log(response," first call")
         //@ts-ignore
         toast.success(response.message);
         router.push(

@@ -42,21 +42,25 @@ import Pagination from "@/components/lib/navigation/Pagination";
 import { useQuery } from "@tanstack/react-query";
 import { getAllResponses, getResponseStats } from "@/services/response";
 
-import { numberWithCommas } from "@/helper";
+import {
+  formatResponseDate,
+  formatResponseTime,
+  numberWithCommas,
+} from "@/helper";
 import { SkeletonXLoader } from "@/helper/loader";
 
 type PageProps = {};
 
 type Response = {
-  category: string;
-  company: string;
-  status: string;
-  price: string;
-  date: string;
-  time: string;
-  unread: number;
+  campaign_id: number;
+  campaign_title: string;
+  created_at: string; // Assuming it's a date string in ISO or a similar format
+  id: number;
+  organization: string;
+  payment_rate_for_response: string; // If it's stored as a string, not a number
+  status: "draft" | "published" | "archived"; // Example of string literal types for status
+  unread_messages_count: number;
 };
-
 
 type Stats = {
   count: number;
@@ -73,10 +77,38 @@ type DashboardData = {
 };
 
 const ResponsesPage: React.FC<PageProps> = ({}) => {
+  const fetchData = () => {
+    return getAllResponses({
+      // search: debouncedSearchTerm,
+      // type,
+      // page,
+      // per_page: perPage,
+      // min_price: min_payment,
+      // max_price: max_payment,
+    });
+  };
+  const {
+    data: responseData,
+    isLoading,
+    isFetching,
+    isRefetching,
+  } = useQuery({
+    queryKey: [
+      "Get task list",
+      //    debouncedSearchTerm,
+      //    type,
+      //    page,
+      //    perPage,
+      //    min_payment,
+      //    max_payment,
+    ],
+    queryFn: fetchData,
+  });
+
   const [openFilter, setOpenFilter] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState("On Review");
   const [filteredData, setFilteredData] = useState<Response[]>(
-    responsesTableData?.filter(
+    responseData?.data?.filter(
       (item: { status: string }) => item?.status === activeTab,
     ),
   );
@@ -108,21 +140,11 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
       setData(stats.data);
     }
   }, [stats]);
-  const fetchData = () => {
-    return getAllResponses({
-      // search: debouncedSearchTerm,
-      // type,
-      // page,
-      // per_page: perPage,
-      // min_price: min_payment,
-      // max_price: max_payment,
-    });
-  };
 
   console.log(stats, "stats");
   useEffect(() => {
     const filter = (status: string) =>
-      responsesTableData?.filter(
+      responseData?.data?.filter(
         (item: { status: string }) => item?.status === status,
       );
 
@@ -169,25 +191,6 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
     max_payment,
     router,
   ]);
-
-  const {
-    data: responseData,
-    isLoading,
-    isFetching,
-    isRefetching,
-  } = useQuery({
-    queryKey: [
-      "Get task list",
-      //    debouncedSearchTerm,
-      //    type,
-      //    page,
-      //    perPage,
-      //    min_payment,
-      //    max_payment,
-    ],
-    queryFn: fetchData,
-  });
-
 
   console.log(responseData, "responseData");
   return (
@@ -429,24 +432,27 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {pages[currentPage - 1]?.map((res: any, index: number) => (
+                    {responseData?.data?.map((res: any, index: number) => (
                       <TableRow key={index}>
                         <TableCell>
                           <div>
                             <h4
+                              className="w-40 cursor-pointer truncate hover:underline hover:text-blue-700"
                               onClick={() =>
                                 router.push("/dashboard/responses/1")
                               }
+                              title={res.campaign_title} // Tooltip for full text on hover
                             >
-                              {res.category}
+                              {res.campaign_title}
                             </h4>
+
                             <div className="inline-flex items-center gap-2 lg:hidden">
                               <span className="text-[#828282]">
-                                {res.company}
+                                {res.organization}
                               </span>
-                              {res?.unread > 0 && (
+                              {res?.unread_messages_count > 0 && (
                                 <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#FF4C4C] text-xs text-white">
-                                  {res?.unread}
+                                  {res?.unread_messages_count}
                                 </span>
                               )}
                             </div>
@@ -454,10 +460,10 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
                         </TableCell>
                         <TableCell className="hidden lg:table-cell">
                           <div className="inline-flex items-start gap-2">
-                            <span className="text-sm">{res.company}</span>
-                            {res?.unread > 0 && (
+                            <span className="text-sm">{res.organization}</span>
+                            {res?.unread_messages_count > 0 && (
                               <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#FF4C4C] text-xs text-white">
-                                {res?.unread}
+                                {res?.unread_messages_count}
                               </span>
                             )}
                           </div>{" "}
@@ -466,24 +472,21 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
                         <TableCell className="table-cell">
                           <div className="inline-flex flex-col items-start gap-2">
                             <span className="text-sm font-medium lg:font-normal">
-                              {res.price}
+                              {res.payment_rate_for_response}
                             </span>
                             <span className="text-xs lg:hidden">
-                              {res?.date} - {res?.time}
+                              {res?.payment_rate_for_response} -{" "}
+                              {formatResponseTime(res?.data?.created_at)}
                             </span>
                           </div>{" "}
                         </TableCell>
                         <TableCell className="hidden lg:table-cell">
-                          {res?.date} - {res?.time}
+                          {formatResponseDate(res?.data?.created_at)} -{" "}
+                          {formatResponseTime(res?.data?.created_at)}
                         </TableCell>
                         <TableCell className={cn("hidden md:table-cell")}>
-                          <span
-                            className={cn(
-                              "rounded-full px-2 py-1 text-xs font-medium",
-                              responseStatus(res?.status),
-                            )}
-                          >
-                            {res.status}
+                          <span>
+                            <StatusPill status={res?.status as Status} />
                           </span>
                         </TableCell>
                         <TableCell className="hidden sm:table-cell">
@@ -542,3 +545,52 @@ const tabs = [
     value: "Rejected",
   },
 ];
+
+
+
+// Define possible statuses as a union type
+type Status = "draft" | "pending" | "reviewed" | "approved" | "rejected";
+
+// Utility function to return the appropriate color classes
+export const getStatusColor = (status: Status) => {
+  switch (status) {
+    case "draft":
+      return "bg-violet-500/5 border-violet-500 text-violet-500";
+    case "pending":
+      return "bg-orange-400/5 border-orange-400 text-orange-400";
+    case "reviewed":
+      return "bg-blue-500/5 border-blue-500 text-blue-500";
+    case "approved":
+      return "bg-emerald-600/5 border-emerald-600 text-emerald-600";
+    case "rejected":
+      return "bg-red-500/5 border-red-500 text-red-500";
+    default:
+      return "bg-gray-500/5 border-gray-500 text-gray-500";
+  }
+};
+
+// Utility function to format the status text
+export const getStatusText = (status: Status) => {
+  const firstChar = status.charAt(0).toUpperCase();
+  const rest = status.slice(1).toLowerCase();
+  return `${firstChar}${rest}`;
+};
+
+// Define props for the StatusPill component
+interface StatusPillProps {
+  status: Status;
+}
+
+// StatusPill component
+const StatusPill: React.FC<StatusPillProps> = ({ status }) => {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center justify-center rounded-full border px-2 py-1 text-xs font-medium",
+        getStatusColor(status)
+      )}
+    >
+      {getStatusText(status)}
+    </span>
+  );
+};
