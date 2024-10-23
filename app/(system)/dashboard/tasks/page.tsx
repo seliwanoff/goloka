@@ -58,6 +58,7 @@ const TaskPage: React.FC<ComponentProps> = ({}) => {
     data: tasks,
     isLoading,
     isFetching,
+    refetch,
     isError,
   } = useQuery({
     queryKey: ["Get task list", currentPage],
@@ -259,7 +260,7 @@ const TaskPage: React.FC<ComponentProps> = ({}) => {
                   ))
                 : //@ts-ignore
                   tasks?.data.map((task: any, index: number) => (
-                    <TaskCardWidget {...task} key={index} />
+                    <TaskCardWidget {...task} key={index} refetch={refetch} />
                   ))}
             </div>
             <Pagination>

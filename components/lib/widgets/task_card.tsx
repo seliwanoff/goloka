@@ -1,6 +1,8 @@
 import { BookmarkButton } from "@/app/(system)/dashboard/tasks/[id]/page";
 import { cn } from "@/lib/utils";
 import { bookmarkCampaign, removeBookmark } from "@/services/campaign";
+import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
+import { ServerResponse } from "http";
 import { ArchiveMinus, Location } from "iconsax-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -20,6 +22,9 @@ interface TaskCardProps {
   total_fee: string;
   type: string;
   is_bookmarked: string;
+  refetch: (
+    options?: RefetchOptions,
+  ) => Promise<QueryObserverResult<ServerResponse<any>, Error>>;
 }
 
 const TaskCardWidget: React.FC<TaskCardProps> = ({
@@ -33,6 +38,7 @@ const TaskCardWidget: React.FC<TaskCardProps> = ({
   total_fee,
   type,
   is_bookmarked,
+  refetch,
 }) => {
   const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
   const pathname = usePathname();
@@ -42,18 +48,20 @@ const TaskCardWidget: React.FC<TaskCardProps> = ({
     setIsFilled(!isFilled);
   };
   const handleBookmark = async () => {
+    console.log(id, "refetch");
     setIsBookmarkLoading(true);
     try {
       //@ts-ignore
       if (is_bookmarked) {
         const response = await removeBookmark(id as unknown as string);
         toast.success(response?.message);
+        refetch();
         setIsBookmarkLoading(false);
-    
       } else {
         const response = await bookmarkCampaign({}, id as unknown as string);
         //@ts-ignore
         toast.success(response?.message);
+        refetch();
         setIsBookmarkLoading(false);
       }
     } catch (err) {

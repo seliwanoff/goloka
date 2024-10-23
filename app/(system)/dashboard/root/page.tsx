@@ -150,6 +150,7 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
 
   const {
     data: tasks,
+    refetch,
     isLoading,
     isFetching,
     isRefetching,
@@ -400,7 +401,7 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
                 ))
               : //@ts-ignore
                 tasks?.data.map((task: any, index: number) => (
-                  <TaskCardWidget {...task} key={index} />
+                  <TaskCardWidget {...task} key={index} refetch={refetch} />
                 ))}
           </div>
         </div>
