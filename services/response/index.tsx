@@ -92,7 +92,7 @@ export const getAResponse = async (
     queryKey: ["get a Response"],
     queryFn: async () => {
       try {
-        return await fetchData(`/organizations/responses/${Id}`);
+        return await fetchData(`/contributor/responses/${Id}`);
       } catch (error) {
         return null;
       }

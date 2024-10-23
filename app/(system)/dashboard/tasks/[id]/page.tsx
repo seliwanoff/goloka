@@ -257,57 +257,62 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
   //   }
   // };
 
-  const onContribute = async () => {
-    setLoading(true);
-    try {
-      //@ts-ignore
-      if (task?.data?.responses?.length === 0) {
-        // Create new response if there are no responses
-        const response = await createCampaignResponse({}, taskId as string);
-        console.log(response," first call")
-        //@ts-ignore
-        toast.success(response.message);
-        router.push(
-          //@ts-ignore
-          `${window.location.pathname}?responseID=${response.data?.id}/?stepper=true&step=1`,
-        );
-      } else if (getButtonText() === "Continue") {
-        // Find the draft response
-        //@ts-ignore
-        const draftResponse = task.data.responses.find(
-          //@ts-ignore
-          (response) => response.status === "draft",
-        );
-        if (draftResponse?.status === "draft") {
-          // Set the responseId to trigger the query
-          setResponseId(draftResponse.id);
-          // Refetch the response data
-          await refetchResponse();
+ const onContribute = async () => {
+   setLoading(true);
+   try {
+     //@ts-ignore
+     if (task?.data?.responses?.length === 0) {
+       // Create new response if there are no responses
+       const response = await createCampaignResponse({}, taskId as string);
+       console.log(response, " first call");
 
-          console.log(getResponse, "getResponse");
-          // Navigate to the response page with the fetched details
-          // router.push(
-          //   `${window.location.pathname}?responseID=${draftResponse.id}/?stepper=true&step=1`,
-          // );
-        }
-        //@ts-ignore
-      } else if (task?.data?.allows_multiple_responses === 1) {
-        // Create new response if multiple responses are allowed
-        const response = await createCampaignResponse({}, taskId as string);
-        //@ts-ignore
-        toast.success(response.message);
-        router.push(
-          //@ts-ignore
-          `${window.location.pathname}?responseID=${response.data?.id}/?stepper=true&step=1`,
-        );
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("An error occurred");
-    } finally {
-      setLoading(false);
-    }
-  };
+    // Fixed URL format - use & instead of second ?
+       router.push(
+         //@ts-ignore
+         `${window.location.pathname}?responseID=${response.data?.id}&stepper=true&step=1`,
+       );
+
+    //@ts-ignore
+       toast.success(response.message);
+     } else if (getButtonText() === "Continue") {
+       // Find the draft response
+       //@ts-ignore
+       const draftResponse = task.data.responses.find(
+         //@ts-ignore
+         (response) => response.status === "draft",
+       );
+
+ if (draftResponse?.status === "draft") {
+         setResponseId(draftResponse.id);
+         await refetchResponse();
+         console.log(getResponse, "getResponse");
+
+  // Uncomment and fix URL format here too
+         router.push(
+           `${window.location.pathname}?responseID=${draftResponse.id}&stepper=true&step=1`,
+         );
+       }
+       //@ts-ignore
+   } else if (task?.data?.allows_multiple_responses === 1) {
+       // Create new response if multiple responses are allowed
+       const response = await createCampaignResponse({}, taskId as string);
+
+    // Fixed URL format here as well
+       router.push(
+         //@ts-ignore
+         `${window.location.pathname}?responseID=${response.data?.id}&stepper=true&step=1`,
+       );
+
+    //@ts-ignore
+       toast.success(response.message);
+     }
+   } catch (error) {
+     console.error(error);
+     toast.error("An error occurred");
+   } finally {
+     setLoading(false);
+   }
+ };
 
   const onViewResponse = () => {
     //@ts-ignore
@@ -315,9 +320,8 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
       const latestResponse =
         //@ts-ignore
         task.data.responses[task.data.responses.length - 1];
-      router.push(
-        `${window.location.pathname}?responseID=${latestResponse.id}`,
-      );
+      router.push(`/dashboard/responses/${latestResponse.id}`);
+
     }
   };
 
@@ -421,6 +425,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
                   </Button>
                 )}
                 <Button
+                  disabled={isContributeDisabled()}
                   onClick={onContribute}
                   className="h-auto gap-3 rounded-full bg-main-100 px-10 py-3 text-sm shadow-lg shadow-blue-50 hover:bg-blue-700"
                 >
@@ -555,6 +560,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
                 </Button>
               )}
               <Button
+                disabled={isContributeDisabled()}
                 onClick={onContribute}
                 className="h-auto gap-3 rounded-full bg-main-100 px-10 py-3 text-sm shadow-lg shadow-blue-50 hover:bg-blue-700"
               >
@@ -589,7 +595,7 @@ interface BookmarkButtonProps {
   loading: boolean;
 }
 
-const BookmarkButton: React.FC<BookmarkButtonProps> = ({
+export const BookmarkButton: React.FC<BookmarkButtonProps> = ({
   isBookmarked,
   handleBookmark,
   loading,
@@ -597,7 +603,7 @@ const BookmarkButton: React.FC<BookmarkButtonProps> = ({
   return (
     <span
       onClick={!loading ? handleBookmark : undefined}
-      className={`inline-flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border text-main-100 ${isBookmarked ? "border-[#3365E3]" : "border-[#828282]"} active:scale-75 ${
+      className={`inline-flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border text-main-100 ${isBookmarked ? "border-[#3365E3]" : "border-[#7697ec84]"} active:scale-75 ${
         loading ? "cursor-not-allowed opacity-50" : ""
       }`}
     >

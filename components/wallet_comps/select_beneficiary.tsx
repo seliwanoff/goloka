@@ -103,6 +103,7 @@ const SelectBeneficiary = () => {
                 {beneficiaries?.map((item: { id: string | undefined; account_name: string | number | bigint | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<AwaitedReactNode> | null | undefined; account_number: string | number | bigint | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<AwaitedReactNode> | null | undefined; bank_name: string | number | bigint | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<AwaitedReactNode> | null | undefined; }, i: Key | null | undefined) => (
                   <div className="flex w-full items-center" key={i}>
                     <RadioGroupItem
+                      //@ts-ignore
                       value={item.id}
                       id={item.id}
                       className="peer sr-only"

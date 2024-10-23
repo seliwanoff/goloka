@@ -1,9 +1,12 @@
+import { BookmarkButton } from "@/app/(system)/dashboard/tasks/[id]/page";
 import { cn } from "@/lib/utils";
+import { bookmarkCampaign, removeBookmark } from "@/services/campaign";
 import { ArchiveMinus, Location } from "iconsax-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useState } from "react";
+import { toast } from "sonner";
 
 // Define the types for the props
 interface TaskCardProps {
@@ -16,6 +19,7 @@ interface TaskCardProps {
   payment_rate_for_response: string;
   total_fee: string;
   type: string;
+  is_bookmarked: string;
 }
 
 const TaskCardWidget: React.FC<TaskCardProps> = ({
@@ -28,12 +32,34 @@ const TaskCardWidget: React.FC<TaskCardProps> = ({
   payment_rate_for_response,
   total_fee,
   type,
+  is_bookmarked,
 }) => {
+  const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
   const pathname = usePathname();
   const [isFilled, setIsFilled] = useState(false);
   console.log(pathname, "isFilled");
   const handleClick = () => {
     setIsFilled(!isFilled);
+  };
+  const handleBookmark = async () => {
+    setIsBookmarkLoading(true);
+    try {
+      //@ts-ignore
+      if (is_bookmarked) {
+        const response = await removeBookmark(id as unknown as string);
+        toast.success(response?.message);
+        setIsBookmarkLoading(false);
+    
+      } else {
+        const response = await bookmarkCampaign({}, id as unknown as string);
+        //@ts-ignore
+        toast.success(response?.message);
+        setIsBookmarkLoading(false);
+      }
+    } catch (err) {
+      setIsBookmarkLoading(false);
+      toast.warning("Error with bookmark operation:");
+    }
   };
   return (
     <div className="space-y-[18px] rounded-[16px] border border-[#F2F2F2] bg-white p-4">
@@ -63,7 +89,7 @@ const TaskCardWidget: React.FC<TaskCardProps> = ({
             <span className="text-[#7698EC]">responses</span>
           </p>
         </div>
-        <span
+        {/* <span
           onClick={handleClick}
           className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-[#7697ec84] text-main-100"
         >
@@ -91,7 +117,13 @@ const TaskCardWidget: React.FC<TaskCardProps> = ({
               strokeLinejoin="round"
             />
           </svg>
-        </span>
+        </span> */}
+        <BookmarkButton
+          loading={isBookmarkLoading}
+          //@ts-ignore
+          isBookmarked={is_bookmarked}
+          handleBookmark={handleBookmark}
+        />
       </div>
       <div>
         <Link

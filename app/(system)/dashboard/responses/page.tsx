@@ -437,9 +437,9 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
                         <TableCell>
                           <div>
                             <h4
-                              className="w-40 cursor-pointer truncate hover:underline hover:text-blue-700"
+                              className="w-40 cursor-pointer truncate hover:text-blue-700 hover:underline"
                               onClick={() =>
-                                router.push("/dashboard/responses/1")
+                                router.push(`/dashboard/responses/${res?.id}`)
                               }
                               title={res.campaign_title} // Tooltip for full text on hover
                             >
@@ -493,7 +493,7 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
                           <span
                             className="cursor-pointer"
                             onClick={() =>
-                              router.push("/dashboard/responses/1")
+                              router.push(`/dashboard/responses/${res?.id}`)
                             }
                           >
                             <Eye size={20} />

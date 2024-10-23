@@ -7,6 +7,8 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Button } from "@/components/ui/button";
 import { cn, responseStatus } from "@/lib/utils";
 
+
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Sheet,
@@ -40,11 +42,61 @@ import { X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Send2 } from "iconsax-react";
 import ChatWidget from "@/components/lib/widgets/response-chat-widget";
+import { getAResponse } from "@/services/response";
+import { useParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { getStatusColor } from "@/helper";
+
+
+interface QuestionOptions {
+  id: number;
+  label: string;
+  value: string;
+}
+
+interface Question {
+  id: number;
+  type: string;
+  label: string;
+  name: string;
+  placeholder: string;
+  required: number;
+  options: QuestionOptions[] | null;
+  attributes: any;
+  order: number;
+}
+
+interface AnswerItem {
+  id: number;
+  question: Question;
+  value: string | string[] | number | object;
+}
+
+interface TableDataProps {
+  answers?: AnswerItem[];
+}
 
 const ResponseDetails = () => {
+  const params = useParams();
+  const responseId = params?.id;
   const [activeTab, setActiveTab] = useState("questions");
   const [open, setOpen] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
+  // const response = getAResponse(responseId as string);
+
+  const {
+    data: response,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["Get response"],
+    queryFn: async () => await getAResponse(responseId as string),
+  });
+
+  console.log(response?.data);
+  const res = response?.data;
+  //@ts-ignore
+  const answers = response?.data?.answers;
 
   return (
     <>
@@ -63,9 +115,11 @@ const ResponseDetails = () => {
 
             <div className="">
               <h3 className="font-semibold text-neutral-900">
-                Agriculture & Food Security
+                {/* @ts-ignore */}
+                {res?.campaign_title}
               </h3>
-              <p className="text-sm text-[#828282]">By Muhammad Jamiu</p>
+              {/* @ts-ignore */}
+              <p className="text-sm text-[#828282]">By {res?.organization}</p>
             </div>
           </div>
 
@@ -73,10 +127,10 @@ const ResponseDetails = () => {
             className={cn(
               "self-end rounded-full px-3 py-2 text-xs font-medium md:self-center md:px-8 md:py-2.5",
               //@ts-ignore
-              responseStatus("Pending"),
+              getStatusColor(res?.status),
             )}
           >
-            Pending
+            {res?.status}
           </span>
         </div>
 
@@ -118,7 +172,8 @@ const ResponseDetails = () => {
                       <Button className="h-full w-[150px] gap-3 rounded-full bg-[#3365E314] py-3 font-medium text-main-100 hover:bg-[#3365E314]">
                         Message{" "}
                         <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#f10] text-xs font-normal text-white">
-                          2
+                          {/* @ts-ignore */}
+                          {res?.unread_messages_count}
                         </span>
                       </Button>
                     </SheetTrigger>
@@ -175,7 +230,8 @@ const ResponseDetails = () => {
                       <Button className="h-full w-full gap-3 place-self-end rounded-full bg-[#3365E314] py-3 font-medium text-main-100 hover:bg-[#3365E314] focus-visible:ring-0 focus-visible:ring-offset-0 md:w-[150px]">
                         Message{" "}
                         <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#f10] text-xs font-normal text-white">
-                          2
+                          {/* @ts-ignore */}
+                          {res?.unread_messages_count}
                         </span>
                       </Button>
                     </DrawerTrigger>
@@ -227,20 +283,24 @@ const ResponseDetails = () => {
             <TabsContent value="questions" className="col-span-2">
               {/* MOBILE VIEW */}
               <div className="md:hidden">
-                {tableData?.map((data: any, index: number) => (
+                {answers?.map((answer: AnswerItem, index: number) => (
                   <div
-                    key={index}
+                    key={`${answer.id}-${index}`}
                     className="space-y-3 border-t border-[#E5E5EA] pb-4 pt-4 first:border-0"
                   >
                     <div className="text-sm">
                       <h3 className="mb-1.5 text-sm text-[#828282]">
                         Question
                       </h3>
-                      <p className="text-sm text-[#333333]">{data?.Question}</p>
+                      <p className="text-sm text-[#333333]">
+                        {answer.question.label}
+                      </p>
                     </div>
                     <div className="text-sm">
-                      <h3 className="mb-1.5 text-sm text-[#828282]">Answers</h3>
-                      <p className="text-sm text-[#333333]">{data?.Answers}</p>
+                      <h3 className="mb-1.5 text-sm text-[#828282]">Answer</h3>
+                      <p className="text-sm text-[#333333]">
+                        {formatValue(answer.value)}
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -256,13 +316,13 @@ const ResponseDetails = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {tableData?.map((data: any, index: number) => (
-                      <TableRow key={index}>
+                    {answers?.map((answer: AnswerItem, index: number) => (
+                      <TableRow key={`${answer.id}-${index}`}>
                         <TableCell className="w-1/2 text-sm">
-                          {data?.Question}
+                          {answer.question.label}
                         </TableCell>
                         <TableCell className="w-1/2 text-sm">
-                          {data?.Answers}
+                          {formatValue(answer.value)}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -348,42 +408,31 @@ const ResponseDetails = () => {
 
 export default ResponseDetails;
 
-const tableData = [
-  {
-    Question: "How many years have you been involved in farming?",
-    Answers:
-      "Agriculture is the cornerstone of food security, serving as the primary means of sustenance and economic stability for...",
-  },
-  {
-    Question: "How many years have you been involved in farming?",
-    Answers: "Agriculture is the cornerstone of food security",
-  },
-  {
-    Question: "How many years have you been involved in farming?",
-    Answers: "Agriculture",
-  },
-  {
-    Question: "How many years have you been involved in farming?",
-    Answers: "security",
-  },
-  {
-    Question: "How many years have you been involved in farming?",
-    Answers: "Agriculture is the cornerstone of food security",
-  },
-  {
-    Question: "How many years have you been involved in farming?",
-    Answers: "Agriculture is the cornerstone of food security",
-  },
-  {
-    Question: "How many years have you been involved in farming?",
-    Answers: "Agriculture is the cornerstone of food security",
-  },
-  {
-    Question: "How many years have you been involved in farming?",
-    Answers: "Agriculture is the cornerstone of food security",
-  },
-  {
-    Question: "How many years have you been involved in farming?",
-    Answers: "Agriculture is the cornerstone of food security",
-  },
-];
+
+
+
+  const formatValue = (value: any): string => {
+    if (Array.isArray(value)) {
+      return value
+        .filter((item) => item !== null && item !== undefined)
+        .map((item) => {
+          if (typeof item === "object" && item !== null) {
+            return formatObjectPairs(item);
+          }
+          return String(item);
+        })
+        .filter((item) => item !== "")
+        .join(" | ");
+    } else if (typeof value === "object" && value !== null) {
+      return formatObjectPairs(value);
+    }
+    return value?.toString() || "";
+  };
+
+ const formatObjectPairs = (obj: any): string => {
+   if (!obj || typeof obj !== "object") return "";
+
+   return Object.entries(obj)
+     .map(([key, value]) => `${key}: ${value}`)
+     .join(", ");
+ };
