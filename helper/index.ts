@@ -20,17 +20,18 @@ export const formatResponseTime = (dateString: string) => {
   return moment(dateString).format("h:mmA");
 };
 
-type Status = "draft" | "pending" | "reviewed" | "approved" | "rejected";
+
 
 interface StatusPillProps {
   status?: string;
   className?: string;
 }
 
-// Status utility functions
-export const getStatusColor = (status: string) => {
-  if (!status) return "bg-gray-500/5 border-gray-500 text-gray-500";
+// Define possible statuses as a union type
+export type Status = "draft" | "pending" | "reviewed" | "approved" | "rejected";
 
+// Utility function to return the appropriate color classes
+export const getStatusColor = (status: Status) => {
   switch (status) {
     case "draft":
       return "bg-violet-500/5 border-violet-500 text-violet-500";
@@ -47,9 +48,10 @@ export const getStatusColor = (status: string) => {
   }
 };
 
-export const getStatusText = (status: string) => {
-  if (!status) return "Unknown";
-  const firstChar = status?.charAt(0);
-  const rest = status?.slice(1);
-  return firstChar.toUpperCase() + rest.toLowerCase();
+// Utility function to format the status text
+export const getStatusText = (status: Status) => {
+  const firstChar = status.charAt(0).toUpperCase();
+  const rest = status.slice(1).toLowerCase();
+  return `${firstChar}${rest}`;
 };
+

@@ -28,6 +28,8 @@ import {
 import dynamic from "next/dynamic";
 import { toast } from "sonner";
 import { getAResponse } from "@/services/response";
+import { BookmarkButton } from "@/components/contributor/BookmarkButton";
+
 
 // Dynamically import the LocationMap component with SSR disabled
 const LocationMap = dynamic(() => import("@/components/map/locationmap"), {
@@ -589,33 +591,4 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
 
 export default TaskDetail;
 
-interface BookmarkButtonProps {
-  isBookmarked: boolean;
-  handleBookmark: () => void;
-  loading: boolean;
-}
 
-export const BookmarkButton: React.FC<BookmarkButtonProps> = ({
-  isBookmarked,
-  handleBookmark,
-  loading,
-}) => {
-  return (
-    <span
-      onClick={!loading ? handleBookmark : undefined}
-      className={`inline-flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border text-main-100 ${isBookmarked ? "border-[#3365E3]" : "border-[#7697ec84]"} active:scale-75 ${
-        loading ? "cursor-not-allowed opacity-50" : ""
-      }`}
-    >
-      {loading ? (
-        <LoaderCircle size={24} color="#3365E3" className="animate-spin" />
-      ) : (
-        <ArchiveMinus
-          size={24}
-          variant={isBookmarked ? "Bold" : "Outline"}
-          color={isBookmarked ? "#3365E3" : "currentColor"}
-        />
-      )}
-    </span>
-  );
-};

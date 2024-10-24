@@ -1,4 +1,5 @@
-import { BookmarkButton } from "@/app/(system)/dashboard/tasks/[id]/page";
+
+import { BookmarkButton } from "@/components/contributor/BookmarkButton";
 import { cn } from "@/lib/utils";
 import { bookmarkCampaign, removeBookmark } from "@/services/campaign";
 import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";

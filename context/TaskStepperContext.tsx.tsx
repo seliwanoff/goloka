@@ -13,14 +13,14 @@ interface StepperContextProps {
   setAnswers: React.Dispatch<React.SetStateAction<Record<string | number, AnswerValue>>>;
   updateAnswer: (questionId: string | number, answer: AnswerValue) => void;
   answers: Record<string | number, AnswerValue>;
-  totalSteps: number;
+  totalSteps?: number;
 }
 
 const StepperContext = createContext<StepperContextProps | undefined>(undefined);
 
 interface StepperProviderProps {
   children: ReactNode;
-  totalSteps: number;
+  totalSteps?: number;
 }
 
 export const StepperProvider: React.FC<StepperProviderProps> = ({

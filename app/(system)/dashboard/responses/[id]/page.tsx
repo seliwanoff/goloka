@@ -7,8 +7,6 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Button } from "@/components/ui/button";
 import { cn, responseStatus } from "@/lib/utils";
 
-
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Sheet,
@@ -38,7 +36,7 @@ import {
 } from "@/components/ui/drawer";
 import { useMediaQuery } from "@react-hook/media-query";
 import Map from "@/public/assets/images/tasks/tasks.png";
-import { X } from "lucide-react";
+import { Dot, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Send2 } from "iconsax-react";
 import ChatWidget from "@/components/lib/widgets/response-chat-widget";
@@ -46,7 +44,8 @@ import { getAResponse } from "@/services/response";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getStatusColor } from "@/helper";
-
+import { getTaskById } from "@/services/contributor";
+import moment from "moment";
 
 interface QuestionOptions {
   id: number;
@@ -86,17 +85,43 @@ const ResponseDetails = () => {
 
   const {
     data: response,
-    isLoading,
-    refetch,
+    isLoading: isResponseLoading,
+    refetch: refetchResponse,
   } = useQuery({
     queryKey: ["Get response"],
     queryFn: async () => await getAResponse(responseId as string),
   });
 
-  console.log(response?.data);
   const res = response?.data;
+
+  const {
+    data: task,
+    isLoading: isTaskLoading,
+    refetch: refetchTask,
+  } = useQuery({
+    //@ts-ignore
+    queryKey: ["Get task", res?.campaign_id],
+    //@ts-ignore
+    queryFn: async () => await getTaskById(res?.campaign_id as string),
+    //@ts-ignore
+    enabled: !!res?.campaign_id,
+    retry: false,
+  });
+
+  // Optional: Handle loading states
+  if (isResponseLoading || isTaskLoading) {
+    return <div>seeding response...</div>;
+  }
+
+  console.log("Response:", res);
+  console.log("Task:", task);
+
   //@ts-ignore
   const answers = response?.data?.answers;
+  //@ts-ignore
+  const Date = moment(task?.data?.ends_at).format("DD MMMM YYYY");
+  //@ts-ignore
+  const Time = moment(task?.data?.ends_at).format("hh:mm A");
 
   return (
     <>
@@ -333,21 +358,28 @@ const ResponseDetails = () => {
             <TabsContent value="task-details" className="col-span-2 w-full">
               {/* -- Details */}
               <div className="grid h-[30%] gap-4 lg:grid-cols-[2fr_1.5fr]">
-                <div className="mb-4 h-full w-full rounded-2xl bg-[#F8F8F8] p-5 md:mb-0">
+                <div className="mb-4 h-full w-full rounded-2xl bg-white p-5 md:mb-0">
                   <h3 className="text-base font-semibold leading-6 text-gray-900">
                     Task Details
                   </h3>
                   <div className="mt-6 flex flex-wrap gap-5 md:justify-between">
                     <div className="">
                       <div className="flex items-center">
-                        <h4 className="font-medium text-[#101828]">
-                          26 June 2023 • 05:07 PM
-                        </h4>
+                        <h4 className="font-medium text-[#101828]">{Date}</h4>
+                        <div className="font-medium text-[#101828]">
+                          <Dot size={30} />
+                        </div>
+                        <span className="font-medium text-[#101828]">
+                          {Time}
+                        </span>
                       </div>
                       <p className="text-sm text-gray-400">Task Ends on</p>
                     </div>
                     <div>
-                      <h4 className="text-[#101828]">$4 </h4>
+                      <h4 className="text-[#101828]">
+                        {/* @ts-ignore */}${" "}
+                        {task?.data?.payment_rate_for_response}{" "}
+                      </h4>
                       <p className="text-sm text-gray-400">Per response</p>
                     </div>
                     <div>
@@ -355,32 +387,30 @@ const ResponseDetails = () => {
                       <p className="text-sm text-gray-400">Response type </p>
                     </div>
                     <div className="md:text-right">
-                      <h4 className="font-medium text-[#101828]">Survey </h4>
+                      <h4 className="font-medium text-[#101828]">
+                        {/* @ts-ignore */}
+                        {task?.data?.type}{" "}
+                      </h4>
                       <p className="text-sm text-gray-400">Campaign</p>
                     </div>
                   </div>
                   <div className="mt-8">
                     <span className="text-sm text-gray-400">Description</span>
-                    <p className="mt-3 text-sm leading-6 text-[#4F4F4F]">
+                    <p className="mt-3 line-clamp-5 text-sm leading-6 text-[#4F4F4F]">
                       {/* @ts-ignore */}
-                      Agriculture is the cornerstone of food security, serving
-                      as the primary means of sustenance and economic stability
-                      for nations worldwide. It encompasses the cultivation of
-                      crops and livestock, which are essential for providing the
-                      food supply that supports human life. n addition to its
-                      role in feeding populations, agriculture also drives
-                      economic development.
+                      {task?.data?.description}
                     </p>
                   </div>
                 </div>
 
-                <div className="rounded-2xl bg-[#F8F8F8] p-5">
+                <div className="rounded-2xl bg-white p-5">
                   <figure className="h-[85%]">
                     <Image
                       src={Map}
                       alt="map"
                       className="h-full w-full rounded-lg object-cover"
                     />
+                    {/* <LocationMap locations={locations} /> */}
                   </figure>
                   <div className="mt-5 flex gap-5">
                     <div className="text-sm font-semibold text-[#101828]">
@@ -390,9 +420,11 @@ const ResponseDetails = () => {
                       </span>
                     </div>
                     <div className="text-sm font-semibold text-[#101828]">
-                      24{" "}
+                      {/* @ts-ignore */}
+                      {task?.data?.number_of_responses_received}{" "}
                       <span className="font-normal text-[#828282]">
-                        0f 64 responses
+                        {/* @ts-ignore */}
+                        0f {task?.data?.number_of_responses} responses
                       </span>
                     </div>
                   </div>
@@ -408,31 +440,28 @@ const ResponseDetails = () => {
 
 export default ResponseDetails;
 
+const formatValue = (value: any): string => {
+  if (Array.isArray(value)) {
+    return value
+      .filter((item) => item !== null && item !== undefined)
+      .map((item) => {
+        if (typeof item === "object" && item !== null) {
+          return formatObjectPairs(item);
+        }
+        return String(item);
+      })
+      .filter((item) => item !== "")
+      .join(" | ");
+  } else if (typeof value === "object" && value !== null) {
+    return formatObjectPairs(value);
+  }
+  return value?.toString() || "";
+};
 
+const formatObjectPairs = (obj: any): string => {
+  if (!obj || typeof obj !== "object") return "";
 
-
-  const formatValue = (value: any): string => {
-    if (Array.isArray(value)) {
-      return value
-        .filter((item) => item !== null && item !== undefined)
-        .map((item) => {
-          if (typeof item === "object" && item !== null) {
-            return formatObjectPairs(item);
-          }
-          return String(item);
-        })
-        .filter((item) => item !== "")
-        .join(" | ");
-    } else if (typeof value === "object" && value !== null) {
-      return formatObjectPairs(value);
-    }
-    return value?.toString() || "";
-  };
-
- const formatObjectPairs = (obj: any): string => {
-   if (!obj || typeof obj !== "object") return "";
-
-   return Object.entries(obj)
-     .map(([key, value]) => `${key}: ${value}`)
-     .join(", ");
- };
+  return Object.entries(obj)
+    .map(([key, value]) => `${key}: ${value}`)
+    .join(", ");
+};
