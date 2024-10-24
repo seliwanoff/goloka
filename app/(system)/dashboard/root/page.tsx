@@ -77,7 +77,7 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
 
   // Query for remote user data
   const { data: remoteUser } = useQuery({
-    queryKey: ["Get romote user"],
+    queryKey: ["Get remote user"],
     queryFn: getContributorsProfile,
   });
 
