@@ -98,11 +98,11 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
 
   console.log(stats, "data");
 
-  useEffect(() => {
-    if (stats?.data) {
-      setData(stats.data);
-    }
-  }, [stats]);
+  // useEffect(() => {
+  //   if (stats?.data) {
+  //     setData(stats.data);
+  //   }
+  // }, [stats]);
 
   // Debounce search term
   useEffect(() => {
@@ -176,7 +176,7 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
       }),
   });
 
-  console.log(data, "data");
+  // console.log(data, "data");
 
   // Safely handle tasks data
   const tasksList = tasks?.data || [];

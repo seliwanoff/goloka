@@ -1,40 +1,33 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
-import { ITransaction, useWithdrawStepper } from "@/stores/misc";
+import { useWithdrawStepper } from "@/stores/misc";
 import { useAddBeneficiaryOverlay, useWithdrawOverlay } from "@/stores/overlay";
 import { Add } from "iconsax-react";
-import {
-  AwaitedReactNode,
-  JSXElementConstructor,
-  Key,
-  ReactElement,
-  ReactNode,
-  ReactPortal,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import AddBeneficiary from "../lib/widgets/add_beneficiary";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "../ui/dialog";
-import { X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getContributorsProfile } from "@/services/contributor";
-// import { useNavigate } from "react-router-dom";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useBeneficiaryStore } from "@/stores/use-user-store";
+
+interface Beneficiary {
+  id: number;
+  bank_code: number;
+  bank_name: string;
+  account_name: string;
+  account_number: string;
+}
 
 const SelectBeneficiary = () => {
   const { setOpen } = useWithdrawOverlay();
   const { show, setShow } = useAddBeneficiaryOverlay();
-  const { setStep, setTransaction, transaction } = useWithdrawStepper();
+  const { addBeneficiary } = useBeneficiaryStore();
+  const { setStep, setTransaction, transaction } =
+    useWithdrawStepper();
   const [selectedValue, setSelectedValue] = useState("");
-  // const navigate = useNavigate();
 
   const { data: remoteUser, isLoading } = useQuery({
     queryKey: ["Get remote user"],
@@ -47,10 +40,30 @@ const SelectBeneficiary = () => {
     [remoteUser?.data],
   );
 
+  // Handle selection change
+  const handleSelectionChange = (value: string) => {
+    setSelectedValue(value);
+    const selected = beneficiaries?.find(
+      (item: Beneficiary) => item.id.toString() === value,
+    );
+    if (selected) {
+      setTransaction((prev) => ({
+        ...prev,
+        beneficiary: selected.account_name,
+        accountNumber: selected.account_number,
+        bank: selected.bank_name,
+      }));
+    }
+  };
+
   const handleProceed = () => {
-    if (selectedValue) {
+    const selected = beneficiaries?.find(
+      (item: Beneficiary) => item.id.toString() === selectedValue,
+    );
+
+    if (selected) {
+      addBeneficiary(selected);
       setStep(1);
-      // navigate(`/withdraw?beneficiary=${selectedValue}`);
     }
   };
 
@@ -59,35 +72,11 @@ const SelectBeneficiary = () => {
     setShow(true);
   };
 
-  useEffect(() => {
-    const selected = beneficiaries?.find((item: { id: string; }) => item?.id === selectedValue);
-
-    if (selected) {
-      setTransaction((prev) => ({
-        ...prev,
-        beneficiary: selected?.name,
-        accountNumber: selected?.accountNumber,
-        bank: selected?.bank,
-      }));
-    }
-  }, [selectedValue, beneficiaries]);
-
-  useEffect(() => {
-    if (transaction && beneficiaries) {
-      const selected = beneficiaries.find(
-        (item: { accountNumber: string | number; }) => item?.accountNumber === transaction?.accountNumber,
-      );
-
-      setSelectedValue(selected?.id || "");
-    }
-  }, [transaction, beneficiaries]);
-
   return (
     <>
       <div className="">
         <h3 className="text-center font-medium text-[#333333]">
-          Select beneficiary account before
-          <br /> proceeding
+          Select beneficiary account before proceeding
         </h3>
 
         <div className="mt-12 h-[245px] overflow-y-auto">
@@ -97,37 +86,38 @@ const SelectBeneficiary = () => {
             ) : (
               <RadioGroup
                 value={selectedValue}
-                onValueChange={setSelectedValue}
+                onValueChange={handleSelectionChange}
                 className="gap-6"
               >
-                {beneficiaries?.map((item: { id: string | undefined; account_name: string | number | bigint | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<AwaitedReactNode> | null | undefined; account_number: string | number | bigint | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<AwaitedReactNode> | null | undefined; bank_name: string | number | bigint | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<AwaitedReactNode> | null | undefined; }, i: Key | null | undefined) => (
-                  <div className="flex w-full items-center" key={i}>
+                {beneficiaries?.map((item: Beneficiary) => (
+                  <div className="flex w-full items-center" key={item.id}>
                     <RadioGroupItem
-                      //@ts-ignore
-                      value={item.id}
-                      id={item.id}
+                      value={item.id.toString()}
+                      id={item.id.toString()}
                       className="peer sr-only"
                     />
                     <Label
-                      htmlFor={item.id}
+                      htmlFor={item.id.toString()}
                       className={cn(
-                        "grid w-full grid-cols-[1.5fr_1fr] gap-y-1 rounded-lg border border-[#14342C0F] bg-[#FDFDFD] p-3",
-                        selectedValue === item?.id &&
+                        "grid w-full cursor-pointer grid-cols-[1.5fr_1fr] gap-y-1 rounded-lg border border-[#14342C0F] bg-[#FDFDFD] p-3 transition-all duration-200 hover:bg-gray-50",
+                        selectedValue === item.id.toString() &&
                           "border-main-100 bg-main-100 bg-opacity-5 ring-1 ring-main-100",
                       )}
                     >
                       <h4
                         className={cn(
                           "text-sm font-medium text-[#4F4F4F]",
-                          selectedValue === item?.id && "text-main-100",
+                          selectedValue === item.id.toString() &&
+                            "text-main-100",
                         )}
                       >
-                        {item?.account_name}
+                        {item.account_name}
                       </h4>
                       <p
                         className={cn(
                           "justify-self-end text-right text-sm font-semibold text-[#333]",
-                          selectedValue === item?.id && "text-main-100",
+                          selectedValue === item.id.toString() &&
+                            "text-main-100",
                         )}
                       >
                         {item.account_number}
@@ -135,7 +125,8 @@ const SelectBeneficiary = () => {
                       <p
                         className={cn(
                           "text-xs text-[#4F4F4F]",
-                          selectedValue === item?.id && "text-main-100",
+                          selectedValue === item.id.toString() &&
+                            "text-main-100",
                         )}
                       >
                         {item.bank_name}
@@ -162,7 +153,7 @@ const SelectBeneficiary = () => {
       <Button
         disabled={!selectedValue}
         onClick={handleProceed}
-        className="mx-auto h-14 w-full rounded-full bg-main-100 p-3 text-base text-white hover:bg-blue-700 hover:text-white"
+        className="mx-auto h-14 w-full rounded-full bg-main-100 p-3 text-base text-white hover:bg-blue-700 hover:text-white disabled:opacity-50"
       >
         Proceed
       </Button>

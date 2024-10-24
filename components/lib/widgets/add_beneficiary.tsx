@@ -23,7 +23,7 @@ import { toast } from "sonner";
 import { BankAutocomplete } from "./bankAutoComplete";
 
 const schema = yup.object().shape({
-  currency: yup.string().required(),
+  // currency: yup.string().required(),
   bankName: yup.string().required(),
   accountName: yup.string().required(),
   accountNumber: yup
@@ -109,7 +109,7 @@ const AddBeneficiary = () => {
             className="space-y-6"
           >
             {/* CURRENCY */}
-            <div>
+            {/* <div>
               <Label
                 htmlFor="currency"
                 className="mb-2 inline-block font-light text-[#4F4F4F]"
@@ -150,7 +150,7 @@ const AddBeneficiary = () => {
                   </Select>
                 )}
               />
-            </div>
+            </div> */}
 
             {/* BANK NAME */}
             <BankAutocomplete

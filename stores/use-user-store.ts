@@ -31,3 +31,39 @@ export const useUserStore = create<UserState>()(
     },
   ),
 );
+
+export interface IBeneficiary {
+  id: number;
+  bank_code: number;
+  bank_name: string;
+  account_name: string;
+  account_number: string;
+}
+
+interface BeneficiaryState {
+  beneficiaries: IBeneficiary[];
+  addBeneficiary: (beneficiary: IBeneficiary) => void;
+  removeBeneficiary: (id: number) => void;
+  clearBeneficiaries: () => void;
+}
+
+export const useBeneficiaryStore = create<BeneficiaryState>()(
+  persist(
+    (set) => ({
+      beneficiaries: [],
+      addBeneficiary: (beneficiary) =>
+        set((state) => ({
+          beneficiaries: [...state.beneficiaries, beneficiary],
+        })),
+      removeBeneficiary: (id) =>
+        set((state) => ({
+          beneficiaries: state.beneficiaries.filter((b) => b.id !== id),
+        })),
+      clearBeneficiaries: () => set({ beneficiaries: [] }),
+    }),
+    {
+      name: "beneficiary-storage",
+      storage: createJSONStorage(() => sessionStorage),
+    },
+  ),
+);

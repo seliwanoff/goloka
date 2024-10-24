@@ -62,6 +62,8 @@ interface TransferState {
   clearTransaction: () => void;
 }
 
+
+
 const useWithdrawStepper = create<FundState>((set) => ({
   step: 0,
   setStep: (value) =>
@@ -123,4 +125,5 @@ export {
   useWalletFilter,
   useWithdrawStepper,
   useTransferStepper,
+
 };
