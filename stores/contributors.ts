@@ -5,6 +5,7 @@ import { createUser } from "@/services/user"; // Ensure this service is correctl
 import { useLoadingStore } from "./misc";
 import { createContributor } from "@/services/contributor";
 import { toast } from "sonner";
+import { IRemoteUser } from "@/types";
 
 interface UserInfo {
   birth_date: string;
@@ -92,10 +93,12 @@ interface RemoteUserState {
   user: IRemoteUser | null;
   setUser: (user: IRemoteUser) => void;
   clearUser: () => void;
+  // isAuthenticated: boolean;
 }
 
 export const useRemoteUserStore = create<RemoteUserState>((set) => ({
   user: null,
+  // isAuthenticated: !!user,
   setUser: (user: IRemoteUser) => set({ user }),
   clearUser: () => set({ user: null }),
 }));

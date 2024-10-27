@@ -72,6 +72,8 @@ const SelectBeneficiary = () => {
     setShow(true);
   };
 
+  console.log({remoteUser})
+
   return (
     <>
       <div className="">

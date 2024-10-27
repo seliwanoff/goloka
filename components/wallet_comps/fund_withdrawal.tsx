@@ -18,6 +18,7 @@ import {
 import ConfirmWithdrawal from "./confirm_withdraw";
 import { X } from "lucide-react";
 import { useBeneficiaryStore } from "@/stores/use-user-store";
+import { useRemoteUserStore } from "@/stores/contributors";
 
 const schema = yup.object().shape({
   amount: yup.string().required(),
@@ -27,6 +28,7 @@ const schema = yup.object().shape({
 const FundWithdraw = () => {
   const [showModal, setShowModal] = useState(false);
   const beneficiary = useBeneficiaryStore((state) => state.beneficiaries);
+  const { user } = useRemoteUserStore();
   const [isLoading, setIsLoading] = useState(true);
   const { step, setStep, transaction, setTransaction } = useWithdrawStepper();
   const isMobile = useMediaQuery("(max-width: 640px)");
@@ -42,7 +44,7 @@ const FundWithdraw = () => {
   } = useForm({
     resolver: yupResolver(schema),
   });
-  console.log(beneficiary, "beneficiary");
+  console.log(user, "user");
   const watchUsdAmount = watch("amount");
 
   const beneficiaries = beneficiary?.[0] || null;
@@ -112,7 +114,7 @@ const FundWithdraw = () => {
     console.log(data, transaction, "Withdrawal");
   };
 
-   const showLoader = !beneficiaries || isLoading ;
+  const showLoader = !beneficiaries || isLoading;
 
   return (
     <>
@@ -220,7 +222,6 @@ const FundWithdraw = () => {
               )}
             </div>
             <div>
-              
               <Input
                 {...register("amount")}
                 id="amount"
@@ -233,8 +234,7 @@ const FundWithdraw = () => {
                 }}
                 className={cn(
                   "form-input flex h-20 items-center justify-center rounded-lg border border-[#E0E0E0] bg-[#F8F8F8] text-center text-[2rem] font-bold text-[#09091A] focus-visible:border-main-100 focus-visible:ring-main-100 focus-visible:ring-offset-0",
-                  errors.amount &&
-                    "border-red-600 focus-visible:ring-red-600",
+                  errors.amount && "border-red-600 focus-visible:ring-red-600",
                 )}
               />
             </div>
