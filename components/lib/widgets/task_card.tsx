@@ -98,35 +98,7 @@ const TaskCardWidget: React.FC<TaskCardProps> = ({
             <span className="text-[#7698EC]">responses</span>
           </p>
         </div>
-        {/* <span
-          onClick={handleClick}
-          className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-[#7697ec84] text-main-100"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="22"
-            height="24"
-            viewBox="0 0 24 24"
-            fill={isFilled ? "#3365E3" : "none"}
-            // onClick={handleClick}
-          >
-            <path
-              d="M14.5 10.65h-5"
-              stroke={isFilled ? "#3365E3" : "#3365E3"}
-              strokeWidth="1.5"
-              strokeMiterlimit="10"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M16.82 2H7.18C5.05 2 3.32 3.74 3.32 5.86v14.09c0 1.8 1.29 2.56 2.87 1.69l4.88-2.71c.52-.29 1.36-.29 1.87 0l4.88 2.71c1.58.88 2.87.12 2.87-1.69V5.86C20.68 3.74 18.95 2 16.82 2Z"
-              stroke={isFilled ? "#3365E3" : "#3365E3"}
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </span> */}
+
         <BookmarkButton
           loading={isBookmarkLoading}
           //@ts-ignore
@@ -136,7 +108,7 @@ const TaskCardWidget: React.FC<TaskCardProps> = ({
       </div>
       <div>
         <Link
-          href={`/dashboard/tasks/${id}`}
+          href={`/dashboard/marketplace/${id}`}
           className="mb-3 block text-[14px] font-semibold leading-[21px] text-[#333] hover:underline"
         >
           {title}
@@ -149,14 +121,7 @@ const TaskCardWidget: React.FC<TaskCardProps> = ({
           <span className="text-[#828282]">
             <Location size="18" color="#828282" />
           </span>
-          {/* <p className="text-[14px] leading-[21px] text-[#4F4F4F]">
-            {locations?.map((location, index) => (
-              <React.Fragment key={index}>
-                {location?.state?.split(", ")[0]}
-                {index < locations.length - 1 && ", "}
-              </React.Fragment>
-            ))}
-          </p> */}
+          
         </div>
       </div>
     </div>
