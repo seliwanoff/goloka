@@ -32,4 +32,5 @@ export interface IRemoteUser {
     spoken_languages: string[];
     wallet_balance: string;
   };
+  [x: string]: string | any;
 }
