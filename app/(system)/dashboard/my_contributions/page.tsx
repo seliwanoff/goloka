@@ -45,7 +45,7 @@ import {
 
 type ComponentProps = {};
 
-const TaskPage: React.FC<ComponentProps> = ({}) => {
+const Contributions: React.FC<ComponentProps> = ({}) => {
   const [openFilter, setOpenFilter] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
   const [date, setDate] = useState<Date>();
@@ -130,7 +130,7 @@ const TaskPage: React.FC<ComponentProps> = ({}) => {
     <>
       <section className="pb-10 pt-[34px]">
         <h1 className="mb-6 text-2xl font-semibold text-[#333]">
-          Tasks for you
+          My Contributions
         </h1>
 
         {/* OPTIONS */}
@@ -313,4 +313,4 @@ const TaskPage: React.FC<ComponentProps> = ({}) => {
   );
 };
 
-export default TaskPage;
+export default Contributions;

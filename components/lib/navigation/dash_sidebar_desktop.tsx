@@ -14,6 +14,7 @@ import {
   Note,
   People,
   Wallet3,
+  Import,
 } from "iconsax-react";
 
 // ~ ======= icon imports  -->
@@ -141,8 +142,9 @@ export default DashSideBarDesktop;
 // ~ =============================================>
 const NavData: { icon: any; title: string; link: string }[] = [
   { icon: LayoutGrid, title: "Dashboard", link: "/dashboard/root" },
-  { icon: Note, title: "Tasks", link: "/dashboard/tasks" },
+  { icon: Note, title: "Marketplace", link: "/dashboard/marketplace" },
   { icon: DocumentCopy, title: "Responses", link: "/dashboard/responses" },
+  { icon: Import, title: "My contributions", link: "/dashboard/my_contributions" },
   { icon: Wallet3, title: "Wallet", link: "/dashboard/wallet" },
   { icon: MessageQuestion, title: "Support", link: "/dashboard/support" },
   { icon: Settings, title: "Settings", link: "/dashboard/settings" },
