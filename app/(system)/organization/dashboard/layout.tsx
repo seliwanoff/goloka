@@ -84,10 +84,26 @@ export default SystemLayout;
 // ~ ======= Navigation data -->
 // ~ =============================================>
 const NavData: { icon: any; title: string; link: string }[] = [
-  { icon: LayoutGrid, title: "Dashboard", link: "/dashboard/root" },
-  { icon: Note, title: "Tasks", link: "/dashboard/tasks" },
-  { icon: DocumentCopy, title: "Responses", link: "/dashboard/responses" },
-  { icon: Wallet3, title: "Wallet", link: "/dashboard/wallet" },
-  { icon: MessageQuestion, title: "Support", link: "/dashboard/support" },
-  { icon: Settings, title: "Settings", link: "/dashboard/settings" },
+  {
+    icon: LayoutGrid,
+    title: "Dashboard",
+    link: "/organization/dashboard/root",
+  },
+  { icon: Note, title: "Campaign", link: "/organization/dashboard/campaign" },
+  {
+    icon: DocumentCopy,
+    title: "Responses",
+    link: "/organization/dashboard/responses",
+  },
+  { icon: Wallet3, title: "Wallet", link: "/organization/dashboard/wallet" },
+  {
+    icon: MessageQuestion,
+    title: "Support",
+    link: "/organization/dashboard/support",
+  },
+  {
+    icon: Settings,
+    title: "Settings",
+    link: "/organization/dashboard/settings",
+  },
 ];

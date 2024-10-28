@@ -38,11 +38,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
-type ComponentProps = {};
+type ComponentProps = {
+  navMenuList: { icon: any; title: string; link: string }[];
+};
 
-const DashSideBarDesktop: React.FC<ComponentProps> = ({}) => {
+const DashSideBarDesktop: React.FC<ComponentProps> = ({ navMenuList }) => {
   const pathname = usePathname();
   const router = useRouter();
+
+  
 
   return (
     <aside className="col-span-1 hidden h-full w-full flex-col bg-white px-4 py-3 shadow-md xl:flex">
@@ -55,28 +59,31 @@ const DashSideBarDesktop: React.FC<ComponentProps> = ({}) => {
 
       {/* -- nav items  */}
       <nav className="mt-10 flex flex-col gap-3">
-        {NavData.map((nav_item) => (
-          <Link
-            href={nav_item.link}
-            key={nav_item.title}
-            className={cn(
-              "transit flex w-full flex-row items-center justify-start gap-3 rounded-full px-4 py-2",
-              pathname.includes(nav_item.link)
-                ? "bg-main-100 text-white"
-                : "bg-white font-medium text-gray-500 ring-gray-100 hover:bg-gradient-to-br hover:from-gray-50/20 hover:via-gray-100/80 hover:to-gray-50/20 hover:text-gray-800 hover:ring-1",
-            )}
-          >
-            <nav_item.icon size={20} strokeWidth={1.5} />
-            <p
+        {navMenuList?.map((nav_item) => {
+          console.log(nav_item?.link, pathname);
+          return (
+            <Link
+              href={nav_item.link}
+              key={nav_item.title}
               className={cn(
-                "",
-                pathname.includes(nav_item.link) && "text-white",
+                "transit flex w-full flex-row items-center justify-start gap-3 rounded-full px-4 py-2",
+                pathname.includes(nav_item.link)
+                  ? "bg-main-100 text-white"
+                  : "bg-white font-medium text-gray-500 ring-gray-100 hover:bg-gradient-to-br hover:from-gray-50/20 hover:via-gray-100/80 hover:to-gray-50/20 hover:text-gray-800 hover:ring-1",
               )}
             >
-              {nav_item.title}
-            </p>
-          </Link>
-        ))}
+              <nav_item.icon size={20} strokeWidth={1.5} />
+              <p
+                className={cn(
+                  "",
+                  pathname.includes(nav_item.link) && "text-white",
+                )}
+              >
+                {nav_item.title}
+              </p>
+            </Link>
+          );
+        })}
         <Separator className="my-3" />
         <Dialog>
           <DialogTrigger
@@ -135,15 +142,3 @@ const DashSideBarDesktop: React.FC<ComponentProps> = ({}) => {
 };
 
 export default DashSideBarDesktop;
-
-// ~ =============================================>
-// ~ ======= Navigation data -->
-// ~ =============================================>
-const NavData: { icon: any; title: string; link: string }[] = [
-  { icon: LayoutGrid, title: "Dashboard", link: "/dashboard/root" },
-  { icon: Note, title: "Tasks", link: "/dashboard/tasks" },
-  { icon: DocumentCopy, title: "Responses", link: "/dashboard/responses" },
-  { icon: Wallet3, title: "Wallet", link: "/dashboard/wallet" },
-  { icon: MessageQuestion, title: "Support", link: "/dashboard/support" },
-  { icon: Settings, title: "Settings", link: "/dashboard/settings" },
-];
