@@ -455,7 +455,8 @@ export function CampaignChart() {
   );
 
   const filteredData = chartData.filter((item) => {
-    const date = new Date(item.date);
+    // const date = new Date(item.date);
+    const date = new Date();
     const now = new Date();
     let daysToSubtract = 90;
     if (timeRange === "30d") {
