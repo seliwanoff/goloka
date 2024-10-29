@@ -6,6 +6,7 @@ import {
   Calendar1,
   ClipboardExport,
   DocumentUpload,
+  Eye,
   Note,
   Setting4,
   Task,
@@ -13,8 +14,15 @@ import {
   Wallet3,
 } from "iconsax-react";
 import { Button } from "@/components/ui/button";
-import { Pagination } from "@/components/ui/pagination";
-import { Card, CardContent } from "@/components/ui/card";
+import Pagination from "@/components/lib/navigation/Pagination";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -23,7 +31,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ChevronDown, Search } from "lucide-react";
+import { CalendarIcon, ChevronDown, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Popover,
@@ -43,17 +51,49 @@ import { Label } from "@/components/ui/label";
 import { chunkArray, cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Calendar as CalenderDate } from "@/components/ui/calendar";
+import { responsesTableData } from "@/utils";
+import { useRouter } from "next/navigation";
+import {
+  formatResponseDate,
+  formatResponseTime,
+  getStatusColor,
+  getStatusText,
+  Status,
+} from "@/helper";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+
+import { TrendingUp } from "lucide-react";
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  Line,
+  LineChart,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 const Dashboard = () => {
-  const [filteredData, setFilteredData] = useState<Response[]>(
-    responseData?.data?.filter(
-      (item: { status: string }) => item?.status === activeTab,
-    ),
-  );
+  // const [filteredData, setFilteredData] = useState<Response[]>(
+  //   responseData?.data?.filter(
+  //     (item: { status: string }) => item?.status === activeTab,
+  //   ),
+  // );
+
+  const [filteredData, setFilteredData] = useState<any[]>(responsesTableData);
+  const [openFilter, setOpenFilter] = useState<boolean>(false);
   const [date, setDate] = useState<Date>();
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState<number>(10);
+  const [pageSize, setPageSize] = useState<number>(5);
   const pages = chunkArray(filteredData, pageSize);
+  const router = useRouter();
 
   return (
     <div className="grid h-max grid-cols-5 gap-6 py-10">
@@ -78,7 +118,7 @@ const Dashboard = () => {
 
       {/* Stats section */}
       <div className="no-scrollbar col-span-5 mt-4 w-full overflow-x-auto">
-        <div className="col-span-5 flex w-min gap-4 1xl:grid 1xl:grid-cols-4 xl:w-full">
+        <div className="col-span-5 flex w-max gap-4 lg:grid lg:w-full lg:grid-cols-4 xl:w-full">
           <>
             <DashboardWidget
               title="Wallet balance"
@@ -136,10 +176,16 @@ const Dashboard = () => {
       </div>
 
       {/* CHART */}
-
+      <div className="col-span-5 grid w-full grid-cols-[2fr_1fr] gap-6">
+        <div className="rounded-2xl bg-white p-[14px]">
+          <CampaignChart />
+        </div>
+        <div className="rounded-2xl bg-white p-[14px]"></div>
+      </div>
       {/* RECENT RESPONSES */}
+
       {/* TABLE */}
-      <div className="rounded-2xl bg-white p-[14px]">
+      <div className="col-span-5 w-full rounded-2xl bg-white p-[14px]">
         {/* OPTIONS */}
         <div className="mb-5 flex justify-between gap-4 lg:justify-start">
           {/* -- search section */}
@@ -238,17 +284,17 @@ const Dashboard = () => {
             <span>Filter</span>
           </div>
         </div>
-        <div className="">
+        <div className="w-full">
           <Card className="border-0">
             <CardContent className="p-0">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Campaign Title</TableHead>
+                    <TableHead>Contributor</TableHead>
                     <TableHead className="hidden lg:table-cell">
-                      Organisation
+                      Campaign
                     </TableHead>
-                    <TableHead className="table-cell">Amount</TableHead>
+                    <TableHead className="table-cell">Location</TableHead>
                     <TableHead className="hidden lg:table-cell">
                       Date submitted
                     </TableHead>
@@ -259,7 +305,7 @@ const Dashboard = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {responseData?.data?.map((res: any, index: number) => (
+                  {filteredData?.map((res: any, index: number) => (
                     <TableRow key={index}>
                       <TableCell>
                         <div>
@@ -268,38 +314,41 @@ const Dashboard = () => {
                             onClick={() =>
                               router.push(`/dashboard/responses/${res?.id}`)
                             }
-                            title={res.campaign_title} // Tooltip for full text on hover
+                            title={res.campaign_title || "Muhammad Jamiu"} // Tooltip for full text on hover
                           >
-                            {res.campaign_title}
+                            {res.campaign_title || "Muhammad Jamiu"}
+                            Muhammad Jamiu
                           </h4>
 
                           <div className="inline-flex items-center gap-2 lg:hidden">
                             <span className="text-[#828282]">
-                              {res.organization}
+                              {res.organization || "Goloka Test"}
                             </span>
-                            {res?.unread_messages_count > 0 && (
+                            {/* {res?.unread_messages_count > 0 && (
                               <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#FF4C4C] text-xs text-white">
                                 {res?.unread_messages_count}
                               </span>
-                            )}
+                            )} */}
                           </div>
                         </div>
                       </TableCell>
                       <TableCell className="hidden lg:table-cell">
                         <div className="inline-flex items-start gap-2">
-                          <span className="text-sm">{res.organization}</span>
-                          {res?.unread_messages_count > 0 && (
+                          <span className="text-sm">
+                            {res.organization || "Goloka Test"}
+                          </span>
+                          {/* {res?.unread_messages_count > 0 && (
                             <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#FF4C4C] text-xs text-white">
                               {res?.unread_messages_count}
                             </span>
-                          )}
+                          )} */}
                         </div>{" "}
                       </TableCell>
 
                       <TableCell className="table-cell">
                         <div className="inline-flex flex-col items-start gap-2">
                           <span className="text-sm font-medium lg:font-normal">
-                            {res.payment_rate_for_response}
+                            {res.payment_rate_for_response || "Kwara"}
                           </span>
                           <span className="text-xs lg:hidden">
                             {res?.payment_rate_for_response} -{" "}
@@ -352,3 +401,177 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
+// Define props for the StatusPill component
+interface StatusPillProps {
+  status: Status;
+}
+
+const StatusPill: React.FC<StatusPillProps> = ({ status }) => {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center justify-center rounded-full border px-2 py-1 text-xs font-medium",
+        getStatusColor(status),
+      )}
+    >
+      {getStatusText(status)}
+    </span>
+  );
+};
+
+export const description = "A stacked area chart";
+
+const chartData = [
+  { month: "January", desktop: 186, mobile: 80 },
+  { month: "February", desktop: 105, mobile: 200 },
+  { month: "March", desktop: 237, mobile: 120 },
+  { month: "April", desktop: 73, mobile: 190 },
+  { month: "May", desktop: 209, mobile: 130 },
+  { month: "June", desktop: 214, mobile: 140 },
+];
+
+const chartConfig = {
+  desktop: {
+    label: "Desktop",
+    color: "hsl(var(--chart-1))",
+  },
+  mobile: {
+    label: "Mobile",
+    color: "hsl(var(--chart-2))",
+  },
+} satisfies ChartConfig;
+
+export function CampaignChart() {
+  const [timeRange, setTimeRange] = React.useState("90d");
+  const [date, setDate] = useState("");
+  const [year, setYear] = useState<number>(new Date().getFullYear());
+  const [month, setMonth] = useState<number>(new Date().getMonth());
+
+  // Generates an array of years for DOB selection (adjust range as needed)
+  const years = Array.from(
+    { length: 100 },
+    (_, i) => new Date().getFullYear() - i,
+  );
+
+  const filteredData = chartData.filter((item) => {
+    const date = new Date(item.date);
+    const now = new Date();
+    let daysToSubtract = 90;
+    if (timeRange === "30d") {
+      daysToSubtract = 30;
+    } else if (timeRange === "7d") {
+      daysToSubtract = 7;
+    }
+    now.setDate(now.getDate() - daysToSubtract);
+    return date >= now;
+  });
+  return (
+    <>
+      <Card className="border-0">
+        <CardHeader className="flex items-center gap-2 space-y-0 border-b border-none py-5 sm:flex-row">
+          <div className="grid flex-1 gap-1 text-center sm:text-left">
+            <CardTitle className="text-base font-medium">
+              Campaign against response
+            </CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="border-0 p-0">
+          <ChartContainer config={chartConfig} className="h-[300px]">
+            <AreaChart
+              accessibilityLayer
+              data={chartData}
+              margin={{
+                left: 12,
+                right: 12,
+              }}
+            >
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey="month"
+                tickLine={true}
+                axisLine={false}
+                tickMargin={8}
+                tickFormatter={(value) => value.slice(0, 3)}
+              />
+              {/* <YAxis
+                dataKey="month"
+                tickLine={true}
+                axisLine={false}
+                tickMargin={8}
+                tickFormatter={(value) => value.slice(0, 3)}
+              /> */}
+              <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+              <defs>
+                <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
+                  <stop
+                    offset="5%"
+                    stopColor="var(--color-desktop)"
+                    stopOpacity={0.8}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor="var(--color-desktop)"
+                    stopOpacity={0.1}
+                  />
+                </linearGradient>
+                <linearGradient id="fillMobile" x1="0" y1="0" x2="0" y2="1">
+                  <stop
+                    offset="5%"
+                    stopColor="var(--color-mobile)"
+                    stopOpacity={0.8}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor="var(--color-mobile)"
+                    stopOpacity={0.1}
+                  />
+                </linearGradient>
+              </defs>
+              <Area
+                dataKey="mobile"
+                type="natural"
+                fill="url(#fillMobile)"
+                fillOpacity={0.4}
+                stroke="var(--color-mobile)"
+                stackId="a"
+              />
+              <Area
+                dataKey="desktop"
+                type="natural"
+                fill="url(#fillDesktop)"
+                fillOpacity={0.4}
+                stroke="var(--color-desktop)"
+                stackId="a"
+              />
+            </AreaChart>
+          </ChartContainer>
+        </CardContent>
+        <CardFooter>
+          <div className="flex w-full items-start justify-between gap-2 text-sm">
+            <div className="flex items-start gap-6">
+              <div className="flex items-start gap-2">
+                <span className="mt-1 inline-block h-2 w-2 rounded-full bg-blue-400"></span>
+                <div className="">
+                  <span className="text-sm text-[#828282]">Total campagn</span>
+                  <p className="font-semibold text-[#333333]">54</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="mt-1 inline-block h-2 w-2 rounded-full bg-main-100"></span>
+                <div className="">
+                  <span className="text-sm text-[#828282]">Total response</span>
+                  <p className="font-semibold text-[#333333]">569</p>
+                </div>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-sm text-[#828282]">Amount spent</p>
+              <h4 className="font-semibold text-[#333333]">$2500</h4>
+            </div>
+          </div>
+        </CardFooter>
+      </Card>
+    </>
+  );
+}
