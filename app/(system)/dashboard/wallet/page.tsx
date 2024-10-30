@@ -16,8 +16,14 @@ import CreateTransfer from "@/components/lib/modals/create_transfer";
 import { useQuery } from "@tanstack/react-query";
 import { getContributorsBalance } from "@/services/wallets";
 import { numberWithCommas } from "@/helper";
+import { getAllTransactions } from "@/services/transactions";
+import { getContributorsProfile } from "@/services/contributor";
 
 const Wallet = () => {
+  const { data: remoteUser, isLoading: isRemoteUserLoading } = useQuery({
+    queryKey: ["Get remote user"],
+    queryFn: getContributorsProfile,
+  });
   const [expenses, setExpenses] = useState<any[]>([]);
   const { filterType } = useWalletFilter();
   const { setOpen } = useWithdrawOverlay();
@@ -26,10 +32,41 @@ const Wallet = () => {
   const [pageSize, setPageSize] = useState<number>(10);
   const pages = chunkArray(expenses, pageSize);
 
+  const fetchData = () => {
+    return getAllTransactions({
+      // search: debouncedSearchTerm,
+      // type,
+      // page,
+      // per_page: perPage,
+      // min_price: min_payment,
+      // max_price: max_payment,
+    });
+  };
+  const {
+    data: trnsactions,
+    isLoading,
+    isFetching,
+    isRefetching,
+  } = useQuery({
+    queryKey: [
+      "Get transactions list",
+      //    debouncedSearchTerm,
+      //    type,
+      //    page,
+      //    perPage,
+      //    min_payment,
+      //    max_payment,
+    ],
+    queryFn: fetchData,
+  });
+
   const { data: balance } = useQuery({
     queryKey: ["Get balance"],
     queryFn: getContributorsBalance,
   });
+  //@ts-ignore
+  const USER_CURRENCY_SYMBOL = remoteUser?.data?.country?.["currency-symbol"];
+  console.log(trnsactions, "trnsactions");
 
   useEffect(() => {
     console.log(filterType);
@@ -60,8 +97,8 @@ const Wallet = () => {
           <div className="flex flex-col items-center justify-between rounded-[8px] bg-main-100 p-6">
             <div className="text-center">
               <h1 className="text-[2rem] font-bold text-white">
-              {/* @ts-ignore */}
-                $ {numberWithCommas(balance?.balance)}
+                {/* @ts-ignore */}
+                {USER_CURRENCY_SYMBOL} {numberWithCommas(balance?.balance)}
               </h1>
               <p className="text-sm font-medium text-white">Wallet balance</p>
             </div>
@@ -117,7 +154,7 @@ const Wallet = () => {
           {/* TABLE */}
           <div className="">
             <div>
-              <WalletTable data={expenses} />
+              <WalletTable data={trnsactions?.data} />
             </div>
 
             <div className="mt-6">
