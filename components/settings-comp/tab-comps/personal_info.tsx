@@ -43,16 +43,16 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
-      dateOfBirth: user?.birth_date || "",
-      phoneNo: "",
-      gender: user?.gender || "",
-      email: "",
-      primaryLanguage: user?.primary_language[0] || "",
-      religion: user?.religion || "",
-      ethnicity: user?.ethnicity || "",
-      spokenLanguage: user?.spoken_languages[0] || "",
+      // firstName: "",
+      // lastName: "",
+      // dateOfBirth: user?.birth_date || "",
+      // phoneNo: "",
+      // gender: user?.gender || "",
+      // email: "",
+      // primaryLanguage: user?.primary_language[0] || "",
+      // religion: user?.religion || "",
+      // ethnicity: user?.ethnicity || "",
+      // spokenLanguage: user?.spoken_languages[0] || "",
     },
   });
 

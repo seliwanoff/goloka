@@ -11,12 +11,15 @@ import {
   ServerResponse,
 } from "@/lib/api";
 
+
 import { UseQueryResult } from "@tanstack/react-query";
+import { AxiosResponse } from "axios";
 
 export type ServerResponseOrNull<T> = ServerResponse<T> | null;
 
-
-export const getContributorsBalance = async (): Promise<ServerResponseOrNull<any>> => {
+export const getContributorsBalance = async (): Promise<
+  ServerResponseOrNull<any>
+> => {
   try {
     return await fetchData<ServerResponse<any>>("/contributor/balance");
   } catch (error) {
@@ -24,3 +27,37 @@ export const getContributorsBalance = async (): Promise<ServerResponseOrNull<any
     return null;
   }
 };
+
+interface TransactionState {
+  amount: number;
+  pin: string;
+  bank_code: string;
+  account_number: string;
+  save_account: boolean;
+}
+
+export const withdrawFunds = async (
+  amount: number,
+  pin: string,
+  bank_code: string,
+  account_number: string,
+  save_account: boolean,
+): Promise<AxiosResponse<TransactionState>> =>
+  await queryClient.fetchQuery({
+    queryKey: ["withdraw funds"],
+    queryFn: async () => {
+      try {
+        const response = await postData("/wallet/withdraw", {
+          amount,
+          pin,
+          bank_code,
+          account_number,
+          save_account,
+        });
+        return response;
+      } catch (error) {
+        console.error("Failed to withdraw:", error);
+        throw error;
+      }
+    },
+  });

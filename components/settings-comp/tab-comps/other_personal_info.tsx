@@ -40,12 +40,12 @@ const OtherPersonalInfo: React.FC<any> = ({
   useEffect(() => {
     if (user) {
       reset({
-        gender1: user?.gender || "",
-        religion: user?.religion || "",
-        ethnicity: user?.ethnicity || "",
-        primaryLanguage: user?.primary_language || "",
-        spokenLanguage: user?.spoken_languages || "",
-        dateOfBirth1: user?.birth_date || "",
+        // gender1: user?.gender || "",
+        // religion: user?.religion || "",
+        // ethnicity: user?.ethnicity || "",
+        // primaryLanguage: user?.primary_language || "",
+        // spokenLanguage: user?.spoken_languages || "",
+        // dateOfBirth1: user?.birth_date || "",
       });
     }
   }, [user, reset]);

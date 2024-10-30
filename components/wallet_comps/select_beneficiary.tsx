@@ -12,6 +12,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getContributorsProfile } from "@/services/contributor";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useBeneficiaryStore } from "@/stores/use-user-store";
+import { useTransactionStore } from "@/stores/useWithdrawal";
 
 interface Beneficiary {
   id: number;
@@ -22,11 +23,12 @@ interface Beneficiary {
 }
 
 const SelectBeneficiary = () => {
+  const { bank_code, setBankCode, account_number, setAccountNumber } =
+    useTransactionStore();
   const { setOpen } = useWithdrawOverlay();
   const { show, setShow } = useAddBeneficiaryOverlay();
   const { addBeneficiary } = useBeneficiaryStore();
-  const { setStep, setTransaction, transaction } =
-    useWithdrawStepper();
+  const { setStep, setTransaction, transaction } = useWithdrawStepper();
   const [selectedValue, setSelectedValue] = useState("");
 
   const { data: remoteUser, isLoading } = useQuery({
@@ -53,6 +55,8 @@ const SelectBeneficiary = () => {
         accountNumber: selected.account_number,
         bank: selected.bank_name,
       }));
+      setAccountNumber(selected.account_number);
+      setBankCode(String(selected.bank_code));
     }
   };
 
@@ -76,7 +80,7 @@ const SelectBeneficiary = () => {
 
   return (
     <div>
-      {beneficiaries.length > 0 ? (
+      {beneficiaries && beneficiaries.length > 0 ? (
         <div>
           <div className="">
             <h3 className="text-center font-medium text-[#333333]">
@@ -304,8 +308,8 @@ const SelectBeneficiary = () => {
                     y2="9.34054"
                     gradientUnits="userSpaceOnUse"
                   >
-                    <stop stop-color="#3365E3" />
-                    <stop offset="1" stop-color="#6A7EFF" />
+                    <stop stopColor="#3365E3" />
+                    <stop offset="1" stopColor="#6A7EFF" />
                   </linearGradient>
                   <linearGradient
                     id="paint1_linear_2025_64409"
@@ -315,8 +319,8 @@ const SelectBeneficiary = () => {
                     y2="31.129"
                     gradientUnits="userSpaceOnUse"
                   >
-                    <stop stop-color="#3365E3" />
-                    <stop offset="1" stop-color="#1C387D" />
+                    <stop stopColor="#3365E3" />
+                    <stop offset="1" stopColor="#1C387D" />
                   </linearGradient>
                   <linearGradient
                     id="paint2_linear_2025_64409"
@@ -326,8 +330,8 @@ const SelectBeneficiary = () => {
                     y2="60.0863"
                     gradientUnits="userSpaceOnUse"
                   >
-                    <stop stop-color="#FF8960" />
-                    <stop offset="1" stop-color="#FF62A5" />
+                    <stop stopColor="#FF8960" />
+                    <stop offset="1" stopColor="#FF62A5" />
                   </linearGradient>
                 </defs>
               </svg>

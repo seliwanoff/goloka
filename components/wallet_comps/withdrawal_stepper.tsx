@@ -4,6 +4,7 @@ import FundWithdraw from "./fund_withdrawal";
 import SelectBeneficiary from "./select_beneficiary";
 import PaymentSuccessful from "./payment_successful";
 import { useMediaQuery } from "@react-hook/media-query";
+import WithdrawPin from "./pinModal";
 
 const WithdrawalStepper = () => {
   const { step } = useWithdrawStepper();
@@ -16,7 +17,7 @@ const WithdrawalStepper = () => {
       case 1:
         return <FundWithdraw />;
       case 2:
-        return <ConfirmWithdrawal />;
+        return <WithdrawPin />;
       case 3:
         return <PaymentSuccessful />;
     }
@@ -29,6 +30,8 @@ const WithdrawalStepper = () => {
       case 1:
         return <FundWithdraw />;
       case 2:
+        return <WithdrawPin />;
+      case 3:
         return <PaymentSuccessful />;
     }
   };

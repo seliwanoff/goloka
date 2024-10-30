@@ -19,7 +19,6 @@ const CreateWithdrawal = () => {
   const { step, setStep } = useWithdrawStepper();
   const isDesktop = useMediaQuery("(min-width: 640px)");
 
-
   return (
     <>
       {isDesktop ? (
@@ -40,13 +39,19 @@ const CreateWithdrawal = () => {
                     step === 2 && "text-opacity-0",
                   )}
                 >
-                  {step === 3 ? "Payment successful" : "Withdraw fund"}
+                  {step === 3 && "Payment successful"}
+                  {step === 2 && "Withdraw Cash"}
+                  {step === 1 && "Withdraw fund"}
+                  {step === 0 && "Withdraw fund"}
                 </DialogTitle>
                 <DialogDescription className="sr-only text-white">
                   Transaction ID
                 </DialogDescription>
                 <span
-                  onClick={() => setOpen(false)}
+                  onClick={() => {
+                    setOpen(false);
+                    setStep(0)
+                  }}
                   className="absolute right-4 top-1/2 mt-0 flex h-8 w-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-[#F2F2F2] text-[#424242]"
                 >
                   <X size={20} />
