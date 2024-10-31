@@ -14,6 +14,11 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
+import { Trash } from "iconsax-react";
+import MasterCard from "@/public/assets/images/Mastercard.svg";
+import Visa from "@/public/assets/images/Vector.svg";
+import Image from "next/image";
 
 const getFieldOptions = (name: string) => {
   switch (name) {
@@ -27,8 +32,16 @@ const getFieldOptions = (name: string) => {
 };
 
 const Payment: React.FC<any> = ({}) => {
+  const pathname = usePathname();
   const [selectedValue, setSelectedValue] = useState("");
   const [beneficiaries, setBeneficiaries] = useState(myBeneficiaries);
+  const [cards, setCards] = useState([
+    {
+      cardType: "mastercard",
+      cardNo: "5434 4434 3223 2234",
+      beneficiary: "Jamiu jimoh",
+    },
+  ]);
 
   const schema = yup.object().shape({
     currency: yup.string().required(),
@@ -62,15 +75,20 @@ const Payment: React.FC<any> = ({}) => {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="mb-1 text-lg font-semibold text-[#101828]">
-                Beneficiary accounts
+                {pathname.includes("/organization")
+                  ? "Saved cards"
+                  : "Beneficiary accounts"}
               </h3>
               <p className="text-sm text-[#475467]">
-                Add or remove beneficiary account
+                {pathname.includes("/organization")
+                  ? "Add or remove card"
+                  : "Add or remove beneficiary account"}
               </p>
             </div>
           </div>
 
           <div className="mt-8">
+            {/* {pathname.includes("/organization") ? } */}
             {/* BENEFICIARIES */}
             <div className="no-scrollbar h-[180px] overflow-y-auto">
               <div className="p-1">
@@ -126,6 +144,36 @@ const Payment: React.FC<any> = ({}) => {
                   })}
                 </RadioGroup>
               </div>
+            </div>
+
+            {/* SAVED CARDS */}
+            <div className="no-scrollbar h-[180px] overflow-y-auto">
+              {cards.map((card: any, i: number) => {
+                return (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between rounded-full border border-[#F2F2F2] bg-[#F8F8F8] p-3"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div>
+                        {card?.cardType === "mastercard" ? (
+                          <Image src={MasterCard} alt="mastercard" />
+                        ) : (
+                          <Image src={Visa} alt="visa" />
+                        )}
+                      </div>
+
+                      <div>
+                        <h3>{card?.beneficiary}</h3>
+                        <p>**** **** **** 1121</p>
+                      </div>
+                    </div>
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#FF36001F] text-[#FF3600]">
+                      <Trash />
+                    </span>
+                  </div>
+                );
+              })}
             </div>
 
             {/* ADD NEW BENEFICIARY */}
