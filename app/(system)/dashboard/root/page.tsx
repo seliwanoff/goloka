@@ -96,7 +96,7 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
     queryFn: getDashboardStats,
   });
 
-  console.log(stats, "data");
+  console.log(stats, "rjrjrjrjrjj");
 
   // useEffect(() => {
   //   if (stats?.data) {
@@ -176,7 +176,7 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
       }),
   });
 
-  // console.log(data, "data");
+  console.log(currentUser, "data");
 
   // Safely handle tasks data
   const tasksList = tasks?.data || [];

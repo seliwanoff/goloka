@@ -176,6 +176,37 @@ export const getAllTask = async (params: GetAllTaskParams) => {
     throw new Error("Failed to fetch tasks. Please try again later.");
   }
 };
+export const getAllContributedTask = async (params: GetAllTaskParams) => {
+  try {
+    const query = new URLSearchParams();
+
+    // Add query parameters conditionally
+    const appendQuery = (key: string, value: any) => {
+      if (value !== undefined && value !== null) {
+        query.append(key, value.toString());
+      }
+    };
+
+    appendQuery("per_page", params.per_page);
+    appendQuery("page", params.page);
+    appendQuery("search", params.search);
+    appendQuery("type", params.type);
+    appendQuery("min_price", params.min_price);
+    appendQuery("max_price", params.max_price);
+    appendQuery("min_question", params.min_question);
+    appendQuery("max_question", params.max_question);
+    appendQuery("allows_multiple_responses", params.allows_multiple_responses);
+    appendQuery("campaign_end_date", params.campaign_end_date);
+
+    const endpoint = `/contributor/campaigns?${query.toString()}`;
+    const response = await fetchData<ServerResponse<any>>(endpoint);
+
+    return response;
+  } catch (error) {
+    console.error("Error fetching tasks:", error);
+    throw new Error("Failed to fetch tasks. Please try again later.");
+  }
+};
 
 // ~ =============================================>
 // ~ ======= get task by id  -->

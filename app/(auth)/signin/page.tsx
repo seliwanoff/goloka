@@ -14,6 +14,9 @@ import { userSignIn } from "@/services/auth";
 import { useRouter } from "next/navigation";
 import { FaSpinner } from "react-icons/fa";
 import { toast } from "sonner";
+import { getContributorsProfile } from "@/services/contributor";
+import { useQuery } from "@tanstack/react-query";
+import { useRemoteUserStore } from "@/stores/contributors";
 
 type PageProps = {};
 
@@ -22,7 +25,8 @@ type FormValues = {
   password: string;
 };
 
-const SignIn: React.FC<PageProps> = ({}) => {
+const SignIn: React.FC<PageProps> = ({ }) => {
+  const { setUser } = useRemoteUserStore();
   const [eye1, setEye1] = useState(false);
   const router = useRouter();
   const {
@@ -30,6 +34,11 @@ const SignIn: React.FC<PageProps> = ({}) => {
     handleSubmit,
     formState: { errors },
   } = useForm<FormValues>();
+  // Query for remote user data
+  const { data: remoteUser } = useQuery({
+    queryKey: ["Get remote user"],
+    queryFn: getContributorsProfile,
+  });
 
   const handleToggle1 = () => {
     setEye1((prev: boolean) => !prev);
@@ -50,6 +59,8 @@ const SignIn: React.FC<PageProps> = ({}) => {
           "Failed to sign in. Please check your credentials and try again.",
         );
       }
+      //@ts-ignore
+      setUser(remoteUser.data);
       console.log(response, "response.data");
       //@ts-ignore
       const { access_token, token_type, refresh_token } = response;

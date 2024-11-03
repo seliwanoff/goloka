@@ -174,8 +174,6 @@ const ContributionDetails: React.FC<PageProps> = ({}) => {
     );
   };
 
-
-
   const onContribute = async () => {
     setLoading(true);
     try {
@@ -326,7 +324,10 @@ const ContributionDetails: React.FC<PageProps> = ({}) => {
                     {/* @ts-ignore */}
                     {task?.data?.title}
                   </h3>
-                  <p className="text-sm text-[#828282]">By Muhammad Jamiu</p>
+                  <p className="text-sm text-[#828282]">
+                    {/* @ts-ignore */}
+                    By {task?.data?.organization}
+                  </p>
                 </div>
               </div>
               <div className="hidden items-center justify-center space-x-2 md:flex">

@@ -31,7 +31,7 @@ import TaskCardWidget from "@/components/lib/widgets/task_card";
 import TaskFilterDrawerMobile from "@/components/lib/modals/task_filter";
 import { tasks } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
-import { getAllTask } from "@/services/contributor";
+import { getAllContributedTask, getAllTask } from "@/services/contributor";
 import { SkeletonLoader } from "@/components/lib/loader";
 import {
   Pagination,
@@ -61,8 +61,8 @@ const Contributions: React.FC<ComponentProps> = ({}) => {
     refetch,
     isError,
   } = useQuery({
-    queryKey: ["Get task list", currentPage],
-    queryFn: () => getAllTask({ page: currentPage, per_page: 9 }),
+    queryKey: ["Get contributed task list", currentPage],
+    queryFn: () => getAllContributedTask({ page: currentPage, per_page: 9 }),
     // keepPreviousData: true,
   });
   console.log(tasks, "tasks");
