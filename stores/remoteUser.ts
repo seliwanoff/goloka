@@ -47,9 +47,6 @@ interface RemoteUserState {
   isAuthenticated: boolean;
   setUser: (user: IRemoteUser) => void;
   clearUser: () => void;
-  updateWalletBalance: (newBalance: string) => void;
-  updateBankAccounts: (bankAccounts: BankAccount[]) => void;
-  updateProfilePhoto: (photoUrl: string) => void;
 }
 
 export const useRemoteUserStore = create<RemoteUserState>()(
@@ -59,24 +56,6 @@ export const useRemoteUserStore = create<RemoteUserState>()(
       isAuthenticated: false,
       setUser: (user: IRemoteUser) => set({ user, isAuthenticated: true }),
       clearUser: () => set({ user: null, isAuthenticated: false }),
-      updateWalletBalance: (newBalance: string) =>
-        set((state) => ({
-          user: state.user
-            ? { ...state.user, wallet_balance: newBalance }
-            : null,
-        })),
-      updateBankAccounts: (bankAccounts: BankAccount[]) =>
-        set((state) => ({
-          user: state.user
-            ? { ...state.user, bank_accounts: bankAccounts }
-            : null,
-        })),
-      updateProfilePhoto: (photoUrl: string) =>
-        set((state) => ({
-          user: state.user
-            ? { ...state.user, profile_photo_url: photoUrl }
-            : null,
-        })),
     }),
     {
       name: "user-storage",

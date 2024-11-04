@@ -8,7 +8,8 @@ import { StepperProvider } from "@/context/TaskStepperContext.tsx";
 import { useQuery } from "@tanstack/react-query";
 import { getCurrentUser } from "@/services/user";
 import { useUserStore } from "@/stores/currentUserStore";
-
+import { getContributorsProfile } from "@/services/contributor";
+import { useRemoteUserStore } from "@/stores/remoteUser";
 
 type LayoutProps = {
   children: React.ReactNode;
@@ -16,6 +17,7 @@ type LayoutProps = {
 
 const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
   const router = useRouter();
+  const { setUser, isAuthenticated } = useRemoteUserStore();
   const loginUser = useUserStore((state) => state.loginUser);
   const logoutUser = useUserStore((state) => state.logoutUser);
 
@@ -30,6 +32,13 @@ const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
     retry: 1, // Only retry once before considering it a failure
   });
 
+  const { data: remoteContributor } = useQuery({
+    queryKey: ["Get remote contributor profile"],
+    queryFn: getContributorsProfile,
+  });
+  const contributorProfile = remoteContributor?.data;
+  console.log(remoteContributor?.data, "remoteContributor");
+
   // Handle error and authentication
   useEffect(() => {
     if (error) {
@@ -40,8 +49,16 @@ const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
 
     if (currentUser && "data" in currentUser && currentUser.data) {
       loginUser(currentUser.data);
+      if (
+        remoteContributor &&
+        "data" in remoteContributor &&
+        remoteContributor.data
+      ) {
+        //@ts-ignore
+        setUser(contributorProfile);
+      }
     }
-  }, [error, currentUser, loginUser, logoutUser, router]);
+  }, [error, currentUser, loginUser, logoutUser, router, remoteContributor]);
 
   // Show loading state while fetching user data
   if (isLoading) {

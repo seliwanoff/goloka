@@ -27,7 +27,7 @@ type FormValues = {
 };
 
 const SignIn: React.FC<PageProps> = ({ }) => {
-  const { setUser } = useRemoteUserStore();
+
   const [eye1, setEye1] = useState(false);
   const router = useRouter();
   const {
@@ -35,11 +35,7 @@ const SignIn: React.FC<PageProps> = ({ }) => {
     handleSubmit,
     formState: { errors },
   } = useForm<FormValues>();
-  // Query for remote user data
-  const { data: remoteUser } = useQuery({
-    queryKey: ["Get remote user"],
-    queryFn: getContributorsProfile,
-  });
+
 
   const handleToggle1 = () => {
     setEye1((prev: boolean) => !prev);
@@ -66,13 +62,16 @@ const SignIn: React.FC<PageProps> = ({ }) => {
       //@ts-ignore
       const { access_token, token_type, refresh_token } = response;
 
-      localStorage.setItem("access_token", JSON.stringify(access_token));
-      localStorage.setItem("refresh_token", JSON.stringify(refresh_token));
-      localStorage.setItem("token_type", JSON.stringify(token_type));
+     const storeTokens = () => {
+       localStorage.setItem("access_token", JSON.stringify(access_token));
+       localStorage.setItem("refresh_token", JSON.stringify(refresh_token));
+       localStorage.setItem("token_type", JSON.stringify(token_type));
+     };
 
       // Redirect to the dashboard
-      router.replace("/dashboard/root");
-      toast.success("Sign in successful");
+    storeTokens();
+    toast.success("Sign in successful");
+    router.replace("/dashboard/root");
     } catch (error: any) {
       console.error("Sign-in error:", error);
       toast.error(
