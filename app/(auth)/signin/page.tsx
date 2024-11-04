@@ -16,7 +16,8 @@ import { FaSpinner } from "react-icons/fa";
 import { toast } from "sonner";
 import { getContributorsProfile } from "@/services/contributor";
 import { useQuery } from "@tanstack/react-query";
-import { useRemoteUserStore } from "@/stores/contributors";
+import { useRemoteUserStore } from "@/stores/remoteUser";
+
 
 type PageProps = {};
 

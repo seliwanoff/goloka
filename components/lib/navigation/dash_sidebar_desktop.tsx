@@ -38,12 +38,25 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { userLogout } from "@/services/auth";
 
 type ComponentProps = {};
 
 const DashSideBarDesktop: React.FC<ComponentProps> = ({}) => {
   const pathname = usePathname();
   const router = useRouter();
+  // userLogout;
+
+  const initiateLogout = () => {
+    try {
+      const res = userLogout();
+      console.log(res, "res");
+      localStorage.removeItem("whoami");
+      router.replace("/signin");
+    } catch (error) {
+      console.log(error, "error");
+    }
+  };
 
   return (
     <aside className="col-span-1 hidden h-full w-full flex-col bg-white px-4 py-3 shadow-md xl:flex">
@@ -103,10 +116,7 @@ const DashSideBarDesktop: React.FC<ComponentProps> = ({}) => {
               </Button>
               <Button
                 className="w-full bg-rose-500 hover:bg-rose-400"
-                onClick={() => {
-                  localStorage.removeItem("whoami");
-                  router.replace("/");
-                }}
+                onClick={initiateLogout}
               >
                 Continue
               </Button>
@@ -144,7 +154,11 @@ const NavData: { icon: any; title: string; link: string }[] = [
   { icon: LayoutGrid, title: "Dashboard", link: "/dashboard/root" },
   { icon: Note, title: "Marketplace", link: "/dashboard/marketplace" },
   { icon: DocumentCopy, title: "Responses", link: "/dashboard/responses" },
-  { icon: Import, title: "My contributions", link: "/dashboard/my_contributions" },
+  {
+    icon: Import,
+    title: "My contributions",
+    link: "/dashboard/my_contributions",
+  },
   { icon: Wallet3, title: "Wallet", link: "/dashboard/wallet" },
   { icon: MessageQuestion, title: "Support", link: "/dashboard/support" },
   { icon: Settings, title: "Settings", link: "/dashboard/settings" },

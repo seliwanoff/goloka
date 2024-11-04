@@ -274,7 +274,7 @@ export const resolveAccountInfo = async (
   bank_code: string,
 ): Promise<UseQueryResult<AxiosResponse<TaskResponse>>> =>
   await queryClient.fetchQuery({
-    queryKey: ["contributors profile"],
+    queryKey: ["Account profile"],
     queryFn: async () => {
       try {
         return await postData(`/resolve-account`, {

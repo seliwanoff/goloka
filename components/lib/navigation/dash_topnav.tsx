@@ -48,6 +48,8 @@ import { ArrowLeft } from "iconsax-react";
 import { useMediaQuery } from "@react-hook/media-query";
 import { Close } from "@radix-ui/react-dialog";
 import { Toaster } from "sonner";
+import { userLogout } from "@/services/auth";
+import { useRouter } from "next/navigation";
 
 type ComponentProps = {};
 
@@ -60,6 +62,7 @@ const data = {
 
 const DashTopNav: React.FC<ComponentProps> = ({}) => {
   const [open, setOpen] = useState(false);
+  const router = useRouter();
   const user = { data };
   const currentUser = useUserStore((state) => state.currentUser);
   const Name = currentUser?.data?.name;
@@ -67,6 +70,17 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
     ? Name.charAt(0).toUpperCase() + Name.slice(1).toLowerCase()
     : "";
   const isMobile = useMediaQuery("(max-width: 640px)");
+
+  const initiateLogout = () => {
+    try {
+      const res = userLogout();
+      console.log(res, "res");
+      localStorage.removeItem("whoami");
+      router.replace("/signin");
+    } catch (error) {
+      console.log(error, "error");
+    }
+  };
 
   return (
     <>
@@ -220,7 +234,8 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                   ))}
 
                   <Link
-                    href="/dashboard/logout"
+                    href={"#"}
+                    onClick={initiateLogout}
                     className="transit flex items-center gap-3 text-rose-400 hover:text-rose-500"
                   >
                     <LogOut size={20} strokeWidth={1.5} />

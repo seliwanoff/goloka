@@ -62,7 +62,7 @@ type Stats = {
 
 const DashboardRoot: React.FC<PageProps> = ({}) => {
   const [date, setDate] = useState<Date>();
-  const { setUser } = useRemoteUserStore();
+  const { user } = useRemoteUserStore();
   const currentUser = useUserStore((state) => state.currentUser);
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -76,17 +76,17 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
     useState<string>(searchTerm);
 
   // Query for remote user data
-  const { data: remoteUser } = useQuery({
-    queryKey: ["Get remote user"],
-    queryFn: getContributorsProfile,
-  });
+  // const { data: remoteUser } = useQuery({
+  //   queryKey: ["Get remote user"],
+  //   queryFn: getContributorsProfile,
+  // });
 
-  useEffect(() => {
-    if (remoteUser?.data) {
-      //@ts-ignore
-      setUser(remoteUser.data);
-    }
-  }, [remoteUser, setUser]);
+  // useEffect(() => {
+  //   if (remoteUser?.data) {
+  //     //@ts-ignore
+  //     setUser(remoteUser.data);
+  //   }
+  // }, [remoteUser, setUser]);
 
   const [data, setData] = useState<DashboardData | null>(null);
 
@@ -96,13 +96,13 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
     queryFn: getDashboardStats,
   });
 
-  console.log(stats, "rjrjrjrjrjj");
+  console.log(stats?.data, "rjrjrjrjrjj");
 
-  // useEffect(() => {
-  //   if (stats?.data) {
-  //     setData(stats.data);
-  //   }
-  // }, [stats]);
+  useEffect(() => {
+    if (stats?.data) {
+      setData(stats.data);
+    }
+  }, [stats]);
 
   // Debounce search term
   useEffect(() => {
@@ -176,7 +176,7 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
       }),
   });
 
-  console.log(currentUser, "data");
+  console.log(user, "user");
 
   // Safely handle tasks data
   const tasksList = tasks?.data || [];
@@ -220,7 +220,7 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
                   icon={Wallet3}
                   value={`₦ ${numberWithCommas(data.wallet_balance)}`}
                   footer={
-                    <span className="font-medium">₦5,250 Pending balance</span>
+                    <span className="font-medium">Minimum withdrawal ₦ 100</span>
                   }
                   isAnalytics={false}
                   increase={true}
@@ -234,25 +234,31 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
                   icon={TrendUp}
                   value={
                     data.total_earnings
-                      ? `₦ ${numberWithCommas(data.total_earnings)}`
+                      ? //@ts-ignore
+                        `₦ ${numberWithCommas(data.total_earnings?.overall)}`
                       : "0.00"
                   }
                   footer="vs last month"
                   isAnalytics={true}
                   increase={true}
-                  percents={40}
+                  //@ts-ignore
+                  percents={data.total_earnings?.percentage_increase}
                 />
 
                 <DashboardWidget
-                  title="Tasks taken"
+                  title="Market-place taken"
                   bg="bg-main-100 bg-opacity-[12%]"
                   fg="text-main-100"
                   icon={Note}
-                  value={data.total_campaigns_taken}
+                  //@ts-ignore
+                  value={data.total_campaigns_taken?.count}
                   footer="vs last month"
                   isAnalytics={true}
                   increase={true}
-                  percents={40}
+                  percents={
+                    //@ts-ignore
+                    data.total_campaigns_taken?.percentage_increase
+                  }
                 />
 
                 <DashboardWidget
@@ -260,11 +266,15 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
                   bg="bg-[#EB5757] bg-opacity-[12%]"
                   fg="text-[#EB5757]"
                   icon={ClipboardExport}
-                  value={data.responses_awaiting_approval}
+                  //@ts-ignore
+                  value={data.responses_awaiting_approval?.count}
                   footer="vs last month"
                   isAnalytics={true}
                   increase={false}
-                  percents={40}
+                  percents={
+                    //@ts-ignore
+                    data.responses_awaiting_approval?.percentage_increase
+                  }
                 />
               </>
             )}

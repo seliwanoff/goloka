@@ -31,6 +31,7 @@ import { VscListSelection } from "react-icons/vsc";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import Image from "next/image";
 import { DocumentCopy, MessageQuestion, Note, Wallet3 } from "iconsax-react";
+import { userLogout } from "@/services/auth";
 
 type ComponentProps = {};
 
@@ -38,6 +39,17 @@ const DashSideBarMobile: FC<ComponentProps> = ({}) => {
   const [open, setOpen] = React.useState(false);
   const router = useRouter();
   const pathname = usePathname();
+
+   const initiateLogout = () => {
+     try {
+       const res = userLogout();
+       console.log(res, "res");
+       localStorage.removeItem("whoami");
+       router.replace("/signin");
+     } catch (error) {
+       console.log(error, "error");
+     }
+   };
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger className="block cursor-pointer xl:hidden">
@@ -101,10 +113,7 @@ const DashSideBarMobile: FC<ComponentProps> = ({}) => {
                 </Button>
                 <Button
                   className="w-full bg-rose-500 hover:bg-rose-400"
-                  onClick={() => {
-                    localStorage.removeItem("whoami");
-                    router.replace("/");
-                  }}
+                  onClick={initiateLogout}
                 >
                   Continue
                 </Button>
