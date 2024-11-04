@@ -7,7 +7,8 @@ import Image from "next/image";
 import { BsChevronRight } from "react-icons/bs";
 import { useQuery } from "@tanstack/react-query";
 import { getCurrentUser } from "@/services/user";
-import { User, useUserStore } from "@/stores/use-user-store";
+import { useUserStore } from "@/stores/currentUserStore";
+
 
 const goals = [
   {
@@ -28,23 +29,25 @@ type PageProps = {
   setStep: (step: number, email?: string) => void;
 };
 const PrimaryGoal: React.FC<PageProps> = ({ setStep }) => {
+    const loginUser = useUserStore((state) => state.loginUser);
   const router = useRouter();
+  // Query for remote user data
   const {
-    data: remoteUser,
-    isError,
+    data: currentUser,
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["Get current user"],
+    queryKey: ["Get current remote user"],
     queryFn: getCurrentUser,
+    retry: 1, // Only retry once before considering it a failure
   });
 
-  const setUser = useUserStore((state) => state.setUser);
-  console.log(remoteUser, "set");
+
   useEffect(() => {
-    if (!isError || remoteUser !== null)
-      setUser(remoteUser as unknown as User);
-  }, [remoteUser, isError,  setUser]);
+  if (currentUser && "data" in currentUser && currentUser.data) {
+    loginUser(currentUser.data);
+  }
+  }, [currentUser, loginUser]);
 
   const handleClick = (path: string) => {
     if (path) {

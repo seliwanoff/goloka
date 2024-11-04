@@ -36,7 +36,7 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Calendar as CalenderDate } from "@/components/ui/calendar";
 import { MouseEvent, useEffect, useRef, useState } from "react";
-import { useUserStore } from "@/stores/use-user-store";
+
 import { useQuery } from "@tanstack/react-query";
 import { getAllTask, getContributorsProfile } from "@/services/contributor";
 import { SkeletonLoader } from "@/components/lib/loader";
@@ -46,6 +46,7 @@ import { numberWithCommas } from "@/helper";
 import { SkeletonXLoader } from "@/helper/loader";
 import React from "react";
 import { useRemoteUserStore } from "@/stores/contributors";
+import { useUserStore } from "@/stores/currentUserStore";
 
 type PageProps = {};
 
@@ -63,7 +64,7 @@ type Stats = {
 const DashboardRoot: React.FC<PageProps> = ({}) => {
   const [date, setDate] = useState<Date>();
   const { user } = useRemoteUserStore();
-  const currentUser = useUserStore((state) => state.currentUser);
+  const currentUser = useUserStore((state) => state.user);
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [type, setType] = useState<string>("");
@@ -147,7 +148,7 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
     searchTerm,
   ]);
 
-  const Name = currentUser?.data?.name?.split(" ")[0] || "";
+  const Name = currentUser?.name?.split(" ")[0] || "";
   const FirstName = Name
     ? Name.charAt(0).toUpperCase() + Name.slice(1).toLowerCase()
     : "";
@@ -220,7 +221,9 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
                   icon={Wallet3}
                   value={`₦ ${numberWithCommas(data.wallet_balance)}`}
                   footer={
-                    <span className="font-medium">Minimum withdrawal ₦ 100</span>
+                    <span className="font-medium">
+                      Minimum withdrawal ₦ 100
+                    </span>
                   }
                   isAnalytics={false}
                   increase={true}

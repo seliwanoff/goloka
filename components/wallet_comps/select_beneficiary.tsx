@@ -11,8 +11,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getContributorsProfile } from "@/services/contributor";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useBeneficiaryStore } from "@/stores/use-user-store";
 import { useTransactionStore } from "@/stores/useWithdrawal";
+import { useBeneficiaryStore } from "@/stores/currentUserStore";
 
 interface Beneficiary {
   id: number;

@@ -20,8 +20,9 @@ import { cn } from "@/lib/utils";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
-import { useUserStore } from "@/stores/use-user-store";
+
 import { useContributorStore } from "@/stores/contributors";
+import { useUserStore } from "@/stores/currentUserStore";
 
 type PageProps = {
   setStep: any;
@@ -65,7 +66,6 @@ const validationSchema = Yup.object().shape({
 const MoreInfo: React.FC<PageProps> = ({ step, setStep }) => {
   const { setStep1Info } = useContributorStore();
 
-
   const {
     control,
     handleSubmit,
@@ -73,19 +73,18 @@ const MoreInfo: React.FC<PageProps> = ({ step, setStep }) => {
   } = useForm({
     resolver: yupResolver(validationSchema),
   });
-  const currentUser = useUserStore((state) => state.currentUser);
+  const currentUser = useUserStore((state) => state.user);
   const onSubmit = (data: any) => {
     console.log(data);
-     setStep1Info(data);
+    setStep1Info(data);
     setStep((prev: number) => prev + 1);
   };
 
   const handleSkip = () => {};
-const Name = currentUser?.data?.name?.split(" ")[0];
-const FirstName = Name
-  ? Name.charAt(0).toUpperCase() + Name.slice(1).toLowerCase()
-  : "";
-
+  const Name = currentUser?.name?.split(" ")[0];
+  const FirstName = Name
+    ? Name.charAt(0).toUpperCase() + Name.slice(1).toLowerCase()
+    : "";
 
   return (
     <>

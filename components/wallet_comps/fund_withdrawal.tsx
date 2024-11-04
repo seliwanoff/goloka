@@ -17,11 +17,12 @@ import {
 } from "../ui/dialog";
 import ConfirmWithdrawal from "./confirm_withdraw";
 import { X } from "lucide-react";
-import { useBeneficiaryStore } from "@/stores/use-user-store";
+
 import { useRemoteUserStore } from "@/stores/contributors";
 import { getContributorsProfile } from "@/services/contributor";
 import { useQuery } from "@tanstack/react-query";
 import { useTransactionStore } from "@/stores/useWithdrawal";
+import { useBeneficiaryStore } from "@/stores/currentUserStore";
 
 const schema = yup.object().shape({
   amount: yup.string().required(),

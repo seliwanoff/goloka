@@ -31,7 +31,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import DashNotificationPopOver from "../popover/dash_notification";
 import DashSideBarMobile from "./dash_sidebar_mobile";
-import { useUserStore } from "@/stores/use-user-store";
+
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -50,6 +50,8 @@ import { Close } from "@radix-ui/react-dialog";
 import { Toaster } from "sonner";
 import { userLogout } from "@/services/auth";
 import { useRouter } from "next/navigation";
+import { useUserStore } from "@/stores/currentUserStore";
+
 
 type ComponentProps = {};
 
@@ -64,8 +66,9 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const user = { data };
-  const currentUser = useUserStore((state) => state.currentUser);
-  const Name = currentUser?.data?.name;
+  const currentUser = useUserStore((state) => state.user);
+  const logoutUser = useUserStore((state) => state.logoutUser);
+  const Name = currentUser?.name;
   const FirstName = Name
     ? Name.charAt(0).toUpperCase() + Name.slice(1).toLowerCase()
     : "";
@@ -77,6 +80,7 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
       console.log(res, "res");
       localStorage.removeItem("whoami");
       router.replace("/signin");
+      logoutUser();
     } catch (error) {
       console.log(error, "error");
     }

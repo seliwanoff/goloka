@@ -61,7 +61,7 @@ const SignIn: React.FC<PageProps> = ({ }) => {
         );
       }
       //@ts-ignore
-      setUser(remoteUser.data);
+      // setUser(remoteUser.data);
       console.log(response, "response.data");
       //@ts-ignore
       const { access_token, token_type, refresh_token } = response;

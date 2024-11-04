@@ -2,17 +2,13 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-
-// import NotificationLayout from "@/components/layouts/notification-layout";
 import DashSideBarDesktop from "@/components/lib/navigation/dash_sidebar_desktop";
 import DashTopNav from "@/components/lib/navigation/dash_topnav";
-import { useUserStore } from "@/stores/use-user-store";
 import { StepperProvider } from "@/context/TaskStepperContext.tsx";
-// import DashSideBarDesktop from "@/components/lib/navigation/dash_sidebar_desktop";
-// import { getCurrentUser } from "@/services/user_service";
-// import { User, userStore } from "@/stores/user-store";
-// import InfoDialog from "@/components/lib/modals/info_modal";
-// import { useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+import { getCurrentUser } from "@/services/user";
+import { useUserStore } from "@/stores/currentUserStore";
+
 
 type LayoutProps = {
   children: React.ReactNode;
@@ -20,41 +16,56 @@ type LayoutProps = {
 
 const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
   const router = useRouter();
+  const loginUser = useUserStore((state) => state.loginUser);
+  const logoutUser = useUserStore((state) => state.logoutUser);
 
-  const [showModal, setShowModal] = React.useState(false);
-  const setUser = useUserStore((state) => state.setUser);
+  // Query for remote user data
+  const {
+    data: currentUser,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["Get current remote user"],
+    queryFn: getCurrentUser,
+    retry: 1, // Only retry once before considering it a failure
+  });
+
+  // Handle error and authentication
+  useEffect(() => {
+    if (error) {
+      logoutUser();
+      router.push("/signin");
+      return;
+    }
+
+    if (currentUser && "data" in currentUser && currentUser.data) {
+      loginUser(currentUser.data);
+    }
+  }, [error, currentUser, loginUser, logoutUser, router]);
+
+  // Show loading state while fetching user data
+  if (isLoading) {
+    return (
+      <div className="col-span-6 flex h-screen w-full items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div>
       <StepperProvider>
-        {/* <NotificationLayout> */}
         <div className="grid h-screen min-h-[200px] w-full grid-cols-6 overflow-hidden bg-[#F8F8F8]">
-          {
-            /*remoteUser*/ true ? (
-              <>
-                <DashSideBarDesktop />
-                {/* <main className="relative col-span-6 flex h-screen flex-col overflow-hidden pb-10 pt-[70px] xl:col-span-5 xl:bg-[#F8F8F8]">
-                  <DashTopNav />
-                  <div className="h-[calc(100% - 72px)] tablet:px-8 w-full overflow-auto px-5 pb-10 lg:px-10">
-                    {children}
-                  </div>
-                </main> */}
-
-                <main className="relative col-span-6 flex h-screen flex-col overflow-hidden pb-10 pt-[70px] xl:col-span-5 xl:bg-[#F8F8F8]">
-                  <DashTopNav />
-                  <div className="h-[calc(100% - 72px)] w-full overflow-x-hidden px-5 md:px-8 lg:px-10">
-                    {children}
-                  </div>
-                </main>
-              </>
-            ) : (
-              <div className="col-span-6 flex h-screen w-full items-center justify-center">
-                <p>Loading...</p>
+          <>
+            <DashSideBarDesktop />
+            <main className="relative col-span-6 flex h-screen flex-col overflow-hidden pb-10 pt-[70px] xl:col-span-5 xl:bg-[#F8F8F8]">
+              <DashTopNav />
+              <div className="h-[calc(100% - 72px)] w-full overflow-x-hidden px-5 md:px-8 lg:px-10">
+                {children}
               </div>
-            )
-          }
+            </main>
+          </>
         </div>
-        {/* </NotificationLayout> */}
       </StepperProvider>
     </div>
   );
