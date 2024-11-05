@@ -47,6 +47,7 @@ import { SkeletonXLoader } from "@/helper/loader";
 import React from "react";
 import { useRemoteUserStore } from "@/stores/contributors";
 import { useUserStore } from "@/stores/currentUserStore";
+import { toast } from "sonner";
 
 type PageProps = {};
 
@@ -80,7 +81,11 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
   const [data, setData] = useState<DashboardData | null>(null);
 
   // Query for dashboard stats
-const { data: stats, error: statsError } = useQuery({
+const {
+  data: stats,
+  error: statsError,
+  isError: isStatsError,
+} = useQuery({
   queryKey: ["Get dashboard stats"],
   queryFn: getDashboardStats,
   retry: 2, // Retry failed requests 2 times
@@ -137,6 +142,8 @@ const { data: stats, error: statsError } = useQuery({
   //   searchTerm,
   // ]);
 
+
+
     useEffect(() => {
     const params = new URLSearchParams();
 
@@ -165,6 +172,7 @@ const { data: stats, error: statsError } = useQuery({
     refetch,
     isLoading,
     error: tasksError,
+    isError: isTasksError,
   } = useQuery({
     queryKey: [
       "Get task list",
@@ -191,18 +199,43 @@ const { data: stats, error: statsError } = useQuery({
 const tasksList = tasks?.data || [];
 const isValidTasksList = Array.isArray(tasksList) && tasksList.length > 0;
 
-   if (statsError || tasksError) {
-     return (
-       <div className="flex h-screen items-center justify-center">
-         <div className="text-center">
-           <h2 className="text-xl font-semibold text-red-600">
-             Something went wrong
-           </h2>
-           <p className="mt-2 text-gray-600">Please try refreshing the page</p>
-         </div>
-       </div>
-     );
-   }
+ // Handle authentication errors and redirect
+  useEffect(() => {
+    const handleError = (error: any) => {
+      // Check for authentication-related errors
+      if (error?.response?.status === 401 ||
+          error?.message?.includes('unauthorized') ||
+          error?.message?.includes('not authenticated') ||
+          // Add any other error conditions that indicate auth issues
+          error?.response?.status === 403) {
+
+        // Show error toast
+        toast.error('Session expired. Please login again.');
+
+        // Clear any auth-related state/storage if needed
+        // localStorage.removeItem('token'); // If you're using localStorage
+        // Or clear your auth state management store
+
+        // Redirect to login
+        router.push('/signin');
+        return true;
+      }
+      return false;
+    };
+
+    // Check for errors and handle redirection
+    if (isStatsError || isTasksError) {
+      const statsAuthError = statsError && handleError(statsError);
+      const tasksAuthError = tasksError && handleError(tasksError);
+
+      // If neither error was an auth error, show generic error
+      if (!statsAuthError && !tasksAuthError) {
+        toast.error('An error occurred. Please try again later.');
+                router.push("/signin");
+   
+      }
+    }
+  }, [isStatsError, isTasksError, statsError, tasksError, router]);
 
   return (
     <>
