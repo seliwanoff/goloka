@@ -88,10 +88,10 @@ const Footer = (props: Props) => {
 
           {/* COPYRIGHT */}
 
-          <p className="text-center text-xs text-[#797B89] md:col-span-4">
+          <div className="text-center text-xs text-[#797B89] md:col-span-4">
             <hr className="mb-3" />
             Copyright © 2024 SWOFON
-          </p>
+          </div>
         </div>
       </div>
     </>

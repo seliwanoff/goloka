@@ -24,7 +24,7 @@ import {
 import Link from "next/link";
 import { classMerge, cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { usePathname, useRouter } from "next/navigation";
 import { VscListSelection } from "react-icons/vsc";
@@ -102,7 +102,7 @@ const DashSideBarMobile: FC<ComponentProps> = ({}) => {
               <div className="rounded-full bg-rose-50 p-2 text-rose-600">
                 <OctagonAlert />
               </div>
-              <p className="-mt-8 text-xl font-bold">Proceed to logout?</p>
+              <DialogTitle className="-mt-8 text-xl font-bold">Proceed to logout?</DialogTitle>
               <p>
                 By clicking on <b>continue</b>, you will be logged out of your
                 dashboard. Do you want to proceed?

@@ -11,7 +11,6 @@ import {
   ServerResponse,
 } from "@/lib/api";
 
-
 import { UseQueryResult } from "@tanstack/react-query";
 import { AxiosResponse } from "axios";
 
@@ -36,6 +35,12 @@ interface TransactionState {
   save_account: boolean;
 }
 
+interface ITransferState {
+  wallet_id: string;
+  amount: number;
+  pin: number;
+}
+
 export const withdrawFunds = async (
   amount: number,
   pin: string,
@@ -53,6 +58,39 @@ export const withdrawFunds = async (
           bank_code,
           account_number,
           save_account,
+        });
+        return response;
+      } catch (error) {
+        console.error("Failed to withdraw:", error);
+        throw error;
+      }
+    },
+  });
+
+export const getOrganizationInfo = async (
+  id: string,
+): Promise<AxiosResponse<any[]>> => {
+  try {
+    return await fetchData(`/resolve-organization?wallet_id=${id}`);
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const TransferFunds = async (
+  wallet_id: string,
+  amount: number,
+  pin: number,
+): Promise<AxiosResponse<ITransferState>> =>
+  await queryClient.fetchQuery({
+    queryKey: ["withdraw funds"],
+    queryFn: async () => {
+      try {
+        const response = await postData("/wallet/withdraw", {
+          amount,
+          pin,
+          wallet_id,
         });
         return response;
       } catch (error) {

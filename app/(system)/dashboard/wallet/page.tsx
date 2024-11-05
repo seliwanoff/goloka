@@ -14,16 +14,20 @@ import CreateWithdrawal from "@/components/lib/modals/create_withdrawal";
 import CreateBeneficiary from "@/components/lib/modals/create_beneficiary";
 import CreateTransfer from "@/components/lib/modals/create_transfer";
 import { useQuery } from "@tanstack/react-query";
-import { getContributorsBalance } from "@/services/wallets";
+import {
+  getContributorsBalance,
+  getOrganizationInfo,
+} from "@/services/wallets";
 import { numberWithCommas } from "@/helper";
 import { getAllTransactions } from "@/services/transactions";
 import { getContributorsProfile } from "@/services/contributor";
+import { useRemoteUserStore } from "@/stores/remoteUser";
 
 const Wallet = () => {
-  const { data: remoteUser, isLoading: isRemoteUserLoading } = useQuery({
-    queryKey: ["Get remote user"],
-    queryFn: getContributorsProfile,
-  });
+
+  const { user, isAuthenticated } = useRemoteUserStore();
+
+
   const [expenses, setExpenses] = useState<any[]>([]);
   const { filterType } = useWalletFilter();
   const { setOpen } = useWithdrawOverlay();
@@ -31,6 +35,8 @@ const Wallet = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState<number>(10);
   const pages = chunkArray(expenses, pageSize);
+
+  console.log(user, "user");
 
   const fetchData = () => {
     return getAllTransactions({
@@ -60,12 +66,9 @@ const Wallet = () => {
     queryFn: fetchData,
   });
 
-  const { data: balance } = useQuery({
-    queryKey: ["Get balance"],
-    queryFn: getContributorsBalance,
-  });
+
   //@ts-ignore
-  const USER_CURRENCY_SYMBOL = remoteUser?.data?.country?.["currency-symbol"];
+  const USER_CURRENCY_SYMBOL = user?.country?.["currency-symbol"];
   console.log(trnsactions, "trnsactions");
 
   useEffect(() => {
@@ -98,12 +101,14 @@ const Wallet = () => {
             <div className="text-center">
               <h1 className="text-[2rem] font-bold text-white">
                 {/* @ts-ignore */}
-                {USER_CURRENCY_SYMBOL} {numberWithCommas(balance?.balance)}
+                {USER_CURRENCY_SYMBOL}{" "}
+                {numberWithCommas(user?.wallet_balance)}
               </h1>
               <p className="text-sm font-medium text-white">Wallet balance</p>
             </div>
             <p className="text-sm font-medium text-white">
-              Minimum withdrawal: <span className="font-semibold">$10</span>
+              Minimum withdrawal:{" "}
+              <span className="font-semibold">{USER_CURRENCY_SYMBOL} 100</span>
             </p>{" "}
           </div>
           <div className="grid gap-4 rounded-[8px] border border-[#F2F2F2] bg-white p-4 lg:grid-cols-2 xl:gap-6 xl:p-6">

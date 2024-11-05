@@ -76,26 +76,15 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
   const [debouncedSearchTerm, setDebouncedSearchTerm] =
     useState<string>(searchTerm);
 
-  // Query for remote user data
-  // const { data: remoteUser } = useQuery({
-  //   queryKey: ["Get remote user"],
-  //   queryFn: getContributorsProfile,
-  // });
-
-  // useEffect(() => {
-  //   if (remoteUser?.data) {
-  //     //@ts-ignore
-  //     setUser(remoteUser.data);
-  //   }
-  // }, [remoteUser, setUser]);
 
   const [data, setData] = useState<DashboardData | null>(null);
 
   // Query for dashboard stats
-  const { data: stats } = useQuery({
-    queryKey: ["Get dashboard stats"],
-    queryFn: getDashboardStats,
-  });
+const { data: stats, error: statsError } = useQuery({
+  queryKey: ["Get dashboard stats"],
+  queryFn: getDashboardStats,
+  retry: 2, // Retry failed requests 2 times
+});
 
   console.log(stats?.data, "rjrjrjrjrjj");
 
@@ -117,36 +106,53 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
   }, [searchTerm]);
 
   // Update URL params and fetch data
-  useEffect(() => {
-    const params = {
-      search: debouncedSearchTerm,
-      type,
-      page,
-      per_page: perPage,
-      min_price: minPrice,
-      max_price: maxPrice,
-    };
+  // useEffect(() => {
+  //   const params = {
+  //     search: debouncedSearchTerm,
+  //     type,
+  //     page,
+  //     per_page: perPage,
+  //     min_price: minPrice,
+  //     max_price: maxPrice,
+  //   };
 
-    const newParams = new URLSearchParams();
-    Object.entries(params).forEach(([key, value]) => {
-      if (value) newParams.set(key, value.toString());
-    });
+  //   const newParams = new URLSearchParams();
+  //   Object.entries(params).forEach(([key, value]) => {
+  //     if (value) newParams.set(key, value.toString());
+  //   });
 
-    router.push(`?${newParams.toString()}`);
+  //   router.push(`?${newParams.toString()}`);
+
+  //   if (tasksRef.current && searchTerm) {
+  //     tasksRef.current.scrollIntoView({ behavior: "smooth" });
+  //   }
+  // }, [
+  //   debouncedSearchTerm,
+  //   type,
+  //   page,
+  //   perPage,
+  //   minPrice,
+  //   maxPrice,
+  //   router,
+  //   searchTerm,
+  // ]);
+
+    useEffect(() => {
+    const params = new URLSearchParams();
+
+    if (debouncedSearchTerm) params.set('search', debouncedSearchTerm);
+    if (type) params.set('type', type);
+    if (page) params.set('page', page.toString());
+    if (perPage) params.set('per_page', perPage.toString());
+    if (minPrice) params.set('min_price', minPrice.toString());
+    if (maxPrice) params.set('max_price', maxPrice.toString());
+
+    router.push(`?${params.toString()}`);
 
     if (tasksRef.current && searchTerm) {
       tasksRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [
-    debouncedSearchTerm,
-    type,
-    page,
-    perPage,
-    minPrice,
-    maxPrice,
-    router,
-    searchTerm,
-  ]);
+  }, [debouncedSearchTerm, type, page, perPage, minPrice, maxPrice, router, searchTerm]);
 
   const Name = currentUser?.name?.split(" ")[0] || "";
   const FirstName = Name
@@ -158,6 +164,7 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
     data: tasks,
     refetch,
     isLoading,
+    error: tasksError,
   } = useQuery({
     queryKey: [
       "Get task list",
@@ -175,13 +182,27 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
         min_price: minPrice,
         max_price: maxPrice,
       }),
+    retry: 2,
   });
 
   console.log(user, "user");
 
   // Safely handle tasks data
-  const tasksList = tasks?.data || [];
-  const isValidTasksList = Array.isArray(tasksList);
+const tasksList = tasks?.data || [];
+const isValidTasksList = Array.isArray(tasksList) && tasksList.length > 0;
+
+   if (statsError || tasksError) {
+     return (
+       <div className="flex h-screen items-center justify-center">
+         <div className="text-center">
+           <h2 className="text-xl font-semibold text-red-600">
+             Something went wrong
+           </h2>
+           <p className="mt-2 text-gray-600">Please try refreshing the page</p>
+         </div>
+       </div>
+     );
+   }
 
   return (
     <>
@@ -406,7 +427,7 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
           </div>
 
           {/* Task list */}
-          <div className="my-4 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          {/* <div className="my-4 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {isLoading ? (
               Array.from({ length: 6 }).map((_, index) => (
                 <SkeletonLoader key={index} />
@@ -418,6 +439,25 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
             ) : (
               <div className="col-span-full text-center">
                 No tasks available
+              </div>
+            )}
+          </div> */}
+          <div className="my-4 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {isLoading ? (
+              Array.from({ length: 6 }).map((_, index) => (
+                <SkeletonLoader key={index} />
+              ))
+            ) : isValidTasksList ? (
+              tasksList.map((task, index) => (
+                <TaskCardWidget
+                  key={`task-${index}`}
+                  {...task}
+                  refetch={refetch}
+                />
+              ))
+            ) : (
+              <div className="col-span-full flex h-40 items-center justify-center text-gray-500">
+                No tasks available at the moment
               </div>
             )}
           </div>
