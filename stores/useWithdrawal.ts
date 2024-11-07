@@ -21,7 +21,7 @@ interface TransactionState {
   submitTransaction: () => Promise<void>;
 }
 
-export const useTransactionStore = create<TransactionState>((set) => ({
+export const useWalletStore = create<TransactionState>((set) => ({
   amount: 0,
   pin: "",
   bank_code: "",
@@ -51,7 +51,7 @@ export const useTransactionStore = create<TransactionState>((set) => ({
 
   submitTransaction: async () => {
     const { amount, pin, bank_code, account_number, save_account } =
-      useTransactionStore.getState();
+      useWalletStore.getState();
 
     set({ loading: true, error: null, response: null }); // Start loading
 

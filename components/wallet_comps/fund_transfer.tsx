@@ -22,7 +22,7 @@ import { getOrganizationInfo } from "@/services/wallets";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useRemoteUserStore } from "@/stores/remoteUser";
-import { useTransactionStore } from "@/stores/useWithdrawal";
+import { useTransactionStore } from "@/stores/useTransferStore";
 
 interface FormData {
   walletID: string;
@@ -41,6 +41,7 @@ const schema = yup.object().shape({
 
 const FundTransfer = () => {
   const { setAmount } = useTransactionStore();
+    const [inputValue, setInputValue] = useState("");
   const { user, isAuthenticated } = useRemoteUserStore();
   const [openModal, setOpenModal] = useState(false);
   const { step, setStep, setTransaction } = useTransferStepper();
@@ -217,8 +218,14 @@ const FundTransfer = () => {
                 Amount
               </Label>
               <Input
-                {...register("amount")}
-                onChange={handleAmountChange}
+                {...register("amount", {
+                  onChange: (e) => {
+                    let value = e.target.value.replace(/[^0-9.-]+/g, "");
+                    setValue("amount", `${USER_CURRENCY_SYMBOL} ${value}`);
+                    setInputValue(value);
+                  },
+                  valueAsNumber: true,
+                })}
                 id="amount"
                 placeholder={`${USER_CURRENCY_SYMBOL} 0.00`}
                 className={cn(

@@ -21,8 +21,9 @@ import { X } from "lucide-react";
 import { useRemoteUserStore } from "@/stores/contributors";
 import { getContributorsProfile } from "@/services/contributor";
 import { useQuery } from "@tanstack/react-query";
-import { useTransactionStore } from "@/stores/useWithdrawal";
+
 import { useBeneficiaryStore } from "@/stores/currentUserStore";
+import { useWalletStore } from "@/stores/useWithdrawal";
 
 const schema = yup.object().shape({
   amount: yup.string().required(),
@@ -30,7 +31,7 @@ const schema = yup.object().shape({
 });
 
 const FundWithdraw = () => {
-  const { setAmount } = useTransactionStore();
+  const { setAmount } = useWalletStore();
   const [showModal, setShowModal] = useState(false);
   const beneficiary = useBeneficiaryStore((state) => state.beneficiaries);
   const { data: remoteUser } = useQuery({
@@ -289,6 +290,7 @@ const FundWithdraw = () => {
                     },
                     valueAsNumber: true,
                   })}
+                  placeholder={`${USER_CURRENCY_SYMBOL} 0.00`}
                   id="amount"
                   aria-label="amount"
                   className={cn(

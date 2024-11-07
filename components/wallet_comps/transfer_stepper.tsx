@@ -5,6 +5,7 @@ import { useMediaQuery } from "@react-hook/media-query";
 import ConfirmTransfer from "./confirm_transfer";
 import FundTransfer from "./fund_transfer";
 import TransferSuccessful from "./transfer_successful";
+import TransferPin from "./transferPinModal";
 
 const TransferStepper = () => {
   const { step } = useTransferStepper();
@@ -15,8 +16,10 @@ const TransferStepper = () => {
       case 0:
         return <FundTransfer />;
       case 1:
-        return <ConfirmTransfer />;
+        return <TransferPin />;
       case 2:
+        return <ConfirmTransfer />;
+      case 3:
         return <TransferSuccessful />;
     }
   };
@@ -26,6 +29,10 @@ const TransferStepper = () => {
       case 0:
         return <FundTransfer />;
       case 1:
+        return <TransferPin />;
+      case 2:
+        return <ConfirmTransfer />;
+      case 3:
         return <TransferSuccessful />;
     }
   };

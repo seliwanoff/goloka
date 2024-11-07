@@ -2,14 +2,13 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import OTPInput from "react-otp-input";
 import { Button } from "../ui/button";
-import { useWithdrawStepper } from "@/stores/misc";
-import { useWalletStore } from "@/stores/useWithdrawal";
+import { useTransferStepper } from "@/stores/misc";
+import { useTransactionStore } from "@/stores/useTransferStore";
 
-
-const WithdrawPin = () => {
+const TransferPin = () => {
   const { submitTransaction, loading, error, response, setPin } =
-    useWalletStore();
-  const { setStep } = useWithdrawStepper();
+    useTransactionStore();
+  const { setStep } = useTransferStepper();
   const [otp, setOtp] = useState("");
 
   const handleBack = () => {};
@@ -30,7 +29,7 @@ const WithdrawPin = () => {
       <h3 className="text-xl font-semibold"></h3>
       <div className="">
         <div className="mb-8 text-center">
-          <h3 className="text-lg font-medium">Input cash withdraw PIN</h3>
+          <h3 className="text-lg font-medium">Input Transfer PIN</h3>
           <p className="text-sm text-gray-500">
             Input your PIN to confirm this transaction.
             <br />
@@ -83,4 +82,4 @@ const WithdrawPin = () => {
   );
 };
 
-export default WithdrawPin;
+export default TransferPin;
