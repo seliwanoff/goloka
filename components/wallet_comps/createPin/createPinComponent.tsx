@@ -1,12 +1,13 @@
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import OTPInput from "react-otp-input";
-import { Button } from "../ui/button";
+
 import { useTransferStepper } from "@/stores/misc";
 import { useTransactionStore } from "@/stores/useTransferStore";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
-const TransferPin = () => {
+const CreatePin = () => {
   const { submitTransaction, loading, error, response, setPin } =
     useTransactionStore();
   const { setStep } = useTransferStepper();
@@ -65,9 +66,7 @@ const TransferPin = () => {
           />
         </div>
 
-        <div className="mb-8 text-center">
-          <button className="text-main-100 hover:underline">Forgot PIN</button>
-        </div>
+       
 
         <div className="mt-10 grid w-full grid-cols-2 gap-6">
           <Button
@@ -91,4 +90,4 @@ const TransferPin = () => {
   );
 };
 
-export default TransferPin;
+export default CreatePin;

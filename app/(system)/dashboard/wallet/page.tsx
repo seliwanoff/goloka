@@ -22,11 +22,12 @@ import { numberWithCommas } from "@/helper";
 import { getAllTransactions } from "@/services/transactions";
 import { getContributorsProfile } from "@/services/contributor";
 import { useRemoteUserStore } from "@/stores/remoteUser";
+import { useUserStore } from "@/stores/currentUserStore";
+import CreatePin from "@/components/wallet_comps/createPin/createPinComponent";
 
 const Wallet = () => {
-
   const { user, isAuthenticated } = useRemoteUserStore();
-
+  const { user: currentUser } = useUserStore();
 
   const [expenses, setExpenses] = useState<any[]>([]);
   const { filterType } = useWalletFilter();
@@ -37,6 +38,7 @@ const Wallet = () => {
   const pages = chunkArray(expenses, pageSize);
 
   console.log(user, "user");
+  console.log(currentUser?.pin_status, "currentUser?.pin_status");
 
   const fetchData = () => {
     return getAllTransactions({
@@ -65,7 +67,6 @@ const Wallet = () => {
     ],
     queryFn: fetchData,
   });
-
 
   //@ts-ignore
   const USER_CURRENCY_SYMBOL = user?.country?.["currency-symbol"];
@@ -101,8 +102,7 @@ const Wallet = () => {
             <div className="text-center">
               <h1 className="text-[2rem] font-bold text-white">
                 {/* @ts-ignore */}
-                {USER_CURRENCY_SYMBOL}{" "}
-                {numberWithCommas(user?.wallet_balance)}
+                {USER_CURRENCY_SYMBOL} {numberWithCommas(user?.wallet_balance)}
               </h1>
               <p className="text-sm font-medium text-white">Wallet balance</p>
             </div>
@@ -174,6 +174,9 @@ const Wallet = () => {
           </div>
         </div>
       </section>
+      <div>
+        <CreatePin/>
+      </div>
 
       {/* INVOICE SHEET */}
       <div className="col-span-2 md:col-span-1 md:place-self-end">
