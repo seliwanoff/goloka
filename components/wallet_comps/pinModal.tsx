@@ -12,7 +12,10 @@ const WithdrawPin = () => {
   const { setStep } = useWithdrawStepper();
   const [otp, setOtp] = useState("");
 
-  const handleBack = () => {};
+  const handleBack = () => {
+    setPin("");
+    setStep(1);
+  };
 
   const handleProceed = async () => {
     setPin(otp);

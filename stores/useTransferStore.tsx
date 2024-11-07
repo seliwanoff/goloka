@@ -48,10 +48,10 @@ export const useTransactionStore = create<ITransferState>((set) => ({
         //@ts-ignore
         const response = await TransferFunds(amount, pin, wallet_id);
         //@ts-ignore
-        set({ response: response.data, loading: false }); // Save response and stop loading
+        set({ response: response, loading: false }); // Save response and stop loading
         console.log("Transaction Successful:", response.data);
       } catch (error: any) {
-      set({ error: error.message, loading: false }); // Save error and stop loading
+      set({ error: error?.response?.data?.message, loading: false }); // Save error and stop loading
       console.error("Transaction Failed:", error?.response);
     }
   },

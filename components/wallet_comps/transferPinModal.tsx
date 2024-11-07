@@ -4,6 +4,7 @@ import OTPInput from "react-otp-input";
 import { Button } from "../ui/button";
 import { useTransferStepper } from "@/stores/misc";
 import { useTransactionStore } from "@/stores/useTransferStore";
+import { toast } from "sonner";
 
 const TransferPin = () => {
   const { submitTransaction, loading, error, response, setPin } =
@@ -11,16 +12,23 @@ const TransferPin = () => {
   const { setStep } = useTransferStepper();
   const [otp, setOtp] = useState("");
 
-  const handleBack = () => {};
+  const handleBack = () => {
+    setPin("");
+    setStep(1);
+  };
 
   const handleProceed = async () => {
     setPin(otp);
-
+    console.log(response, "response");
+    console.log(error, "error");
     console.log("Entered PIN:", otp);
     await submitTransaction();
     if (!loading && response) {
       console.log(response);
       setStep(3);
+    }
+    if (error) {
+      toast.error(error);
     }
   };
 

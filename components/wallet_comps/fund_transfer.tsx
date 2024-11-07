@@ -40,8 +40,8 @@ const schema = yup.object().shape({
 });
 
 const FundTransfer = () => {
-  const { setAmount } = useTransactionStore();
-    const [inputValue, setInputValue] = useState("");
+  const { setAmount, setWallet_id } = useTransactionStore();
+  const [inputValue, setInputValue] = useState("");
   const { user, isAuthenticated } = useRemoteUserStore();
   const [openModal, setOpenModal] = useState(false);
   const { step, setStep, setTransaction } = useTransferStepper();
@@ -93,39 +93,48 @@ const FundTransfer = () => {
   }, [orgData, setValue]);
 
   // Handle amount input with proper formatting
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value.replace(/[^\d.]/g, "");
-    if (value) {
-      // Format with $ and handle decimals
-      value = parseFloat(value).toFixed(2);
-      setValue("amount", `${USER_CURRENCY_SYMBOL}${value}`);
-    } else {
-      setValue("amount", "");
-    }
-  };
+  // const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   let value = e.target.value.replace(/[^\d.]/g, "");
+  //   if (value) {
+  //     // Format with $ and handle decimals
+  //     value = parseFloat(value).toFixed(2);
+  //     setValue("amount", `${USER_CURRENCY_SYMBOL}${value}`);
+  //   } else {
+  //     setValue("amount", "");
+  //   }
+  // };
 
-  const onTransferMoney = (data: any) => {
-    const formattedData = {
-      ...data,
-      amount: data.amount,
-      //@ts-ignore
-      organisationName: orgData?.data?.name || data.organisation,
-      //@ts-ignore
-      walletId: orgData?.data?.wallet_id || data.walletID,
-    };
+  // const onTransferMoney = (data: any) => {
+  //   const formattedData = {
+  //     ...data,
+  //     amount: data.amount,
+  //     //@ts-ignore
+  //     organisationName: orgData?.data?.name || data.organisation,
+  //     //@ts-ignore
+  //     walletId: orgData?.data?.wallet_id || data.walletID,
+  //   };
 
-    console.log("Transfer data:", formattedData);
+  //   console.log("Transfer data:", formattedData);
 
-    setTransaction((prev: ITransfer) => ({
-      ...prev,
-      ...formattedData,
-    }));
+  //   setTransaction((prev: ITransfer) => ({
+  //     ...prev,
+  //     ...formattedData,
+  //   }));
 
-    if (isMobile) {
-      setOpenModal(true);
-    } else {
-      setStep(1);
-    }
+  //   if (isMobile) {
+  //     setOpenModal(true);
+  //   } else {
+  //     setStep(1);
+  //   }
+  // };
+
+  const handleTransfer = () => {
+    setAmount(parseFloat(inputValue));
+    setWallet_id(walletID);
+    console.log(parseFloat(inputValue), "parseFloat(inputValue)");
+    // if (parseFloat(inputValue)) {
+    setStep(1);
+    // }
   };
 
   return (
@@ -139,7 +148,7 @@ const FundTransfer = () => {
         <div className="mt-12">
           <form
             id="transfer-funds"
-            onSubmit={handleSubmit(onTransferMoney)}
+            onSubmit={handleSubmit(handleTransfer)}
             className="space-y-6"
           >
             {/* Wallet ID */}

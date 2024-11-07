@@ -11,8 +11,9 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getContributorsProfile } from "@/services/contributor";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useTransactionStore } from "@/stores/useWithdrawal";
+
 import { useBeneficiaryStore } from "@/stores/currentUserStore";
+import { useWalletStore } from "@/stores/useWithdrawal";
 
 interface Beneficiary {
   id: number;
@@ -24,7 +25,7 @@ interface Beneficiary {
 
 const SelectBeneficiary = () => {
   const { bank_code, setBankCode, account_number, setAccountNumber } =
-    useTransactionStore();
+    useWalletStore();
   const { setOpen } = useWithdrawOverlay();
   const { show, setShow } = useAddBeneficiaryOverlay();
   const { addBeneficiary } = useBeneficiaryStore();

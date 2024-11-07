@@ -79,22 +79,22 @@ export const getOrganizationInfo = async (
 };
 
 export const TransferFunds = async (
-  wallet_id: string,
   amount: number,
   pin: number,
+  wallet_id: string,
 ): Promise<AxiosResponse<ITransferState>> =>
   await queryClient.fetchQuery({
-    queryKey: ["withdraw funds"],
+    queryKey: ["transfer funds"],
     queryFn: async () => {
       try {
-        const response = await postData("/wallet/withdraw", {
+        const response = await postData("/wallet/transfer", {
           amount,
           pin,
           wallet_id,
         });
         return response;
       } catch (error) {
-        console.error("Failed to withdraw:", error);
+        console.error("Failed to transfer:", error);
         throw error;
       }
     },
