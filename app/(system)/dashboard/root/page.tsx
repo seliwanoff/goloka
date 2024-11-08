@@ -205,7 +205,7 @@ const isValidTasksList = Array.isArray(tasksList) && tasksList.length > 0;
       // Check for authentication-related errors
       if (error?.response?.status === 401 ||
           error?.message?.includes('unauthorized') ||
-          error?.message?.includes('not authenticated') ||
+          error?.message?.includes('Unauthenticated') ||
           // Add any other error conditions that indicate auth issues
           error?.response?.status === 403) {
 
@@ -232,7 +232,7 @@ const isValidTasksList = Array.isArray(tasksList) && tasksList.length > 0;
       if (!statsAuthError && !tasksAuthError) {
         toast.error('An error occurred. Please try again later.');
                 router.push("/signin");
-   
+
       }
     }
   }, [isStatsError, isTasksError, statsError, tasksError, router]);

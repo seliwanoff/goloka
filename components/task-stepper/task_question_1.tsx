@@ -20,7 +20,7 @@ type SelectedValues = Record<
 >;
 
 import React, { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/router";
+
 import { Label } from "../ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useStepper } from "@/context/TaskStepperContext.tsx";
@@ -28,7 +28,7 @@ import StepperControl from "./StepperControl";
 import { toast } from "sonner";
 import { Checkbox } from "../ui/checkbox";
 import { cn } from "@/lib/utils";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { createContributorAnswers } from "@/services/contributor";
 import Image from "next/image";
 
@@ -60,6 +60,8 @@ const DynamicQuestion = ({
   questionsLength: number;
   totalQuestions: number;
 }) => {
+    const { responseID } = useParams();
+    const [finalResponseID, setFinalResponseID] = useState("");
    const router = useRouter();
   const { answers, nextStep, updateAnswer, step } = useStepper();
   const [selectedValues, setSelectedValues] = useState<
@@ -72,22 +74,33 @@ const DynamicQuestion = ({
   const inputRefs = useRef<
     Record<string | number, HTMLInputElement | HTMLTextAreaElement | null>
   >({});
-  const { id: taskId } = useParams();
-   const [responseID, setResponseID] = useState<string | null>(null);
 
-   useEffect(() => {
-     if (router.isReady) {
-       // Extract the `responseID` query parameter
-       let rawResponseID = router.query.responseID as string;
+  //  const [responseID, setResponseID] = useState<string | null>(null);
 
-       // Handle cases where `responseID` has a trailing slash
-       if (rawResponseID?.includes("/")) {
-         rawResponseID = rawResponseID.split("/")[0];
-       }
+  //  useEffect(() => {
+  //    if (router.isReady) {
+  //      // Extract the `responseID` query parameter
+  //      let rawResponseID = router.query.responseID as string;
 
-       setResponseID(rawResponseID);
-     }
-   }, [router.isReady, router.query]);
+  //      // Handle cases where `responseID` has a trailing slash
+  //      if (rawResponseID?.includes("/")) {
+  //        rawResponseID = rawResponseID.split("/")[0];
+  //      }
+
+  //      setResponseID(rawResponseID);
+  //    }
+  //  }, [router.isReady, router.query]);
+
+  useEffect(() => {
+    // Handle cases where `responseID` has a trailing slash
+    if (responseID?.includes("/")) {
+      //@ts-ignore
+      setFinalResponseID(responseID.split("/")[0]);
+    } else {
+      setFinalResponseID(responseID as string);
+    }
+  }, [responseID]);
+
   useEffect(() => {
     const initialAnswers: Record<string | number, any> = {};
     questions.forEach((ques) => {
@@ -169,7 +182,7 @@ const handleNext = async () => {
     };
 
     // Submit the formatted answers
-    await createContributorAnswers(responseID as string, formattedAnswers);
+    await createContributorAnswers(finalResponseID as string, formattedAnswers);
     nextStep();
   } catch (err) {
     toast.error("Failed to save answers. Please try again.");
