@@ -65,3 +65,16 @@ export const updateLocation = async (
     },
   });
 };
+// ~ =============================================>
+// ~ ======= pIN  -->
+// ~ =============================================>
+export const updatePin = async (
+  data: any,
+): Promise<UseQueryResult<ServerResponse<any>>> => {
+  return queryClient.fetchQuery({
+    queryKey: ["update pin"],
+    queryFn: async () => {
+      return await postData<ServerResponse<any>>("/pin/create", data);
+    },
+  });
+};

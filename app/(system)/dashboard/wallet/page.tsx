@@ -23,7 +23,7 @@ import { getAllTransactions } from "@/services/transactions";
 import { getContributorsProfile } from "@/services/contributor";
 import { useRemoteUserStore } from "@/stores/remoteUser";
 import { useUserStore } from "@/stores/currentUserStore";
-import CreatePin from "@/components/wallet_comps/createPin/createPinComponent";
+import CreatePinComponent from "@/components/wallet_comps/createPin/createPinComponent";
 
 const Wallet = () => {
   const { user, isAuthenticated } = useRemoteUserStore();
@@ -175,7 +175,7 @@ const Wallet = () => {
         </div>
       </section>
       <div>
-        <CreatePin/>
+        <CreatePinComponent />
       </div>
 
       {/* INVOICE SHEET */}

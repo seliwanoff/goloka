@@ -1,93 +1,125 @@
+import React, { useEffect, useState } from "react";
+import { X } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useMediaQuery } from "@react-hook/media-query";
+import { useTransferStepper, useWithdrawStepper } from "@/stores/misc";
+import { useTransferOverlay } from "@/stores/overlay";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
-import OTPInput from "react-otp-input";
+import { ArrowLeft } from "iconsax-react";
+import TransferStepper from "@/components/wallet_comps/transfer_stepper";
+import CreatePinStepper from "./createPinStepper";
+import { useUserStore } from "@/stores/currentUserStore";
 
-import { useTransferStepper } from "@/stores/misc";
-import { useTransactionStore } from "@/stores/useTransferStore";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+const CreatePinComponent = () => {
+  const { user: currentUser } = useUserStore();
+  const { openTransfer, setOpenTransfer } = useTransferOverlay();
+  const { step, setStep, clearTransaction } = useTransferStepper();
+  const isDesktop = useMediaQuery("(min-width: 640px)");
 
-const CreatePin = () => {
-  const { submitTransaction, loading, error, response, setPin } =
-    useTransactionStore();
-  const { setStep } = useTransferStepper();
-  const [otp, setOtp] = useState("");
+  const [showPinModal, setShowPinModal] = useState(false);
 
-  const handleBack = () => {
-    console.log("back clicked");
-    setPin("");
-    setStep(1);
-  };
 
-  const handleProceed = async () => {
-    setPin(otp);
-    console.log(response, "response");
-    console.log(error, "error");
-    console.log("Entered PIN:", otp);
-    await submitTransaction();
-    if (!loading && response) {
-      console.log(response);
-      setStep(3);
+  useEffect(() => {
+    if (currentUser?.pin_status === true) {
+      setShowPinModal(true);
     }
-    if (error) {
-      toast.error(error);
-    }
-  };
+  }, [currentUser?.pin_status]);
 
+  const handleCancel = () => {
+    setShowPinModal(false);
+    setOpenTransfer(false);
+    setStep(0);
+    clearTransaction();
+  };
   return (
-    <div>
-      <h3 className="text-xl font-semibold"></h3>
-      <div className="">
-        <div className="mb-8 text-center">
-          <h3 className="text-lg font-medium">Input Transfer PIN</h3>
-          <p className="text-sm text-gray-500">
-            Input your PIN to confirm this transaction.
-            <br />
-            Click forgot pin to reset your pin.
-          </p>
-        </div>
-        <div className="mx-auto my-10 flex justify-center md:max-w-96">
-          <OTPInput
-            value={otp}
-            onChange={setOtp}
-            numInputs={4}
-            // isInputNum
-            shouldAutoFocus
-            inputStyle={cn(
-              "w-[100%_!important] rounded border border-[#E7E7E7] caret-main-100 h-[55px] bg-[#F9F9F9] outline-0 focus:border focus:border-[#C0CFF6] focus:border-opacity-55 focus:bg-[#F5F8FF]",
+    <>
+      {isDesktop ? (
+        <>
+          {/* DESkTOP */}
+
+          <Dialog open={showPinModal} onOpenChange={setOpenTransfer}>
+            <DialogContent className="overflow-hidden border-0 focus-visible:outline-none">
+              <DialogHeader
+                className={cn(
+                  "absolute left-0 top-0 z-10 w-full space-y-0 border-b border-[#F2F2F2] bg-white p-5 text-left",
+                  step === 1 && "border-0",
+                )}
+              >
+                <DialogTitle
+                  className={cn(
+                    "text-lg font-medium text-[#333]",
+                    step === 1 && "text-opacity-0",
+                  )}
+                >
+                  {step === 0 ? "Create Pin" : "Payment successful"}
+                </DialogTitle>
+                <DialogDescription className="sr-only text-white">
+                  Transaction ID
+                </DialogDescription>
+                <span
+                  onClick={handleCancel}
+                  className="absolute right-4 top-1/2 mt-0 flex h-8 w-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-[#F2F2F2] text-[#424242]"
+                >
+                  <X size={20} />
+                </span>
+              </DialogHeader>
+              <div
+                className={cn(
+                  "mt-16",
+                  step === 1 && "mt-0",
+                  step === 2 && "mt-8",
+                )}
+              />
+              <CreatePinStepper />
+            </DialogContent>
+          </Dialog>
+        </>
+      ) : (
+        <>
+          {/* MOBILE */}
+
+          <div
+            className={cn(
+              "fixed left-0 top-0 h-svh w-full overflow-y-auto bg-white px-4 pb-8 pt-24",
+              openTransfer ? "block" : "hidden",
             )}
-            containerStyle={{
-              width: "100%",
-              display: "grid",
-              columnGap: "10px",
-              gridTemplateColumns: "repeat(4, 1fr)",
-            }}
-            renderInput={(props) => <input {...props} />}
-          />
-        </div>
-
-       
-
-        <div className="mt-10 grid w-full grid-cols-2 gap-6">
-          <Button
-            type="button"
-            onClick={handleBack}
-            variant="outline"
-            className="h-12 rounded-full border-main-100 py-3 text-main-100 hover:border-current hover:text-current"
           >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleProceed}
-            disabled={!otp}
-            className="h-12 rounded-full bg-main-100 py-3 text-white hover:bg-blue-700 hover:text-white"
-          >
-            Proceed
-          </Button>
-        </div>
-      </div>
-    </div>
+            <div className="h-min">
+              <div className="flex items-center justify-between">
+                <div className="inline-flex items-center gap-4">
+                  <span
+                    className="cursor-pointer"
+                    onClick={() => setOpenTransfer(false)}
+                  >
+                    <ArrowLeft size="24" />
+                  </span>
+                  <h3 className="text-lg font-medium text-[#333333]">
+                    {step === 1 ? "Payment successful" : "Transfer money"}
+                  </h3>
+                </div>
+                <span
+                  onClick={handleCancel}
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-[#F2F2F2] text-[#424242]"
+                >
+                  <X size={20} />
+                </span>
+              </div>
+
+              <div className="mt-11">
+                <CreatePinStepper />
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+    </>
   );
 };
 
-export default CreatePin;
+export default CreatePinComponent;
