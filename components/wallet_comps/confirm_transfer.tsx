@@ -4,29 +4,48 @@ import { Button } from "../ui/button";
 import { useTransferOverlay, useWithdrawOverlay } from "@/stores/overlay";
 import { useTransferStepper } from "@/stores/misc";
 import { useMediaQuery } from "@react-hook/media-query";
+import { useTransactionStore } from "@/stores/useTransferStore";
+import { useRemoteUserStore } from "@/stores/remoteUser";
+import { useUserStore } from "@/stores/currentUserStore";
 
 type ComponentProps = {
   setOpenModal?: (open: boolean) => void;
 };
 
 const ConfirmTransfer: React.FC<ComponentProps> = ({ setOpenModal }) => {
+  const {
+    amount,
+    setWallet_id,
+    submitTransaction,
+    loading,
+    error,
+    response,
+    setPin,
+  } = useTransactionStore();
+  const { user: currentUser } = useUserStore();
   const { setOpenTransfer } = useTransferOverlay();
+  const { user, isAuthenticated } = useRemoteUserStore();
   const { step, setStep, clearTransaction } = useTransferStepper();
   const isMobile = useMediaQuery("(max-width: 640px)");
-
-  const handleProceed = () => {
-    if (isMobile) {
-      setStep((prev: number) => prev + 1);
-    } else {
-      setStep(2);
+  const USER_CURRENCY_SYMBOL = user?.country?.["currency-symbol"];
+  const handleProceed = async () => {
+    // if (isMobile) {
+    //   setStep((prev: number) => prev + 1);
+    // } else {
+    //   setStep(2);
+    // }
+    await submitTransaction();
+    if (!loading && response) {
+      console.log(response);
+      setStep(3);
     }
   };
-
+  console.log(currentUser, "currentUser");
   const handleClose = () => {
     // isMobile && setOpenModal(false);
     setOpenTransfer(false);
     clearTransaction();
-    setStep(0);
+    setStep(2);
   };
 
   return (
@@ -38,10 +57,14 @@ const ConfirmTransfer: React.FC<ComponentProps> = ({ setOpenModal }) => {
         <h3 className="mb-3.5 mt-4 text-center text-base font-semibold text-black">
           Transfer money
         </h3>
-        <p className="text-center text-[#333333]">
+        <p className="text-center text-gray-700">
           Are you sure you want to transfer
-          <strong> ₦$32</strong> to Jamiu&apos;s organisation wallet? You
-          can&apos;t withdraw money from organisation wallet{" "}
+          <strong className="mx-1">
+            {USER_CURRENCY_SYMBOL}
+            {amount}
+          </strong>
+          to {currentUser?.name || "Unknown"}&apos;s organisation wallet? You
+          can&apos;t withdraw money from organisation wallet
         </p>
 
         <div className="mt-10 grid w-full grid-cols-2 gap-6">
@@ -58,7 +81,7 @@ const ConfirmTransfer: React.FC<ComponentProps> = ({ setOpenModal }) => {
             // type="submit"
             className="h-12 rounded-full bg-main-100 py-3 text-white hover:bg-blue-700 hover:text-white"
           >
-            Proceed
+            {loading ? "Processing..." : "Proceed"}
           </Button>
         </div>
       </div>

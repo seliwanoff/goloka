@@ -23,11 +23,11 @@ const TransferPin = () => {
     console.log(response, "response");
     console.log(error, "error");
     console.log("Entered PIN:", otp);
-    await submitTransaction();
-    if (!loading && response) {
-      console.log(response);
-      setStep(3);
-    }
+    // await submitTransaction();
+    // if (!loading && response) {
+    //   console.log(response);
+      setStep(2);
+    // }
     if (error) {
       toast.error(error);
     }
@@ -83,7 +83,7 @@ const TransferPin = () => {
             disabled={!otp}
             className="h-12 rounded-full bg-main-100 py-3 text-white hover:bg-blue-700 hover:text-white"
           >
-            Proceed
+            {"Continue"}
           </Button>
         </div>
       </div>

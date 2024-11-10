@@ -4,12 +4,20 @@ import { cn, walletStatus } from "@/lib/utils";
 import { TickCircle } from "iconsax-react";
 import { useTransferOverlay } from "@/stores/overlay";
 import { useTransferStepper } from "@/stores/misc";
+import { useTransactionStore } from "@/stores/useTransferStore";
+import { useUserStore } from "@/stores/currentUserStore";
+import { useRemoteUserStore } from "@/stores/remoteUser";
+import moment from "moment";
 
 type ComponentProps = {};
 
 const TransferSuccessful: React.FC<ComponentProps> = ({}) => {
+  const { user: currentUser } = useUserStore();
+    const { user, isAuthenticated } = useRemoteUserStore();
   const { setOpenTransfer } = useTransferOverlay();
   const { step, setStep, clearTransaction } = useTransferStepper();
+   const { amount, wallet_id } = useTransactionStore();
+    const USER_CURRENCY_SYMBOL = user?.country?.["currency-symbol"];
   const handleComplete = () => {
     clearTransaction();
     setStep(0);
@@ -32,7 +40,10 @@ const TransferSuccessful: React.FC<ComponentProps> = ({}) => {
 
       <div className="mt-6 grid grid-cols-2 items-center">
         <div className="">
-          <h3 className="font-bold text-[#101828]">$32</h3>
+          <h3 className="font-bold text-[#101828]">
+            {USER_CURRENCY_SYMBOL}
+            {amount}
+          </h3>
           <p className="text-sm text-[#828282]">Amount</p>
         </div>
         <span
@@ -53,7 +64,7 @@ const TransferSuccessful: React.FC<ComponentProps> = ({}) => {
             <div className="grid grid-cols-2">
               <span className="text-sm text-[#4F4F4F]">Beneficiary</span>
               <span className="justify-self-end text-right text-sm font-medium text-[#333]">
-                Muhammed Jamiu
+                {currentUser?.name || "Unknown"}
               </span>
             </div>
             <div className="grid grid-cols-2">
@@ -65,13 +76,13 @@ const TransferSuccessful: React.FC<ComponentProps> = ({}) => {
             <div className="grid grid-cols-2">
               <span className="text-sm text-[#4F4F4F]">Wallet ID</span>
               <span className="justify-self-end text-sm font-medium text-[#333]">
-                9273786272837
+                {wallet_id}
               </span>
             </div>
             <div className="grid grid-cols-2">
               <span className="text-sm text-[#4F4F4F]">Date</span>
               <span className="justify-self-end text-sm font-medium text-[#333]">
-                15/5/2024
+             {   moment().format('D/M/YYYY')};
               </span>
             </div>
           </div>

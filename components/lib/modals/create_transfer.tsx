@@ -45,7 +45,7 @@ const CreateTransfer = () => {
                     step === 1 && "text-opacity-0",
                   )}
                 >
-                  {step === 2 ? "Payment successful" : "Transfer money"}
+                  {step === 2 ? "Initiate Payment" : "Transfer money"}
                 </DialogTitle>
                 <DialogDescription className="sr-only text-white">
                   Transaction ID
@@ -88,7 +88,7 @@ const CreateTransfer = () => {
                     <ArrowLeft size="24" />
                   </span>
                   <h3 className="text-lg font-medium text-[#333333]">
-                    {step === 1 ? "Payment successful" : "Transfer money"}
+                    {step === 1 ? "Initiate Payment" : "Transfer money"}
                   </h3>
                 </div>
                 <span

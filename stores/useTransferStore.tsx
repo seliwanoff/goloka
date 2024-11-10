@@ -1,4 +1,5 @@
 import { TransferFunds, withdrawFunds } from "@/services/wallets";
+import { toast } from "sonner";
 import { create } from "zustand";
 
 interface ITransferState {
@@ -49,10 +50,11 @@ export const useTransactionStore = create<ITransferState>((set) => ({
         const response = await TransferFunds(amount, pin, wallet_id);
         //@ts-ignore
         set({ response: response, loading: false }); // Save response and stop loading
-        console.log("Transaction Successful:", response.data);
+        console.log("Transaction Successful:", response);
       } catch (error: any) {
-      set({ error: error?.response?.data?.message, loading: false }); // Save error and stop loading
-      console.error("Transaction Failed:", error?.response);
+        console.error("Transaction Failed:", error);
+        set({ error: error?.response?.data?.message, loading: false });
+          toast.error(error?.response?.data?.message);
     }
   },
 }));

@@ -64,7 +64,7 @@ useEffect(() => {
       case 1:
         return <FundWithdraw />;
       case 2:
-        return <WithdrawPin />;
+      return showPin ? <CreatePinComponent /> : <WithdrawPin />;
       case 3:
         return <PaymentSuccessful />;
     }
