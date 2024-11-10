@@ -8,7 +8,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useMediaQuery } from "@react-hook/media-query";
-import { useTransferStepper, useWithdrawStepper } from "@/stores/misc";
+import {
+  useShowPin,
+  useTransferStepper,
+  useWithdrawStepper,
+} from "@/stores/misc";
 import { useTransferOverlay } from "@/stores/overlay";
 import { cn } from "@/lib/utils";
 import { ArrowLeft } from "iconsax-react";
@@ -22,18 +26,17 @@ const CreatePinComponent = () => {
   const { step, setStep, clearTransaction } = useTransferStepper();
   const isDesktop = useMediaQuery("(min-width: 640px)");
 
-  const [showPinModal, setShowPinModal] = useState(false);
-
+  const { showPin, setShowPin } = useShowPin();
 
   useEffect(() => {
     if (currentUser?.pin_status === true) {
-      setShowPinModal(true);
+      setShowPin(true);
     }
   }, [currentUser?.pin_status]);
 
   const handleCancel = () => {
-    setShowPinModal(false);
-    setOpenTransfer(false);
+    setShowPin(false);
+    setShowPin(false);
     setStep(0);
     clearTransaction();
   };
@@ -43,7 +46,7 @@ const CreatePinComponent = () => {
         <>
           {/* DESkTOP */}
 
-          <Dialog open={showPinModal} onOpenChange={setOpenTransfer}>
+          <Dialog open={showPin} onOpenChange={setShowPin}>
             <DialogContent className="overflow-hidden border-0 focus-visible:outline-none">
               <DialogHeader
                 className={cn(
@@ -60,7 +63,7 @@ const CreatePinComponent = () => {
                   {step === 0 ? "Create Pin" : "Payment successful"}
                 </DialogTitle>
                 <DialogDescription className="sr-only text-white">
-                  Transaction ID
+                  Create_Pin
                 </DialogDescription>
                 <span
                   onClick={handleCancel}
@@ -87,7 +90,7 @@ const CreatePinComponent = () => {
           <div
             className={cn(
               "fixed left-0 top-0 h-svh w-full overflow-y-auto bg-white px-4 pb-8 pt-24",
-              openTransfer ? "block" : "hidden",
+              showPin ? "block" : "hidden",
             )}
           >
             <div className="h-min">
@@ -95,7 +98,7 @@ const CreatePinComponent = () => {
                 <div className="inline-flex items-center gap-4">
                   <span
                     className="cursor-pointer"
-                    onClick={() => setOpenTransfer(false)}
+                    onClick={() => setShowPin(false)}
                   >
                     <ArrowLeft size="24" />
                   </span>

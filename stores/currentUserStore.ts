@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
-// Define TypeScript interface for user data (optional but recommended)
+
 interface UserData {
   id: number;
   name: string;
@@ -18,42 +18,35 @@ interface UserStore {
   setUser: (userData: UserData | null) => void;
   loginUser: (userData: UserData) => void;
   logoutUser: () => void;
+  setRefetchUser: (refetchFn: () => Promise<any>) => void; // Store refetch function
+  refetchUser: () => Promise<any>;
 }
 
-export const useUserStore = create<UserStore>()(
-  persist(
-    (set) => ({
+export const useUserStore = create<UserStore>()((set) => ({
+  user: null,
+  isAuthenticated: false,
+  refetchUser: async () => Promise.resolve(),
+
+  setUser: (userData) =>
+    set(() => ({
+      user: userData,
+      isAuthenticated: !!userData,
+    })),
+
+  loginUser: (userData) =>
+    set(() => ({
+      user: userData,
+      isAuthenticated: true,
+    })),
+
+  logoutUser: () =>
+    set(() => ({
       user: null,
       isAuthenticated: false,
+    })),
 
-      setUser: (userData) =>
-        set(() => ({
-          user: userData,
-          isAuthenticated: !!userData,
-        })),
-
-      loginUser: (userData) =>
-        set(() => ({
-          user: userData,
-          isAuthenticated: true,
-        })),
-
-      logoutUser: () =>
-        set(() => ({
-          user: null,
-          isAuthenticated: false,
-        })),
-    }),
-    {
-      name: "current-user-storage", // unique name for localStorage key
-      storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({
-        user: state.user,
-        isAuthenticated: state.isAuthenticated,
-      }),
-    },
-  ),
-);
+  setRefetchUser: (refetchFn) => set(() => ({ refetchUser: refetchFn })),
+}));
 
 
 

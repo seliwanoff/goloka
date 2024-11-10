@@ -62,6 +62,21 @@ interface TransferState {
   clearTransaction: () => void;
 }
 
+// stores/misc.ts
+interface ShowPinState {
+  showPin: boolean;
+  setShowPin: (value: boolean) => void;
+  onPinCreated: () => Promise<void>; 
+  setOnPinCreated: (callback: () => Promise<void>) => void;
+}
+
+const useShowPin = create<ShowPinState>((set) => ({
+  showPin: false,
+  setShowPin: (value: boolean) => set({ showPin: value }),
+  onPinCreated: async () => {},
+  setOnPinCreated: (callback: () => Promise<void>) => set({ onPinCreated: callback }),
+}));
+
 
 
 const useWithdrawStepper = create<FundState>((set) => ({
@@ -125,5 +140,5 @@ export {
   useWalletFilter,
   useWithdrawStepper,
   useTransferStepper,
-
+  useShowPin,
 };

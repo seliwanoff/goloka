@@ -1,14 +1,19 @@
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import OTPInput from "react-otp-input";
 import { Button } from "../ui/button";
-import { useWithdrawStepper } from "@/stores/misc";
+import { useShowPin, useWithdrawStepper } from "@/stores/misc";
 import { useWalletStore } from "@/stores/useWithdrawal";
+import { useUserStore } from "@/stores/currentUserStore";
+import CreatePinStepper from "./createPin/createPinStepper";
+import CreatePinComponent from "./createPin/createPinComponent";
 
 
 const WithdrawPin = () => {
   const { submitTransaction, loading, error, response, setPin } =
     useWalletStore();
+  const { user: currentUser } = useUserStore();
+    const { showPin, setShowPin } = useShowPin();
   const { setStep } = useWithdrawStepper();
   const [otp, setOtp] = useState("");
 
@@ -16,6 +21,12 @@ const WithdrawPin = () => {
     setPin("");
     setStep(1);
   };
+
+    // useEffect(() => {
+    //   if (currentUser?.pin_status === true) {
+    //     setShowPin(true);
+    //   }
+    // }, [currentUser?.pin_status]);
 
   const handleProceed = async () => {
     setPin(otp);
@@ -29,6 +40,7 @@ const WithdrawPin = () => {
   };
 
   return (
+    // <CreatePinComponent />
     <div>
       <h3 className="text-xl font-semibold"></h3>
       <div className="">
@@ -78,7 +90,7 @@ const WithdrawPin = () => {
             disabled={!otp}
             className="h-12 rounded-full bg-main-100 py-3 text-white hover:bg-blue-700 hover:text-white"
           >
-            Proceed
+            {loading ? "Processing..." : "Submit Transaction"}
           </Button>
         </div>
       </div>

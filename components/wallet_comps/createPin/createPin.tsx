@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import OTPInput from "react-otp-input";
 
-import { useTransferStepper } from "@/stores/misc";
+import { useShowPin, useTransferStepper } from "@/stores/misc";
 import { useTransactionStore } from "@/stores/useTransferStore";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,7 @@ interface PinStepContent {
 }
 const CreatePin = () => {
   const { submitTransaction, error, response, setPin } = useTransactionStore();
-  //   const { setStep, step } = useTransferStepper();
+  const { showPin, setShowPin, onPinCreated } = useShowPin();
   const [otp, setOtp] = useState("");
   const [step, setStep] = useState<number>(0);
   const [currentPin, setCurrentPin] = useState<string>("");
@@ -25,11 +25,17 @@ const CreatePin = () => {
   const [confirmPin, setConfirmPin] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [showSuccess, setShowSuccess] = useState<boolean>(false);
+  const [resMessage, setResMessage] = useState<string>("");
 
   const handleBack = () => {
-    console.log("back clicked");
-    setPin("");
-    setStep(1);
+    if (step === 0) {
+      setShowPin(false);
+      return;
+    } else {
+      console.log("back clicked");
+      setPin("");
+      setStep(1);
+    }
   };
 
   const handleProceed = async () => {
@@ -57,34 +63,36 @@ const CreatePin = () => {
     setLoading(true);
     try {
       switch (step) {
+        // case 0: {
+        //   const response = await verifyCurrentPin(currentPin);
+        //   if (response) {
+        //     setStep(1);
+        //   } else {
+        //     toast.error("Invalid current PIN");
+        //   }
+        //   break;
+        // }
         case 0: {
-          const response = await verifyCurrentPin(currentPin);
-          if (response) {
-            setStep(1);
-          } else {
-            toast.error("Invalid current PIN");
-          }
-          break;
-        }
-        case 1: {
           // Validate new PIN requirements
           if (!isValidPin(newPin)) {
             toast.error("PIN must be 4 digits and contain only numbers");
             return;
           }
-          setStep(2);
+          setStep(1);
           break;
         }
-        case 2: {
+        case 1: {
           if (newPin !== confirmPin) {
             toast.error("PINs do not match");
             return;
           }
           const response = await updatePin({
-            current_pin: currentPin,
             pin: newPin,
             pin_confirmation: confirmPin,
           });
+          console.log(response, "response");
+          //@ts-ignore
+          setResMessage(response?.message);
           if (response) {
             toast.success(
               response?.data?.message || "PIN updated successfully",
@@ -111,28 +119,37 @@ const CreatePin = () => {
   };
 
   const handleSuccessContinue = () => {
+    // setShowSuccess(false);
+    handleCancel();
+    setShowPin(false);
+
+    // Call the callback
+    onPinCreated();
+
     setShowSuccess(false);
-    handleCancel(); // Reset the form
-    // Add any navigation or additional actions here
+    setStep(0);
+    setCurrentPin("");
+    setNewPin("");
+    setConfirmPin("");
   };
 
   const getStepContent = (): PinStepContent => {
     switch (step) {
+      //   case 0:
+      //     return {
+      //       title: "Enter Current PIN",
+      //       description: "Please enter your current PIN to proceed",
+      //       value: currentPin,
+      //       onChange: setCurrentPin,
+      //     };
       case 0:
-        return {
-          title: "Enter Current PIN",
-          description: "Please enter your current PIN to proceed",
-          value: currentPin,
-          onChange: setCurrentPin,
-        };
-      case 1:
         return {
           title: "Create New PIN",
           description: "Enter a new 4-digit PIN",
           value: newPin,
           onChange: setNewPin,
         };
-      case 2:
+      case 1:
         return {
           title: "Confirm New PIN",
           description: "Re-enter your new PIN to confirm",
@@ -149,7 +166,7 @@ const CreatePin = () => {
   if (showSuccess) {
     return (
       <div className="flex flex-col items-center justify-center space-y-6 py-8">
-        <div className="flex h-40 w-40 items-center justify-center rounded-full ">
+        <div className="flex h-40 w-40 items-center justify-center rounded-full">
           <svg
             width="218"
             height="218"
@@ -169,7 +186,7 @@ const CreatePin = () => {
             />
             <mask
               id="mask0_1996_177062"
-            //   style="mask-type:alpha"
+              //   style="mask-type:alpha"
               maskUnits="userSpaceOnUse"
               x="20"
               y="20"
@@ -208,23 +225,16 @@ const CreatePin = () => {
         </div>
         <div className="text-center">
           <h3 className="text-xl font-semibold text-gray-900">
-            Cash Transaction PIN created
+            {resMessage.toUpperCase()}
           </h3>
           <p className="mt-2 text-sm text-gray-500">
-            You can now proceed to perform transactions from your <br/> wallet with this pin
-            created
+            You can now proceed to perform transactions from your <br /> wallet
+            with this pin created
           </p>
         </div>
         <Button
           className="h-12 w-full rounded-full bg-main-100 py-3 text-white hover:bg-blue-700"
-          onClick={() => {
-            // Reset form and navigate or close as needed
-            setShowSuccess(false);
-            setStep(0);
-            setCurrentPin("");
-            setNewPin("");
-            setConfirmPin("");
-          }}
+          onClick={handleSuccessContinue}
         >
           Continue
         </Button>

@@ -299,7 +299,7 @@ const FundWithdraw = () => {
                       "border-red-600 focus-visible:ring-red-600",
                   )}
                 />
-                ;
+                
               </div>
             )}
 

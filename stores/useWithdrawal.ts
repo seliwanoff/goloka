@@ -1,4 +1,5 @@
 import { withdrawFunds } from "@/services/wallets";
+import { toast } from "sonner";
 import { create } from "zustand";
 
 interface TransactionState {
@@ -67,8 +68,9 @@ export const useWalletStore = create<TransactionState>((set) => ({
       set({ response: response.data, loading: false }); // Save response and stop loading
       console.log("Transaction Successful:", response.data);
     } catch (error: any) {
-      set({ error: error.message, loading: false }); // Save error and stop loading
-      console.error("Transaction Failed:", error?.response);
+      // console.log(error?.response?.data?.message, "jgjjgjgj");
+      set({ error: error?.response?.data?.message, loading: false }); // Save error and stop loading
+      toast.error(error?.response?.data?.message);
     }
   },
 }));

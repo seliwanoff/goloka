@@ -174,9 +174,9 @@ const Wallet = () => {
           </div>
         </div>
       </section>
-      <div>
+      {/* <div>
         <CreatePinComponent />
-      </div>
+      </div> */}
 
       {/* INVOICE SHEET */}
       <div className="col-span-2 md:col-span-1 md:place-self-end">

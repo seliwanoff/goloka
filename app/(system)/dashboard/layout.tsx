@@ -20,12 +20,14 @@ const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
   const { setUser, isAuthenticated } = useRemoteUserStore();
   const loginUser = useUserStore((state) => state.loginUser);
   const logoutUser = useUserStore((state) => state.logoutUser);
+  const setRefetchUser = useUserStore((state) => state.setRefetchUser);
 
   // Query for remote user data
   const {
     data: currentUser,
     isLoading,
     error,
+    refetch
   } = useQuery({
     queryKey: ["Get current remote user"],
     queryFn: getCurrentUser,
@@ -58,7 +60,16 @@ const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
         setUser(contributorProfile);
       }
     }
-  }, [error, currentUser, loginUser, logoutUser, router, remoteContributor]);
+    setRefetchUser(refetch);
+  }, [
+    error,
+    currentUser,
+    loginUser,
+    logoutUser,
+    router,
+    remoteContributor,
+    setRefetchUser,
+  ]);
 
   // Show loading state while fetching user data
   if (isLoading) {

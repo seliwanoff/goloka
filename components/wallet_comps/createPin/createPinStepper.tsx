@@ -13,8 +13,8 @@ const CreatePinStepper = () => {
     switch (step) {
       case 0:
         return <CreatePin />;
-      case 1:
-        return <CreatePin />;
+    //   case 1:
+    //     return <CreatePin />;
 
     }
   };
@@ -23,9 +23,9 @@ const CreatePinStepper = () => {
     switch (step) {
       case 0:
         return <CreatePin />;
-      case 1:
-        return <CreatePin />;
-  
+    //   case 1:
+    //     return <CreatePin />;
+
     }
   };
 
