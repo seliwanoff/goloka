@@ -8,7 +8,7 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Button } from "@/components/ui/button";
 import { Dot, Eye, LoaderCircle, SquarePen, Workflow } from "lucide-react";
 import { ArchiveMinus, Note } from "iconsax-react";
-import Map from "@/public/assets/images/tasks/tasks.png";
+// import Map from "@/public/assets/images/tasks/tasks.png";
 import Link from "next/link";
 
 import { useStepper } from "@/context/TaskStepperContext.tsx";
@@ -31,6 +31,7 @@ import { getAResponse } from "@/services/response";
 import { BookmarkButton } from "@/components/contributor/BookmarkButton";
 import { useRemoteUserStore } from "@/stores/remoteUser";
 import ResponseList from "@/components/response/responseListCard";
+import Map from "@/components/map/map";
 
 // Dynamically import the LocationMap component with SSR disabled
 const LocationMap = dynamic(() => import("@/components/map/locationmap"), {
@@ -420,11 +421,12 @@ const ContributionDetails: React.FC<PageProps> = ({}) => {
 
               <div className="rounded-2xl bg-white p-5">
                 <figure className="h-[85%]">
-                  <Image
+                  {/* <Image
                     src={Map}
                     alt="map"
                     className="h-full w-full rounded-lg object-cover"
-                  />
+                  /> */}
+                    <Map/>
                   {/* <LocationMap locations={locations} /> */}
                 </figure>
                 <div className="mt-5 flex gap-5">

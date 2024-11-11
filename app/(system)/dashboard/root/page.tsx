@@ -10,7 +10,7 @@ import {
   TrendUp,
   Wallet3,
 } from "iconsax-react";
-import Map from "@/public/assets/images/tasks/tasks.png";
+
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronDown, Search } from "lucide-react";
@@ -48,6 +48,7 @@ import React from "react";
 import { useRemoteUserStore } from "@/stores/contributors";
 import { useUserStore } from "@/stores/currentUserStore";
 import { toast } from "sonner";
+import Map from "@/components/map/map";
 
 type PageProps = {};
 
@@ -344,7 +345,8 @@ const isValidTasksList = Array.isArray(tasksList) && tasksList.length > 0;
             Places with highest tasks
           </h3>
           <figure className="h-[200px] xl:h-[300px]">
-            <Image src={Map} alt="map" className="h-full w-full object-cover" />
+            {/* <Image src={Map} alt="map" className="h-full w-full object-cover" /> */}
+            <Map/>
           </figure>
         </div>
 
