@@ -29,6 +29,8 @@ import dynamic from "next/dynamic";
 import { toast } from "sonner";
 import { getAResponse } from "@/services/response";
 import { BookmarkButton } from "@/components/contributor/BookmarkButton";
+import { useRemoteUserStore } from "@/stores/remoteUser";
+import ResponseList from "@/components/response/responseListCard";
 
 // Dynamically import the LocationMap component with SSR disabled
 const LocationMap = dynamic(() => import("@/components/map/locationmap"), {
@@ -99,13 +101,14 @@ type PageProps = {};
 const ContributionDetails: React.FC<PageProps> = ({}) => {
   const [isStepper, setIsStepper] = useState<boolean>(false);
   const router = useRouter();
+  const { user, isAuthenticated } = useRemoteUserStore();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
   const { id: taskId } = useParams();
   const [responseId, setResponseId] = useState<string | null>(null);
   const { step } = useStepper();
-  // const { data } = getTaskById("");taskId;
+  const USER_CURRENCY_SYMBOL = user?.country?.["currency-symbol"];
   const {
     data: task,
     isLoading,
@@ -121,13 +124,15 @@ const ContributionDetails: React.FC<PageProps> = ({}) => {
     enabled: !!responseId,
   });
 
-  console.log(task, "task");
-  console.log(responseId, "responseId");
+  const responses = useMemo(() => {
+   //@ts-ignore
+   return task?.data?.responses || [];
+   //@ts-ignore
+ }, [task?.data?.responses]);
 
   //@ts-ignore
   const locations = useMemo(() => task?.data?.locations, [task]);
-  //@ts-ignore
-  const responses = useMemo(() => task?.data?.responses, [task]);
+
 
   console.log(responses, "response");
 
@@ -284,6 +289,8 @@ const ContributionDetails: React.FC<PageProps> = ({}) => {
   if (isLoading) {
     return <SkeletonLoader />;
   }
+//@ts-ignore
+  console.log(task?.data?.responses, "jtjtjjt");
 
   return (
     <>
@@ -385,7 +392,7 @@ const ContributionDetails: React.FC<PageProps> = ({}) => {
                   </div>
                   <div>
                     <h4 className="text-[#101828]">
-                      {/* @ts-ignore */}${" "}
+                      {USER_CURRENCY_SYMBOL} {/* @ts-ignore */}
                       {task?.data?.payment_rate_for_response}{" "}
                     </h4>
                     <p className="text-sm text-gray-400">Per response</p>
@@ -442,26 +449,30 @@ const ContributionDetails: React.FC<PageProps> = ({}) => {
             {/* ####################################### */}
             {/* -- Tasks section */}
             {/* ####################################### */}
-            <div className="col-span-5 mt-8">
+            <div className="col-span-5 mt-8 rounded-2xl bg-[#fff] p-6">
               <div className="mb-6 flex justify-between">
-                <h3 className="text-lg font-semibold text-[#333]">
-                  Related Tasks
-                </h3>
+                <div>
+                  <span className="text-lg font-semibold text-[#000]">
+                    {/* @ts-ignore */}
+                    {task?.data?.responses?.length}{" "}
+                  </span>
+                  <span className="text-lg text-[#828282]">
+                    {/* @ts-ignore */}
+                    {task?.data?.responses?.length === 1
+                      ? "Response"
+                      : "Responses"}
+                  </span>
+                </div>
 
-                <Link
+                {/* <Link
                   href="/dashboard/tasks"
                   className="text-lg font-semibold text-main-100"
                 >
                   See all
-                </Link>
+                </Link> */}
               </div>
 
-              {/* Task list */}
-              {/* <div className="grid gap-5 md:grid-cols-2 1xl:grid-cols-3 xl:grid-cols-3">
-                {tasks.map((task: any, index: number) => (
-                  <TaskCardWidget {...task} key={index} />
-                ))}
-              </div> */}
+              <ResponseList responses={responses} isLoading={isLoading} />
             </div>
 
             {/* MOBILE CTA */}

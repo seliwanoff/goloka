@@ -1,7 +1,9 @@
-
 import { BookmarkButton } from "@/components/contributor/BookmarkButton";
+import { generateURL } from "@/helper";
 import { cn } from "@/lib/utils";
 import { bookmarkCampaign, removeBookmark } from "@/services/campaign";
+import { useUserStore } from "@/stores/currentUserStore";
+import { useRemoteUserStore } from "@/stores/remoteUser";
 import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
 import { ServerResponse } from "http";
 import { ArchiveMinus, Location } from "iconsax-react";
@@ -28,6 +30,12 @@ interface TaskCardProps {
   ) => Promise<QueryObserverResult<ServerResponse<any>, Error>>;
 }
 
+
+export const useGenerateURL = (id: number) => {
+  const pathname = usePathname();
+  return generateURL(pathname, id);
+};
+
 const TaskCardWidget: React.FC<TaskCardProps> = ({
   id,
   title,
@@ -42,12 +50,15 @@ const TaskCardWidget: React.FC<TaskCardProps> = ({
   refetch,
 }) => {
   const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
+  const { user, isAuthenticated } = useRemoteUserStore();
   const pathname = usePathname();
   const [isFilled, setIsFilled] = useState(false);
   console.log(pathname, "isFilled");
   const handleClick = () => {
     setIsFilled(!isFilled);
   };
+  const url = useGenerateURL(id);
+  const USER_CURRENCY_SYMBOL = user?.country?.["currency-symbol"];
   const handleBookmark = async () => {
     console.log(id, "refetch");
     setIsBookmarkLoading(true);
@@ -71,7 +82,10 @@ const TaskCardWidget: React.FC<TaskCardProps> = ({
     }
   };
   return (
-    <div className="space-y-[18px] rounded-[16px] border border-[#F2F2F2] bg-white p-4">
+    <Link
+      href={url}
+      className="space-y-[18px] rounded-[16px] border border-[#F2F2F2] bg-white p-4 hover:border-main-100 hover:shadow"
+    >
       <figure className="relative h-[200px] w-full overflow-hidden rounded-[8px]">
         <Image
           src={image_path?.[0]}
@@ -91,7 +105,8 @@ const TaskCardWidget: React.FC<TaskCardProps> = ({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4 rounded-full bg-main-100 bg-opacity-5 p-2 pr-5">
           <span className="rounded-full bg-white px-4 py-1 text-[14px] font-semibold leading-[21px] text-main-100">
-            ${payment_rate_for_response}
+            {USER_CURRENCY_SYMBOL}
+            {payment_rate_for_response}
           </span>
           <p className="text-[14px] leading-[16.71px] text-main-100">
             {number_of_responses}{" "}
@@ -108,7 +123,7 @@ const TaskCardWidget: React.FC<TaskCardProps> = ({
       </div>
       <div>
         <Link
-          href={`/dashboard/marketplace/${id}`}
+          href={url}
           className="mb-3 block text-[14px] font-semibold leading-[21px] text-[#333] hover:underline"
         >
           {title}
@@ -121,10 +136,9 @@ const TaskCardWidget: React.FC<TaskCardProps> = ({
           <span className="text-[#828282]">
             <Location size="18" color="#828282" />
           </span>
-          
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

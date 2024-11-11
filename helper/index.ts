@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import moment from "moment";
+import { usePathname } from "next/navigation";
 
 export function numberWithCommas(x: any) {
   if (isNaN(parseFloat(x)) || !isFinite(x)) {
@@ -20,6 +21,12 @@ export const formatResponseTime = (dateString: string) => {
   return moment(dateString).format("h:mmA");
 };
 
+export const generateURL = (pathname: string, id: number) => {
+  if (pathname === "/dashboard" || pathname === "/dashboard/root") {
+    return `/dashboard/marketplace/${id}`;
+  }
+  return `${pathname}/${id}`;
+};
 
 
 interface StatusPillProps {
@@ -54,4 +61,3 @@ export const getStatusText = (status: Status) => {
   const rest = status.slice(1).toLowerCase();
   return `${firstChar}${rest}`;
 };
-
