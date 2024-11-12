@@ -674,7 +674,7 @@ export const emailNotifications = [
   },
 ];
 
-export const addBeneficiary = [
+export const beneficiaryStruct = [
   {
     label: "Currency",
     type: "select",

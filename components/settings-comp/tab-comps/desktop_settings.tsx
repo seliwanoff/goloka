@@ -5,8 +5,7 @@ import Payment from "@/components/settings-comp/tab-comps/payment";
 import ChangePassword from "@/components/settings-comp/tab-comps/password";
 import PersonalInfo from "@/components/settings-comp/tab-comps/personal_info";
 import Location from "@/components/settings-comp/tab-comps/location";
-import ForgetPasswordOtp from "@/components/auth-comps/ForgetPasswordOtp";
-import FGPOTP from "@/components/auth-comps/fgpOtp";
+
 
 type ComponentProps = {};
 const SettingsWeb: React.FC<ComponentProps> = ({}) => {
@@ -16,7 +15,7 @@ const SettingsWeb: React.FC<ComponentProps> = ({}) => {
   return (
     <>
       <div className="mt-2.5 hidden md:block">
-        {/* <FGPOTP /> */}
+
         <Tabs
           defaultValue={activeTab}
           onValueChange={setActiveTab}

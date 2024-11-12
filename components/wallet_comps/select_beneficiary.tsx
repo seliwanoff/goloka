@@ -15,7 +15,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useBeneficiaryStore } from "@/stores/currentUserStore";
 import { useWalletStore } from "@/stores/useWithdrawal";
 
-interface Beneficiary {
+ interface Beneficiary {
   id: number;
   bank_code: number;
   bank_name: string;
@@ -32,7 +32,7 @@ const SelectBeneficiary = () => {
   const { setStep, setTransaction, transaction } = useWithdrawStepper();
   const [selectedValue, setSelectedValue] = useState("");
 
-  const { data: remoteUser, isLoading } = useQuery({
+  const { data: remoteUser, isLoading, refetch} = useQuery({
     queryKey: ["Get remote user"],
     queryFn: getContributorsProfile,
   });

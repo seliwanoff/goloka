@@ -14,6 +14,7 @@ import {
 import { passwordOTP } from "@/services/user";
 import { useUserStore } from "@/stores/currentUserStore";
 import { toast } from "sonner";
+import { Loader } from "lucide-react";
 
 const passwordSchema = yup.object().shape({
   oldPassword: yup.string().required("Input your old password"),
@@ -100,7 +101,11 @@ const onSubmit = async (data: any) => {
                 type="submit"
                 className="rounded-full bg-main-100 text-white"
               >
-                {isLoading ? "loading..." : "Save Changes"}
+                {isLoading ? (
+                  <Loader className="animate-spin text-[#fff]" />
+                ) : (
+                  "Save Changes"
+                )}
               </Button>
             </div>
           </div>
