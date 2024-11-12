@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { Ghost } from "lucide-react";
 import moment from "moment";
+import { useRouter } from "next/navigation";
 
 interface Response {
   id: number;
@@ -58,6 +59,7 @@ const ResponseList: React.FC<ResponseListProps> = ({
   responses,
   isLoading,
 }) => {
+    const router = useRouter();
   const getStatusStyles = (status: Response["status"]): string => {
     switch (status) {
       case "pending":
@@ -120,7 +122,9 @@ const ResponseList: React.FC<ResponseListProps> = ({
               >
                 {response.status}
               </span>
-              <button className="font-medium text-blue-600 hover:bg-blue-100 p-2 rounded-full text-sm">
+              <button onClick={() => {
+                router.push(`/dashboard/responses/${response?.id}`)
+              }} className="font-medium text-blue-600 hover:bg-blue-100 p-2 rounded-full text-sm">
                 View
               </button>
             </div>

@@ -126,14 +126,13 @@ const ContributionDetails: React.FC<PageProps> = ({}) => {
   });
 
   const responses = useMemo(() => {
-   //@ts-ignore
-   return task?.data?.responses || [];
-   //@ts-ignore
- }, [task?.data?.responses]);
+    //@ts-ignore
+    return task?.data?.responses || [];
+    //@ts-ignore
+  }, [task?.data?.responses]);
 
   //@ts-ignore
   const locations = useMemo(() => task?.data?.locations, [task]);
-
 
   console.log(responses, "response");
 
@@ -245,6 +244,7 @@ const ContributionDetails: React.FC<PageProps> = ({}) => {
         task.data.responses[task.data.responses.length - 1];
       router.push(`/dashboard/responses/${latestResponse.id}`);
     }
+    // router.push(`/dashboard/responses/${res?.id}`);
   };
 
   const handleBookmark = async () => {
@@ -290,7 +290,7 @@ const ContributionDetails: React.FC<PageProps> = ({}) => {
   if (isLoading) {
     return <SkeletonLoader />;
   }
-//@ts-ignore
+  //@ts-ignore
   console.log(task?.data?.responses, "jtjtjjt");
 
   return (
@@ -426,7 +426,7 @@ const ContributionDetails: React.FC<PageProps> = ({}) => {
                     alt="map"
                     className="h-full w-full rounded-lg object-cover"
                   /> */}
-                    <Map/>
+                  <Map />
                   {/* <LocationMap locations={locations} /> */}
                 </figure>
                 <div className="mt-5 flex gap-5">
