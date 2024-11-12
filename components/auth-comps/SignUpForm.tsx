@@ -72,6 +72,7 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
       password_confirmation: data.password2,
       platform: "web",
     };
+    //@ts-ignore
     const response = await createUser(userData);
     console.log(response, "response");
     //@ts-ignore

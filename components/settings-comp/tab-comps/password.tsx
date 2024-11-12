@@ -4,20 +4,38 @@ import PasswordInput from "../password_input";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
+import { getOTP } from "@/services/misc";
+import { useState } from "react";
+import { useShowPasswordOtp } from "@/stores/misc";
+import {
+  passwordFormInitialData,
+  usePasswordFormStore,
+} from "@/stores/passwordResetStore";
+import { passwordOTP } from "@/services/user";
+import { useUserStore } from "@/stores/currentUserStore";
+import { toast } from "sonner";
 
 const passwordSchema = yup.object().shape({
   oldPassword: yup.string().required("Input your old password"),
   password: yup
     .string()
     .required("Input your new password")
-    .min(8, "Password must be at least 8 characters long"),
-  passwordAgain: yup
+    .min(5, "Password must be at least 5 characters long"),
+  password_confirmation: yup
     .string()
     .oneOf([yup.ref("password")], "Passwords must match")
     .required("Input your confirm password"),
 });
 
 const ChangePassword: React.FC<any> = ({}) => {
+  const open = useShowPasswordOtp((state) => state.showOTP);
+  const setOpen = useShowPasswordOtp((state) => state.setShowOTP);
+  const { user: currentUser } = useUserStore();
+  const { formData, setFormData,setFormValues, setErrors, validatePasswords } =
+    usePasswordFormStore();
+  const [isLoading, setIsLoading] = useState(false);
+  // ResetUserPassword;
+  // passwordOTP;
   const {
     handleSubmit,
     register,
@@ -26,10 +44,31 @@ const ChangePassword: React.FC<any> = ({}) => {
   } = useForm({
     resolver: yupResolver(passwordSchema),
   });
-
-  const onSubmit = (data: any) => {
-    console.log(data);
-  };
+  console.log(currentUser, "currentUser");
+  const email = currentUser?.email
+const onSubmit = async (data: any) => {
+  setIsLoading(true);
+  try {
+    validatePasswords();
+    setFormData(data);
+    setFormValues(data);
+    const res = await passwordOTP({ email });
+    //@ts-ignore
+    if (res?.message) {
+      console.log(res, "response");
+      //@ts-ignore
+      toast.success(`${res.message} to ${email}`);
+      setOpen(true);
+      reset();
+    }
+  } catch (error) {
+    console.error(error);
+    //@ts-ignore
+    toast.error("An error occurred while changing the password");
+  } finally {
+    setIsLoading(false);
+  }
+};
   return (
     <>
       <form
@@ -49,6 +88,7 @@ const ChangePassword: React.FC<any> = ({}) => {
             </div>
             <div className="fixed bottom-0 left-0 z-30 grid w-full grid-cols-2 items-center gap-3 bg-white p-4 md:static md:inline-flex md:w-min md:p-0">
               <Button
+                onClick={() => reset()}
                 type="button"
                 variant="outline"
                 className="rounded-full px-6"
@@ -56,16 +96,17 @@ const ChangePassword: React.FC<any> = ({}) => {
                 Cancel
               </Button>
               <Button
+                disabled={isLoading}
                 type="submit"
                 className="rounded-full bg-main-100 text-white"
               >
-                Save Changes
+                {isLoading ? "loading..." : "Save Changes"}
               </Button>
             </div>
           </div>
 
           <div className="mt-12 grid gap-6 md:grid-cols-2">
-            {passwordFormData.map((data: any, index: number) => {
+            {passwordFormInitialData.map((data: any, index: number) => {
               return (
                 <PasswordInput
                   key={data?.name + index}

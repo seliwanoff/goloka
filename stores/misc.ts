@@ -66,8 +66,12 @@ interface TransferState {
 interface ShowPinState {
   showPin: boolean;
   setShowPin: (value: boolean) => void;
-  onPinCreated: () => Promise<void>; 
+  onPinCreated: () => Promise<void>;
   setOnPinCreated: (callback: () => Promise<void>) => void;
+}
+interface ShowPasswordOTPState {
+  showOTP: boolean;
+  setShowOTP: (value: boolean) => void;
 }
 
 const useShowPin = create<ShowPinState>((set) => ({
@@ -75,6 +79,10 @@ const useShowPin = create<ShowPinState>((set) => ({
   setShowPin: (value: boolean) => set({ showPin: value }),
   onPinCreated: async () => {},
   setOnPinCreated: (callback: () => Promise<void>) => set({ onPinCreated: callback }),
+}));
+const useShowPasswordOtp = create<ShowPasswordOTPState>((set) => ({
+  showOTP: false,
+  setShowOTP: (value: boolean) => set({ showOTP: value }),
 }));
 
 
@@ -141,4 +149,5 @@ export {
   useWithdrawStepper,
   useTransferStepper,
   useShowPin,
+  useShowPasswordOtp,
 };
