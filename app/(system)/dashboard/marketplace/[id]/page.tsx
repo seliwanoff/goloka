@@ -30,6 +30,7 @@ import { toast } from "sonner";
 import { getAResponse } from "@/services/response";
 import { BookmarkButton } from "@/components/contributor/BookmarkButton";
 import Map from "@/components/map/map";
+import { useRemoteUserStore } from "@/stores/remoteUser";
 
 
 // Dynamically import the LocationMap component with SSR disabled
@@ -107,7 +108,8 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
   const { id: taskId } = useParams();
   const [responseId, setResponseId] = useState<string | null>(null);
   const { step } = useStepper();
-  // const { data } = getTaskById("");taskId;
+  const { user, isAuthenticated } = useRemoteUserStore();
+   const USER_CURRENCY_SYMBOL = user?.country?.["currency-symbol"];
   const {
     data: task,
     isLoading,
@@ -122,9 +124,6 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
     queryFn: async () => (responseId ? await getAResponse(responseId) : null),
     enabled: !!responseId,
   });
-
-  console.log(task, "task");
-  console.log(responseId, "responseId");
 
   //@ts-ignore
   const locations = useMemo(() => task?.data?.locations, [task]);
@@ -472,7 +471,8 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
                   </div>
                   <div>
                     <h4 className="text-[#101828]">
-                      {/* @ts-ignore */}${" "}
+                      {USER_CURRENCY_SYMBOL}{" "}
+                      {/* @ts-ignore */}
                       {task?.data?.payment_rate_for_response}{" "}
                     </h4>
                     <p className="text-sm text-gray-400">Per response</p>
@@ -505,7 +505,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
                     alt="map"
                     className="h-full w-full rounded-lg object-cover"
                   /> */}
-                    <Map/>
+                  <Map />
                   {/* <LocationMap locations={locations} /> */}
                 </figure>
                 <div className="mt-5 flex gap-5">

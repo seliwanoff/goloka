@@ -24,7 +24,7 @@ const CreateWithdrawal = () => {
   const { showPin, setShowPin } = useShowPin();
 
   useEffect(() => {
-    if (currentUser?.pin_status === true) {
+    if (currentUser?.pin_status === false) {
       setShowPin(true);
     }
   }, [currentUser?.pin_status]);

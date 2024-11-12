@@ -101,9 +101,10 @@ const FundWithdraw = () => {
     }
     console.log(data, transaction, "Withdrawal");
   };
+  console.log(transaction, "Withdrawal");
 
   console.log(watchAmount, "ccc");
-  const showLoader = !beneficiaries || isLoading;
+  const showLoader = !transaction || isLoading;
   console.log(parseFloat(watchAmount) > USER_BALANCE, "USER_CURRENCY");
 
   const handleWithdraw = () => {
@@ -180,40 +181,40 @@ const FundWithdraw = () => {
                 <div>
                   <div
                     className="flex w-full items-center"
-                    key={beneficiaries?.id}
+                    key={transaction?.accountNumber}
                   >
                     <div />
                     <Label
-                      htmlFor={beneficiaries.id.toString()}
+                      htmlFor={transaction.accountNumber.toString()}
                       className={cn(
                         "grid w-full cursor-pointer grid-cols-[1.5fr_1fr] gap-y-1 rounded-lg border border-[#14342C0F] bg-[#FDFDFD] p-3 transition-all duration-200 hover:bg-gray-50",
-                        beneficiaries.id.toString() &&
+                        transaction.accountNumber.toString() &&
                           "border-main-100 bg-main-100 bg-opacity-5 ring-1 ring-main-100",
                       )}
                     >
                       <h4
                         className={cn(
                           "text-sm font-medium text-[#4F4F4F]",
-                          beneficiaries.id.toString() && "text-main-100",
+                          transaction.accountNumber.toString() && "text-main-100",
                         )}
                       >
-                        {beneficiaries.account_name}
+                        {transaction.beneficiary}
                       </h4>
                       <p
                         className={cn(
                           "justify-self-end text-right text-sm font-semibold text-[#333]",
-                          beneficiaries.id.toString() && "text-main-100",
+                          transaction.accountNumber.toString() && "text-main-100",
                         )}
                       >
-                        {beneficiaries.account_number}
+                        {transaction.accountNumber}
                       </p>
                       <p
                         className={cn(
                           "text-xs text-[#4F4F4F]",
-                          beneficiaries.id.toString() && "text-main-100",
+                          transaction.accountNumber.toString() && "text-main-100",
                         )}
                       >
-                        {beneficiaries.bank_name}
+                        {transaction.bank}
                       </p>
                     </Label>
                   </div>
@@ -299,7 +300,6 @@ const FundWithdraw = () => {
                       "border-red-600 focus-visible:ring-red-600",
                   )}
                 />
-                
               </div>
             )}
 

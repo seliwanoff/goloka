@@ -22,7 +22,7 @@ const TransferStepper = () => {
   console.log(currentUser, "currentUser");
 
       useEffect(() => {
-        if (currentUser?.pin_status === true) {
+        if (currentUser?.pin_status === false) {
           setShowPin(true);
         }
       }, [currentUser?.pin_status, setShowPin]);
