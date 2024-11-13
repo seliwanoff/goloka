@@ -110,6 +110,7 @@ const config = {
     },
     extend: {
       colors: {
+        // emerald: require("tailwindcss/colors").emerald,
         main: {
           "100": "#3365E3",
           "200": "#001C62",

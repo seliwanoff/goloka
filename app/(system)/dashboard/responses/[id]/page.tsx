@@ -35,8 +35,8 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { useMediaQuery } from "@react-hook/media-query";
-import Map from "@/public/assets/images/tasks/tasks.png";
-import { Dot, X } from "lucide-react";
+
+import { Dot, EllipsisVertical, MoveLeft, OctagonAlert, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Send2 } from "iconsax-react";
 import ChatWidget from "@/components/lib/widgets/response-chat-widget";
@@ -46,6 +46,14 @@ import { useQuery } from "@tanstack/react-query";
 import { getStatusColor } from "@/helper";
 import { getTaskById } from "@/services/contributor";
 import moment from "moment";
+import profileImg from "@/public/assets/images/chat-user-profile.png";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  // PopoverClose,
+} from "@/components/ui/popover";
+import Map from "@/components/map/map";
 
 interface QuestionOptions {
   id: number;
@@ -204,19 +212,43 @@ const ResponseDetails = () => {
                     </SheetTrigger>
                     <SheetContent className="border-0 p-0 md:max-w-md lg:max-w-xl">
                       <SheetHeader className="absolute right-0 top-0 z-10 w-full bg-main-100 p-5">
-                        <SheetTitle className="font-normal text-white">
-                          Messages
-                        </SheetTitle>
-                        <SheetDescription className="text-white">
-                          24
-                        </SheetDescription>
+                        <div className="flex items-center gap-5">
+                          <div
+                            onClick={() => setOpen(false)}
+                            className="cursor-pointer text-[#fff]"
+                          >
+                            <MoveLeft />
+                          </div>
+                          <Image
+                            src={profileImg}
+                            alt="chat-user"
+                            className="h-12 w-12 rounded-full object-cover object-center"
+                          />
+                          <SheetTitle className="font-normal text-white">
+                            Messages
+                          </SheetTitle>
+                          {/* <SheetDescription className="text-white">
+                            24
+                          </SheetDescription> */}
+                        </div>
                         {/* CUSTOM CLOSE */}
-                        <span
-                          onClick={() => setOpen(false)}
-                          className="absolute right-4 mt-0 flex h-8 w-8 -translate-y-[calc(50%_-_20px)] cursor-pointer items-center justify-center rounded-full bg-white text-main-100"
-                        >
-                          <X size={20} />
-                        </span>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <span className="absolute right-4 mt-0 flex h-8 w-8 -translate-y-[calc(50%_-_20px)] cursor-pointer items-center justify-center rounded-full bg-white text-main-100">
+                              <EllipsisVertical size={20} />
+                            </span>
+                          </PopoverTrigger>
+                          <PopoverContent className=" max-w-fit cursor-pointer rounded-md text-[#EB5757] shadow-lg hover:bg-slate-200">
+
+                              <div
+                                className="text-[#EB5757] flex item-center gap-3"
+                              >
+                                <OctagonAlert />
+                                <p  className="text-[#EB5757]">Report user</p>
+                              </div>
+
+                          </PopoverContent>
+                        </Popover>
                       </SheetHeader>
 
                       {/* CHAT WIDGET */}
@@ -405,11 +437,7 @@ const ResponseDetails = () => {
 
                 <div className="rounded-2xl bg-white p-5">
                   <figure className="h-[85%]">
-                    <Image
-                      src={Map}
-                      alt="map"
-                      className="h-full w-full rounded-lg object-cover"
-                    />
+                   <Map/>
                     {/* <LocationMap locations={locations} /> */}
                   </figure>
                   <div className="mt-5 flex gap-5">
