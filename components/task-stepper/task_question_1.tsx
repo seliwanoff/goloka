@@ -19,7 +19,7 @@ type SelectedValues = Record<
   string | string[] | number | null
 >;
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 
 import { Label } from "../ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -60,9 +60,9 @@ const DynamicQuestion = ({
   questionsLength: number;
   totalQuestions: number;
 }) => {
-    const { responseID } = useParams();
-    const [finalResponseID, setFinalResponseID] = useState("");
-   const router = useRouter();
+  const { responseID } = useParams();
+  const [finalResponseID, setFinalResponseID] = useState("");
+  const router = useRouter();
   const { answers, nextStep, updateAnswer, step } = useStepper();
   const [selectedValues, setSelectedValues] = useState<
     Record<string | number, any>
@@ -132,65 +132,65 @@ const DynamicQuestion = ({
     }));
   };
 
+  const handleNext = async () => {
+    // Check if all questions have been answered based on their type
+    const allAnswered = questions.every(({ id, type }) => {
+      const value = selectedValues[id];
 
+      switch (type) {
+        case "text":
+        case "textarea":
+        case "email":
+        case "tel":
+        case "password":
+          return typeof value === "string" && value.trim().length > 0;
+        case "radio":
+        case "dropdown":
+          return value !== null && value !== "";
+        case "checkbox":
+          return Array.isArray(value) && value.length > 0;
+        case "date":
+          return typeof value === "string" && !isNaN(new Date(value).getTime());
+        case "number":
+          return typeof value === "number" && !isNaN(value);
+        case "file":
+          return value instanceof File;
+        default:
+          return true;
+      }
+    });
 
-const handleNext = async () => {
-  // Check if all questions have been answered based on their type
-  const allAnswered = questions.every(({ id, type }) => {
-    const value = selectedValues[id];
-
-    switch (type) {
-      case "text":
-      case "textarea":
-      case "email":
-      case "tel":
-      case "password":
-        return typeof value === "string" && value.trim().length > 0;
-      case "radio":
-      case "dropdown":
-        return value !== null && value !== "";
-      case "checkbox":
-        return Array.isArray(value) && value.length > 0;
-      case "date":
-        return typeof value === "string" && !isNaN(new Date(value).getTime());
-      case "number":
-        return typeof value === "number" && !isNaN(value);
-      case "file":
-        return value instanceof File;
-      default:
-        return true;
+    if (!allAnswered) {
+      toast.error("Please answer all questions before proceeding");
+      return;
     }
-  });
 
-  if (!allAnswered) {
-    toast.error("Please answer all questions before proceeding");
-    return;
-  }
+    setIsLoading(true);
+    try {
+      // Format the answers to be submitted
+      const formattedAnswers = {
+        answers: Object.keys(selectedValues).map((key) => {
+          const value = selectedValues[key];
+          return {
+            question_id: Number(key),
+            value: Array.isArray(value) ? value : value,
+            //  value: Array.isArray(value) ? value : [value],
+          };
+        }),
+      };
 
-  setIsLoading(true);
-  try {
-    // Format the answers to be submitted
-    const formattedAnswers = {
-      answers: Object.keys(selectedValues).map((key) => {
-        const value = selectedValues[key];
-        return {
-          question_id: Number(key),
-          value: Array.isArray(value) ? value : value,
-          //  value: Array.isArray(value) ? value : [value],
-        };
-      }),
-    };
-
-    // Submit the formatted answers
-    await createContributorAnswers(finalResponseID as string, formattedAnswers);
-    nextStep();
-  } catch (err) {
-    toast.error("Failed to save answers. Please try again.");
-  } finally {
-    setIsLoading(false);
-  }
-};
-
+      // Submit the formatted answers
+      await createContributorAnswers(
+        finalResponseID as string,
+        formattedAnswers,
+      );
+      nextStep();
+    } catch (err) {
+      toast.error("Failed to save answers. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const renderQuestion = (ques: any) => {
     switch (ques.type) {
@@ -237,7 +237,7 @@ const handleNext = async () => {
                     <RadioGroupItem
                       //@ts-ignore
                       ref={(el) => (inputRefs.current[ques.id] = el)}
-                      value={opt!}
+                      value={opt?.value!}
                       id={`q${ques.id}-${index}`}
                       className="hidden"
                     />
@@ -245,13 +245,13 @@ const handleNext = async () => {
                       htmlFor={`q${ques.id}-${index}`}
                       className={cn(
                         "flex items-center gap-3 rounded-lg border border-[#D9DCE0] p-2.5 pr-3 transition-colors duration-200 ease-in-out",
-                        selectedValues[ques.id] === opt && "border-main-100",
+                        selectedValues[ques.id] === opt?.value && "border-main-100",
                       )}
                     >
                       <span
                         className={cn(
                           "flex h-7 w-7 items-center justify-center rounded-md bg-[#F8F8F8] text-[#828282]",
-                          selectedValues[ques.id] === opt &&
+                          selectedValues[ques.id] === opt?.value &&
                             "bg-main-100 text-white",
                         )}
                       >
@@ -260,16 +260,70 @@ const handleNext = async () => {
                       <p
                         className={cn(
                           "text-sm text-[#101828]",
-                          selectedValues[ques.id] === opt && "text-main-100",
+                          selectedValues[ques.id] === opt?.value && "text-main-100",
                         )}
                       >
-                        {opt}
+                        {opt?.label}
                       </p>
                     </Label>
                   </div>
                 ),
               )}
             </RadioGroup>
+          </div>
+        );
+
+      case "video":
+        return (
+          <div className="col-span-2">
+            <input
+              //@ts-ignore
+              ref={(el) => (inputRefs.current[ques.id] = el)}
+              type="file"
+              accept="video/*" // Specifies that only video files are accepted
+              id={ques.name}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  handleInputChange(file, ques.id, "file");
+                }
+              }}
+              className="hidden"
+            />
+            <div className="flex flex-col gap-4">
+              <button
+                type="button"
+                onClick={() => inputRefs.current[ques.id]?.click()}
+                className="w-fit rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200"
+              >
+                Upload Video
+              </button>
+              {filePreviews[ques.id] && (
+                <div className="relative h-32 w-32">
+                  <video
+                    controls
+                    src={filePreviews[ques.id]}
+                    className="h-full w-full rounded-lg object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedValues((prev) => ({
+                        ...prev,
+                        [ques.id]: null,
+                      }));
+                      setFilePreviews((prev) => ({
+                        ...prev,
+                        [ques.id]: "",
+                      }));
+                    }}
+                    className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
+                  >
+                    ×
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         );
 
@@ -291,7 +345,7 @@ const handleNext = async () => {
                         newSelections = [...currentSelections, opt];
                       } else {
                         newSelections = currentSelections.filter(
-                          (item: string) => item !== opt,
+                          (item: string) => item !== opt?.value,
                         );
                       }
                       handleInputChange(newSelections, ques.id);
@@ -302,7 +356,7 @@ const handleNext = async () => {
                     htmlFor={`q${ques.id}-${index}`}
                     className="text-sm text-[#101828]"
                   >
-                    {opt}
+                    {opt?.label}
                   </Label>
                 </div>
               ),
@@ -321,6 +375,21 @@ const handleNext = async () => {
               id={ques.name}
               onChange={(e) => handleInputChange(e.target.value, ques.id)}
               className="form-input w-full rounded-lg border-[#D9DCE0]"
+            />
+          </div>
+        );
+      case "location":
+        return (
+          <div className="col-span-2">
+            <input
+              //@ts-ignore
+              ref={(el) => (inputRefs.current[ques.id] = el)}
+              type="text"
+              value={selectedValues[ques.id] || ""}
+              id={ques.name}
+              placeholder={ques.placeholder || "Enter your answer"}
+              onChange={(e) => handleInputChange(e.target.value, ques.id)}
+              className="form-input w-full rounded-lg border-[#D9DCE0] p-4"
             />
           </div>
         );
@@ -398,8 +467,8 @@ const handleNext = async () => {
             >
               {ques.options?.map(
                 (opt: any, index: React.Key | null | undefined) => (
-                  <option key={index} value={opt}>
-                    {opt}
+                  <option key={index} value={opt?.value}>
+                    {opt?.label}
                   </option>
                 ),
               )}
@@ -409,21 +478,6 @@ const handleNext = async () => {
 
       case "file":
         return (
-          // <div className="col-span-2">
-          //   <input
-          //     type="file"
-          //     accept={"*/*"}
-          //     id={ques.name}
-          //     onChange={(e) => {
-          //       const file = e.target.files?.[0];
-          //       if (file) {
-          //         handleInputChange(file, ques.id);
-          //       }
-          //     }}
-          //     className="form-input w-full rounded-lg border-[#D9DCE0]"
-          //   />
-          // </div>
-
           <div className="col-span-2">
             <input
               type="file"
@@ -544,8 +598,8 @@ const handleNext = async () => {
     }
   };
 
-  console.log(selectedValues, "gjgjfgkgf");
-
+  console.log(questions, "questionsquestions");
+  // return <div>hello</div>;
   return (
     <div className="space-y-5">
       <>
@@ -589,7 +643,7 @@ const handleNext = async () => {
         </div>
       </>
 
-      {questions.map((ques: any) => (
+      {questions?.map((ques: any) => (
         <div key={ques.id} className="grid grid-cols-[24px_1fr] gap-3">
           <Label
             htmlFor={ques.name}
