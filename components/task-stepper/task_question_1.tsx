@@ -20,7 +20,7 @@ type SelectedValues = Record<
 >;
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
-
+import { ImagePlus } from "lucide-react";
 import { Label } from "../ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useStepper } from "@/context/TaskStepperContext.tsx";
@@ -518,23 +518,47 @@ const DynamicQuestion = ({
                 }
               }}
               className="hidden"
-              //@ts-ignore
+              // @ts-ignore
               ref={(el) => (inputRefs.current[ques.id] = el)}
             />
             <div className="flex flex-col gap-4">
-              <button
-                type="button"
+              {/* image container */}
+              <div
                 onClick={() => inputRefs.current[ques.id]?.click()}
-                className="w-fit rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200"
+                className="relative flex h-40 items-center justify-center rounded-lg border border-[#5673bc] bg-[#3365E31F] text-center"
               >
-                Choose File
-              </button>
+                {filePreviews[ques.id] ? (
+                  <div className="absolute inset-0 overflow-hidden rounded-lg">
+                    <Image
+                      src={filePreviews[ques.id]}
+                      alt="Preview"
+                      className="w-full"
+                      layout="fill"
+                  
+                    />
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center">
+                    <div className="w-fit cursor-pointer rounded-lg px-4 py-2 text-sm font-medium text-[#3365E3]">
+                      <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-full border border-dashed border-slate-300 bg-slate-200">
+                        <ImagePlus />
+                      </div>
+                      <span>Upload Image</span>
+                    </div>
+                    <span className="text-xs text-slate-400">
+                      JPEG size should not be more than 1MB
+                    </span>
+                  </div>
+                )}
+              </div>
+
               {filePreviews[ques.id] && (
-                <div className="relative h-32 w-32">
+                <div className="relative h-32 w-32 overflow-hidden rounded-lg">
                   <Image
                     src={filePreviews[ques.id]}
                     alt="Preview"
-                    className="h-full w-full rounded-lg object-cover"
+                    className="h-full w-full object-cover"
+                    layout="fill"
                   />
                   <button
                     type="button"
@@ -548,7 +572,7 @@ const DynamicQuestion = ({
                         [ques.id]: "",
                       }));
                     }}
-                    className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
+                    className="absolute right-2 top-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
                   >
                     ×
                   </button>
