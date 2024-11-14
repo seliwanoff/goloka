@@ -31,6 +31,8 @@ import { cn } from "@/lib/utils";
 import { useParams, useRouter } from "next/navigation";
 import { createContributorAnswers } from "@/services/contributor";
 import Image from "next/image";
+import LocationDropdown from "./inputs/customLocation";
+import LocationInputApp from "./inputs/customAreaLocation";
 
 const options = (index: number) => {
   switch (index) {
@@ -130,6 +132,11 @@ const DynamicQuestion = ({
       ...prev,
       [quesId]: value,
     }));
+  };
+
+  const handleLocationSelect = (location: Location) => {
+    console.log("Selected location:", location);
+    // Do something with the selected location
   };
 
   const handleNext = async () => {
@@ -245,7 +252,8 @@ const DynamicQuestion = ({
                       htmlFor={`q${ques.id}-${index}`}
                       className={cn(
                         "flex items-center gap-3 rounded-lg border border-[#D9DCE0] p-2.5 pr-3 transition-colors duration-200 ease-in-out",
-                        selectedValues[ques.id] === opt?.value && "border-main-100",
+                        selectedValues[ques.id] === opt?.value &&
+                          "border-main-100",
                       )}
                     >
                       <span
@@ -260,7 +268,8 @@ const DynamicQuestion = ({
                       <p
                         className={cn(
                           "text-sm text-[#101828]",
-                          selectedValues[ques.id] === opt?.value && "text-main-100",
+                          selectedValues[ques.id] === opt?.value &&
+                            "text-main-100",
                         )}
                       >
                         {opt?.label}
@@ -381,7 +390,7 @@ const DynamicQuestion = ({
       case "location":
         return (
           <div className="col-span-2">
-            <input
+            {/* <input
               //@ts-ignore
               ref={(el) => (inputRefs.current[ques.id] = el)}
               type="text"
@@ -390,7 +399,26 @@ const DynamicQuestion = ({
               placeholder={ques.placeholder || "Enter your answer"}
               onChange={(e) => handleInputChange(e.target.value, ques.id)}
               className="form-input w-full rounded-lg border-[#D9DCE0] p-4"
-            />
+            /> */}
+
+            <LocationDropdown />
+          </div>
+        );
+      case "area":
+        return (
+          <div className="col-span-2">
+            {/* <input
+              //@ts-ignore
+              ref={(el) => (inputRefs.current[ques.id] = el)}
+              type="text"
+              value={selectedValues[ques.id] || ""}
+              id={ques.name}
+              placeholder={ques.placeholder || "Enter your answer"}
+              onChange={(e) => handleInputChange(e.target.value, ques.id)}
+              className="form-input w-full rounded-lg border-[#D9DCE0] p-4"
+            /> */}
+
+            <LocationInputApp />
           </div>
         );
       case "email":
