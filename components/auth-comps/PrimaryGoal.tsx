@@ -9,19 +9,20 @@ import { useQuery } from "@tanstack/react-query";
 import { getCurrentUser } from "@/services/user";
 import { useUserStore } from "@/stores/currentUserStore";
 
-
 const goals = [
   {
     icon: BenchMark,
     title: "Generate data for my organization",
     content: "Lorem ipsum dolor sit amet consectetur. Pulvinar.",
     path: "/organization-data",
+    enable: true,
   },
   {
     icon: Income,
     title: "Earn by participating in survey",
     content: "Lorem ipsum dolor sit amet consectetur. Pulvinar.",
     path: "/contributor-onboarding",
+    enable: false,
   },
 ];
 
@@ -29,7 +30,7 @@ type PageProps = {
   setStep: (step: number, email?: string) => void;
 };
 const PrimaryGoal: React.FC<PageProps> = ({ setStep }) => {
-    const loginUser = useUserStore((state) => state.loginUser);
+  const loginUser = useUserStore((state) => state.loginUser);
   const router = useRouter();
   // Query for remote user data
   const {
@@ -42,11 +43,10 @@ const PrimaryGoal: React.FC<PageProps> = ({ setStep }) => {
     retry: 1, // Only retry once before considering it a failure
   });
 
-
   useEffect(() => {
-  if (currentUser && "data" in currentUser && currentUser.data) {
-    loginUser(currentUser.data);
-  }
+    if (currentUser && "data" in currentUser && currentUser.data) {
+      loginUser(currentUser.data);
+    }
   }, [currentUser, loginUser]);
 
   const handleClick = (path: string) => {
@@ -75,8 +75,12 @@ const PrimaryGoal: React.FC<PageProps> = ({ setStep }) => {
         {goals.map((goal, index) => (
           <div
             key={index}
-            className="group grid w-full transform cursor-pointer grid-cols-[50px_1fr_20px] items-center rounded border bg-white p-2 transition-all ease-out hover:border-[#7F55DA] hover:bg-[#fffdfd] active:scale-90"
-            onClick={() => handleClick(goal.path)}
+            className={`group grid w-full transform grid-cols-[50px_1fr_20px] items-center rounded border bg-white p-2 transition-all ease-out ${
+              goal.enable
+                ? "cursor-pointer hover:border-[#7F55DA] hover:bg-[#fffdfd] active:scale-90"
+                : "cursor-not-allowed opacity-50"
+            }`}
+            onClick={() => goal.enable && handleClick(goal.path)}
           >
             <figure className="flex h-10 w-10 items-center justify-center rounded bg-[#7F55DA0F] transition-colors group-hover:bg-[#ddd5ee]">
               <Image src={goal.icon} alt={goal.title} width={30} height={30} />
