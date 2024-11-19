@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { classMerge } from "@/lib/utils";
@@ -26,6 +26,7 @@ import {
   LogOut,
   LucideIcon,
   LucideX,
+  OctagonAlert,
 } from "lucide-react";
 // import { getCurrentUser } from "@/services/user_service";
 import { useQuery } from "@tanstack/react-query";
@@ -51,7 +52,8 @@ import { Toaster } from "sonner";
 import { userLogout } from "@/services/auth";
 import { useRouter } from "next/navigation";
 import { useUserStore } from "@/stores/currentUserStore";
-
+import { generateColor, getInitials } from "@/helper";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 type ComponentProps = {};
 
@@ -64,6 +66,7 @@ const data = {
 
 const DashTopNav: React.FC<ComponentProps> = ({}) => {
   const [open, setOpen] = useState(false);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const router = useRouter();
   const user = { data };
   const currentUser = useUserStore((state) => state.user);
@@ -73,7 +76,8 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
     ? Name.charAt(0).toUpperCase() + Name.slice(1).toLowerCase()
     : "";
   const isMobile = useMediaQuery("(max-width: 640px)");
-
+  const backgroundColor = useMemo(() => generateColor(FirstName), [FirstName]);
+  const initials = useMemo(() => getInitials(FirstName), [FirstName]);
   const initiateLogout = () => {
     try {
       const res = userLogout();
@@ -85,6 +89,8 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
       console.log(error, "error");
     }
   };
+
+  console.log(currentUser, "currentUser");
 
   return (
     <>
@@ -155,9 +161,9 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
 
           {/* user profile bubble */}
           {user && user.data && (
-            <Popover>
+            <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
               <PopoverTrigger className="transit shadow-1 cursor-pointer items-center justify-center gap-3 rounded-full hover:bg-gray-100 lg:flex lg:bg-[#F7F7F8] lg:px-5 lg:py-1.5">
-                <div className="w-9">
+                {/* <div className="w-9">
                   <AspectRatio ratio={1}>
                     <Image
                       src={user.data.profile_img || UserProfileImg}
@@ -166,6 +172,11 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                       fill
                     />
                   </AspectRatio>
+                </div> */}
+                <div
+                  className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-white ${backgroundColor} `}
+                >
+                  {initials}
                 </div>
 
                 <div className="hidden flex-col items-start justify-center lg:flex">
@@ -191,19 +202,14 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
               </PopoverTrigger>
               <PopoverContent>
                 <div className="flex w-full items-center gap-5">
-                  <div className="w-12">
-                    <AspectRatio ratio={1 / 1}>
-                      <Image
-                        src={user.data.profile_img || UserProfileImg}
-                        alt="user-profile-img"
-                        fill
-                      />
-                    </AspectRatio>
+                  <div
+                    className={`flex h-10 w-10 items-center justify-center rounded-full text-lg font-semibold text-white ${backgroundColor} `}
+                  >
+                    {initials}
                   </div>
                   <div className="flex flex-col justify-center">
                     <p className="text-base font-semibold">
-                      {user.data.first_name || "Muhammad"}{" "}
-                      {user.data.last_name || "jamiu"}
+                      <p className="text-base font-semibold">{FirstName}</p>
                     </p>
                     {
                       // @ts-ignore
@@ -228,6 +234,7 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                 <div className="mt-6 flex flex-col gap-5 px-2 font-semibold">
                   {UserBubbleLinks.map((bubbleData) => (
                     <Link
+                      onClick={() => setIsPopoverOpen(false)}
                       key={bubbleData.title}
                       href={bubbleData.href}
                       className="transit flex items-center gap-3 text-gray-500 hover:text-gray-800"
@@ -237,14 +244,44 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                     </Link>
                   ))}
 
-                  <Link
+                  {/* <Link
                     href={"#"}
                     onClick={initiateLogout}
                     className="transit flex items-center gap-3 text-rose-400 hover:text-rose-500"
                   >
                     <LogOut size={20} strokeWidth={1.5} />
                     <p>Logout</p>
-                  </Link>
+                  </Link> */}
+
+                  <Dialog>
+                    <DialogTrigger className="transit flex items-center gap-3 text-rose-400 hover:text-rose-500">
+                      <LogOut size={20} strokeWidth={1.5} />
+                      <p className="text-[#D92D20]">Logout</p>
+                    </DialogTrigger>
+                    <DialogContent className="flex flex-col items-center gap-10 py-8 text-center">
+                      <div className="rounded-full bg-rose-50 p-2 text-rose-600">
+                        <OctagonAlert />
+                      </div>
+                      <DialogTitle className="-mt-8 text-xl font-bold">
+                        Proceed to logout?
+                      </DialogTitle>
+                      <p>
+                        By clicking on <b>continue</b>, you will be logged out
+                        of your dashboard. Do you want to proceed?
+                      </p>
+                      <div className="flex w-full items-center justify-between gap-6">
+                        <Button variant="outline" className="w-full">
+                          Cancel
+                        </Button>
+                        <Button
+                          className="w-full bg-rose-500 hover:bg-rose-400"
+                          onClick={initiateLogout}
+                        >
+                          Continue
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </div>
               </PopoverContent>
             </Popover>
@@ -267,7 +304,7 @@ const UserBubbleLinks: { icon: LucideIcon; title: string; href: string }[] = [
   {
     icon: UserRound,
     title: "View Profile",
-    href: "/dashboard/profile",
+    href: "/dashboard/settings",
   },
   {
     icon: Settings,

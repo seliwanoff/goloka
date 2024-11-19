@@ -84,7 +84,7 @@ const SignIn: React.FC<PageProps> = ({ }) => {
   };
 
   return (
-    <div className="relative overflow-hidden px-4 md:mx-auto md:w-[70%] lg:w-[80%]">
+    <div className="relative overflow-hidden  md:mx-auto md:w-[70%] lg:w-[80%]">
       <div className="relative z-10 md:w-[70%] lg:w-[80%]">
         {/* HEADING */}
         <div className="mb-8 flex flex-col items-center gap-2 pt-12">

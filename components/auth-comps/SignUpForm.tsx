@@ -39,6 +39,7 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
   const [eye1, setEye1] = useState(false);
   const [eye2, setEye2] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [countryId, setCountryId] = useState(1);
   const [selectedCountryLabel, setSelectedCountryLabel] = useState("");
   const {
     register,
@@ -67,7 +68,7 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
     const userData = {
       name: data.fullname,
       email: data.email,
-      country_id: 1,
+      country_id: countryId,
       password: data.password,
       password_confirmation: data.password2,
       platform: "web",
@@ -92,7 +93,7 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
       }
     } else {
       setIsLoading(false);
-      alert("Error creating user");
+      toast.error("Error creating user, Please try again");
     }
     setIsLoading(false);
   };
@@ -100,9 +101,9 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
   console.log(countryData, "countryData");
 
   return (
-    <div className="relative z-10 md:w-[70%] lg:w-[80%]">
+    <div className="relative  md:w-[70%] lg:w-[80%]">
       {/* HEADING */}
-      <div className="mb-8 flex flex-col items-center gap-2 pt-24 lg:pt-12">
+      <div className="mb-8 flex flex-col items-center gap-2 mt-60 lg:mt-12">
         <Image src={Logo} alt="goloka_logo" />
         <h1 className="text-center text-2xl font-bold">
           Welcome to{" "}
@@ -177,7 +178,8 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
                     (country: any) => country.id === value,
                   );
                   setSelectedCountryLabel(selectedCountry.label);
-                  field.onChange(value); // Pass the country id to useForm
+                  setCountryId(selectedCountry.id);
+                  field.onChange(value);
                 }}
               >
                 <SelectTrigger className="neutral-400 h-12 w-full rounded-md border bg-transparent focus:ring-1 focus:ring-offset-0 focus-visible:ring-main-100 [&>span]:font-light">
@@ -223,7 +225,7 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
                 })}
                 name="password"
                 id="password"
-                placeholder="Input password"
+                placeholder="password"
                 className="h-12 rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
               />
               <span
@@ -252,7 +254,7 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
                 })}
                 name="password2"
                 id="password2"
-                placeholder="Input password confirm"
+                placeholder="password"
                 className="h-12 rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
               />
               <span
@@ -271,7 +273,8 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
         <div className="mt-3 space-y-4">
           <Button
             type="submit"
-            className="h-12 w-full rounded-full bg-main-100 text-base font-light text-white hover:bg-blue-700"
+            disabled={isLoading}
+            className="h-12 w-full rounded-full bg-main-100 text-base font-light text-white hover:bg-blue-700 disabled:bg-blue-500"
           >
             {isLoading ? <FaSpinner className="animate-spin" /> : "Sign up"}
           </Button>

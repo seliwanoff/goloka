@@ -46,9 +46,10 @@ const LandingNavbar: React.FC<ComponentProps> = ({}) => {
 
   return (
     <div
+      style={{ zIndex: 100 }}
       className={classMerge(
         "flex w-full items-center justify-between px-3 py-2 " +
-          "transit fixed top-0 z-50 bg-white md:px-8 lg:px-20",
+          "transit fixed top-0 bg-white md:px-8 lg:px-20",
         scrollValue > 0 ? "shadow-md" : "shadow-none",
         pathname.includes("/dashboard") && "hidden",
       )}
@@ -89,7 +90,7 @@ const LandingNavbar: React.FC<ComponentProps> = ({}) => {
 
       <Button
         variant={scrollValue > 0 ? "default" : "secondary"}
-        className="hidden rounded-full bg-main-100 px-6 text-white md:block mr-16"
+        className="mr-16 hidden rounded-full bg-main-100 px-6 text-white md:block"
         onClick={() => router.push("/signin")}
       >
         Get Started

@@ -48,8 +48,7 @@ export default function RootLayout({
       <body className={poppins.className}>
         <TanstackProvider>
           <LandingNavbar />
-          {children}
-          {/* <Footer /> */}
+          <div className="-z-10">{children}</div>
         </TanstackProvider>
       </body>
     </html>

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import BenchMark from "@/public/assets/images/goal1.png";
 import Income from "@/public/assets/images/goal2.png";
@@ -8,6 +8,7 @@ import { BsChevronRight } from "react-icons/bs";
 import { useQuery } from "@tanstack/react-query";
 import { getCurrentUser } from "@/services/user";
 import { useUserStore } from "@/stores/currentUserStore";
+import { Loader } from "lucide-react";
 
 const goals = [
   {
@@ -15,14 +16,14 @@ const goals = [
     title: "Generate data for my organization",
     content: "Lorem ipsum dolor sit amet consectetur. Pulvinar.",
     path: "/organization-data",
-    enable: true,
+    enable: false,
   },
   {
     icon: Income,
     title: "Earn by participating in survey",
     content: "Lorem ipsum dolor sit amet consectetur. Pulvinar.",
     path: "/contributor-onboarding",
-    enable: false,
+    enable: true,
   },
 ];
 
@@ -32,6 +33,7 @@ type PageProps = {
 const PrimaryGoal: React.FC<PageProps> = ({ setStep }) => {
   const loginUser = useUserStore((state) => state.loginUser);
   const router = useRouter();
+  const [loadingPath, setLoadingPath] = useState<string | null>(null);
   // Query for remote user data
   const {
     data: currentUser,
@@ -51,6 +53,7 @@ const PrimaryGoal: React.FC<PageProps> = ({ setStep }) => {
 
   const handleClick = (path: string) => {
     if (path) {
+            setLoadingPath(path);
       router.replace(path);
     } else {
     }
@@ -94,7 +97,11 @@ const PrimaryGoal: React.FC<PageProps> = ({ setStep }) => {
               </p>
             </div>
             <span className="cursor-pointer text-[#828282] transition-colors group-hover:text-[#7F55DA]">
-              <BsChevronRight />
+              {loadingPath === goal.path ? (
+                <Loader className="animate-spin" size={20} />
+              ) : (
+                <BsChevronRight />
+              )}
             </span>
           </div>
         ))}
