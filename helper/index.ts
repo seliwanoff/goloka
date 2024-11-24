@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import axios from "axios";
 import moment from "moment";
 import { usePathname } from "next/navigation";
 
@@ -62,6 +63,14 @@ export const getStatusText = (status: Status) => {
   return `${firstChar}${rest}`;
 };
 
+
+export const getAddressFromLatLng = async (lat: number, lng: number) => {
+  const path = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`;
+  const res = await axios.get<{ results: { formatted_address: string }[] }>(
+    path,
+  );
+  return res.data.results[0].formatted_address;
+};
 
 export const generateColor = (name: string) => {
   const colors = [

@@ -1,127 +1,123 @@
-import React, { useState } from "react";
-import { MapPin, Navigation } from "lucide-react";
-import {
-  Command,
-  CommandInput,
-  CommandList,
-  CommandEmpty,
-  CommandGroup,
-  CommandItem,
-} from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import React, { useState, useEffect } from "react";
+import { MapPin, Map } from "lucide-react";
+import Autocomplete from "react-google-autocomplete";
+import { Button } from "@/components/ui/button";
 
 interface Location {
-  address: string;
-  city: string;
-  id: string;
+  id: number;
+  name: string;
+  placeId?: string;
 }
 
-const LocationInputApp = () => {
-  const [open, setOpen] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState<Location | null>(
-    null,
-  );
+interface Props {
+  apiKey: string;
+}
 
-  const locations: Location[] = [
-    { id: "1", address: "221B Baker Street, NW1 6XE", city: "London" },
-    { id: "2", address: "10 Downing Street, SW1A 2AA", city: "London" },
-    { id: "3", address: "48 Leicester Square, WC2H 7LU", city: "London" },
-    { id: "4", address: "165 Oxford Street, W1D 2JR", city: "London" },
-    { id: "5", address: "1 Tower Bridge Road, SE1 2UP", city: "London" },
-  ];
+const LocationSelector = ({ apiKey }: Props) => {
+  const [locations, setLocations] = useState<Location[]>([{ id: 1, name: "" }]);
+  const [logs, setLogs] = useState<Location[]>([]);
 
-  const handleLocationSelect = (location: Location) => {
-    setSelectedLocation(location);
-    setOpen(false);
+  const addNewLocation = () => {
+    const newLocation = { id: Date.now(), name: "" };
+    setLocations([...locations, newLocation]);
   };
 
-  const getCurrentLocation = () => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        const defaultLocation = locations[0];
-        setSelectedLocation(defaultLocation);
-        setOpen(false);
-      });
-    } else {
-      alert("Geolocation is not supported by your browser");
-    }
+  const removeLocation = (id: number) => {
+    setLocations(locations.filter((loc) => loc.id !== id));
+    setLogs(logs.filter((log) => log.id !== id)); // Remove from logs
   };
 
-  console.log("Selected location:", selectedLocation);
+  const updateLocation = (id: number, name: string, placeId?: string) => {
+    setLocations(
+      locations.map((loc) => (loc.id === id ? { ...loc, name, placeId } : loc)),
+    );
+    setLogs((prevLogs) => {
+      const updatedLogs = prevLogs.filter((log) => log.id !== id);
+      return [...updatedLogs, { id, name, placeId }];
+    });
+  };
+
+  // Log changes to the console
+  useEffect(() => {
+    console.log("Location Logs:", logs);
+  }, [logs]);
 
   return (
-    <div className="w-full max-w-2xl">
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <button
-            className="flex w-full items-center rounded-lg border border-gray-200 bg-gray-50 px-2 py-2 text-left hover:bg-gray-100 focus:outline-none"
-            onClick={() => setOpen(true)}
-          >
-            <MapPin className="mr-2 h-5 w-5 text-gray-500" />
-            {selectedLocation ? (
-              <div>
-                <div className="font-medium">{selectedLocation.address}</div>
-                <div className="text-sm text-gray-500">
-                  {selectedLocation.city}
-                </div>
-              </div>
-            ) : (
-              <span className="text-gray-500">Search for a location...</span>
-            )}
-          </button>
-        </PopoverTrigger>
-        <PopoverContent
-          className="w-[var(--radix-popover-trigger-width)] p-0"
-          align="start"
-        >
-          <Command className="rounded-lg border shadow-md">
-            <CommandInput
-              placeholder="Search location..."
-              onValueChange={(value) => {
-                // Implement search functionality
+    <div className="mx-auto w-full max-w-2xl space-y-4">
+      {locations.map((location) => (
+        <div key={location.id} className="relative flex items-center space-x-1">
+          <div className="relative w-full">
+            <div className="absolute inset-y-0 left-3 flex items-center">
+              {location.name ? (
+                <Map className="h-5 w-5 text-blue-500" />
+              ) : (
+                <MapPin className="h-5 w-5 text-blue-500" />
+              )}
+            </div>
+            <Autocomplete
+              apiKey={apiKey}
+              placeholder="Search for a location"
+              defaultValue={location.name}
+              className="w-full rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-3 text-gray-700 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 placeholder:text-sm"
+              options={{
+                types: ["geocode"],
+                componentRestrictions: { country: "ng" },
+              }}
+              onPlaceSelected={(place) => {
+                if (place.formatted_address) {
+                  updateLocation(
+                    location.id,
+                    place.formatted_address,
+                    place.place_id,
+                  );
+                }
               }}
             />
-            <CommandList>
-              {/* <CommandEmpty>No location found.</CommandEmpty> */}
-              <CommandGroup>
-                <div className="px-2 py-1.5">
-                  <button
-                    onClick={getCurrentLocation}
-                    className="flex w-full items-center rounded-md p-2 text-sm text-purple-600 hover:bg-gray-100"
-                  >
-                    <Navigation className="mr-2 h-4 w-4" />
-                    Use my current location
-                  </button>
-                </div>
-                {/* {locations.map((location) => (
-                  <div
-                    onClick={() => handleLocationSelect(location)}
-                    key={location.id}
-                    // onSelect={() => handleLocationSelect(location)}
-                    className="flex cursor-pointer items-center overflow-auto border-y p-1 hover:bg-gray-100"
-                  >
-                    <span className="mr-2 mt-1 flex h-8 w-8 items-center justify-center self-start rounded-full bg-[#F8F8F8]">
-                      <MapPin className="h-4 w-6 text-[#828282]" />
-                    </span>
-                    <div>
-                      <div className="text-[#333333] ">{location.address}</div>
-                      <div className="text-sm text-[#ADADAD]">
-                        {location.city}
-                      </div>
-                    </div>
-                  </div>
-                ))} */}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
+          </div>
+          {locations.length > 1 && (
+            <div className="group relative">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 rounded-full hover:bg-red-50"
+                onClick={() => removeLocation(location.id)}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="lucide lucide-map-pin-x-inside h-4 w-4 text-red-500"
+                >
+                  <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
+                  <path d="m14.5 7.5-5 5" />
+                  <path d="m9.5 7.5 5 5" />
+                </svg>
+              </Button>
+              {/* Tooltip */}
+              <span className="absolute -top-8 left-1/2 -translate-x-1/2 scale-0 rounded bg-gray-700 px-2 py-1 text-xs text-white opacity-0 shadow-lg transition-all duration-200 group-hover:scale-100 group-hover:opacity-100">
+                Remove
+              </span>
+            </div>
+          )}
+        </div>
+      ))}
+
+      <Button
+        variant="ghost"
+        className="flex items-center space-x-2 place-self-end rounded-xl px-3 text-blue-500 hover:bg-blue-50 hover:text-blue-600"
+        onClick={addNewLocation}
+      >
+        <MapPin className="mr-2 h-4 w-4" />
+        Add new location
+      </Button>
     </div>
   );
 };
 
-export default LocationInputApp;
+export default LocationSelector;

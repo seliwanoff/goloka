@@ -13,6 +13,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useLocationAddress } from "@/stores/useLocation";
 
 interface Location {
   address: string;
@@ -21,6 +22,9 @@ interface Location {
 }
 
 const LocationDropdown = () => {
+  const { latitude, longitude, location, error, loading } =
+    useLocationAddress();
+
   const [open, setOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(
     null,
@@ -34,6 +38,8 @@ const LocationDropdown = () => {
     { id: "5", address: "1 Tower Bridge Road, SE1 2UP", city: "London" },
   ];
 
+  console.log( location);
+
   const handleLocationSelect = (location: Location) => {
     setSelectedLocation(location);
     setOpen(false);
@@ -42,7 +48,7 @@ const LocationDropdown = () => {
   const getCurrentLocation = () => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition((position) => {
-        const defaultLocation = locations[0];
+        const defaultLocation = location;
         setSelectedLocation(defaultLocation);
         setOpen(false);
       });

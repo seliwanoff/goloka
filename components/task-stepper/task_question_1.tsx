@@ -20,7 +20,7 @@ type SelectedValues = Record<
 >;
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { ImagePlus } from "lucide-react";
+import { ImagePlus, FileVideo2 } from "lucide-react";
 import { Label } from "../ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useStepper } from "@/context/TaskStepperContext.tsx";
@@ -33,6 +33,9 @@ import { createContributorAnswers } from "@/services/contributor";
 import Image from "next/image";
 import LocationDropdown from "./inputs/customLocation";
 import LocationInputApp from "./inputs/customAreaLocation";
+import LocationSelector from "./inputs/customAreaLocation";
+import AudioRecorder from "./customAudioRecorder";
+import FileUpload from "./fileUpload";
 
 const options = (index: number) => {
   switch (index) {
@@ -75,23 +78,11 @@ const DynamicQuestion = ({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const inputRefs = useRef<
     Record<string | number, HTMLInputElement | HTMLTextAreaElement | null>
-  >({});
+    >({});
 
-  //  const [responseID, setResponseID] = useState<string | null>(null);
+  const KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
-  //  useEffect(() => {
-  //    if (router.isReady) {
-  //      // Extract the `responseID` query parameter
-  //      let rawResponseID = router.query.responseID as string;
 
-  //      // Handle cases where `responseID` has a trailing slash
-  //      if (rawResponseID?.includes("/")) {
-  //        rawResponseID = rawResponseID.split("/")[0];
-  //      }
-
-  //      setResponseID(rawResponseID);
-  //    }
-  //  }, [router.isReady, router.query]);
 
   useEffect(() => {
     // Handle cases where `responseID` has a trailing slash
@@ -134,10 +125,7 @@ const DynamicQuestion = ({
     }));
   };
 
-  const handleLocationSelect = (location: Location) => {
-    console.log("Selected location:", location);
-    // Do something with the selected location
-  };
+
 
   const handleNext = async () => {
     // Check if all questions have been answered based on their type
@@ -303,9 +291,19 @@ const DynamicQuestion = ({
               <button
                 type="button"
                 onClick={() => inputRefs.current[ques.id]?.click()}
-                className="w-fit rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200"
+                className="relative flex h-40 items-center justify-center rounded-lg  border-2 border-[#3365E31F] bg-[#3365E31F] text-center"
               >
-                Upload Video
+                <div className="flex flex-col items-center">
+                  <div className="flex w-fit cursor-pointer flex-col rounded-lg px-4 py-2 text-sm font-medium text-[#3365E3]">
+                    <div className="mb-2 flex h-8 w-8 items-center justify-center self-center rounded-full border border-dashed border-slate-300 bg-slate-200">
+                      <FileVideo2 />
+                    </div>
+                    <span>Upload Video</span>
+                  </div>
+                  <span className="text-xs text-slate-400">
+                    JPEG size should not be more than 1MB
+                  </span>
+                </div>
               </button>
               {filePreviews[ques.id] && (
                 <div className="relative h-32 w-32">
@@ -404,7 +402,7 @@ const DynamicQuestion = ({
             <LocationDropdown />
           </div>
         );
-      case "area":
+      case "line":
         return (
           <div className="col-span-2">
             {/* <input
@@ -418,7 +416,7 @@ const DynamicQuestion = ({
               className="form-input w-full rounded-lg border-[#D9DCE0] p-4"
             /> */}
 
-            <LocationInputApp />
+            <LocationSelector apiKey={KEY as string} />
           </div>
         );
       case "email":
@@ -504,7 +502,7 @@ const DynamicQuestion = ({
           </div>
         );
 
-      case "file":
+      case "image":
         return (
           <div className="col-span-2">
             <input
@@ -525,7 +523,7 @@ const DynamicQuestion = ({
               {/* image container */}
               <div
                 onClick={() => inputRefs.current[ques.id]?.click()}
-                className="relative flex h-40 items-center justify-center rounded-lg border border-[#5673bc] bg-[#3365E31F] text-center"
+                className="relative flex h-40 items-center justify-center rounded-lg border border-2 border-[#3365E31F] bg-[#3365E31F] text-center"
               >
                 {filePreviews[ques.id] ? (
                   <div className="absolute inset-0 overflow-hidden rounded-lg">
@@ -534,13 +532,12 @@ const DynamicQuestion = ({
                       alt="Preview"
                       className="w-full"
                       layout="fill"
-                  
                     />
                   </div>
                 ) : (
                   <div className="flex flex-col items-center">
-                    <div className="w-fit cursor-pointer rounded-lg px-4 py-2 text-sm font-medium text-[#3365E3]">
-                      <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-full border border-dashed border-slate-300 bg-slate-200">
+                    <div className="flex w-fit cursor-pointer flex-col rounded-lg px-4 py-2 text-sm font-medium text-[#3365E3]">
+                      <div className="mb-2 flex h-8 w-8 items-center justify-center self-center rounded-full border border-dashed border-slate-300 bg-slate-200">
                         <ImagePlus />
                       </div>
                       <span>Upload Image</span>
@@ -613,7 +610,12 @@ const DynamicQuestion = ({
             />
           </div>
         );
-
+      case "audio":
+        return (
+          <div className="col-span-2">
+            <AudioRecorder />
+          </div>
+        );
       case "tel":
         return (
           <div className="col-span-2">
@@ -642,6 +644,12 @@ const DynamicQuestion = ({
               onChange={(e) => handleInputChange(e.target.value, ques.id)}
               className="form-input w-full rounded-lg border-[#D9DCE0]"
             />
+          </div>
+        );
+      case "file":
+        return (
+          <div className="col-span-2">
+          <FileUpload/>
           </div>
         );
 
