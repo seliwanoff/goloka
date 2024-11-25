@@ -27,9 +27,29 @@ type PageProps = {
 const languages = [
   { value: "english", label: "English" },
   { value: "hausa", label: "Hausa" },
-  { value: "yoruba", label: "Yoruba" },
-  { value: "igbo", label: "Igbo" },
-  // { value: "pidgin_english", label: "Nigerian Pidgin" },
+  { value: "kanuri", label: "Kanuri" },
+  { value: "fulfulde", label: "Fulfulde" },
+  { value: "shuwa_arabic", label: "Shuwa Arabic" },
+  { value: "bura", label: "Bura" },
+  { value: "marghi", label: "Marghi" },
+  { value: "kare_kare", label: "Kare Kare" },
+  { value: "bachama", label: "Bachama" },
+  { value: "mandara", label: "Mandara" },
+  { value: "higgi", label: "Higgi" },
+  { value: "kilba", label: "Kilba" },
+  { value: "kibaku", label: "Kibaku" },
+  { value: "jukun", label: "Jukun" },
+  { value: "waha", label: "Waha" },
+  { value: "gamargu", label: "Gamargu" },
+  { value: "pidgin_english", label: "Nigerian Pidgin" },
+  { value: "ibibio", label: "Ibibio" },
+  { value: "efik", label: "Efik" },
+  { value: "edo", label: "Edo" },
+  { value: "tiv", label: "Tiv" },
+  { value: "ijaw", label: "Ijaw" },
+  { value: "urhobo", label: "Urhobo" },
+  { value: "nupe", label: "Nupe" },
+  { value: "gbagyi", label: "Gbagyi" },
   { label: "Mandarin Chinese", value: "mandarin_chinese" },
   { label: "Spanish", value: "spanish" },
   { label: "Hindi", value: "hindi" },
@@ -50,6 +70,7 @@ const languages = [
   { label: "Thai", value: "thai" },
   { label: "Swahili", value: "swahili" },
 ];
+
 
 
 // Validation schema

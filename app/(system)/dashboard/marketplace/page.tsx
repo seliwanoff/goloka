@@ -29,7 +29,7 @@ import UpdateLocationDialog from "@/components/lib/modals/task_update_location";
 
 import TaskCardWidget from "@/components/lib/widgets/task_card";
 import TaskFilterDrawerMobile from "@/components/lib/modals/task_filter";
-import { tasks } from "@/utils";
+
 import { useQuery } from "@tanstack/react-query";
 import { getAllTask } from "@/services/contributor";
 import { SkeletonLoader } from "@/components/lib/loader";
@@ -42,18 +42,86 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { useRouter } from "next/navigation";
 
 type ComponentProps = {};
 
 const TaskPage: React.FC<ComponentProps> = ({}) => {
+  const router = useRouter();
   const [openFilter, setOpenFilter] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
   const [date, setDate] = useState<Date>();
   const [currentPage, setCurrentPage] = useState<number>(1);
-  // const { data: tasks, isLoading } = useQuery({
-  //   queryKey: ["Get task list"],
-  //   queryFn: getAllTask,
-  // });
+
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [minPrice, setMinPrice] = useState<string>("");
+  const [maxPrice, setMaxPrice] = useState<string>("");
+  const [min_question, setMin_question] = useState<string>("");
+  const [max_question, setMax_question] = useState<string>("");
+ const [searchTerm, setSearchTerm] = useState("");
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    updateQueryParams("search", value);
+  };
+
+  const applyFilters = () => {
+    const queryParams = new URLSearchParams();
+
+    if (startDate)
+      queryParams.set("start_date", format(startDate, "yyyy-MM-dd"));
+    if (endDate) queryParams.set("end_date", format(endDate, "yyyy-MM-dd"));
+    if (minPrice) queryParams.set("min_price", minPrice);
+    if (maxPrice) queryParams.set("max_price", maxPrice);
+    if (min_question) queryParams.set("min_question", min_question);
+    if (max_question) queryParams.set("max_question", max_question);
+
+    //  router.push(`/tasks?${queryParams.toString()}`);
+    window.history.replaceState(
+      null,
+      "",
+      `${window.location.pathname}?${queryParams.toString()}`,
+    );
+  };
+
+  // Clear filters
+  //  const clearFilters = () => {
+  //    setStartDate(null);
+  //    setEndDate(null);
+  //    setMinPrice("");
+  //    setMaxPrice("");
+  //   //  router.push("/tasks");
+  //  };
+
+  const updateQueryParams = (key: string, value: string | null) => {
+    const queryParams = new URLSearchParams(window.location.search);
+
+    if (value) {
+      queryParams.set(key, value); // Add or update parameter
+    } else {
+      queryParams.delete(key); // Remove parameter if value is null
+    }
+
+    // Update the URL without reloading
+    window.history.replaceState(
+      null,
+      "",
+      `${window.location.pathname}?${queryParams.toString()}`,
+    );
+  };
+
+  const clearFilter = (filterKey: string) => {
+    const queryParams = new URLSearchParams(window.location.search);
+    queryParams.delete(filterKey);
+    window.history.replaceState(
+      null,
+      "",
+      `${window.location.pathname}q?${queryParams.toString()}`,
+    );
+  };
+
   const {
     data: tasks,
     isLoading,
@@ -142,12 +210,14 @@ const TaskPage: React.FC<ComponentProps> = ({}) => {
               placeholder="Search task"
               type="text"
               className="rounded-full bg-gray-50 pl-10"
+              value={searchTerm}
+              onChange={handleSearchChange}
             />
           </div>
 
           <div className="hidden lg:flex lg:gap-4">
             {/* PRICE */}
-            <Select>
+            {/* <Select>
               <SelectTrigger className="w-min rounded-full focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0">
                 <SelectValue placeholder="Price" />
               </SelectTrigger>
@@ -156,9 +226,55 @@ const TaskPage: React.FC<ComponentProps> = ({}) => {
                   <SelectItem value="2">$2</SelectItem>
                 </SelectGroup>
               </SelectContent>
-            </Select>
+            </Select> */}
 
-            {/* NUMBER */}
+            <Popover>
+              <PopoverTrigger className="rounded-full border px-3">
+                <div className="inline-flex items-center gap-2">
+                  <span className="text-sm">Price Range</span>
+                </div>
+              </PopoverTrigger>
+              <PopoverContent className="w-[300px]">
+                <div className="flex flex-col gap-4 p-2">
+                  <div className="flex items-center justify-between gap-4">
+                    <Input
+                      placeholder="Min Price"
+                      type="number"
+                      value={minPrice}
+                      // className="outline-none focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0"
+                      onChange={(e) => setMinPrice(e.target.value)}
+                    />
+                    <Input
+                      placeholder="Max Price"
+                      type="number"
+                      value={maxPrice}
+                      onChange={(e) => setMaxPrice(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex justify-between">
+                    <button
+                      className="rounded-full bg-[#F8F8F8] px-2 py-1 text-sm text-blue-500"
+                      onClick={() => {
+                        updateQueryParams("min_price", null);
+                        updateQueryParams("max_price", null);
+                        setMinPrice("");
+                        setMaxPrice("");
+                      }}
+                    >
+                      Clear
+                    </button>
+                    <button
+                      className="rounded-full bg-blue-500 px-2 py-1 text-sm text-[#F8F8F8]"
+                      onClick={applyFilters}
+                    >
+                      Done
+                    </button>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+
+            {/* Question NUMBER */}
             <Popover>
               <PopoverTrigger className="rounded-full border px-3">
                 <div className="inline-flex items-center gap-2">
@@ -166,22 +282,74 @@ const TaskPage: React.FC<ComponentProps> = ({}) => {
                   <ChevronDown className="h-4 w-4 opacity-50" />
                 </div>
               </PopoverTrigger>
-              <PopoverContent className="w-[200px]">
-                <Label htmlFor="number" className="mb-3 inline-block">
+              <PopoverContent className="w-[350px] shadow-md">
+                {/* <Label htmlFor="number" className="mb-3 inline-block">
                   Input number
                 </Label>
                 <Input
                   name="number"
                   id="number"
-                  type="tel"
+                  type="number"
                   className="form-input w-full appearance-none rounded-lg border border-[#d9dec0] px-4 py-6 placeholder:text-[#828282] focus:border-0 focus:outline-none focus-visible:ring-0"
                   placeholder="0"
-                />
+                  onChange={(e) => setNumber(parseInt(e.target.value))}
+                /> */}
+
+                <div className="flex items-center justify-between gap-4">
+                  <Input
+                    placeholder="Min Question number"
+                    type="number"
+                    value={min_question}
+                    // className="outline-none focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0"
+                    onChange={(e) => setMin_question(e.target.value)}
+                  />
+                  <Input
+                    placeholder="Max Question number"
+                    type="number"
+                    value={max_question}
+                    onChange={(e) => setMax_question(e.target.value)}
+                  />
+                </div>
+                <div className="mt-3 flex items-center justify-between">
+                  <button
+                    className="rounded-full bg-[#F8F8F8] px-2 py-1 text-sm text-blue-500"
+                    onClick={() => {
+                      updateQueryParams("min_question", null);
+                      updateQueryParams("max_question", null);
+                      // updateQueryParams("endDate", null);
+                      // setNumber(0);
+                      setMax_question("");
+                      setMin_question("");
+                    }}
+                  >
+                    Clear
+                  </button>
+                  <button
+                    className="rounded-full bg-blue-500 px-2 py-1 text-sm text-[#F8F8F8]"
+                    onClick={applyFilters}
+                    // onClick={() => {
+                    //   // Update the URL with the selected dates
+                    //   const params = new URLSearchParams(
+                    //     window.location.search,
+                    //   );
+                    //   if (startDate)
+                    //     params.set("startDate", startDate.toISOString());
+                    //   if (endDate) params.set("endDate", endDate.toISOString());
+                    //   window.history.replaceState(
+                    //     null,
+                    //     "",
+                    //     `${window.location.pathname}?${params.toString()}`,
+                    //   );
+                    // }}
+                  >
+                    Done
+                  </button>
+                </div>
               </PopoverContent>
             </Popover>
 
             {/* DATE */}
-            <Popover>
+            {/* <Popover>
               <PopoverTrigger asChild>
                 <Button
                   variant={"outline"}
@@ -203,16 +371,139 @@ const TaskPage: React.FC<ComponentProps> = ({}) => {
                   initialFocus
                 />
               </PopoverContent>
+            </Popover> */}
+
+            {/* DATE RANGE */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-min justify-start gap-3 rounded-full px-3 pr-1 text-center text-sm font-normal",
+                  )}
+                >
+                  {startDate && endDate
+                    ? `${format(startDate, "PPP")} - ${format(endDate, "PPP")}`
+                    : "Select date range"}
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F8F8F8]">
+                    <Calendar size={20} color="#828282" />
+                  </span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-4">
+                <div className="flex flex-col items-center gap-4">
+                  <CalenderDate
+                    mode="range"
+                    //@ts-ignore
+                    selected={{ from: startDate, to: endDate }}
+                    onSelect={(range) => {
+                      setStartDate(range?.from || null);
+                      setEndDate(range?.to || null);
+                    }}
+                    initialFocus
+                  />
+                  {/* <div className="flex w-full justify-between gap-4">
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => {
+                        setStartDate(null);
+                        setEndDate(null);
+                      }}
+                    >
+                      Clear
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      className="w-full"
+                      onClick={() => {
+                        // Update the URL with the selected dates
+                        const params = new URLSearchParams(
+                          window.location.search,
+                        );
+                        if (startDate)
+                          params.set("startDate", startDate.toISOString());
+                        if (endDate)
+                          params.set("endDate", endDate.toISOString());
+                        window.history.replaceState(
+                          null,
+                          "",
+                          `${window.location.pathname}?${params.toString()}`,
+                        );
+                      }}
+                    >
+                      Done
+                    </Button>
+                  </div> */}
+                  <div className="flex w-full items-center justify-between">
+                    <button
+                      className="rounded-full bg-[#F8F8F8] px-2 py-1 text-sm text-blue-500"
+                      onClick={() => {
+                        updateQueryParams("startDate", null);
+                        updateQueryParams("endDate", null);
+                        setStartDate(null);
+                        setEndDate(null);
+                      }}
+                    >
+                      Clear
+                    </button>
+                    <button
+                      className="rounded-full bg-blue-500 px-2 py-1 text-sm text-[#F8F8F8]"
+                      // onClick={applyFilters}
+                      onClick={() => {
+                        // Update the URL with the selected dates
+                        const params = new URLSearchParams(
+                          window.location.search,
+                        );
+                        if (startDate)
+                          params.set("startDate", startDate.toISOString());
+                        if (endDate)
+                          params.set("endDate", endDate.toISOString());
+                        window.history.replaceState(
+                          null,
+                          "",
+                          `${window.location.pathname}?${params.toString()}`,
+                        );
+                      }}
+                    >
+                      Done
+                    </button>
+                  </div>
+                </div>
+              </PopoverContent>
             </Popover>
 
             {/* RESPONSE */}
-            <Select>
+            {/* <Select>
               <SelectTrigger className="w-max rounded-full focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0">
                 <SelectValue placeholder="Response type" />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
                   <SelectLabel>Select type</SelectLabel>
+                  <SelectItem value="one-time">One-time response</SelectItem>
+                  <SelectItem value="multiple">Multiple response</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select> */}
+
+            <Select
+              onValueChange={(value) => {
+                if (value === "all") {
+                  updateQueryParams("response_type", null);
+                } else {
+                  updateQueryParams("response_type", value);
+                }
+              }}
+            >
+              <SelectTrigger className="w-max rounded-full focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0">
+                <SelectValue placeholder="Response type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Select type</SelectLabel>
+                  <SelectItem value="all">All response</SelectItem>{" "}
+                  {/* Clear the filter */}
                   <SelectItem value="one-time">One-time response</SelectItem>
                   <SelectItem value="multiple">Multiple response</SelectItem>
                 </SelectGroup>
