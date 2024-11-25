@@ -29,7 +29,6 @@ import UpdateLocationDialog from "@/components/lib/modals/task_update_location";
 
 import TaskCardWidget from "@/components/lib/widgets/task_card";
 import TaskFilterDrawerMobile from "@/components/lib/modals/task_filter";
-import { tasks } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { getAllContributedTask, getAllTask } from "@/services/contributor";
 import { SkeletonLoader } from "@/components/lib/loader";

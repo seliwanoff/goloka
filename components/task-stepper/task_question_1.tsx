@@ -523,7 +523,7 @@ const DynamicQuestion = ({
               {/* image container */}
               <div
                 onClick={() => inputRefs.current[ques.id]?.click()}
-                className="relative flex h-40 items-center justify-center rounded-lg border border-2 border-[#3365E31F] bg-[#3365E31F] text-center"
+                className="relative flex h-40 items-center justify-center rounded-lg  border-2 border-[#3365E31F] bg-[#3365E31F] text-center"
               >
                 {filePreviews[ques.id] ? (
                   <div className="absolute inset-0 overflow-hidden rounded-lg">

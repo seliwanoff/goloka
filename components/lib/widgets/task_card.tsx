@@ -94,13 +94,13 @@ const TaskCardWidget: React.FC<TaskCardProps> = ({
           width={640}
           height={480}
         />
-        <span
+        {/* <span
           className={cn(
             "absolute right-3 top-3 rounded-full border border-neutral-300 border-opacity-15 bg-opacity-25 p-2 px-5 text-xs text-white backdrop-blur-sm",
           )}
         >
           {type}
-        </span>
+        </span> */}
       </figure>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4 rounded-full bg-main-100 bg-opacity-5 p-2 pr-5">

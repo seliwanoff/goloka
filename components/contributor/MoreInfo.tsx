@@ -21,6 +21,7 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useContributorStore } from "@/stores/contributors";
 import { useUserStore } from "@/stores/currentUserStore";
+import DatePickerField from "./datePicker";
 
 type PageProps = {
   setStep: (step: number | ((prev: number) => number)) => void;
@@ -140,7 +141,7 @@ const MoreInfo: React.FC<PageProps> = ({ step, setStep }) => {
             onSubmit={handleSubmit(onSubmit)}
           >
             {/* DATE OF BIRTH */}
-            <div className="">
+            {/* <div className="">
               <label
                 htmlFor="birth_date"
                 className="mb-2 inline-block text-base font-normal text-[#4F4F4F]"
@@ -187,8 +188,8 @@ const MoreInfo: React.FC<PageProps> = ({ step, setStep }) => {
                   {errors.birth_date.message}
                 </p>
               )}
-            </div>
-
+            </div> */}
+            <DatePickerField control={control} errors={errors} />
             {/* GENDER */}
             <div className="">
               <label

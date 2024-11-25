@@ -26,6 +26,10 @@ type PageProps = {
 
 const languages = [
   { value: "english", label: "English" },
+  { value: "hausa", label: "Hausa" },
+  { value: "yoruba", label: "Yoruba" },
+  { value: "igbo", label: "Igbo" },
+  // { value: "pidgin_english", label: "Nigerian Pidgin" },
   { label: "Mandarin Chinese", value: "mandarin_chinese" },
   { label: "Spanish", value: "spanish" },
   { label: "Hindi", value: "hindi" },
@@ -46,6 +50,7 @@ const languages = [
   { label: "Thai", value: "thai" },
   { label: "Swahili", value: "swahili" },
 ];
+
 
 // Validation schema
 const languageSchema = z.object({
