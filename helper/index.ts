@@ -29,7 +29,6 @@ export const generateURL = (pathname: string, id: number) => {
   return `${pathname}/${id}`;
 };
 
-
 interface StatusPillProps {
   status?: string;
   className?: string;
@@ -63,7 +62,6 @@ export const getStatusText = (status: Status) => {
   return `${firstChar}${rest}`;
 };
 
-
 export const getAddressFromLatLng = async (lat: number, lng: number) => {
   const path = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`;
   const res = await axios.get<{ results: { formatted_address: string }[] }>(
@@ -81,7 +79,6 @@ export const generateColor = (name: string) => {
     "bg-yellow-500",
     "bg-pink-500",
     "bg-indigo-500",
-    "bg-teal-500",
   ];
 
   let hash = 0;
@@ -92,6 +89,7 @@ export const generateColor = (name: string) => {
   return colors[index];
 };
 
+
 export const getInitials = (name: string) => {
   return name
     .split(" ")
@@ -99,4 +97,3 @@ export const getInitials = (name: string) => {
     .slice(0, 2)
     .join("");
 };
-
