@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { MapPin, Navigation } from "lucide-react";
 import {
   Command,
@@ -15,49 +15,65 @@ import {
 } from "@/components/ui/popover";
 import { useLocationAddress } from "@/stores/useLocation";
 
-interface Location {
-  address: string;
-  city: string;
-  id: string;
+interface LocationDropdownProps {
+  questionId: string | number;
+  onLocationSelect: (location: any, questionId: string | number) => void;
 }
 
-const LocationDropdown = () => {
+const LocationDropdown: React.FC<LocationDropdownProps> = ({
+  questionId,
+  onLocationSelect,
+}) => {
   const { latitude, longitude, location, error, loading } =
     useLocationAddress();
-
   const [open, setOpen] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState<Location | null>(
-    null,
-  );
+  const [hasNotifiedLocation, setHasNotifiedLocation] = useState(false);
 
-  const locations: Location[] = [
-    { id: "1", address: "221B Baker Street, NW1 6XE", city: "London" },
-    { id: "2", address: "10 Downing Street, SW1A 2AA", city: "London" },
-    { id: "3", address: "48 Leicester Square, WC2H 7LU", city: "London" },
-    { id: "4", address: "165 Oxford Street, W1D 2JR", city: "London" },
-    { id: "5", address: "1 Tower Bridge Road, SE1 2UP", city: "London" },
-  ];
+  const handleLocationSelect = useCallback(() => {
+    if (location && !hasNotifiedLocation) {
+      onLocationSelect(
+        {
+          // address: location.address,
+          // city: location.city,
+          latitude,
+          longitude,
+          // id: location.id || Date.now().toString(),
+        },
+        questionId,
+      );
+      setHasNotifiedLocation(true);
+    }
+  }, [
+    location,
+    latitude,
+    longitude,
+    questionId,
+    onLocationSelect,
+    hasNotifiedLocation,
+  ]);
 
-  console.log( location);
-
-  const handleLocationSelect = (location: Location) => {
-    setSelectedLocation(location);
-    setOpen(false);
-  };
+  useEffect(() => {
+    handleLocationSelect();
+  }, [handleLocationSelect]);
 
   const getCurrentLocation = () => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition((position) => {
-        const defaultLocation = location;
-        setSelectedLocation(defaultLocation);
+        const currentLocation = {
+          address: location?.address || "Current Location",
+          city: location?.city || "",
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          id: Date.now().toString(),
+        };
+
+        onLocationSelect(currentLocation, questionId);
         setOpen(false);
       });
     } else {
       alert("Geolocation is not supported by your browser");
     }
   };
-
-  console.log("Selected location:", selectedLocation);
 
   return (
     <div className="w-full max-w-2xl">
@@ -68,12 +84,10 @@ const LocationDropdown = () => {
             onClick={() => setOpen(true)}
           >
             <MapPin className="mr-2 h-5 w-5 text-gray-500" />
-            {selectedLocation ? (
+            {location ? (
               <div>
-                <div className="font-medium">{selectedLocation.address}</div>
-                <div className="text-sm text-gray-500">
-                  {selectedLocation.city}
-                </div>
+                <div className="font-medium">{location.address}</div>
+                <div className="text-sm text-gray-500">{location.city}</div>
               </div>
             ) : (
               <span className="text-gray-500">Search for a location...</span>
@@ -85,14 +99,8 @@ const LocationDropdown = () => {
           align="start"
         >
           <Command className="rounded-lg border shadow-md">
-            <CommandInput
-              placeholder="Search location..."
-              onValueChange={(value) => {
-                // Implement search functionality
-              }}
-            />
+            <CommandInput placeholder="Search location..." />
             <CommandList>
-              {/* <CommandEmpty>No location found.</CommandEmpty> */}
               <CommandGroup>
                 <div className="px-2 py-1.5">
                   <button
@@ -103,24 +111,6 @@ const LocationDropdown = () => {
                     Use my current location
                   </button>
                 </div>
-                {/* {locations.map((location) => (
-                  <div
-                    onClick={() => handleLocationSelect(location)}
-                    key={location.id}
-                    // onSelect={() => handleLocationSelect(location)}
-                    className="flex cursor-pointer items-center overflow-auto border-y p-1 hover:bg-gray-100"
-                  >
-                    <span className="mr-2 mt-1 flex h-8 w-8 items-center justify-center self-start rounded-full bg-[#F8F8F8]">
-                      <MapPin className="h-4 w-6 text-[#828282]" />
-                    </span>
-                    <div>
-                      <div className="text-[#333333] ">{location.address}</div>
-                      <div className="text-sm text-[#ADADAD]">
-                        {location.city}
-                      </div>
-                    </div>
-                  </div>
-                ))} */}
               </CommandGroup>
             </CommandList>
           </Command>

@@ -49,6 +49,7 @@ import { useRemoteUserStore } from "@/stores/contributors";
 import { useUserStore } from "@/stores/currentUserStore";
 import { toast } from "sonner";
 import Map from "@/components/map/map";
+import { useLocationAddress } from "@/stores/useLocation";
 
 type PageProps = {};
 
@@ -64,6 +65,8 @@ type Stats = {
 };
 
 const DashboardRoot: React.FC<PageProps> = ({}) => {
+  const { latitude, longitude, location, error, loading } =
+    useLocationAddress();
   const [openFilter, setOpenFilter] = useState(false);
   const { user } = useRemoteUserStore();
   const searchParams = useSearchParams();
@@ -712,30 +715,28 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
                   refetch={refetch}
                 />
               ))
-              ) : (
-                                <div className="col-span-full flex  items-center justify-center text-gray-500">
-
-
-              <div className="mx-auto mt-9 flex max-w-96 flex-col items-center lg:mt-[100px]">
-                <Image src={Img} alt="No task illustrations" />
-                <h3 className="mb-4 mt-11 text-center text-2xl font-medium text-main-100">
-                  {/* Determine heading based on filter status */}
-                  {searchParams.toString()
-                    ? "No Tasks Found"
-                    : "No task related to you"}
-                </h3>
-                <p className="text-center text-base text-[#4F4F4F]">
-                  {searchParams.toString()
-                    ? generateFilteredSearchMessage()
-                    : "There is no task related to your location presently, update your location to see tasks"}
-                </p>
-                <button
-                  // onClick={() => setOpen(true)}
-                  className="mt-11 rounded-full bg-main-100 px-10 py-3 text-sm font-medium text-white"
-                >
-                  Update Location
-                </button>
-              </div>
+            ) : (
+              <div className="col-span-full flex items-center justify-center text-gray-500">
+                <div className="mx-auto mt-9 flex max-w-96 flex-col items-center lg:mt-[100px]">
+                  <Image src={Img} alt="No task illustrations" />
+                  <h3 className="mb-4 mt-11 text-center text-2xl font-medium text-main-100">
+                    {/* Determine heading based on filter status */}
+                    {searchParams.toString()
+                      ? "No Tasks Found"
+                      : "No task related to you"}
+                  </h3>
+                  <p className="text-center text-base text-[#4F4F4F]">
+                    {searchParams.toString()
+                      ? generateFilteredSearchMessage()
+                      : "There is no task related to your location presently, update your location to see tasks"}
+                  </p>
+                  <button
+                    // onClick={() => setOpen(true)}
+                    className="mt-11 rounded-full bg-main-100 px-10 py-3 text-sm font-medium text-white"
+                  >
+                    Update Location
+                  </button>
+                </div>
               </div>
             )}
           </div>

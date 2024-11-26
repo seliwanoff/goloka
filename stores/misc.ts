@@ -85,7 +85,17 @@ const useShowPasswordOtp = create<ShowPasswordOTPState>((set) => ({
   setShowOTP: (value: boolean) => set({ showOTP: value }),
 }));
 
+interface ModalState {
+  isModalOpen: boolean;
+  openModal: () => void;
+  closeModal: () => void;
+}
 
+export const useSuccessModalStore = create<ModalState>((set) => ({
+  isModalOpen: true,
+  openModal: () => set({ isModalOpen: true }),
+  closeModal: () => set({ isModalOpen: false }),
+}));
 
 const useWithdrawStepper = create<FundState>((set) => ({
   step: 0,

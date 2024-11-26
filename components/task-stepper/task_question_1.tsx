@@ -8,16 +8,14 @@ type Question = {
     | "dropdown"
     | "date"
     | "file"
+    | "photo"
+    | "video"
+    | "audio"
     | "password"
     | "email"
     | "tel"
     | "number";
 };
-
-type SelectedValues = Record<
-  string | number,
-  string | string[] | number | null
->;
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { ImagePlus, FileVideo2 } from "lucide-react";
@@ -28,27 +26,17 @@ import StepperControl from "./StepperControl";
 import { toast } from "sonner";
 import { Checkbox } from "../ui/checkbox";
 import { cn } from "@/lib/utils";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { createContributorAnswers } from "@/services/contributor";
 import Image from "next/image";
 import LocationDropdown from "./inputs/customLocation";
-import LocationInputApp from "./inputs/customAreaLocation";
-import LocationSelector from "./inputs/customAreaLocation";
+import LocationSelector from "./inputs/customLineLocation";
 import AudioRecorder from "./customAudioRecorder";
 import FileUpload from "./fileUpload";
-
-const options = (index: number) => {
-  switch (index) {
-    case 0:
-      return "A";
-    case 1:
-      return "B";
-    case 2:
-      return "C";
-    case 3:
-      return "D";
-  }
-};
+import CustomAreaInput from "./inputs/customAreaInput";
+import SuccessModal from "./customSuccess";
+import { useSuccessModalStore } from "@/stores/misc";
+import { uploadQuestionFile } from "@/services/misc";
 
 const DynamicQuestion = ({
   questions,
@@ -65,9 +53,9 @@ const DynamicQuestion = ({
   questionsLength: number;
   totalQuestions: number;
 }) => {
-  const { responseID } = useParams();
-  const [finalResponseID, setFinalResponseID] = useState("");
-  const router = useRouter();
+  const searchParams = useSearchParams();
+  const responseId = searchParams.get("responseID");
+  const { openModal } = useSuccessModalStore();
   const { answers, nextStep, updateAnswer, step } = useStepper();
   const [selectedValues, setSelectedValues] = useState<
     Record<string | number, any>
@@ -78,30 +66,68 @@ const DynamicQuestion = ({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const inputRefs = useRef<
     Record<string | number, HTMLInputElement | HTMLTextAreaElement | null>
-    >({});
+  >({});
 
   const KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
+  console.log(responseId, "responseID");
 
+  // useEffect(() => {
+  //   if (responseID?.includes("/")) {
+  //     //@ts-ignore
+  //     setFinalResponseID(responseID.split("/")[0]);
+  //   } else {
+  //     setFinalResponseID(responseID as string);
+  //   }
+  // }, [responseID]);
 
-  useEffect(() => {
-    // Handle cases where `responseID` has a trailing slash
-    if (responseID?.includes("/")) {
-      //@ts-ignore
-      setFinalResponseID(responseID.split("/")[0]);
-    } else {
-      setFinalResponseID(responseID as string);
-    }
-  }, [responseID]);
-
+  // useEffect(() => {
+  //   const initialAnswers: Record<string | number, any> = {};
+  //   questions.forEach((ques) => {
+  //     initialAnswers[ques.id] =
+  //       answers[ques.id] || (ques.type === "checkbox" ? [] : "");
+  //   });
+  //   setSelectedValues(initialAnswers);
+  // }, [questions, answers]);
   useEffect(() => {
     const initialAnswers: Record<string | number, any> = {};
     questions.forEach((ques) => {
+      // Prioritize existing answers from the stepper context
       initialAnswers[ques.id] =
         answers[ques.id] || (ques.type === "checkbox" ? [] : "");
     });
     setSelectedValues(initialAnswers);
   }, [questions, answers]);
+
+  // const handleInputChange = (
+  //   value: string | boolean | File | string[],
+  //   quesId: string | number,
+  //   type?: string,
+  // ) => {
+  //   if (type === "file" && value instanceof File) {
+  //     const reader = new FileReader();
+  //     reader.onloadend = () => {
+  //       setFilePreviews((prev) => ({
+  //         ...prev,
+  //         [quesId]: reader.result as string,
+  //       }));
+  //     };
+  //     reader.readAsDataURL(value);
+  //   }
+
+  //   if (type === "location" || "line") {
+  //     setSelectedValues((prev) => ({
+  //       ...prev,
+  //       [quesId]: value,
+  //     }));
+  //     return;
+  //   }
+
+  //   setSelectedValues((prev) => ({
+  //     ...prev,
+  //     [quesId]: value,
+  //   }));
+  // };
 
   const handleInputChange = (
     value: string | boolean | File | string[],
@@ -119,16 +145,81 @@ const DynamicQuestion = ({
       reader.readAsDataURL(value);
     }
 
+    if (type === "location" || "line" || "area") {
+      setSelectedValues((prev) => ({
+        ...prev,
+        [quesId]: value,
+      }));
+      return;
+    }
+
     setSelectedValues((prev) => ({
       ...prev,
       [quesId]: value,
     }));
   };
 
+  console.log(selectedValues, "selectedValues");
+  console.log(answers, "answers");
 
+  // const handleNext = async () => {
+  //   const allAnswered = questions.every(({ id, type }) => {
+  //     const value = selectedValues[id];
+
+  //     switch (type) {
+  //       case "text":
+  //       case "textarea":
+  //       case "email":
+  //       case "tel":
+  //       case "password":
+  //         return typeof value === "string" && value.trim().length > 0;
+  //       case "radio":
+  //       case "dropdown":
+  //         return value !== null && value !== "";
+  //       case "checkbox":
+  //         return Array.isArray(value) && value.length > 0;
+  //       case "date":
+  //         return typeof value === "string" && !isNaN(new Date(value).getTime());
+  //       case "number":
+  //         return typeof value === "number" && !isNaN(value);
+  //       case "file":
+  //         return value instanceof File;
+  //       default:
+  //         return true;
+  //     }
+  //   });
+
+  //   if (!allAnswered) {
+  //     toast.error("Please answer all questions before proceeding");
+  //     return;
+  //   }
+
+  //   setIsLoading(true);
+  //   try {
+  //     // Format the answers to be submitted
+  //     const formattedAnswers = {
+  //       answers: Object.keys(selectedValues).map((key) => {
+  //         const value = selectedValues[key];
+  //         return {
+  //           question_id: Number(key),
+  //           value: Array.isArray(value) ? value : value,
+  //           //  value: Array.isArray(value) ? value : [value],
+  //         };
+  //       }),
+  //     };
+
+  //     // Submit the formatted answers
+  //     await createContributorAnswers(id as string, formattedAnswers);
+  //     nextStep();
+  //   } catch (err) {
+  //     console.log("Error submitting answers:", err);
+  //     toast.error("Failed to save answers. Please try again.");
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   const handleNext = async () => {
-    // Check if all questions have been answered based on their type
     const allAnswered = questions.every(({ id, type }) => {
       const value = selectedValues[id];
 
@@ -149,6 +240,9 @@ const DynamicQuestion = ({
         case "number":
           return typeof value === "number" && !isNaN(value);
         case "file":
+        case "photo":
+        case "video":
+        case "audio":
           return value instanceof File;
         default:
           return true;
@@ -161,26 +255,74 @@ const DynamicQuestion = ({
     }
 
     setIsLoading(true);
+
     try {
-      // Format the answers to be submitted
+      // Filter and prepare answers for non-file types
       const formattedAnswers = {
-        answers: Object.keys(selectedValues).map((key) => {
-          const value = selectedValues[key];
-          return {
-            question_id: Number(key),
-            value: Array.isArray(value) ? value : value,
-            //  value: Array.isArray(value) ? value : [value],
-          };
-        }),
+        answers: Object.keys(selectedValues)
+          .filter((key) => {
+            const type = questions.find((q) => q.id === Number(key))?.type;
+            return !["file", "photo", "video", "audio"].includes(type ?? "");
+          })
+          .map((key) => {
+            const value = selectedValues[key];
+            return {
+              question_id: Number(key),
+              value: Array.isArray(value) ? value : value,
+            };
+          }),
       };
 
-      // Submit the formatted answers
-      await createContributorAnswers(
-        finalResponseID as string,
+      // Extract file-related questions
+      const fileQuestions = questions.filter((q) =>
+        ["file", "photo", "video", "audio"].includes(q.type),
+      );
+      console.log(fileQuestions, "fileQuestions");
+      console.log(formattedAnswers, "formattedAnswers");
+      // Prepare FormData for file uploads
+      const formData = new FormData();
+      fileQuestions.forEach((currentQuestion) => {
+        const value = selectedValues[currentQuestion.id];
+        if (value) {
+          const file = value as File;
+          const ext = file.name.split(".").pop(); 
+          formData.append(
+            `${currentQuestion.type}s[${currentQuestion.id}]`,
+            new File([file], `${currentQuestion.id}.${ext}`, {
+              type: file.type,
+            }),
+          );
+        }
+      });
+
+      // Submit non-file answers
+      const answerResponse = await createContributorAnswers(
+        responseId as string,
         formattedAnswers,
       );
+
+      // Submit file-related questions
+      if (fileQuestions.length > 0) {
+        await uploadQuestionFile(responseId as string, formData);
+      }
+
+      // Update answers in the stepper context
+      questions.forEach((ques) => {
+        updateAnswer(ques.id, selectedValues[ques.id]);
+      });
+
+      // Success feedback
+      //@ts-ignore
+      toast.success(answerResponse?.message);
+
+      if (isLastStep) {
+        openModal();
+      }
+
+      // Move to the next step
       nextStep();
     } catch (err) {
+      console.error(err);
       toast.error("Failed to save answers. Please try again.");
     } finally {
       setIsLoading(false);
@@ -291,7 +433,7 @@ const DynamicQuestion = ({
               <button
                 type="button"
                 onClick={() => inputRefs.current[ques.id]?.click()}
-                className="relative flex h-40 items-center justify-center rounded-lg  border-2 border-[#3365E31F] bg-[#3365E31F] text-center"
+                className="relative flex h-40 items-center justify-center rounded-lg border-2 border-[#3365E31F] bg-[#3365E31F] text-center"
               >
                 <div className="flex flex-col items-center">
                   <div className="flex w-fit cursor-pointer flex-col rounded-lg px-4 py-2 text-sm font-medium text-[#3365E3]">
@@ -370,7 +512,6 @@ const DynamicQuestion = ({
             )}
           </div>
         );
-
       case "number":
         return (
           <div className="col-span-2">
@@ -388,35 +529,38 @@ const DynamicQuestion = ({
       case "location":
         return (
           <div className="col-span-2">
-            {/* <input
-              //@ts-ignore
-              ref={(el) => (inputRefs.current[ques.id] = el)}
-              type="text"
-              value={selectedValues[ques.id] || ""}
-              id={ques.name}
-              placeholder={ques.placeholder || "Enter your answer"}
-              onChange={(e) => handleInputChange(e.target.value, ques.id)}
-              className="form-input w-full rounded-lg border-[#D9DCE0] p-4"
-            /> */}
-
-            <LocationDropdown />
+            <LocationDropdown
+              questionId={ques.id}
+              onLocationSelect={(location) =>
+                handleInputChange(location, ques.id)
+              }
+            />
           </div>
         );
       case "line":
         return (
           <div className="col-span-2">
-            {/* <input
-              //@ts-ignore
-              ref={(el) => (inputRefs.current[ques.id] = el)}
-              type="text"
-              value={selectedValues[ques.id] || ""}
-              id={ques.name}
-              placeholder={ques.placeholder || "Enter your answer"}
-              onChange={(e) => handleInputChange(e.target.value, ques.id)}
-              className="form-input w-full rounded-lg border-[#D9DCE0] p-4"
-            /> */}
-
-            <LocationSelector apiKey={KEY as string} />
+            <LocationSelector
+              apiKey={KEY as string}
+              questionId={ques.id}
+              onLocationSelect={(locations) =>
+                //@ts-ignore
+                handleInputChange(locations, ques.id, "location")
+              }
+            />
+          </div>
+        );
+      case "area":
+        return (
+          <div className="col-span-2">
+            <CustomAreaInput
+              apiKey={KEY as string}
+              questionId={ques.id}
+              onLocationSelect={(locations) =>
+                //@ts-ignore
+                handleInputChange(locations, ques.id, "location")
+              }
+            />
           </div>
         );
       case "email":
@@ -461,7 +605,6 @@ const DynamicQuestion = ({
             />
           </div>
         );
-
       case "range":
         return (
           <div className="col-span-2">
@@ -491,6 +634,7 @@ const DynamicQuestion = ({
               onChange={(e) => handleInputChange(e.target.value, ques.id)}
               className="form-select w-full rounded-lg border-[#D9DCE0]"
             >
+              <option value="">Select an option</option>
               {ques.options?.map(
                 (opt: any, index: React.Key | null | undefined) => (
                   <option key={index} value={opt?.value}>
@@ -501,8 +645,7 @@ const DynamicQuestion = ({
             </select>
           </div>
         );
-
-      case "image":
+      case "photo":
         return (
           <div className="col-span-2">
             <input
@@ -523,7 +666,7 @@ const DynamicQuestion = ({
               {/* image container */}
               <div
                 onClick={() => inputRefs.current[ques.id]?.click()}
-                className="relative flex h-40 items-center justify-center rounded-lg  border-2 border-[#3365E31F] bg-[#3365E31F] text-center"
+                className="relative flex h-40 items-center justify-center rounded-lg border-2 border-[#3365E31F] bg-[#3365E31F] text-center"
               >
                 {filePreviews[ques.id] ? (
                   <div className="absolute inset-0 overflow-hidden rounded-lg">
@@ -540,7 +683,7 @@ const DynamicQuestion = ({
                       <div className="mb-2 flex h-8 w-8 items-center justify-center self-center rounded-full border border-dashed border-slate-300 bg-slate-200">
                         <ImagePlus />
                       </div>
-                      <span>Upload Image</span>
+                      <span>Upload Photo</span>
                     </div>
                     <span className="text-xs text-slate-400">
                       JPEG size should not be more than 1MB
@@ -593,8 +736,6 @@ const DynamicQuestion = ({
             />
           </div>
         );
-
-      // Additional Input Types
       case "url":
         return (
           <div className="col-span-2">
@@ -649,7 +790,7 @@ const DynamicQuestion = ({
       case "file":
         return (
           <div className="col-span-2">
-          <FileUpload/>
+            <FileUpload />
           </div>
         );
 
@@ -659,7 +800,7 @@ const DynamicQuestion = ({
   };
 
   console.log(questions, "questionsquestions");
-  // return <div>hello</div>;
+
   return (
     <div className="space-y-5">
       <>

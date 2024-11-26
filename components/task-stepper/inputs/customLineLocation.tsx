@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { MapPin, Map } from "lucide-react";
 import Autocomplete from "react-google-autocomplete";
 import { Button } from "@/components/ui/button";
@@ -7,40 +7,91 @@ interface Location {
   id: number;
   name: string;
   placeId?: string;
+  latitude?: number;
+  longitude?: number;
+}
+
+interface CoordinateLocation {
+  latitude: number;
+  longitude: number;
 }
 
 interface Props {
   apiKey: string;
+  questionId: number | string;
+  onLocationSelect: (locations: CoordinateLocation[]) => void;
 }
 
-const LocationSelector = ({ apiKey }: Props) => {
+const LocationSelector = ({ apiKey, questionId, onLocationSelect }: Props) => {
   const [locations, setLocations] = useState<Location[]>([{ id: 1, name: "" }]);
-  const [logs, setLogs] = useState<Location[]>([]);
 
-  const addNewLocation = () => {
+  const updateLocations = useCallback(
+    (newLocations: Location[]) => {
+      // Filter out locations with no coordinates
+      const filteredLocations = newLocations.filter(
+        (loc) => loc.latitude !== undefined && loc.longitude !== undefined,
+      );
+
+      // Transform to coordinate objects
+      const coordinateLocations = filteredLocations.map((loc) => ({
+        latitude: loc.latitude!,
+        longitude: loc.longitude!,
+      }));
+
+      // Call onLocationSelect only with locations having coordinates
+      onLocationSelect(coordinateLocations);
+
+      // Update local state
+      setLocations(
+        newLocations.length > 0 ? newLocations : [{ id: 1, name: "" }],
+      );
+    },
+    [onLocationSelect],
+  );
+
+  const addNewLocation = useCallback(() => {
     const newLocation = { id: Date.now(), name: "" };
-    setLocations([...locations, newLocation]);
-  };
+    updateLocations([...locations, newLocation]);
+  }, [locations, updateLocations]);
 
-  const removeLocation = (id: number) => {
-    setLocations(locations.filter((loc) => loc.id !== id));
-    setLogs(logs.filter((log) => log.id !== id)); // Remove from logs
-  };
+  const removeLocation = useCallback(
+    (id: number) => {
+      const updatedLocations = locations.filter((loc) => loc.id !== id);
 
-  const updateLocation = (id: number, name: string, placeId?: string) => {
-    setLocations(
-      locations.map((loc) => (loc.id === id ? { ...loc, name, placeId } : loc)),
-    );
-    setLogs((prevLogs) => {
-      const updatedLogs = prevLogs.filter((log) => log.id !== id);
-      return [...updatedLogs, { id, name, placeId }];
-    });
-  };
+      // Ensure at least one location input remains
+      updateLocations(
+        updatedLocations.length > 0 ? updatedLocations : [{ id: 1, name: "" }],
+      );
+    },
+    [locations, updateLocations],
+  );
 
-  // Log changes to the console
-  useEffect(() => {
-    console.log("Location Logs:", logs);
-  }, [logs]);
+  const updateLocation = useCallback(
+    (id: number, place: google.maps.places.PlaceResult) => {
+      // Safely extract coordinates
+      const lat = place.geometry?.location?.lat();
+      const lng = place.geometry?.location?.lng();
+
+      if (lat !== undefined && lng !== undefined) {
+        const updatedLocations = locations.map((loc) =>
+          loc.id === id
+            ? {
+                ...loc,
+                name: place.formatted_address || "",
+                placeId: place.place_id,
+                latitude: lat,
+                longitude: lng,
+              }
+            : loc,
+        );
+
+        updateLocations(updatedLocations);
+      } else {
+        console.warn("Could not extract coordinates for the selected location");
+      }
+    },
+    [locations, updateLocations],
+  );
 
   return (
     <div className="mx-auto w-full max-w-2xl space-y-4">
@@ -58,19 +109,13 @@ const LocationSelector = ({ apiKey }: Props) => {
               apiKey={apiKey}
               placeholder="Search for a location"
               defaultValue={location.name}
-              className="w-full rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-3 text-gray-700 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 placeholder:text-sm"
+              className="w-full rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-3 text-gray-700 placeholder-gray-400 shadow-sm placeholder:text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               options={{
                 types: ["geocode"],
                 componentRestrictions: { country: "ng" },
               }}
               onPlaceSelected={(place) => {
-                if (place.formatted_address) {
-                  updateLocation(
-                    location.id,
-                    place.formatted_address,
-                    place.place_id,
-                  );
-                }
+                updateLocation(location.id, place);
               }}
             />
           </div>

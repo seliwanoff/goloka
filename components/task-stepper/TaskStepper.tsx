@@ -32,15 +32,18 @@ import React from "react";
 
 import { useStepper } from "@/context/TaskStepperContext.tsx";
 import DynamicQuestion from "./task_question_1";
+import SuccessModal from "./customSuccess";
+import { useSuccessModalStore } from "@/stores/misc";
 
 const TaskStepper = ({
   quest,
 }: {
   quest: { question_groups: QuestionGroup[]; ungrouped_questions: Question[] };
-}) => {
+  }) => {
+  const { isModalOpen, closeModal } = useSuccessModalStore();
   const { step } = useStepper();
   const { question_groups, ungrouped_questions } = quest;
-
+;
   const allGroups = [
     ...question_groups,
     ...(ungrouped_questions.length > 0
@@ -60,14 +63,17 @@ const TaskStepper = ({
   // console.log(allGroups, "allGroups");
 
   return currentGroup ? (
-    <DynamicQuestion
-      questions={currentGroup.questions}
-      isUngrouped={step === question_groups.length + 1}
-      isLastStep={isLastStep}
-      title={currentGroup.name}
-      questionsLength={allGroups.length}
-      totalQuestions={totalQuestions}
-    />
+    <div>
+      <DynamicQuestion
+        questions={currentGroup.questions}
+        isUngrouped={step === question_groups.length + 1}
+        isLastStep={isLastStep}
+        title={currentGroup.name}
+        questionsLength={allGroups.length}
+        totalQuestions={totalQuestions}
+      />
+      {isModalOpen && <SuccessModal />}
+    </div>
   ) : (
     <div>No questions available for this Campaign</div>
   );

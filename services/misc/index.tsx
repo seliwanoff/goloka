@@ -10,7 +10,7 @@ import {
   deleteDataById,
   ServerResponse,
 } from "@/lib/api";
-
+import axios from "axios";
 import { UseQueryResult } from "@tanstack/react-query";
 
 export type ServerResponseOrNull<T> = ServerResponse<T> | null;
@@ -27,9 +27,9 @@ export const getCountry = async (): Promise<ServerResponseOrNull<any>> => {
   }
 };
 
-export const getOTP = async (
-  {}: any,
-): Promise<UseQueryResult<ServerResponse<any>>> => {
+export const getOTP = async ({}: any): Promise<
+  UseQueryResult<ServerResponse<any>>
+> => {
   return queryClient.fetchQuery({
     queryKey: ["getOTP"],
     queryFn: async () => {
@@ -47,7 +47,6 @@ export const forgetPassword = async (
     },
   });
 };
-
 
 // ~ =============================================>
 // ~ ======= location  -->
@@ -77,4 +76,34 @@ export const updatePin = async (
       return await postData<ServerResponse<any>>("/pin/create", data);
     },
   });
+};
+
+export const uploadQuestionFile = async (
+  responseId: string,
+  formData: FormData,
+) => {
+  try {
+    const response = await axios.post(
+      `contributor/responses/${responseId}/answer/upload`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        // Optionally add progress tracking
+        // onUploadProgress: (progressEvent: ProgressEvent) => {
+        //   // Calculate percentage of file upload progress
+        //   const percentCompleted = Math.round(
+        //     (progressEvent.loaded * 100) / progressEvent.total,
+        //   );
+        //   console.log(`File upload progress: ${percentCompleted}%`);
+        // },
+      },
+    );
+    console.log("File uploaded successfully:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error during file upload:", error);
+    throw error;
+  }
 };
