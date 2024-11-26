@@ -14,7 +14,10 @@ type Question = {
     | "password"
     | "email"
     | "tel"
-    | "number";
+    | "number"
+    | "location"
+    | "area"
+    | "line";
 };
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
@@ -144,8 +147,7 @@ const DynamicQuestion = ({
       };
       reader.readAsDataURL(value);
     }
-
-    if (type === "location" || "line" || "area") {
+    if (type === "location" || type === "line" || type === "area") {
       setSelectedValues((prev) => ({
         ...prev,
         [quesId]: value,
@@ -153,11 +155,76 @@ const DynamicQuestion = ({
       return;
     }
 
+    // if (type === "location" || "line" || "area") {
+    //   setSelectedValues((prev) => ({
+    //     ...prev,
+    //     [quesId]: value,
+    //   }));
+    //   return;
+    // }
+
     setSelectedValues((prev) => ({
       ...prev,
       [quesId]: value,
     }));
   };
+
+  useEffect(() => {
+    console.log("Current selectedValues:", selectedValues);
+    console.log("Current answers from stepper:", answers);
+  }, [selectedValues, answers]);
+
+  // const handleInputChange = (
+  //   value: string | boolean | File | string[] | any,
+  //   quesId: string | number,
+  //   type?: string,
+  // ) => {
+  //   // Handle file uploads (images, videos)
+  //   if (type === "file" && value instanceof File) {
+  //     const reader = new FileReader();
+  //     reader.onloadend = () => {
+  //       setFilePreviews((prev) => ({
+  //         ...prev,
+  //         [quesId]: reader.result as string,
+  //       }));
+  //     };
+  //     reader.readAsDataURL(value);
+  //   }
+
+  //   // Handle location-related inputs
+  //   if (type === "location" || type === "line" || type === "area") {
+  //     setSelectedValues((prev) => ({
+  //       ...prev,
+  //       [quesId]: value,
+  //     }));
+  //     return;
+  //   }
+
+  //   // Handle checkbox selections
+  //   if (Array.isArray(value)) {
+  //     setSelectedValues((prev) => ({
+  //       ...prev,
+  //       [quesId]: value,
+  //     }));
+  //     return;
+  //   }
+
+  //   // Handle number inputs
+  //   if (type === "number") {
+  //     const numValue = Number(value);
+  //     setSelectedValues((prev) => ({
+  //       ...prev,
+  //       [quesId]: isNaN(numValue) ? "" : numValue,
+  //     }));
+  //     return;
+  //   }
+
+  //   // Default handling for other input types
+  //   setSelectedValues((prev) => ({
+  //     ...prev,
+  //     [quesId]: value,
+  //   }));
+  // };
 
   console.log(selectedValues, "selectedValues");
   console.log(answers, "answers");
@@ -219,78 +286,317 @@ const DynamicQuestion = ({
   //   }
   // };
 
+  // const handleNext = async () => {
+  //   const allAnswered = questions.every(({ id, type }) => {
+  //     const value = selectedValues[id];
+
+  //     switch (type) {
+  //       case "text":
+  //       case "textarea":
+  //       case "email":
+  //       case "tel":
+  //       case "password":
+  //         return typeof value === "string" && value.trim().length > 0;
+  //       case "radio":
+  //       case "dropdown":
+  //         return value !== null && value !== "";
+  //       case "checkbox":
+  //         return Array.isArray(value) && value.length > 0;
+  //       case "date":
+  //         return typeof value === "string" && !isNaN(new Date(value).getTime());
+  //       case "number":
+  //         return typeof value === "number" && !isNaN(value);
+  //       case "file":
+  //       case "photo":
+  //       case "video":
+  //       case "audio":
+  //         return value instanceof File;
+  //       default:
+  //         return true;
+  //     }
+  //   });
+
+  //   if (!allAnswered) {
+  //     toast.error("Please answer all questions before proceeding");
+  //     return;
+  //   }
+
+  //   setIsLoading(true);
+
+  //   try {
+  //     // Filter and prepare answers for non-file types
+  //     const formattedAnswers = {
+  //       answers: Object.keys(selectedValues)
+  //         .filter((key) => {
+  //           const type = questions.find((q) => q.id === Number(key))?.type;
+  //           return !["file", "photo", "video", "audio"].includes(type ?? "");
+  //         })
+  //         .map((key) => {
+  //           const value = selectedValues[key];
+  //           return {
+  //             question_id: Number(key),
+  //             value: Array.isArray(value) ? value : value,
+  //           };
+  //         }),
+  //     };
+
+  //     // Extract file-related questions
+  //     const fileQuestions = questions.filter((q) =>
+  //       ["file", "photo", "video", "audio"].includes(q.type),
+  //     );
+  //     console.log(fileQuestions, "fileQuestions");
+  //     console.log(formattedAnswers, "formattedAnswers");
+  //     // Prepare FormData for file uploads
+  //     const formData = new FormData();
+  //     fileQuestions.forEach((currentQuestion) => {
+  //       const value = selectedValues[currentQuestion.id];
+  //       if (value) {
+  //         const file = value as File;
+  //         const ext = file.name.split(".").pop();
+  //         formData.append(
+  //           `${currentQuestion.type}s[${currentQuestion.id}]`,
+  //           new File([file], `${currentQuestion.id}.${ext}`, {
+  //             type: file.type,
+  //           }),
+  //         );
+  //       }
+  //     });
+
+  //     // Submit non-file answers
+  //     const answerResponse = await createContributorAnswers(
+  //       responseId as string,
+  //       formattedAnswers,
+  //     );
+
+  //     // Submit file-related questions
+  //     if (fileQuestions.length > 0) {
+  //       await uploadQuestionFile(responseId as string, formData);
+  //     }
+
+  //     // Update answers in the stepper context
+  //     questions.forEach((ques) => {
+  //       updateAnswer(ques.id, selectedValues[ques.id]);
+  //     });
+
+  //     // Success feedback
+  //     //@ts-ignore
+  //     toast.success(answerResponse?.message);
+
+  //     if (isLastStep) {
+  //       openModal();
+  //     }
+
+  //     // Move to the next step
+  //     nextStep();
+  //   } catch (err) {
+  //     console.error(err);
+  //     toast.error("Failed to save answers. Please try again.");
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
   const handleNext = async () => {
-    const allAnswered = questions.every(({ id, type }) => {
-      const value = selectedValues[id];
+    // Prepare formatted answers before validation
+    const formattedAnswers = {
+      answers: Object.keys(selectedValues)
+        .filter((key) => {
+          // Find the type of the question
+          const type = questions.find((q) => q.id === Number(key))?.type;
 
-      switch (type) {
-        case "text":
-        case "textarea":
-        case "email":
-        case "tel":
-        case "password":
-          return typeof value === "string" && value.trim().length > 0;
-        case "radio":
-        case "dropdown":
-          return value !== null && value !== "";
-        case "checkbox":
-          return Array.isArray(value) && value.length > 0;
-        case "date":
-          return typeof value === "string" && !isNaN(new Date(value).getTime());
-        case "number":
-          return typeof value === "number" && !isNaN(value);
-        case "file":
-        case "photo":
-        case "video":
-        case "audio":
-          return value instanceof File;
-        default:
-          return true;
-      }
-    });
+          // Exclude file-related types
+          return !["file", "photo", "video", "audio"].includes(type ?? "");
+        })
+        .map((key) => {
+          const value = selectedValues[key];
+          const question = questions.find((q) => q.id === Number(key));
 
-    if (!allAnswered) {
-      toast.error("Please answer all questions before proceeding");
-      return;
-    }
+          return {
+            question_id: Number(key),
+            // Handle array values (like checkboxes) and other types
+            value: Array.isArray(value)
+              ? value.map((item) => item?.value || item) // Handle objects or primitive values
+              : value,
+          };
+        }),
+    };
 
+    // Validation logic
+    // const allAnswered = questions.every(({ id, type }) => {
+    //   const value = selectedValues[id];
+
+    //   switch (type) {
+    //     case "text":
+    //     case "textarea":
+    //     case "email":
+    //     case "tel":
+    //     case "password":
+    //       return (
+    //         value !== null && value !== undefined && String(value).trim().length > 0
+    //       );
+
+    //     case "radio":
+    //     case "dropdown":
+    //       return value !== null && value !== undefined && value !== "";
+
+    //     case "checkbox":
+    //       return Array.isArray(value) && value.length > 0;
+
+    //     case "date":
+    //       return (
+    //         value !== null &&
+    //         value !== undefined &&
+    //         !isNaN(new Date(value).getTime())
+    //       );
+
+    //     case "number":
+    //       return value !== null && value !== undefined && !isNaN(Number(value));
+
+    //     case "file":
+    //     case "photo":
+    //     case "video":
+    //     case "audio":
+    //       if (!(value instanceof File)) {
+    //         console.warn(`Invalid file for question ${id}:`, value);
+    //         return false;
+    //       }
+
+    //       const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+    //       const ALLOWED_TYPES = {
+    //         file: [".pdf", ".doc", ".docx", ".txt"],
+    //         photo: ["image/jpeg", "image/png", "image/gif"],
+    //         video: ["video/mp4", "video/mpeg", "video/quicktime"],
+    //         audio: ["audio/mpeg", "audio/wav", "audio/ogg", "audio/webm"],
+    //       };
+
+    //       const fileExt = value.name.split(".").pop()?.toLowerCase();
+    //       const fileType = value.type;
+
+    //       const isValidFileType =
+    //         type === "file"
+    //           ? ALLOWED_TYPES[type].includes(`.${fileExt}`)
+    //           : ALLOWED_TYPES[type].includes(fileType);
+
+    //       if (!isValidFileType) {
+    //         console.warn(`Invalid file type for question ${id}:`, {
+    //           type: fileType,
+    //           extension: fileExt,
+    //           allowedTypes: ALLOWED_TYPES[type],
+    //         });
+    //       }
+
+    //       return value.size <= MAX_FILE_SIZE && isValidFileType;
+
+    //     case "location":
+    //       return (
+    //         value !== null &&
+    //         value !== undefined &&
+    //         typeof value === "object" &&
+    //         "latitude" in value &&
+    //         "longitude" in value
+    //       );
+
+    //     case "line":
+    //     case "area":
+    //       return value !== null && value !== undefined;
+
+    //     default:
+    //       return true;
+    //   }
+    // });
+
+    // const allAnswered = questions.every(({ id, type }) => {
+    //   const value = selectedValues[id];
+
+    //   switch (type) {
+    //     case "text":
+    //     case "textarea":
+    //     case "email":
+    //     case "tel":
+    //     case "password":
+    //       return typeof value === "string" && value.trim().length > 0;
+    //     case "radio":
+    //     case "dropdown":
+    //       return value !== null && value !== "";
+    //     case "checkbox":
+    //       return Array.isArray(value) && value.length > 0;
+    //     case "date":
+    //       return typeof value === "string" && !isNaN(new Date(value).getTime());
+    //     case "number":
+    //       return typeof value === "number" && !isNaN(value);
+    //     case "file":
+    //     case "photo":
+    //     case "video":
+    //     case "audio":
+    //       return value instanceof File;
+    //     default:
+    //       return true;
+    //   }
+    // });
+    // const allAnswered = questions.every(({ id, type }) => {
+    //   const value = selectedValues[id];
+    //   switch (type) {
+    //     case "text":
+    //     case "textarea":
+    //     case "email":
+    //     case "tel":
+    //     case "password":
+    //       return typeof value === "string" && value.trim().length > 0;
+    //     case "radio":
+    //     case "dropdown":
+    //       return value !== null && value !== "";
+    //     case "checkbox":
+    //       return Array.isArray(value) && value.length > 0;
+    //     case "date":
+    //       return typeof value === "string" && !isNaN(new Date(value).getTime());
+    //     case "number":
+    //       return typeof value === "number" && !isNaN(value);
+
+    //     default:
+    //       return true;
+    //   }
+    // });
+
+    // console.log(formattedAnswers, "formattedAnswers");
+
+    // // Validation check
+    // if (!allAnswered) {
+    //   console.log("Validation failed. Selected values:", selectedValues);
+    //   console.log("Questions:", questions);
+
+    //   questions.forEach(({ id, type }) => {
+    //     const value = selectedValues[id];
+    //     if (!value) {
+    //       console.warn(`Question ${id} of type ${type} is not filled`);
+    //     }
+    //   });
+
+    //   toast.error("Please fill out all required fields and check file uploads");
+    //   return;
+    // }
+
+    // Start loading state
     setIsLoading(true);
 
     try {
-      // Filter and prepare answers for non-file types
-      const formattedAnswers = {
-        answers: Object.keys(selectedValues)
-          .filter((key) => {
-            const type = questions.find((q) => q.id === Number(key))?.type;
-            return !["file", "photo", "video", "audio"].includes(type ?? "");
-          })
-          .map((key) => {
-            const value = selectedValues[key];
-            return {
-              question_id: Number(key),
-              value: Array.isArray(value) ? value : value,
-            };
-          }),
-      };
-
-      // Extract file-related questions
+      // Prepare FormData for file uploads
+      const formData = new FormData();
       const fileQuestions = questions.filter((q) =>
         ["file", "photo", "video", "audio"].includes(q.type),
       );
-      console.log(fileQuestions, "fileQuestions");
-      console.log(formattedAnswers, "formattedAnswers");
-      // Prepare FormData for file uploads
-      const formData = new FormData();
+
+      // Process file uploads
       fileQuestions.forEach((currentQuestion) => {
         const value = selectedValues[currentQuestion.id];
-        if (value) {
-          const file = value as File;
-          const ext = file.name.split(".").pop(); 
+        if (value instanceof File) {
+          // Create unique filename
+          const timestamp = Date.now();
+          const uniqueFileName = `${timestamp}_${currentQuestion.id}_${value.name}`;
+
           formData.append(
             `${currentQuestion.type}s[${currentQuestion.id}]`,
-            new File([file], `${currentQuestion.id}.${ext}`, {
-              type: file.type,
-            }),
+            value,
+            uniqueFileName,
           );
         }
       });
@@ -301,30 +607,49 @@ const DynamicQuestion = ({
         formattedAnswers,
       );
 
-      // Submit file-related questions
+      // Submit file uploads if present
       if (fileQuestions.length > 0) {
-        await uploadQuestionFile(responseId as string, formData);
+        const fileResponse = await uploadQuestionFile(
+          responseId as string,
+          formData,
+        );
+
+        // Optional: Check file upload response
+        if (!fileResponse?.success) {
+          throw new Error(fileResponse?.message || "File upload failed");
+        }
       }
 
-      // Update answers in the stepper context
+      // Update answers in stepper context
       questions.forEach((ques) => {
         updateAnswer(ques.id, selectedValues[ques.id]);
       });
 
-      // Success feedback
-      //@ts-ignore
-      toast.success(answerResponse?.message);
+      toast.success(
+        //@ts-ignore
+        answerResponse?.message || "Answers submitted successfully",
+      );
 
+      // Handle last step
       if (isLastStep) {
         openModal();
       }
 
-      // Move to the next step
+      // Move to next step
       nextStep();
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to save answers. Please try again.");
+    } catch (error) {
+      // Error handling
+      console.error("Submission error:", error);
+
+      // Type-safe error message extraction
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred during submission";
+
+      toast.error(errorMessage);
     } finally {
+      // Always reset loading state
       setIsLoading(false);
     }
   };
@@ -754,7 +1079,10 @@ const DynamicQuestion = ({
       case "audio":
         return (
           <div className="col-span-2">
-            <AudioRecorder />
+            <AudioRecorder
+              quesId={ques.id}
+              handleInputChange={handleInputChange}
+            />
           </div>
         );
       case "tel":
@@ -790,7 +1118,12 @@ const DynamicQuestion = ({
       case "file":
         return (
           <div className="col-span-2">
-            <FileUpload />
+            <FileUpload
+              onFileUpload={(file, base64) =>
+                //@ts-ignore
+                handleInputChange({ file, base64 }, ques.id, "file")
+              }
+            />
           </div>
         );
 

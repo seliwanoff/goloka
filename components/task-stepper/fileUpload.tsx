@@ -11,7 +11,11 @@ const extensionIcons: { [key: string]: string } = {
   csv: "/resource-icons/csv.jpg",
 };
 
-const FileUpload = () => {
+interface FileUploadProps {
+  onFileUpload?: (file: File | null, base64: string | null) => void;
+}
+
+const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
   const [file, setFile] = useState<File | null>(null);
   const [fileBase64, setFileBase64] = useState<string | null>(null);
   const [progress, setProgress] = useState<number>(0);
@@ -51,8 +55,13 @@ const FileUpload = () => {
   const convertFileToBase64 = (file: File) => {
     const reader = new FileReader();
     reader.onload = () => {
-      setFileBase64(reader.result as string);
-      console.log("File in Base64:", reader.result);
+      const base64 = reader.result as string;
+      setFileBase64(base64);
+
+      // Call the onFileUpload callback if provided
+      if (onFileUpload) {
+        onFileUpload(file, base64);
+      }
     };
     reader.readAsDataURL(file);
   };
@@ -62,6 +71,11 @@ const FileUpload = () => {
     setFileBase64(null);
     setProgress(0);
     setError(null);
+
+    // Call onFileUpload with null values when file is removed
+    if (onFileUpload) {
+      onFileUpload(null, null);
+    }
   };
 
   const getFileExtension = (fileName: string) => {
@@ -109,7 +123,7 @@ const FileUpload = () => {
 
       {/* File Progress */}
       {file && (
-        <div className="flex items-center rounded-lg bg-gray-50  shadow-sm">
+        <div className="flex items-center rounded-lg bg-gray-50 shadow-sm">
           <div className="relative mr-3 h-10 w-10">
             <Image
               src={getFileIcon(file.name)}
@@ -123,7 +137,7 @@ const FileUpload = () => {
           <div className="flex-1">
             <p className="truncate font-medium text-gray-700">{file.name}</p>
             <div className="flex items-center space-x-2">
-              <p className="text-[10px] text-blue-500 ">{progress}% Done</p>
+              <p className="text-[10px] text-blue-500">{progress}% Done</p>
               <div className="h-1 w-full rounded-full bg-gray-200">
                 <div
                   className="h-1 rounded-full bg-blue-500"

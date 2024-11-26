@@ -1,7 +1,19 @@
 import React, { useState, useRef } from "react";
 import { Mic, StopCircle, Trash2 } from "lucide-react";
 
-const AudioRecorder = () => {
+interface AudioRecorderProps {
+  quesId: string | number;
+  handleInputChange: (
+    value: string | boolean | File | string[],
+    quesId: string | number,
+    type?: string
+  ) => void;
+}
+
+const AudioRecorder: React.FC<AudioRecorderProps> = ({
+  quesId,
+  handleInputChange
+}) => {
   const [isRecording, setIsRecording] = useState(false);
   const [audioURL, setAudioURL] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -26,7 +38,15 @@ const AudioRecorder = () => {
         const audioURL = URL.createObjectURL(audioBlob);
         setAudioURL(audioURL);
 
-        console.log("Recorded Audio Blob:", audioBlob);
+        // Convert Blob to File
+        const audioFile = new File([audioBlob], `recording-${quesId}.webm`, {
+          type: "audio/webm"
+        });
+
+        // Use handleInputChange to update the parent component's state
+        handleInputChange(audioFile, quesId, "audio");
+
+        console.log("Recorded Audio File:", audioFile);
         audioChunks.current = []; // Clear the audio chunks for the next recording
       };
 
@@ -48,6 +68,9 @@ const AudioRecorder = () => {
 
   const deleteRecording = () => {
     setAudioURL(null);
+    // Passing null to clear the audio value
+    //@ts-ignore
+    handleInputChange(null, quesId, "audio");
   };
 
   return (
@@ -66,7 +89,6 @@ const AudioRecorder = () => {
               className="flex items-center space-x-2 rounded-lg bg-blue-500 px-4 py-2 text-white shadow-md hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300"
             >
               <Mic className="h-5 w-5" />
-              {/* <span>Start Recording</span> */}
             </button>
           ) : (
             <button
@@ -74,7 +96,6 @@ const AudioRecorder = () => {
               className="flex items-center space-x-2 rounded-lg bg-red-500 px-4 py-2 text-white shadow-md hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-300"
             >
               <StopCircle className="h-5 w-5" />
-              {/* <span>Stop Recording</span> */}
             </button>
           )}
 
@@ -110,7 +131,7 @@ const AudioRecorder = () => {
               <Trash2 className="h-5 w-5" />
             </button>
           </div>
-          <p className="text-sm text-gray-500">Play Back Recorded audio.</p>
+          <p className="text-sm text-gray-500">Play Back Recorded Audio</p>
         </div>
       )}
     </div>

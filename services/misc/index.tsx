@@ -82,28 +82,34 @@ export const uploadQuestionFile = async (
   responseId: string,
   formData: FormData,
 ) => {
-  try {
-    const response = await axios.post(
-      `contributor/responses/${responseId}/answer/upload`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        // Optionally add progress tracking
-        // onUploadProgress: (progressEvent: ProgressEvent) => {
-        //   // Calculate percentage of file upload progress
-        //   const percentCompleted = Math.round(
-        //     (progressEvent.loaded * 100) / progressEvent.total,
-        //   );
-        //   console.log(`File upload progress: ${percentCompleted}%`);
-        // },
-      },
-    );
-    console.log("File uploaded successfully:", response.data);
-    return response.data;
-  } catch (error) {
-    console.error("Error during file upload:", error);
-    throw error;
-  }
+ try {
+   // Determine the base URL based on the environment
+   const baseURL =
+     process.env.NODE_ENV === "production"
+       ? process.env.NEXT_PUBLIC_PRODUCTION_API_BASE_URL
+       : process.env.NEXT_PUBLIC_LOCAL_API_BASE_URL;
+
+   // Full endpoint URL
+   const endpoint = `${baseURL}/contributor/responses/${responseId}/answer/upload`;
+
+   const response = await axios.post(endpoint, formData, {
+     headers: {
+       "Content-Type": "multipart/form-data",
+     },
+     // Optionally add progress tracking
+     // onUploadProgress: (progressEvent: ProgressEvent) => {
+     //   // Calculate percentage of file upload progress
+     //   const percentCompleted = Math.round(
+     //     (progressEvent.loaded * 100) / progressEvent.total,
+     //   );
+     //   console.log(`File upload progress: ${percentCompleted}%`);
+     // },
+   });
+
+   console.log("File uploaded successfully:", response.data);
+   return response.data;
+ } catch (error) {
+   console.error("Error during file upload:", error);
+   throw error;
+ }
 };

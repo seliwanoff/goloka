@@ -78,7 +78,8 @@ const useShowPin = create<ShowPinState>((set) => ({
   showPin: false,
   setShowPin: (value: boolean) => set({ showPin: value }),
   onPinCreated: async () => {},
-  setOnPinCreated: (callback: () => Promise<void>) => set({ onPinCreated: callback }),
+  setOnPinCreated: (callback: () => Promise<void>) =>
+    set({ onPinCreated: callback }),
 }));
 const useShowPasswordOtp = create<ShowPasswordOTPState>((set) => ({
   showOTP: false,
@@ -92,7 +93,7 @@ interface ModalState {
 }
 
 export const useSuccessModalStore = create<ModalState>((set) => ({
-  isModalOpen: true,
+  isModalOpen: false,
   openModal: () => set({ isModalOpen: true }),
   closeModal: () => set({ isModalOpen: false }),
 }));
