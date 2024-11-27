@@ -40,7 +40,7 @@ const schema = yup.object().shape({
 });
 
 const FundTransfer = () => {
-  const { setAmount, setWallet_id } = useTransactionStore();
+  const { setAmount, setWallet_id, setAccountName } = useTransactionStore();
   const [inputValue, setInputValue] = useState("");
   const { user, isAuthenticated } = useRemoteUserStore();
   const [openModal, setOpenModal] = useState(false);
@@ -86,6 +86,8 @@ const FundTransfer = () => {
     if (orgData?.data?.name) {
       //@ts-ignore
       setValue("organisation", orgData.data.name);
+      //@ts-ignore
+      setAccountName(orgData.data.name);
     } else if (isError) {
       toast.error("Failed to fetch organization Wallet");
       console.log(isError, "isError");

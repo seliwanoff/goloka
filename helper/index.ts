@@ -70,25 +70,36 @@ export const getAddressFromLatLng = async (lat: number, lng: number) => {
   return res.data.results[0].formatted_address;
 };
 
-export const generateColor = (name: string) => {
-  const colors = [
-    "bg-blue-500",
-    "bg-green-500",
-    "bg-red-500",
-    "bg-purple-500",
-    "bg-yellow-500",
-    "bg-pink-500",
-    "bg-indigo-500",
-  ];
+// export const generateColor = (name: string) => {
+//   const colors = [
+//     "bg-blue-400",
+//     "bg-green-400",
+//     "bg-red-400",
+//     "bg-purple-400",
+//     "bg-indigo-400",
+//     "bg-cyan-400",
+//     "bg-teal-400",
+//   ];
 
+//   let hash = 0;
+//   for (let i = 0; i < name.length; i++) {
+//     hash = name.charCodeAt(i) + ((hash << 5) - hash);
+//   }
+//   const index = Math.abs(hash) % colors.length;
+//   return colors[index];
+// };
+
+export const generateColor = (name: string) => {
   let hash = 0;
   for (let i = 0; i < name.length; i++) {
     hash = name.charCodeAt(i) + ((hash << 5) - hash);
   }
-  const index = Math.abs(hash) % colors.length;
-  return colors[index];
+  // Generate RGB values from the hash
+  const r = (hash >> 16) & 0xff; // Extract red
+  const g = (hash >> 8) & 0xff; // Extract green
+  const b = hash & 0xff; // Extract blue
+  return `rgb(${r}, ${g}, ${b})`; // Return RGB color
 };
-
 
 export const getInitials = (name: string) => {
   return name

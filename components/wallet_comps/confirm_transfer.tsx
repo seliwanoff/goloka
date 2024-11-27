@@ -20,12 +20,14 @@ const ConfirmTransfer: React.FC<ComponentProps> = ({ setOpenModal }) => {
     loading,
     error,
     response,
+    accountName,
     setPin,
   } = useTransactionStore();
   const { user: currentUser } = useUserStore();
   const { setOpenTransfer } = useTransferOverlay();
   const { user, isAuthenticated } = useRemoteUserStore();
   const { step, setStep, clearTransaction } = useTransferStepper();
+
   const isMobile = useMediaQuery("(max-width: 640px)");
   const USER_CURRENCY_SYMBOL = user?.country?.["currency-symbol"];
   const handleProceed = async () => {
@@ -45,7 +47,7 @@ const ConfirmTransfer: React.FC<ComponentProps> = ({ setOpenModal }) => {
     // isMobile && setOpenModal(false);
     setOpenTransfer(false);
     clearTransaction();
-    setStep(2);
+    setStep(0);
   };
 
   return (
@@ -60,11 +62,10 @@ const ConfirmTransfer: React.FC<ComponentProps> = ({ setOpenModal }) => {
         <p className="text-center text-gray-700">
           Are you sure you want to transfer
           <strong className="mx-1">
-            {USER_CURRENCY_SYMBOL}
-            {amount}
+            {USER_CURRENCY_SYMBOL} {amount}
           </strong>
-          to {currentUser?.name || "Unknown"}&apos;s organisation wallet? You
-          can&apos;t withdraw money from organisation wallet
+          to {accountName}&apos;s organisation wallet? <br /> You can&apos;t
+          withdraw money from organisation wallet
         </p>
 
         <div className="mt-10 grid w-full grid-cols-2 gap-6">

@@ -41,38 +41,49 @@ const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
   const contributorProfile = remoteContributor?.data;
 
   // Handle error and authentication
-  // useEffect(() => {
-  //   if (error) {
-  //     console.log("An error occurred:", error);
-  //     // Check for 401 Unauthorized or "Unauthenticated" message in response
-  //     if (
-  //       //@ts-ignore
-  //       error.response?.status === 401 &&
-  //       //@ts-ignore
-  //       error.response?.data?.message === "Unauthenticated."
-  //     ) {
-  //       logoutUser(); // Log out user if token is expired
-  //       router.push("/signin"); // Redirect to login page
-  //       return;
-  //     }
+  useEffect(() => {
+    if (error) {
+      console.log("An error occurred:", error);
+      // Check for 401 Unauthorized or "Unauthenticated" message in response
+      if (
+        //@ts-ignore
+        error.response?.status === 401 &&
+        //@ts-ignore
+        error.response?.data?.message === "Unauthenticated."
+      ) {
+        logoutUser(); // Log out user if token is expired
+        router.push("/signin"); // Redirect to login page
+        return;
+      }
 
-  //     // Handle other errors (e.g., network errors, etc.)
-  //     console.error("An error occurred:", error);
-  //   }
+      // Handle other errors (e.g., network errors, etc.)
+      console.error("An error occurred:", error);
+    }
 
-  //   if (currentUser && "data" in currentUser && currentUser.data) {
-  //     loginUser(currentUser.data);
-  //     if (
-  //       remoteContributor &&
-  //       "data" in remoteContributor &&
-  //       remoteContributor.data
-  //     ) {
-  //       //@ts-ignore
-  //       setUser(contributorProfile);
-  //     }
-  //   }
-  //   setRefetchUser(refetch);
-  // }, []);
+    if (currentUser && "data" in currentUser && currentUser.data) {
+      loginUser(currentUser.data);
+      if (
+        remoteContributor &&
+        "data" in remoteContributor &&
+        remoteContributor.data
+      ) {
+        //@ts-ignore
+        setUser(contributorProfile);
+      }
+    }
+    setRefetchUser(refetch);
+  }, [
+    contributorProfile,
+    currentUser,
+    error,
+    loginUser,
+    logoutUser,
+    refetch,
+    remoteContributor,
+    router,
+    setRefetchUser,
+    setUser,
+  ]);
 
   // Show loading state while fetching user data
   if (isLoading) {

@@ -163,13 +163,13 @@ const Wallet = () => {
             </div>
 
             <div className="mt-6">
-              <Pagination
+              {/* <Pagination
                 totalPages={pages?.length}
                 currentPage={currentPage}
                 onPageChange={setCurrentPage}
                 RowSize={pageSize}
                 onRowSizeChange={setPageSize}
-              />
+              /> */}
             </div>
           </div>
         </div>

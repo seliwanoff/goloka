@@ -131,6 +131,7 @@ const ResponseDetails = () => {
   //@ts-ignore
   const Time = moment(task?.data?.ends_at).format("hh:mm A");
 
+
   return (
     <>
       <section className="space-y-4 py-8 pt-[34px]">
@@ -140,8 +141,11 @@ const ResponseDetails = () => {
           <div className="grid grid-cols-[56px_1fr] items-center gap-4">
             <AspectRatio ratio={1 / 1}>
               <Image
-                src={Task1}
+                //@ts-ignore
+                src={task?.data?.image_path[0]}
                 alt="Task image"
+                width={56}
+                height={56}
                 className="h-14 w-14 rounded-lg object-cover"
               />
             </AspectRatio>
@@ -238,15 +242,11 @@ const ResponseDetails = () => {
                               <EllipsisVertical size={20} />
                             </span>
                           </PopoverTrigger>
-                          <PopoverContent className=" max-w-fit cursor-pointer rounded-md text-[#EB5757] shadow-lg hover:bg-slate-200">
-
-                              <div
-                                className="text-[#EB5757] flex item-center gap-3"
-                              >
-                                <OctagonAlert />
-                                <p  className="text-[#EB5757]">Report user</p>
-                              </div>
-
+                          <PopoverContent className="max-w-fit cursor-pointer rounded-md text-[#EB5757] shadow-lg hover:bg-slate-200">
+                            <div className="item-center flex gap-3 text-[#EB5757]">
+                              <OctagonAlert />
+                              <p className="text-[#EB5757]">Report user</p>
+                            </div>
                           </PopoverContent>
                         </Popover>
                       </SheetHeader>
@@ -437,7 +437,7 @@ const ResponseDetails = () => {
 
                 <div className="rounded-2xl bg-white p-5">
                   <figure className="h-[85%]">
-                   <Map/>
+                    <Map />
                     {/* <LocationMap locations={locations} /> */}
                   </figure>
                   <div className="mt-5 flex gap-5">

@@ -76,7 +76,11 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
     ? Name.charAt(0).toUpperCase() + Name.slice(1).toLowerCase()
     : "";
   const isMobile = useMediaQuery("(max-width: 640px)");
-  const backgroundColor = useMemo(() => generateColor(FirstName), [FirstName]);
+  // const backgroundColor = useMemo(() => generateColor(FirstName), [FirstName]);
+  const backgroundColor = useMemo(
+    () => generateColor(FirstName.trim().toLowerCase()),
+    [FirstName],
+  );
   const initials = useMemo(() => getInitials(FirstName), [FirstName]);
   const initiateLogout = () => {
     try {
@@ -90,7 +94,7 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
     }
   };
 
-  console.log(currentUser, "currentUser");
+  console.log(backgroundColor, "backgroundColor");
 
   return (
     <>
@@ -174,7 +178,8 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                   </AspectRatio>
                 </div> */}
                 <div
-                  className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-white ${backgroundColor} `}
+                  className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-white`}
+                  style={{ backgroundColor }}
                 >
                   {initials}
                 </div>
