@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import DashSideBarDesktop from "@/components/lib/navigation/dash_sidebar_desktop";
 import DashTopNav from "@/components/lib/navigation/dash_topnav";
@@ -17,7 +17,7 @@ type LayoutProps = {
 
 const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
   const router = useRouter();
-  const { setUser, isAuthenticated } = useRemoteUserStore();
+  const { setUser } = useRemoteUserStore();
   const loginUser = useUserStore((state) => state.loginUser);
   const logoutUser = useUserStore((state) => state.logoutUser);
   const setRefetchUser = useUserStore((state) => state.setRefetchUser);
@@ -27,7 +27,7 @@ const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
     data: currentUser,
     isLoading,
     error,
-    refetch
+    refetch,
   } = useQuery({
     queryKey: ["Get current remote user"],
     queryFn: getCurrentUser,
@@ -39,37 +39,40 @@ const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
     queryFn: getContributorsProfile,
   });
   const contributorProfile = remoteContributor?.data;
-  console.log(remoteContributor?.data, "remoteContributor");
 
   // Handle error and authentication
-  useEffect(() => {
-    if (error) {
-      logoutUser();
-      router.push("/signin");
-      return;
-    }
+  // useEffect(() => {
+  //   if (error) {
+  //     console.log("An error occurred:", error);
+  //     // Check for 401 Unauthorized or "Unauthenticated" message in response
+  //     if (
+  //       //@ts-ignore
+  //       error.response?.status === 401 &&
+  //       //@ts-ignore
+  //       error.response?.data?.message === "Unauthenticated."
+  //     ) {
+  //       logoutUser(); // Log out user if token is expired
+  //       router.push("/signin"); // Redirect to login page
+  //       return;
+  //     }
 
-    if (currentUser && "data" in currentUser && currentUser.data) {
-      loginUser(currentUser.data);
-      if (
-        remoteContributor &&
-        "data" in remoteContributor &&
-        remoteContributor.data
-      ) {
-        //@ts-ignore
-        setUser(contributorProfile);
-      }
-    }
-    setRefetchUser(refetch);
-  }, [
-    error,
-    currentUser,
-    loginUser,
-    logoutUser,
-    router,
-    remoteContributor,
-    setRefetchUser,
-  ]);
+  //     // Handle other errors (e.g., network errors, etc.)
+  //     console.error("An error occurred:", error);
+  //   }
+
+  //   if (currentUser && "data" in currentUser && currentUser.data) {
+  //     loginUser(currentUser.data);
+  //     if (
+  //       remoteContributor &&
+  //       "data" in remoteContributor &&
+  //       remoteContributor.data
+  //     ) {
+  //       //@ts-ignore
+  //       setUser(contributorProfile);
+  //     }
+  //   }
+  //   setRefetchUser(refetch);
+  // }, []);
 
   // Show loading state while fetching user data
   if (isLoading) {

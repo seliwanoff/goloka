@@ -1414,10 +1414,13 @@ const DynamicQuestion = ({
       </>
 
       {questions?.map((ques: any) => (
-        <div key={ques.id} className="grid grid-cols-[24px_1fr] gap-3">
+        <div
+          key={ques.id}
+          className="grid grid-cols-[24px_1fr] items-center gap-3"
+        >
           <Label
             htmlFor={ques.name}
-            className="w-60 truncate text-base leading-7 tracking-[3%] text-[#333333]"
+            className=" bg-slate-400 text-center text-base leading-7 tracking-wider text-[#333333]"
           >
             {ques.label}
           </Label>

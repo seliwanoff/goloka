@@ -85,24 +85,19 @@ async function getStreamData<T>(url: string) {
   return response.data;
 }
 
-
 const uploadQuestionFile = async (
   responseId: string,
   formData: FormData,
 ): Promise<any> => {
-  let toastId: string | null = null; // Store toast ID to update progress
+  let toastId: string | number = toast.loading("Uploading file... 0%");
 
   try {
     const endpoint = `/contributor/responses/${responseId}/answer/upload`;
-
-    // Show initial toast for upload progress
-    toastId = toast.loading("Uploading file... 0%");
 
     const response = await axiosInstance.post(endpoint, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
-      // Track upload progress
       onUploadProgress: (progressEvent: AxiosProgressEvent) => {
         if (progressEvent.total) {
           const percentCompleted = Math.round(
@@ -110,12 +105,9 @@ const uploadQuestionFile = async (
           );
           console.log(`File upload progress: ${percentCompleted}%`);
 
-          // Update the toast with the current progress
-          if (toastId) {
-            toast.message(`Uploading file... ${percentCompleted}%`, {
-              id: toastId,
-            });
-          }
+          toast.message(`Uploading file... ${percentCompleted}%`, {
+            id: toastId,
+          });
         } else {
           console.log("Upload progress: unable to calculate percentage");
         }
@@ -123,35 +115,27 @@ const uploadQuestionFile = async (
     });
 
     console.log("File uploaded successfully:", response.data);
+    //@ts-ignore
+    toast.success(response?.message || "File uploaded successfully", {
+      id: toastId,
+    });
 
-    // Replace progress toast with success message
-    if (toastId) {
-      toast.success(response?.message || "File uploaded successfully", {
-        id: toastId,
-      });
-    }
-
-    // Return structured response with success property
     return {
       success: true,
+      //@ts-ignore
       message: response?.message || "File uploaded successfully",
     };
   } catch (error) {
     console.error("Error during file upload:", error);
 
-    // Replace progress toast with error message
-    if (toastId) {
-      toast.error("Failed to upload file. Please try again.", { id: toastId });
-    }
+    toast.error("Failed to upload file. Please try again.", { id: toastId });
 
-    // Return structured error response
     return {
       success: false,
       message: error instanceof Error ? error.message : "File upload failed",
     };
   }
 };
-
 
 export {
   fetchData,

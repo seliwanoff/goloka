@@ -153,7 +153,7 @@ const TaskPage: React.FC<ComponentProps> = ({}) => {
     const queryParams = new URLSearchParams(window.location.search);
 
     if (value) {
-      queryParams.set(key, value); // Add or update parameter
+      queryParams.set(key, value); 
     } else {
       queryParams.delete(key); // Remove parameter if value is null
     }
