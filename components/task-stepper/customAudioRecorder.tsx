@@ -1,57 +1,42 @@
 import React, { useState, useRef } from "react";
 import { Mic, StopCircle, Trash2 } from "lucide-react";
+import RecordRTC from "recordrtc";
 
 interface AudioRecorderProps {
   quesId: string | number;
   handleInputChange: (
     value: string | boolean | File | string[],
     quesId: string | number,
-    type?: string
+    type?: string,
   ) => void;
 }
 
 const AudioRecorder: React.FC<AudioRecorderProps> = ({
   quesId,
-  handleInputChange
+  handleInputChange,
 }) => {
+  const { StereoAudioRecorder } = RecordRTC;
+
   const [isRecording, setIsRecording] = useState(false);
   const [audioURL, setAudioURL] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunks = useRef<Blob[]>([]);
+  const recorderRef = useRef<any | null>(null);
 
   const startRecording = async () => {
     setError(null);
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
 
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunks.current.push(event.data);
-        }
-      };
+      const recorder = new RecordRTC(stream, {
+        type: "audio",
+        mimeType: "audio/wav", // Choose 'audio/mp3', 'audio/m4a', or 'audio/wav'
+        recorderType: StereoAudioRecorder,
+        desiredSampRate: 16000, // For higher-quality audio
+      });
 
-      mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunks.current, { type: "audio/webm" });
-        const audioURL = URL.createObjectURL(audioBlob);
-        setAudioURL(audioURL);
-
-        // Convert Blob to File
-        const audioFile = new File([audioBlob], `recording-${quesId}.webm`, {
-          type: "audio/webm"
-        });
-
-        // Use handleInputChange to update the parent component's state
-        handleInputChange(audioFile, quesId, "audio");
-
-        console.log("Recorded Audio File:", audioFile);
-        audioChunks.current = []; // Clear the audio chunks for the next recording
-      };
-
-      mediaRecorderRef.current = mediaRecorder;
-      mediaRecorder.start();
+      recorder.startRecording();
+      recorderRef.current = recorder;
       setIsRecording(true);
     } catch (err) {
       setError("Unable to access microphone. Please check permissions.");
@@ -59,16 +44,29 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
     }
   };
 
-  const stopRecording = () => {
-    if (mediaRecorderRef.current) {
-      mediaRecorderRef.current.stop();
+  const stopRecording = async () => {
+    if (recorderRef.current) {
+      recorderRef.current.stopRecording(() => {
+        const blob = recorderRef.current?.getBlob();
+        if (blob) {
+          const audioURL = URL.createObjectURL(blob);
+          setAudioURL(audioURL);
+
+          const audioFile = new File(
+            [blob],
+            `recording-${quesId}.wav`, // Change extension based on mimeType
+            { type: blob.type },
+          );
+
+          handleInputChange(audioFile, quesId, "audio");
+        }
+      });
       setIsRecording(false);
     }
   };
 
   const deleteRecording = () => {
     setAudioURL(null);
-    // Passing null to clear the audio value
     //@ts-ignore
     handleInputChange(null, quesId, "audio");
   };
@@ -82,7 +80,6 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
 
       {!audioURL && (
         <div className="flex flex-col items-center space-y-4">
-          {/* Recording Controls */}
           {!isRecording ? (
             <button
               onClick={startRecording}
@@ -98,23 +95,9 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
               <StopCircle className="h-5 w-5" />
             </button>
           )}
-
-          {/* Animated Wave While Recording */}
-          {isRecording && (
-            <div className="flex space-x-1">
-              {Array.from({ length: 5 }).map((_, index) => (
-                <div
-                  key={index}
-                  className="h-4 w-1 animate-pulse bg-blue-500"
-                  style={{ animationDelay: `${index * 0.2}s` }}
-                />
-              ))}
-            </div>
-          )}
         </div>
       )}
 
-      {/* Playback and Actions */}
       {audioURL && (
         <div className="space-y-4">
           <div className="flex items-center space-x-4">

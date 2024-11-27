@@ -322,85 +322,15 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
             <div className="relative flex w-[250px] items-center justify-center md:w-[300px]">
               <Search className="absolute left-3 text-gray-500" size={18} />
               <Input
-                placeholder="Search task, organization"
+                placeholder="Search campaign, organization"
                 type="text"
                 className="w-full rounded-full bg-gray-50 pl-10"
               />
             </div>
 
             <div className="hidden lg:flex lg:gap-4">
-              {/* PRICE */}
-              <Select>
-                <SelectTrigger className="w-min rounded-full focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0">
-                  <SelectValue placeholder="Price" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="2">$2</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
 
-              {/* NUMBER */}
-              <Popover>
-                <PopoverTrigger className="rounded-full border px-3">
-                  <div className="inline-flex items-center gap-2">
-                    <span className="text-sm">Number of question</span>{" "}
-                    <ChevronDown className="h-4 w-4 opacity-50" />
-                  </div>
-                </PopoverTrigger>
-                <PopoverContent className="w-[200px]">
-                  <Label htmlFor="number" className="mb-3 inline-block">
-                    Input number
-                  </Label>
-                  <Input
-                    name="number"
-                    id="number"
-                    type="tel"
-                    className="form-input w-full appearance-none rounded-lg border border-[#d9dec0] px-4 py-6 placeholder:text-[#828282] focus:border-0 focus:outline-none focus-visible:ring-0"
-                    placeholder="0"
-                  />
-                </PopoverContent>
-              </Popover>
 
-              {/* DATE */}
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn(
-                      "w-min justify-start gap-3 rounded-full px-3 pr-1 text-center text-sm font-normal",
-                    )}
-                  >
-                    {date ? format(date, "PPP") : <span>End date</span>}
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F8F8F8]">
-                      <Calendar size={20} color="#828282" className="m-0" />
-                    </span>{" "}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <CalenderDate
-                    mode="single"
-                    selected={date}
-                    onSelect={setDate}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-
-              {/* RESPONSE */}
-              <Select>
-                <SelectTrigger className="w-max rounded-full focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0">
-                  <SelectValue placeholder="Response type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Select type</SelectLabel>
-                    <SelectItem value="one-time">One-time response</SelectItem>
-                    <SelectItem value="multiple">Multiple response</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
             </div>
 
             {/* -- filter icon */}
@@ -519,9 +449,7 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
               />
             </div>
           </div>
-          {/* <div className="mx-auto hidden py-10 lg:hidden">
-            <DataTable columns={columns} data={responsesTableData} />
-          </div> */}
+          
         </div>
       </section>
     </>

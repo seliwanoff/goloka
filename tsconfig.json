@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "lib": ["dom", "dom.iterable", "esnext"],
+    "typeRoots": ["./node_modules/@types", "./types/recordrtc.d.ts"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,

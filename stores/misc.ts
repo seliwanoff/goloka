@@ -1,4 +1,4 @@
-import { transactions } from "@/utils";
+
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
@@ -87,15 +87,19 @@ const useShowPasswordOtp = create<ShowPasswordOTPState>((set) => ({
 }));
 
 interface ModalState {
+  isLastStepLoading: boolean;
   isModalOpen: boolean;
   openModal: () => void;
   closeModal: () => void;
+  setLastStepLoading: (isLoading: boolean) => void;
 }
 
 export const useSuccessModalStore = create<ModalState>((set) => ({
+  isLastStepLoading: false,
   isModalOpen: false,
   openModal: () => set({ isModalOpen: true }),
   closeModal: () => set({ isModalOpen: false }),
+  setLastStepLoading: (isLoading) => set({ isLastStepLoading: isLoading }),
 }));
 
 const useWithdrawStepper = create<FundState>((set) => ({
