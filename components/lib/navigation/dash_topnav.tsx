@@ -52,8 +52,14 @@ import { Toaster } from "sonner";
 import { userLogout } from "@/services/auth";
 import { useRouter } from "next/navigation";
 import { useUserStore } from "@/stores/currentUserStore";
-import { generateColor, getInitials } from "@/helper";
-import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { formatNotifications, generateColor, getInitials } from "@/helper";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { getNotifications } from "@/services/response";
 
 type ComponentProps = {};
 
@@ -68,6 +74,18 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
   const [open, setOpen] = useState(false);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const router = useRouter();
+  const params = { per_page: 10, page: 1 };
+
+  const {
+    data: notification,
+    isLoading,
+    isFetching,
+    refetch,
+    isError,
+  } = useQuery({
+    queryKey: ["Get notification list"],
+    queryFn: () => getNotifications(params),
+  });
   const user = { data };
   const currentUser = useUserStore((state) => state.user);
   const logoutUser = useUserStore((state) => state.logoutUser);
@@ -94,7 +112,8 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
     }
   };
 
-  console.log(backgroundColor, "backgroundColor");
+
+  const notificationData = formatNotifications(notification);
 
   return (
     <>
@@ -126,7 +145,7 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                 <span
                   className={classMerge(
                     "absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-rose-500",
-                    sampleNotifications.length > 0 ? "block" : "hidden",
+                    notificationData?.length > 0 ? "block" : "hidden",
                   )}
                 />
               </div>
@@ -156,9 +175,7 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
 
               {/* SHEET CONTENT */}
               <div className="no-scrollbar h-full overflow-y-auto pb-11 pt-10">
-                <DashNotificationPopOver
-                  notificationList={sampleNotifications}
-                />
+                <DashNotificationPopOver notificationList={notificationData} />
               </div>
             </SheetContent>
           </Sheet>
@@ -319,72 +336,4 @@ const UserBubbleLinks: { icon: LucideIcon; title: string; href: string }[] = [
   },
 ];
 
-// todo: fetch and request for only the latest 5
-const sampleNotifications: {
-  type: "TASK" | "ORGANISATIONAL" | "FINANCIAL" | "FEEDBACK";
-  message: string;
-  time: string;
-}[] = [
-  {
-    type: "ORGANISATIONAL",
-    message: "Mohh_Jumah Organisation accepted your response",
-    time: "Today at 9:20 AM",
-  },
-  {
-    type: "TASK",
-    message: "42 tasks related to you!",
-    time: "Today at 9:20 AM",
-  },
-  {
-    type: "ORGANISATIONAL",
-    message: "New message from Jamiu’s organization",
-    time: "Today at 9:20 AM",
-  },
-  {
-    type: "FEEDBACK",
-    message:
-      "Your response was rejected: Effects of agriculture to Nigeria economy",
-    time: "Today at 9:20 AM",
-  },
-  {
-    type: "ORGANISATIONAL",
-    message: "Muhammad Just messaged you",
-    time: "Today at 9:20 AM",
-  },
-  {
-    type: "FINANCIAL",
-    message: "You have been credited $5",
-    time: "Today at 9:20 AM",
-  },
-  {
-    type: "ORGANISATIONAL",
-    message: "Mohh_Jumah Organisation accepted your response",
-    time: "Today at 9:20 AM",
-  },
-  {
-    type: "TASK",
-    message: "42 tasks related to you!",
-    time: "Today at 9:20 AM",
-  },
-  {
-    type: "ORGANISATIONAL",
-    message: "New message from Jamiu’s organization",
-    time: "Today at 9:20 AM",
-  },
-  {
-    type: "FEEDBACK",
-    message:
-      "Your response was rejected: Effects of agriculture to Nigeria economy",
-    time: "Today at 9:20 AM",
-  },
-  {
-    type: "ORGANISATIONAL",
-    message: "Muhammad Just messaged you",
-    time: "Today at 9:20 AM",
-  },
-  {
-    type: "FINANCIAL",
-    message: "You have been credited $5",
-    time: "Today at 9:20 AM",
-  },
-];
+

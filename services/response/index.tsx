@@ -53,6 +53,13 @@ interface GetResponsesParams {
   status?: string;
 }
 
+interface NotificationParams {
+
+  per_page?: number;
+  page?: number;
+
+ }
+
 export const getAllResponses = async (params: GetResponsesParams) => {
   try {
     const query = new URLSearchParams();
@@ -98,3 +105,29 @@ export const getAResponse = async (
       }
     },
   });
+
+
+export const getNotifications = async (params: NotificationParams) => {
+   try {
+     const query = new URLSearchParams();
+
+     const appendQuery = (key: string, value: any) => {
+       if (value !== undefined && value !== null) {
+         query.append(key, value.toString());
+       }
+     };
+
+     // Append query parameters
+     appendQuery("per_page", params.per_page);
+     appendQuery("page", params.page);
+
+
+     const endpoint = `/notifications?${query.toString()}`;
+     const response = await fetchData<ServerResponse<any>>(endpoint);
+
+     return response;
+   } catch (error) {
+     console.error("Error fetching Notifications:", error);
+     throw new Error("Failed to fetch Notificatios. Please try again later.");
+   }
+};

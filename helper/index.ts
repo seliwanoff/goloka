@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import axios from "axios";
 import moment from "moment";
 import { usePathname } from "next/navigation";
+import { format } from "date-fns";
 
 export function numberWithCommas(x: any) {
   if (isNaN(parseFloat(x)) || !isFinite(x)) {
@@ -107,4 +108,26 @@ export const getInitials = (name: string) => {
     .map((word) => word.charAt(0).toUpperCase())
     .slice(0, 2)
     .join("");
+};
+
+export const formatNotifications = (apiResponse: any) => {
+  const typeMapping: Record<
+    string,
+    "TASK" | "ORGANISATIONAL" | "FINANCIAL" | "FEEDBACK"
+  > = {
+    task: "TASK",
+    organisation: "ORGANISATIONAL",
+    financial: "FINANCIAL",
+    feedback: "FEEDBACK",
+  };
+
+  return apiResponse?.data?.map((notification: any) => {
+    const { type, data, created_at } = notification;
+
+    return {
+      type: typeMapping[data?.type] || "TASK", // Default to TASK if no mapping exists
+      message: data?.message,
+      time: format(new Date(created_at), "PPPp"), // Format the timestamp, e.g., "Today at 9:20 AM"
+    };
+  });
 };

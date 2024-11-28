@@ -39,7 +39,7 @@ const FGPOTP: React.FC<PageProps> = () => {
     setError("");
   };
   const email = currentUser?.email;
-  console.log(formValues, "formValues");
+  // console.log(formValues, "formValues");
   //   useEffect(() => {
   //     const emailParam = searchParams.get("email");
   //     if (emailParam) {

@@ -166,17 +166,7 @@ const Contributions: React.FC<ComponentProps> = ({ }) => {
   };
 
 
-  // const {
-  //   data: tasks,
-  //   isLoading,
-  //   isFetching,
-  //   refetch,
-  //   isError,
-  // } = useQuery({
-  //   queryKey: ["Get contributed task list", currentPage],
-  //   queryFn: () => getAllContributedTask({ page: currentPage, per_page: 9 }),
-  //   // keepPreviousData: true,
-  // });
+
 
     const {
       data: tasks,
