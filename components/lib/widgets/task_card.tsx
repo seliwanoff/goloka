@@ -23,7 +23,7 @@ interface TaskCardProps {
   payment_rate_for_response: string;
   total_fee: string;
   type: string;
-  is_bookmarked: string;
+  is_bookmarked: boolean;
   refetch: (
     options?: RefetchOptions,
   ) => Promise<QueryObserverResult<ServerResponse<any>, Error>>;
@@ -51,7 +51,6 @@ const TaskCardWidget: React.FC<TaskCardProps> = ({
   const USER_CURRENCY_SYMBOL = user?.country?.["currency-symbol"];
 
   const handleBookmark = async (e: React.MouseEvent) => {
-    // Stop the event from propagating to the parent Link component
     e.stopPropagation();
 
     setIsBookmarkLoading(true);
@@ -59,8 +58,12 @@ const TaskCardWidget: React.FC<TaskCardProps> = ({
       if (is_bookmarked) {
         const response = await removeBookmark(id as unknown as string);
         console.log(response, "response");
-        toast.success(response?.message);
+
         refetch();
+        if (response) {
+          toast.success(response?.message);
+          setIsBookmarkLoading(true);
+        }
       } else {
         const response = await bookmarkCampaign({}, id as unknown as string);
         //@ts-ignore
