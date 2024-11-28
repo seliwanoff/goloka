@@ -208,7 +208,8 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
               <PopoverContent>
                 <div className="flex w-full items-center gap-5">
                   <div
-                    className={`flex h-10 w-10 items-center justify-center rounded-full text-lg font-semibold text-white ${backgroundColor} `}
+                    className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-white`}
+                    style={{ backgroundColor }}
                   >
                     {initials}
                   </div>

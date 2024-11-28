@@ -37,7 +37,7 @@ const Wallet = () => {
   const [pageSize, setPageSize] = useState<number>(10);
   const pages = chunkArray(expenses, pageSize);
 
-  console.log(user, "user");
+  console.log(user, "userx");
   console.log(currentUser?.pin_status, "currentUser?.pin_status");
 
   const fetchData = () => {

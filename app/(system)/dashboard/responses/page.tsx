@@ -53,7 +53,7 @@ import {
 import { SkeletonXLoader } from "@/helper/loader";
 
 type ResponseStatus =
-  | "review"
+  | "reviewed"
   | "pending"
   | "accepted"
   | "rejected"
@@ -195,7 +195,7 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
       );
 
     switch (activeTab) {
-      case "review":
+      case "reviewed":
         return setFilteredData(filter(activeTab));
       case "pending":
         return setFilteredData(filter(activeTab));
@@ -273,7 +273,7 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
 
   const tabs: { label: string; value: ResponseStatus }[] = [
     { label: "All", value: "all" },
-    { label: "On Review", value: "review" },
+    { label: "On Review", value: "reviewed" },
     { label: "Pending", value: "pending" },
     { label: "Accepted", value: "accepted" },
     { label: "Rejected", value: "rejected" },
@@ -399,7 +399,7 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
           </Tabs> */}
           <Tabs
             value={activeTab}
-            onValueChange={(tab) => setActiveTab(tab as ResponseStatus)}
+            onValueChange={(tab: string) => setActiveTab(tab as ResponseStatus)}
             className="mb-6 mt-7 w-full md:mt-12 md:w-max"
           >
             <TabsList className="w-full justify-start rounded-full bg-white px-1 py-6 sm:w-auto md:justify-center">
@@ -436,6 +436,7 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
+                    //@ts-ignore
                     variant="outline"
                     className={cn(
                       "w-min justify-start gap-3 rounded-full px-3 pr-1 text-center text-sm font-normal",

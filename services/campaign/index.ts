@@ -57,8 +57,7 @@ export const removeBookmark = async (
 ): Promise<ServerResponseOrNull<any>> => {
   try {
     return await deleteDataById<ServerResponse<any>>(
-      `/contributor/campaigns/${taskId}/bookmark/delete`,
-    //   taskId,
+      `/contributor/campaigns/${taskId}/bookmark/delete`
     );
   } catch (error) {
     console.log(error);

@@ -34,11 +34,14 @@ const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
     retry: 1, // Only retry once before considering it a failure
   });
 
-  const { data: remoteContributor } = useQuery({
-    queryKey: ["Get remote contributor profile"],
-    queryFn: getContributorsProfile,
-  });
-  const contributorProfile = remoteContributor?.data;
+  const { data: remoteContributor, isLoading: isContributorLoading } = useQuery(
+    {
+      queryKey: ["Get remote contributor profile"],
+      queryFn: getContributorsProfile,
+    },
+  );
+
+  console.log(remoteContributor, "fbfbbf");
 
   // Handle error and authentication
   useEffect(() => {
@@ -60,20 +63,25 @@ const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
       console.error("An error occurred:", error);
     }
 
-    if (currentUser && "data" in currentUser && currentUser.data) {
+    // Ensure both currentUser and remoteContributor are processed
+    if (
+      currentUser &&
+      "data" in currentUser &&
+      currentUser.data &&
+      remoteContributor &&
+      "data" in remoteContributor &&
+      remoteContributor.data
+    ) {
+      // Store current user in user store
       loginUser(currentUser.data);
-      if (
-        remoteContributor &&
-        "data" in remoteContributor &&
-        remoteContributor.data
-      ) {
-        //@ts-ignore
-        setUser(contributorProfile);
-      }
+
+      //@ts-ignore
+      setUser(remoteContributor.data);
     }
+
+    // Set up refetch function
     setRefetchUser(refetch);
   }, [
-    contributorProfile,
     currentUser,
     error,
     loginUser,
@@ -86,7 +94,7 @@ const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
   ]);
 
   // Show loading state while fetching user data
-  if (isLoading) {
+  if (isLoading || isContributorLoading) {
     return (
       <div className="col-span-6 flex h-screen w-full items-center justify-center">
         <p>Loading...</p>

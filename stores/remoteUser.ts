@@ -45,7 +45,7 @@ import { persist, createJSONStorage } from "zustand/middleware";
 interface RemoteUserState {
   user: IRemoteUser | null;
   isAuthenticated: boolean;
-  setUser: (user: IRemoteUser) => void;
+  setUser: (user: IRemoteUser | null) => void; // Modified to accept null
   clearUser: () => void;
 }
 
@@ -54,11 +54,15 @@ export const useRemoteUserStore = create<RemoteUserState>()(
     (set) => ({
       user: null,
       isAuthenticated: false,
-      setUser: (user: IRemoteUser) => set({ user, isAuthenticated: true }),
+      setUser: (user) =>
+        set({
+          user,
+          isAuthenticated: user !== null,
+        }),
       clearUser: () => set({ user: null, isAuthenticated: false }),
     }),
     {
-      name: "user-storage",
+      name: "remote-user-storage", // Unique name to avoid conflicts
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         user: state.user,

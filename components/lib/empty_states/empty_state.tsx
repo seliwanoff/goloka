@@ -14,9 +14,9 @@ type ComponentProps = {
     icon: LucideIcon;
     title: string;
     content: string;
-    btn_text: string;
+    btn_text?: string;
     sub_btn_text?: string;
-    action: () => void;
+    action?: () => void;
     sub_action?: () => void;
   };
 };
@@ -64,9 +64,9 @@ const DefaultStyle: React.FC<DefaultStyleProps> = ({ data }) => {
         <p className="mt-3 font-semibold">{data.title}</p>
         <p className="text-sm text-gray-600">{data.content}</p>
 
-        <Button size="sm" className="mt-6" onClick={data.action}>
+       {data?.btn_text && <Button size="sm" className="mt-6" onClick={data.action}>
           <Plus size={18} strokeWidth={1.5} className="mr-1" /> {data.btn_text}
-        </Button>
+        </Button>}
       </div>
     </AspectRatio>
   );

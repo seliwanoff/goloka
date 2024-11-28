@@ -7,10 +7,12 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
-import Avatar from "@/public/assets/images/contributor-profile.jpeg";
-import { useRemoteUserStore } from "@/stores/contributors";
+import Avatar from "@/public/assets/images/avatar.png";
+
+import { useUserStore } from "@/stores/currentUserStore";
+import { useRemoteUserStore } from "@/stores/remoteUser";
 
 type ComponentProps = {};
 
@@ -18,10 +20,10 @@ const schema = yup.object().shape({
   firstName: yup.string().required(),
   lastName: yup.string().required(),
   dateOfBirth: yup.string().required(),
-  dateOfBirth1: yup.string().required(),
+  // dateOfBirth1: yup.string().required(),
   phoneNo: yup.string().required(),
   gender: yup.string().required(),
-  gender1: yup.string().required(),
+  // gender1: yup.string().required(),
   email: yup.string().email().required(),
   primaryLanguage: yup.string().required(),
   religion: yup.string().required(),
@@ -29,10 +31,94 @@ const schema = yup.object().shape({
   spokenLanguage: yup.string().required(),
 });
 
+const generateAvatarFromInitials = (name: string) => {
+  if (!name) return null;
+  const initials = name
+    .split(" ")
+    .map((word) => word[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+
+  const colors = [
+    "#F44336",
+    "#E91E63",
+    "#9C27B0",
+    "#673AB7",
+    "#3F51B5",
+    "#2196F3",
+    "#03A9F4",
+    "#00BCD4",
+  ];
+  const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+  return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100" fill="${randomColor}"><text x="50%" y="50%" text-anchor="middle" dy=".3em" font-size="40" fill="white">${initials}</text></svg>`;
+};
+
 const PersonalInfo: React.FC<ComponentProps> = ({}) => {
-  const [imgUrl, setImgUrl] = useState<string>(Avatar?.src);
-  const { user } = useRemoteUserStore();
+  const { user: remoteUser } = useRemoteUserStore();
+  const currentUser = useUserStore((state) => state.user);
+
+  // Merge user data, prioritizing remoteUser and handling duplicates
+const mergedUserData = useMemo(() => {
+  // Safely get values or return empty string
+  const safeGet = (obj: any, key: string) => {
+    return obj && obj[key] !== undefined ? obj[key] : "";
+  };
+
+  // Mapping of incoming keys to form field keys
+  const keyMapping: Record<string, string> = {
+    name: "firstName",
+    lastName: "lastName",
+    birth_date: "dateOfBirth",
+    email: "email",
+    gender: "gender",
+    primary_language: "primaryLanguage",
+    religion: "religion",
+    ethnicity: "ethnicity",
+    spoken_languages: "spokenLanguage",
+    phone_code: "phoneNo",
+  };
+
+  // Merge and transform data
+  const merged: Record<string, string> = {};
+
+  Object.keys(keyMapping).forEach((sourceKey) => {
+    const targetKey = keyMapping[sourceKey];
+
+    // Prioritize remoteUser, then currentUser
+    let value =
+      safeGet(remoteUser, sourceKey) || safeGet(currentUser, sourceKey);
+
+    if (value !== undefined && value !== null) {
+      // Special handling for some fields
+      if (sourceKey === "birth_date") {
+        merged[targetKey] = value.split(" ")[0]; // Extract date part
+      } else if (sourceKey === "spoken_languages") {
+        merged[targetKey] = Array.isArray(value) ? value.join(", ") : value;
+      } else {
+        merged[targetKey] = value;
+      }
+    }
+  });
+
+  return merged;
+}, [currentUser, remoteUser]);
+
+  // Generate initial avatar if no image is provided
+  const initialAvatar = useMemo(() => {
+    const fullName = `${mergedUserData.name || ""}`.trim();
+    return (
+      mergedUserData?.profile_photo_url ||
+      generateAvatarFromInitials(fullName) ||
+      Avatar.src
+    );
+  }, [mergedUserData]);
+
+  const [imgUrl, setImgUrl] = useState<string>(initialAvatar);
   const [image, setImage] = useState<File | null>(null);
+
+  console.log(mergedUserData, "mergedUserData");
 
   const {
     handleSubmit,
@@ -42,49 +128,31 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
     reset,
   } = useForm({
     resolver: yupResolver(schema),
-    defaultValues: {
-      // firstName: "",
-      // lastName: "",
-      // dateOfBirth: user?.birth_date || "",
-      // phoneNo: "",
-      // gender: user?.gender || "",
-      // email: "",
-      // primaryLanguage: user?.primary_language[0] || "",
-      // religion: user?.religion || "",
-      // ethnicity: user?.ethnicity || "",
-      // spokenLanguage: user?.spoken_languages[0] || "",
-    },
+    defaultValues: mergedUserData, // Prefill form with merged data
   });
-
-  // If user data is updated, reset the form with the new values
-  useEffect(() => {
-    if (user) {
-      // reset({
-      //   firstName: "",
-      //   lastName: "",
-      //   dateOfBirth: user?.birth_date || "",
-      //   phoneNo: "",
-      //   gender: user?.gender || "",
-      //   email: "",
-      //   primaryLanguage: user?.primary_language || "",
-      //   religion: user?.religion || "",
-      //   ethnicity: user?.ethnicity || "",
-      //   spokenLanguage: user?.spoken_languages[0] || "",
-      // });
-    }
-  }, [user, reset]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files && e.target.files[0];
-    const url = URL.createObjectURL(file as Blob);
-    setImgUrl(url);
-    setImage(file);
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setImgUrl(url);
+      setImage(file);
+    }
   };
 
   const onSubmit = (data: any) => {
-    console.log(data, "Form Submitted");
-  };
+    // Merge original data with newly submitted data
+    const submittedData = {
+      ...mergedUserData,
+      ...data,
+      profileImage: image
+        ? URL.createObjectURL(image)
+        : mergedUserData.profile_photo_url,
+    };
 
+    console.log("Submitted Data:", submittedData);
+    console.log("Uploaded Image:", image);
+  };
   return (
     <form
       className="block max-w-4xl"
@@ -141,7 +209,7 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
               id="avatar"
               className="hidden"
               accept="image/png, image/jpeg, image/webp"
-              onChange={(e) => handleChange(e)}
+              onChange={handleChange}
             />
           </div>
         </div>

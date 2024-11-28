@@ -34,21 +34,9 @@ const OtherPersonalInfo: React.FC<any> = ({
   control,
   reset,
 }) => {
-  const { user } = useRemoteUserStore();
 
-  // If user data is updated, reset the form with the new values
-  useEffect(() => {
-    if (user) {
-      reset({
-        // gender1: user?.gender || "",
-        // religion: user?.religion || "",
-        // ethnicity: user?.ethnicity || "",
-        // primaryLanguage: user?.primary_language || "",
-        // spokenLanguage: user?.spoken_languages || "",
-        // dateOfBirth1: user?.birth_date || "",
-      });
-    }
-  }, [user, reset]);
+
+
 
   return (
     <div className="mt-8 rounded-2xl bg-white p-6">

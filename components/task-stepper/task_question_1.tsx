@@ -926,7 +926,7 @@ const DynamicQuestion = ({
           <div className="col-span-2">
             <RadioGroup
               value={selectedValues[ques.id] || ""}
-              onValueChange={(val) => handleInputChange(val, ques.id)}
+              onValueChange={(val: string | boolean | string[] | File) => handleInputChange(val, ques.id)}
               className="grid grid-cols-2 gap-5"
             >
               {ques.options?.map(
@@ -1048,7 +1048,7 @@ const DynamicQuestion = ({
                     ref={(el) => (inputRefs.current[ques.id] = el)}
                     id={`q${ques.id}-${index}`}
                     checked={selectedValues[ques.id]?.includes(opt) || false}
-                    onCheckedChange={(checked) => {
+                    onCheckedChange={(checked: any) => {
                       const currentSelections = selectedValues[ques.id] || [];
                       let newSelections;
                       if (checked) {

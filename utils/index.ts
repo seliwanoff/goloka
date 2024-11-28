@@ -755,22 +755,22 @@ export const personalInfo = [
 ];
 
 export const otherInfo = [
-  {
-    label: "Date of birth",
-    type: "date",
-    required: true,
-    err_message: "Select your date of birth",
-    name: "dateOfBirth1",
-    placeholder: "Select date",
-  },
-  {
-    label: "Gender",
-    type: "select",
-    required: true,
-    err_message: "Select your gender",
-    name: "gender1",
-    placeholder: "Select your gender",
-  },
+  // {
+  //   label: "Date of birth",
+  //   type: "date",
+  //   required: true,
+  //   err_message: "Select your date of birth",
+  //   name: "dateOfBirth1",
+  //   placeholder: "Select date",
+  // },
+  // {
+  //   label: "Gender",
+  //   type: "select",
+  //   required: true,
+  //   err_message: "Select your gender",
+  //   name: "gender1",
+  //   placeholder: "Select your gender",
+  // },
 
   {
     label: "Religion",
