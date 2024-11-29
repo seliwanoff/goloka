@@ -82,7 +82,7 @@ const Footer = (props: Props) => {
                 Plot 404, Marcus Garvey St, 54Road,
                 <br /> 5th Ave, Gwarimpa, Abuja, Nigeria
               </li>
-              <li>contact@nubia.com</li>
+              <li>contact@goloka.com</li>
               <li>+234 (811) 666 5321</li>
             </ul>
           </div>
