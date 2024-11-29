@@ -17,6 +17,7 @@ import {
   DocumentCopy,
   MessageQuestion,
   Note,
+  Note1,
   People,
   Wallet3,
 } from "iconsax-react";
@@ -100,6 +101,16 @@ const NavData: { icon: any; title: string; link: string }[] = [
     icon: MessageQuestion,
     title: "Support",
     link: "/organization/dashboard/support",
+  },
+  {
+    icon: Settings,
+    title: "Finances",
+    link: "/organization/dashboard/finances",
+  },
+  {
+    icon: Note1,
+    title: "Reports",
+    link: "/organization/dashboard/reports",
   },
   {
     icon: Settings,
