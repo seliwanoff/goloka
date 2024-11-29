@@ -31,6 +31,19 @@ const schema = yup.object().shape({
   spokenLanguage: yup.string().required(),
 });
 
+type FormValues = {
+  email: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  phoneNo: string;
+  gender: string;
+  primaryLanguage: string;
+  religion: string;
+  ethnicity: string;
+  spokenLanguage: string;
+};
+
 const generateAvatarFromInitials = (name: string) => {
   if (!name) return null;
   const initials = name
@@ -120,16 +133,16 @@ const mergedUserData = useMemo(() => {
 
   console.log(mergedUserData, "mergedUserData");
 
-  const {
-    handleSubmit,
-    register,
-    control,
-    formState: { errors },
-    reset,
-  } = useForm({
-    resolver: yupResolver(schema),
-    defaultValues: mergedUserData, // Prefill form with merged data
-  });
+const {
+  handleSubmit,
+  register,
+  control,
+  formState: { errors },
+  reset,
+} = useForm<FormValues>({
+  resolver: yupResolver(schema),
+  defaultValues: mergedUserData,
+});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files && e.target.files[0];
