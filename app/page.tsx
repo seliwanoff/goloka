@@ -164,26 +164,28 @@ const page = () => {
           <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3 xl:items-end">
             <div className="space-y-9 rounded-3xl bg-[#F3F3F3] p-6 md:col-span-2 xl:col-span-1">
               <h3 className="text-3xl font-extrabold leading-[40px]">
-                10k+
+                25k+
                 <br />
-                <span className="font-medium">Organizations</span>
+                <span className="font-medium">Contributors</span>
               </h3>
               <p className="text-[#333]">
-                Lorem ipsum dolor sit amet consectetur. Neque enim dignissim vel
-                faucibus leo nibh sem at sit orci.
+                Our growing community of data contributors are driven by the
+                passion to contribute to important research projects that have
+                real-world impact.
               </p>
             </div>
             <div className="relative overflow-hidden rounded-3xl bg-[#004378] p-6 xl:h-[400px]">
               <div className="relative z-10 h-full space-y-9 xl:flex xl:flex-col xl:justify-between">
                 <h3 className="text-3xl font-extrabold leading-[40px] text-white">
-                  25k+
+                  10k+
                   <br />
-                  <span className="font-normal">Contributors</span>
+                  <span className="font-normal">Organisations</span>
                 </h3>
                 <p className="text-[#fff]">
-                  Lorem ipsum dolor sit amet consectetur. Accumsan ac porttitor
-                  sit sit eget congue. Luctus gravida adipiscing netus tellus
-                  posuere et.
+                  Organisations and businesses leverage Goloka&apos;s powerful
+                  features, powered by advanced AI algorithms, to make
+                  data-driven decisions that optimise performance, reduce
+                  losses, and increase revenue.
                 </p>
               </div>
               <Image
@@ -199,8 +201,10 @@ const page = () => {
                 <span className="font-medium">Campaigns</span>
               </h3>
               <p className="text-[#fff]">
-                Lorem ipsum dolor sit amet consectetur. Tincidunt ut lectus
-                neque risus cras leo id. Purus quis.
+                Campaigns launched on Goloka harness geospatial technology,
+                integrating surveys, remote sensing technology, native
+                intelligence, and AI to collect, analyse, and verify data for
+                accurate location-based insights.
               </p>
             </div>
           </div>
@@ -223,8 +227,9 @@ const page = () => {
               with Goloka’s Data-Driven Solutions
             </h2>
             <p className="text-[#434343] md:text-balance">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Amet
-              habitant dui consectetur sed nam amet, magna. Iet se
+              A user-friendly interface that makes it easy for companies to
+              manage data collection projects and collaborate with data
+              contributors.
             </p>
             <Button className="mt-6 h-auto w-full rounded-full bg-main-100 py-3.5 text-white hover:bg-blue-700 md:w-auto">
               Get started with localised data
@@ -325,20 +330,16 @@ const page = () => {
           </div>
 
           <div className="space-y-6 md:grid md:grid-cols-2 md:gap-6 md:space-y-0 xl:grid-cols-3">
-            {Array.from({ length: 6 }, (_: any, i: number) => (
+            {benefitsData.map((benefits, i) => (
               <div className="border border-[#F2F2F2] bg-[#FCFCFC] p-4" key={i}>
                 <span className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-main-100 bg-opacity-5">
                   <Image src={Thumb} alt="Thumb" />
                 </span>
                 <h3 className="mb-4 mt-8 text-lg font-medium text-[#333]">
-                  Benefit heading goes here
+                  {benefits.title}
                 </h3>
                 <p className="text-sm leading-6 text-[#333]">
-                  Lorem ipsum dolor sit amet consectetur. At tortor morbi at
-                  enim augue duis enim nunc. Mi magna lobortis id gravida sem
-                  faucibus. Tortor diam nibh semper a at. Massa cursus volutpat
-                  accumsan amet lacinia vulputate turpis porta malesuada. Dolor
-                  laoreet.
+                  {benefits.description}
                 </p>
               </div>
             ))}
@@ -352,13 +353,20 @@ const page = () => {
         <div className="wrapper lg:grid lg:grid-cols-[1.5fr_1fr] lg:items-center xl:grid-cols-[2fr_1.5fr]">
           <div>
             <h2 className="z-40 mb-4 text-[2rem] font-semibold leading-[42px] text-white md:text-balance md:text-center md:text-[2rem] md:leading-[1.4] lg:text-pretty lg:text-left lg:text-4xl lg:leading-normal xl:text-5xl xl:leading-normal">
-              Get effortless earning <br /> experience on GoloKa Mobile
+              Effortless data collection at your <br /> fingertips on Goloka
+              Mobile
             </h2>
-            <p className="z-40 text-base leading-7 text-white md:text-balance md:text-center md:text-lg lg:text-left">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. <br />{" "}
-              Nunc integer sit nascetur.
-            </p>
 
+            <p className="z-40 text-base leading-7 text-white md:text-balance md:text-center md:text-lg lg:text-left">
+              Our AI-powered app puts effortless data collection at your
+              fingertips. <br />
+              Create campaigns and collect highly-localised data with pinpoint
+              accuracy using <br /> smartphone and remote sensing technology.{" "}
+              <br />
+              Plus, get rewarded for your contributions - earn money by
+              collecting data on Goloka Mobile. <br /> Download now and access
+              seamless data collection across all your iOS or Android devices.
+            </p>
             <div className="mt-12 flex gap-3 md:justify-center lg:mx-0 lg:w-[300px]">
               <Link
                 href="/"
@@ -404,8 +412,8 @@ const page = () => {
               Trending on Goloka🔥
             </h2>
             <p className="mb-6 mt-4 text-center leading-7 text-[#434343] md:text-balance">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Amet
-              habitant dui consectetur sed nam amet, magna. Iet se
+              Contribute to the most popular and engaging data collection
+              projects on the platform
             </p>
             <Button className="h-auto w-full rounded-full bg-main-100 py-3.5 text-white hover:bg-blue-700 sm:w-auto">
               Start earning in 2 minutes
@@ -513,12 +521,14 @@ const page = () => {
         <div className="relative rounded-3xl bg-[radial-gradient(135.58%_135.58%_at_50%_35.83%,#3365E3_0%,#1C387D_100%)] px-4 py-10 md:py-16">
           <div className="relative z-10 text-center">
             <h2 className="text-2xl font-semibold text-white md:text-balance md:text-[2rem] md:leading-normal lg:text-5xl lg:leading-normal">
-              Drive Business Success and Earn Rewards Together
+              Solve your business problems with accurate data
             </h2>
             <p className="mt-4 text-white lg:text-balance">
-              Lorem ipsum dolor sit amet consectetur. Bibendum neque a mauris id
-              integer neque nisi. Sem eros sit odio suspendisse. In ultricies
-              neque vitae integer q
+              We guarantee improved data accuracy and verification with Goloka’s
+              cutting-edge geospatial technology. The in-built wallet system,
+              ensures you can seamlessly manage your data collection project.
+              Everything is streamlined for your convenience, from the launch of
+              your project to the payment of data collectors.
             </p>
             <Button className="mt-6 h-auto w-full rounded-full bg-white py-3.5 text-main-100 hover:bg-white md:w-auto">
               Get started with Goloka
@@ -543,3 +553,42 @@ const page = () => {
 };
 
 export default page;
+
+interface Benefit {
+  title: string;
+  description: string;
+}
+
+// Array of benefits
+const benefitsData: Benefit[] = [
+  {
+    title: "Monitor in Real-Time",
+    description:
+      "Keep a close eye on campaign performance in real-time to quickly address any issues or capitalize on emerging opportunities",
+  },
+  {
+    title: "Generate Reports ",
+    description:
+      "Summarize campaign performance and insights into comprehensive reports. These reports can include an analysis of key findings, lessons learned, and recommendations for future campaigns",
+  },
+  {
+    title: "Transparency-Centric Communication",
+    description:
+      "Using meaningful analytics guarantees transparency and data-driven explanations",
+  },
+  {
+    title: "Visualising Impact",
+    description:
+      "Use data visualization techniques such as charts, graphs, and infographics in an easily understandable format for stakeholder engagement including donors, partners, beneficiaries, and the community",
+  },
+  {
+    title: "Outlook on Trends",
+    description:
+      "Identify trends, and apply these insights to future strategies, ensuring ongoing success and growth",
+  },
+  {
+    title: "Iterate and Improve",
+    description:
+      "Use insights gained from analyzing campaign metrics to iterate, inform and improve future marketing strategies",
+  },
+];

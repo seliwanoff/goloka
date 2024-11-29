@@ -336,8 +336,8 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
               <span className="text-main-100">{FirstName}</span>
             </h1>
             <p className="text-gray-600">
-              Lorem ipsum dolor sit amet consectetur. Ultrices turpis amet et
-              id.
+              Start earning by contribute to different campaigns from divers
+              niche
             </p>
           </div>
         </div>

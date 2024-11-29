@@ -22,9 +22,10 @@ const Footer = (props: Props) => {
               </AspectRatio>
             </div>
             <p className="mt-6 text-sm font-medium text-[#4F4F4F] md:text-base">
-              Lorem ipsum dolor sit amet consectetur.{" "}
-              <br className="lg:hidden" /> Aliquet sed scelerisque id cursus
-              interdum.
+              Goloka is a robust data collection platform that leverages AI and <br/>
+              citizen-sourced data to deliver real-time, localised insights <br/>
+              which unlocks hyperlocal research for business, <br/>government and
+              development organisations
             </p>
           </div>
 
@@ -90,7 +91,7 @@ const Footer = (props: Props) => {
 
           <div className="text-center text-xs text-[#797B89] md:col-span-4">
             <hr className="mb-3" />
-            Copyright © 2024 SWOFON
+            Copyright © 2024 GOLOKA
           </div>
         </div>
       </div>
