@@ -116,3 +116,5 @@ export const walletStatus = (status: string) => {
       return "bg-[#FF0000] border border-[#FF0000] bg-opacity-5 text-[#FF0000]";
   }
 };
+
+

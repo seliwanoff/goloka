@@ -7,7 +7,6 @@ const SettingsPage = () => {
     <>
       {/* DESKTOP */}
       <SettingsWeb />
-
       {/* MOBILE */}
       <MobileSettings />
     </>

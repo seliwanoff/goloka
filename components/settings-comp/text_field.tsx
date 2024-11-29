@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-const TextField = ({ errors, data, register }: any) => {
+const TextField = ({ errors, data, register, ...props }: any) => {
   const allowedTypes = ["text", "email", "number"];
   const inputType = allowedTypes.includes(data?.type) ? data.type : "text";
 
@@ -19,6 +19,7 @@ const TextField = ({ errors, data, register }: any) => {
           id={data?.name}
           name={data?.name}
           placeholder={data?.placeholder}
+          {...props}
           className={cn(
             "form-input h-14 w-full rounded-lg border border-[#D9DCE0] p-4 placeholder:text-sm placeholder:text-[#828282]",
             errors[data?.name] &&

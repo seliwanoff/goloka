@@ -709,6 +709,33 @@ export const addBeneficiary = [
   },
 ];
 
+export const addCard = [
+  {
+    label: "Card number",
+    type: "number",
+    required: true,
+    err_message: "Input card number",
+    name: "cardNumber",
+    placeholder: "Input card number",
+  },
+  {
+    label: "Expiry date",
+    type: "string",
+    required: true,
+    err_message: "Input expiry date",
+    name: "expiryDate",
+    placeholder: "MM/YY",
+  },
+  {
+    label: "CVV",
+    type: "number",
+    required: true,
+    err_message: "Input card cvv",
+    name: "cvv",
+    placeholder: "Input card cvv",
+  },
+];
+
 export const currencyOptions = [
   { label: "USD", value: "usd" },
   { label: "EUR", value: "eur" },
@@ -963,7 +990,6 @@ export const countriesAndCities = [
     ],
   },
 ];
-
 
 export const bankList = [
   {
