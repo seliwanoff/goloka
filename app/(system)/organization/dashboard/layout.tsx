@@ -90,7 +90,7 @@ const NavData: { icon: any; title: string; link: string }[] = [
     title: "Dashboard",
     link: "/organization/dashboard/root",
   },
-  { icon: Note, title: "Campaign", link: "/organization/dashboard/campaign" },
+  { icon: Note, title: "Campaigns", link: "/organization/dashboard/campaigns" },
   {
     icon: DocumentCopy,
     title: "Responses",

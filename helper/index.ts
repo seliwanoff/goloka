@@ -20,8 +20,6 @@ export const formatResponseTime = (dateString: string) => {
   return moment(dateString).format("h:mmA");
 };
 
-
-
 interface StatusPillProps {
   status?: string;
   className?: string;
@@ -49,9 +47,8 @@ export const getStatusColor = (status: Status) => {
 };
 
 // Utility function to format the status text
-export const getStatusText = (status: Status) => {
+export const getStatusText = (status: Status | string) => {
   const firstChar = status.charAt(0).toUpperCase();
   const rest = status.slice(1).toLowerCase();
   return `${firstChar}${rest}`;
 };
-
