@@ -270,7 +270,7 @@ const Page = () => {
 
 export default Page;
 
-export const getStatusColor = (status: string) => {
+ const getStatusColor = (status: string) => {
   switch (status?.toLowerCase()) {
     case "running":
       return "bg-orange-400/5 border-orange-400 text-orange-400";
