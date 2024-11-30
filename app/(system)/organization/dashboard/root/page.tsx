@@ -46,7 +46,7 @@ import { useRouter } from "next/navigation";
 import {
   formatResponseDate,
   formatResponseTime,
-  getStatusColor,
+  // getStatusColor,
   getStatusText,
   Status,
 } from "@/helper";
@@ -64,8 +64,9 @@ const Dashboard = () => {
   const [openFilter, setOpenFilter] = useState<boolean>(false);
   const [date, setDate] = useState<Date>();
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState<number>(5);
+  const [pageSize, setPageSize] = useState<number>(10);
   const pages = chunkArray(filteredData, pageSize);
+  const currentPageData = pages[currentPage - 1] || [];
   const router = useRouter();
 
   return (
@@ -314,7 +315,7 @@ const Dashboard = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredData?.map((res: any, index: number) => (
+                  {currentPageData?.map((res: any, index: number) => (
                     <TableRow key={index}>
                       <TableCell>
                         <div>
@@ -427,4 +428,19 @@ const StatusPill: React.FC<StatusPillProps> = ({ status }) => {
       {getStatusText(status)}
     </span>
   );
+};
+
+export const getStatusColor = (status: Status) => {
+  switch (status?.toLowerCase()) {
+    case "pending":
+      return "bg-orange-400/5 border-orange-400 text-orange-400";
+    case "reviewed":
+      return "bg-violet-500/5 border-violet-500 text-violet-500";
+    case "accepted":
+      return "bg-emerald-600/5 border-emerald-600 text-emerald-600";
+    case "rejected":
+      return "bg-red-500/5 border-red-500 text-red-500";
+    default:
+      return "bg-gray-500/5 border-gray-500 text-gray-500";
+  }
 };

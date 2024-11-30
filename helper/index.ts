@@ -20,15 +20,19 @@ export const formatResponseTime = (dateString: string) => {
   return moment(dateString).format("h:mmA");
 };
 
-
-
 interface StatusPillProps {
   status?: string;
   className?: string;
 }
 
 // Define possible statuses as a union type
-export type Status = "draft" | "pending" | "reviewed" | "approved" | "rejected";
+export type Status =
+  | "draft"
+  | "pending"
+  | "reviewed"
+  | "approved"
+  | "rejected"
+  | "accepted";
 
 // Utility function to return the appropriate color classes
 export const getStatusColor = (status: Status) => {
@@ -40,6 +44,7 @@ export const getStatusColor = (status: Status) => {
     case "reviewed":
       return "bg-blue-500/5 border-blue-500 text-blue-500";
     case "approved":
+    case "accepted":
       return "bg-emerald-600/5 border-emerald-600 text-emerald-600";
     case "rejected":
       return "bg-red-500/5 border-red-500 text-red-500";
@@ -54,4 +59,3 @@ export const getStatusText = (status: Status) => {
   const rest = status.slice(1).toLowerCase();
   return `${firstChar}${rest}`;
 };
-

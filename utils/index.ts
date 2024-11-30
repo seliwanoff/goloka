@@ -169,7 +169,7 @@ export const responsesTableData = [
   {
     category: "Agriculture & Food Security",
     company: "Dataphyte",
-    status: "On Review",
+    status: "Pending",
     price: "$12",
     date: "15/5/2024",
     time: "9:30AM",
@@ -178,7 +178,7 @@ export const responsesTableData = [
   {
     category: "Agriculture & Food Security",
     company: "Dataphyte",
-    status: "On Review",
+    status: "Pending",
     price: "$12",
     date: "15/5/2024",
     time: "9:30AM",
@@ -187,7 +187,7 @@ export const responsesTableData = [
   {
     category: "Agriculture & Food Security",
     company: "Dataphyte",
-    status: "On Review",
+    status: "Reviewed",
     price: "$12",
     date: "15/5/2024",
     time: "9:30AM",
@@ -196,7 +196,7 @@ export const responsesTableData = [
   {
     category: "Agriculture & Food Security",
     company: "Dataphyte",
-    status: "On Review",
+    status: "Pending",
     price: "$12",
     date: "15/5/2024",
     time: "9:30AM",
@@ -205,7 +205,7 @@ export const responsesTableData = [
   {
     category: "Agriculture & Food Security",
     company: "Dataphyte",
-    status: "On Review",
+    status: "Pending",
     price: "$12",
     date: "15/5/2024",
     time: "9:30AM",
@@ -214,7 +214,7 @@ export const responsesTableData = [
   {
     category: "Agriculture & Food Security",
     company: "Dataphyte",
-    status: "On Review",
+    status: "Reviewed",
     price: "$12",
     date: "15/5/2024",
     time: "9:30AM",
@@ -223,7 +223,7 @@ export const responsesTableData = [
   {
     category: "Agriculture & Food Security",
     company: "Dataphyte",
-    status: "On Review",
+    status: "Pending",
     price: "$12",
     date: "15/5/2024",
     time: "9:30AM",
@@ -232,7 +232,7 @@ export const responsesTableData = [
   {
     category: "Agriculture & Food Security",
     company: "Dataphyte",
-    status: "On Review",
+    status: "Pending",
     price: "$12",
     date: "15/5/2024",
     time: "9:30AM",
@@ -241,7 +241,7 @@ export const responsesTableData = [
   {
     category: "Agriculture & Food Security",
     company: "Dataphyte",
-    status: "On Review",
+    status: "Pending",
     price: "$12",
     date: "15/5/2024",
     time: "9:30AM",
@@ -250,7 +250,7 @@ export const responsesTableData = [
   {
     category: "Agriculture & Food Security",
     company: "Dataphyte",
-    status: "On Review",
+    status: "Pending",
     price: "$12",
     date: "15/5/2024",
     time: "9:30AM",
@@ -270,7 +270,7 @@ export const responsesTableData = [
   {
     category: "Agriculture & Food Security",
     company: "Dataphyte",
-    status: "Accepted",
+    status: "Reviewed",
     price: "$12",
     date: "15/5/2024",
     time: "9:30AM",
@@ -288,7 +288,7 @@ export const responsesTableData = [
   {
     category: "Agriculture & Food Security",
     company: "Dataphyte",
-    status: "Accepted",
+    status: "Reviewed",
     price: "$12",
     date: "15/5/2024",
     time: "9:30AM",
@@ -297,7 +297,7 @@ export const responsesTableData = [
   {
     category: "Agriculture & Food Security",
     company: "Dataphyte",
-    status: "Accepted",
+    status: "Pending",
     price: "$12",
     date: "15/5/2024",
     time: "9:30AM",
@@ -963,7 +963,6 @@ export const countriesAndCities = [
     ],
   },
 ];
-
 
 export const bankList = [
   {
