@@ -85,6 +85,14 @@ const Page = () => {
     }
   }, [activeStatus]);
 
+  useEffect(() => {
+    if (activeTab === "campaigns") {
+      setFilteredData(campaignList);
+    } else if (activeTab === "campaign-groups") {
+      setFilteredData(campaignGroupList);
+    }
+  }, [activeTab]);
+
   console.log(activeTab, "Tabs");
   return (
     <section className="mt-5">
@@ -130,24 +138,28 @@ const Page = () => {
               <div className="hidden lg:flex lg:gap-4">
                 {/* Status */}
 
-                <Select value={activeStatus} onValueChange={setActiveStatus}>
-                  <SelectTrigger
-                    className={cn(
-                      "w-[110px] rounded-full focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0",
-                    )}
-                  >
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectItem value="all">All</SelectItem>
-                      <SelectItem value="draft">Draft</SelectItem>
-                      <SelectItem value="running">Running</SelectItem>
-                      <SelectItem value="completed">Completed</SelectItem>
-                      <SelectItem value="archived">Archived</SelectItem>
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+                {activeTab !== "campaign-groups" ? (
+                  <Select value={activeStatus} onValueChange={setActiveStatus}>
+                    <SelectTrigger
+                      className={cn(
+                        "w-[110px] rounded-full focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0",
+                      )}
+                    >
+                      <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="all">All</SelectItem>
+                        <SelectItem value="draft">Draft</SelectItem>
+                        <SelectItem value="running">Running</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                        <SelectItem value="archived">Archived</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <></>
+                )}
 
                 {/* NUMBER */}
                 <Popover>
@@ -259,7 +271,7 @@ const Page = () => {
 export default Page;
 
 export const getStatusColor = (status: string) => {
-  switch (status.toLowerCase()) {
+  switch (status?.toLowerCase()) {
     case "running":
       return "bg-orange-400/5 border-orange-400 text-orange-400";
     case "completed":
@@ -331,13 +343,13 @@ const CampaignGroupTable = ({ tdata }: { tdata: any[] }) => {
             <TableCell className="">{data?.totalCampaign}</TableCell>
             <TableCell className=" ">{data?.lastUpdated}</TableCell>
             <TableCell className="">
-              <span className="cursor-pointer">
-                <Eye />
+              <span className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-main-100/5 p-2 px-2.5 text-sm text-main-100">
+                <Eye size={20} /> View
               </span>
             </TableCell>
             <TableCell className="">
-              <span className="cursor-pointer">
-                <Edit />
+              <span className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#F8F8F8] p-2 px-2.5 text-sm text-[#4F4F4F]">
+                <Edit size={20} /> Edit
               </span>
             </TableCell>
           </TableRow>
