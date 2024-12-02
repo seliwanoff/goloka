@@ -105,7 +105,7 @@ const LandingNavbar: React.FC<ComponentProps> = ({}) => {
           {navLinks.map((link) => (
             <Link
               href={link.href}
-              key={link.href}
+              key={link.text}
               className={classMerge(
                 "transit text-sm font-normal",
                 pathname.includes(link.href)

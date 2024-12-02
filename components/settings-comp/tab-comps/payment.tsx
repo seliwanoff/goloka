@@ -178,11 +178,7 @@ const Payment: React.FC<any> = () => {
                   className="h-auto w-full rounded-full py-3 text-white"
                   variant={"destructive"}
                 >
-                  {isSubmitting ? (
-                    <Loader className="animate-spin text-[#fff]" />
-                  ) : (
-                    " Add beneficiary"
-                  )}
+                  {" Delete beneficiary"}
                 </Button>
               </div>
             )}

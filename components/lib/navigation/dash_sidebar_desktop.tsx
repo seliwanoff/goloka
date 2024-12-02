@@ -80,7 +80,7 @@ const DashSideBarDesktop: React.FC<ComponentProps> = ({}) => {
                 : "bg-white font-medium text-gray-500 ring-gray-100 hover:bg-gradient-to-br hover:from-gray-50/20 hover:via-gray-100/80 hover:to-gray-50/20 hover:text-gray-800 hover:ring-1",
             )}
           >
-            <nav_item.icon size={20} strokeWidth={1.5} />
+            <nav_item.icon size={20} color="currentColor" strokeWidth={1.5} />
             <p
               className={cn(
                 "",
@@ -105,7 +105,9 @@ const DashSideBarDesktop: React.FC<ComponentProps> = ({}) => {
             <div className="rounded-full bg-rose-50 p-2 text-rose-600">
               <OctagonAlert />
             </div>
-            <DialogTitle className="-mt-8 text-xl font-bold">Proceed to logout?</DialogTitle>
+            <DialogTitle className="-mt-8 text-xl font-bold">
+              Proceed to logout?
+            </DialogTitle>
             <p>
               By clicking on <b>continue</b>, you will be logged out of your
               dashboard. Do you want to proceed?

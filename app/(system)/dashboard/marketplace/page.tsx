@@ -153,7 +153,7 @@ const TaskPage: React.FC<ComponentProps> = ({}) => {
     const queryParams = new URLSearchParams(window.location.search);
 
     if (value) {
-      queryParams.set(key, value); 
+      queryParams.set(key, value);
     } else {
       queryParams.delete(key); // Remove parameter if value is null
     }
@@ -450,7 +450,11 @@ const TaskPage: React.FC<ComponentProps> = ({}) => {
                     ? `${format(startDate, "PPP")} - ${format(endDate, "PPP")}`
                     : "Select date range"}
                   <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F8F8F8]">
-                    <Calendar size={20} color="#828282" />
+                    <Calendar
+                      size={20}
+                     
+                      color="#828282"
+                    />
                   </span>
                 </Button>
               </PopoverTrigger>
@@ -581,7 +585,7 @@ const TaskPage: React.FC<ComponentProps> = ({}) => {
             className="inline-flex cursor-pointer items-center justify-center gap-3 rounded-full border bg-white p-1 pr-3 lg:hidden"
           >
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#F8F8F8]">
-              <Setting4 size={20} />
+              <Setting4 size={20} color="currentColor" />
             </span>
             <span>Filter</span>
           </div>

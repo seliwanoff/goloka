@@ -356,7 +356,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
                     {getButtonText() === "Continue" ? (
                       <Workflow size={20} />
                     ) : (
-                      <Note size={20} />
+                      <Note size={20} color="currentColor" />
                     )}
                   </span>
                   {loading ? "Loading..." : getButtonText()}
@@ -389,8 +389,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
                   </div>
                   <div>
                     <h4 className="text-[#101828]">
-                      {USER_CURRENCY_SYMBOL}{" "}
-                      {/* @ts-ignore */}
+                      {USER_CURRENCY_SYMBOL} {/* @ts-ignore */}
                       {task?.data?.payment_rate_for_response}{" "}
                     </h4>
                     <p className="text-sm text-gray-400">Per response</p>
@@ -493,7 +492,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
                   {getButtonText() === "Continue" ? (
                     <Workflow size={20} />
                   ) : (
-                    <Note size={20} />
+                    <Note size={20} color="currentColor" />
                   )}
                 </span>
                 {loading ? "Loading..." : getButtonText()}

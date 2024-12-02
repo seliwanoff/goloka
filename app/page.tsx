@@ -218,7 +218,12 @@ const page = () => {
           <div className="mb-16 lg:mb-0">
             <div className="mb-6 inline-flex items-center justify-center gap-3 rounded-full bg-[#EBF0FC] px-4 py-3 text-sm font-medium text-main-100">
               <span>
-                <Category2 size="20" variant="Bold" />
+                <Category2
+
+                  size={20}
+                  color="currentColor"
+                  variant="Bold"
+                />
               </span>{" "}
               Goloka for organization
             </div>
@@ -452,7 +457,7 @@ const page = () => {
                 </p>
                 <div className="mt-3 flex gap-3">
                   <span className="text-[#4F4F4F]">
-                    <Location size="24" />
+                    <Location size={24} color="currentColor" />
                   </span>
                   <p className="text-[#4F4F4F]">
                     Lagos, Kwara, Abuja, Kogi, Kano
@@ -506,7 +511,7 @@ const page = () => {
                 >
                   <span>Learn more</span>
                   <span>
-                    <ArrowRight size={16} />
+                    <ArrowRight size={16} color="currentColor" />
                   </span>
                 </Link>
               </div>

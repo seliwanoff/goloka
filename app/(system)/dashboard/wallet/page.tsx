@@ -121,7 +121,7 @@ const Wallet = () => {
               className="grid cursor-pointer grid-cols-[40px_1fr] items-center gap-4 rounded-[12px] bg-[#F8F8F8] p-3.5"
             >
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#E0E0E0]">
-                <ExportSquare size={20} />
+                <ExportSquare size={20} color="currentColor" />
               </span>
               <div className="space-y-1.5">
                 <h3 className="text-sm font-medium text-[#000000D9]">
@@ -137,7 +137,7 @@ const Wallet = () => {
               className="grid cursor-pointer grid-cols-[40px_1fr] items-center gap-4 rounded-[12px] bg-[#F8F8F8] p-3.5"
             >
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#E0E0E0]">
-                <Login size={20} />
+                <Login size={20} color="currentColor" />
               </span>
               <div className="space-y-1.5">
                 <h3 className="text-sm font-medium text-[#000000D9]">
