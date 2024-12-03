@@ -14,17 +14,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useLocationAddress } from "@/stores/useLocation";
 
 interface Location {
   id: number;
-  name: string;
-  placeId?: string;
   latitude?: number;
   longitude?: number;
 }
 
-interface CoordinateLocation {
+interface DefaultLocation {
   latitude: number;
   longitude: number;
 }
@@ -32,38 +29,49 @@ interface CoordinateLocation {
 interface Props {
   apiKey: string;
   questionId: number | string;
-  onLocationSelect: (locations: CoordinateLocation[]) => void;
+  onLocationSelect: (locations: Location[]) => void;
+  maxLocations?: number;
+  defaultLocations?: DefaultLocation[];
 }
 
-const CustomAreaInput = ({ apiKey, questionId, onLocationSelect }: Props) => {
-  // Initial state with two location inputs
-  const [locations, setLocations] = useState<Location[]>([
-    { id: 1, name: "" },
-    { id: 2, name: "" },
-  ]);
+const CustomAreaInput = ({
+  apiKey,
+  questionId,
+  onLocationSelect,
+  maxLocations = 2,
+  defaultLocations = [],
+}: Props) => {
+  // Initial state with dynamic number of location inputs
+  const [locations, setLocations] = useState<Location[]>(
+    Array.from({ length: maxLocations }, (_, index) => {
+      const defaultLocation = defaultLocations[index];
+      return {
+        id: index + 1,
+        latitude: defaultLocation?.latitude,
+        longitude: defaultLocation?.longitude,
+      };
+    }),
+  );
 
   // State to control popover for each location
   const [openPopoverIndex, setOpenPopoverIndex] = useState<number | null>(null);
 
-  // Hook for current location
-  const { latitude, longitude, location, error, loading } =
-    useLocationAddress();
-
+  // Callback to update parent with selected locations
   const updateLocations = useCallback(
     (newLocations: Location[]) => {
-      // Filter out locations with no coordinates
-      const filteredLocations = newLocations.filter(
+      // Filter out locations with coordinates
+      const locationsWithCoordinates = newLocations.filter(
         (loc) => loc.latitude !== undefined && loc.longitude !== undefined,
       );
 
-      // Transform to coordinate objects
-      const coordinateLocations = filteredLocations.map((loc) => ({
-        latitude: loc.latitude!,
-        longitude: loc.longitude!,
-      }));
-
-      // Call onLocationSelect only with locations having coordinates
-      onLocationSelect(coordinateLocations);
+      // Always call onLocationSelect with available locations
+      onLocationSelect(
+        locationsWithCoordinates.map((loc) => ({
+          id: loc.id,
+          latitude: loc.latitude!,
+          longitude: loc.longitude!,
+        })),
+      );
 
       // Update local state
       setLocations(newLocations);
@@ -71,38 +79,7 @@ const CustomAreaInput = ({ apiKey, questionId, onLocationSelect }: Props) => {
     [onLocationSelect],
   );
 
-  // Handle current location selection
-  const handleCurrentLocation = useCallback(
-    (locationIndex: number) => {
-      if (latitude && longitude) {
-        // Construct a detailed location name
-        const locationName = location?.address
-          ? `${location?.address}${location?.city ? `, ${location?.city}` : ""}`
-          : location || "Current Location";
-
-        const updatedLocations = locations.map((loc) =>
-          loc.id === locationIndex
-            ? {
-                ...loc,
-                name: locationName,
-                // placeId: placeId,
-                latitude,
-                longitude,
-              }
-            : loc,
-        );
-        //@ts-ignore
-        updateLocations(updatedLocations);
-
-        // Close the popover
-        setOpenPopoverIndex(null);
-      } else {
-        console.warn("Current location not available");
-      }
-    },
-    [locations, updateLocations, latitude, longitude, location],
-  );
-
+  // Update location with selected place
   const updateLocation = useCallback(
     (id: number, place: google.maps.places.PlaceResult) => {
       // Safely extract coordinates
@@ -114,8 +91,6 @@ const CustomAreaInput = ({ apiKey, questionId, onLocationSelect }: Props) => {
           loc.id === id
             ? {
                 ...loc,
-                name: place.formatted_address || "",
-                placeId: place.place_id,
                 latitude: lat,
                 longitude: lng,
               }
@@ -130,13 +105,59 @@ const CustomAreaInput = ({ apiKey, questionId, onLocationSelect }: Props) => {
     [locations, updateLocations],
   );
 
+  // Handle current location selection
+  const handleCurrentLocation = useCallback(
+    (
+      locationIndex: number,
+      currentPosition: { latitude: number; longitude: number },
+    ) => {
+      const updatedLocations = locations.map((loc) =>
+        loc.id === locationIndex
+          ? {
+              ...loc,
+              latitude: currentPosition.latitude,
+              longitude: currentPosition.longitude,
+            }
+          : loc,
+      );
+
+      updateLocations(updatedLocations);
+      setOpenPopoverIndex(null);
+    },
+    [locations, updateLocations],
+  );
+
+  // Function to get current location
+  const getCurrentLocation = () => {
+    return new Promise<{ latitude: number; longitude: number }>(
+      (resolve, reject) => {
+        if ("geolocation" in navigator) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              resolve({
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+              });
+            },
+            (error) => {
+              console.error("Error getting location:", error);
+              reject(error);
+            },
+          );
+        } else {
+          reject(new Error("Geolocation is not supported by this browser."));
+        }
+      },
+    );
+  };
+
   return (
     <div className="mx-auto w-full max-w-2xl space-y-4">
       {locations.map((location, index) => (
         <div key={location.id} className="relative flex items-center space-x-1">
           <div className="relative w-full">
             <div className="absolute inset-y-0 left-3 z-10 flex items-center">
-              {location.name ? (
+              {location.latitude && location.longitude ? (
                 <Map className="h-5 w-5 text-blue-500" />
               ) : (
                 <MapPin className="h-5 w-5 text-blue-500" />
@@ -148,11 +169,10 @@ const CustomAreaInput = ({ apiKey, questionId, onLocationSelect }: Props) => {
               <Autocomplete
                 apiKey={apiKey}
                 placeholder="Search for a location"
-                value={location.name}
                 className="w-full rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-3 text-gray-700 placeholder-gray-400 shadow-sm placeholder:text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 options={{
                   types: ["geocode"],
-                  componentRestrictions: { country: "ng" },
+                  componentRestrictions: { country: "ng" }, // adjust as needed
                 }}
                 onPlaceSelected={(place) => {
                   updateLocation(location.id, place);
@@ -184,7 +204,21 @@ const CustomAreaInput = ({ apiKey, questionId, onLocationSelect }: Props) => {
                     <CommandList>
                       <CommandGroup>
                         <CommandItem
-                          onSelect={() => handleCurrentLocation(location.id)}
+                          onSelect={async () => {
+                            try {
+                              const currentLocation =
+                                await getCurrentLocation();
+                              handleCurrentLocation(
+                                location.id,
+                                currentLocation,
+                              );
+                            } catch (error) {
+                              console.error(
+                                "Failed to get current location",
+                                error,
+                              );
+                            }
+                          }}
                           className="flex items-center"
                         >
                           <Navigation className="mr-2 h-4 w-4" />

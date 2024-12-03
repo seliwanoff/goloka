@@ -417,17 +417,12 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
 
               <div className="rounded-2xl bg-white p-5">
                 <figure className="h-[85%]">
-                  {/* <Image
-                    src={Map}
-                    alt="map"
-                    className="h-full w-full rounded-lg object-cover"
-                  /> */}
                   <Map />
-                  {/* <LocationMap locations={locations} /> */}
                 </figure>
                 <div className="mt-5 flex gap-5">
                   <div className="text-sm font-semibold text-[#101828]">
-                    6{" "}
+                    {/* @ts-ignore */}
+                    {task?.data?.no_of_questions}{" "}
                     <span className="font-normal text-[#828282]">
                       Questions
                     </span>

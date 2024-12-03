@@ -1,76 +1,164 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { MapPin, Navigation } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { MapPin, Navigation, Loader2 } from "lucide-react";
 import {
   Command,
   CommandInput,
   CommandList,
-  CommandEmpty,
   CommandGroup,
-  CommandItem,
 } from "@/components/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useLocationAddress } from "@/stores/useLocation";
 
 interface LocationDropdownProps {
   questionId: string | number;
   onLocationSelect: (location: any, questionId: string | number) => void;
+  defaultLatitude?: number;
+  defaultLongitude?: number;
 }
 
 const LocationDropdown: React.FC<LocationDropdownProps> = ({
   questionId,
   onLocationSelect,
+  defaultLatitude,
+  defaultLongitude,
 }) => {
-  const { latitude, longitude, location, error, loading } =
-    useLocationAddress();
   const [open, setOpen] = useState(false);
-  const [hasNotifiedLocation, setHasNotifiedLocation] = useState(false);
+  const [currentLocation, setCurrentLocation] = useState<{
+    address?: string;
+    city?: string;
+    latitude?: number;
+    longitude?: number;
+  } | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLocationSelect = useCallback(() => {
-    if (location && !hasNotifiedLocation) {
-      onLocationSelect(
-        {
-          // address: location.address,
-          // city: location.city,
-          latitude,
-          longitude,
-          // id: location.id || Date.now().toString(),
-        },
-        questionId,
-      );
-      setHasNotifiedLocation(true);
-    }
-  }, [
-    location,
-    latitude,
-    longitude,
-    questionId,
-    onLocationSelect,
-    hasNotifiedLocation,
-  ]);
-
+  // Prefill location if default coordinates are provided
   useEffect(() => {
-    handleLocationSelect();
-  }, [handleLocationSelect]);
+    const prefillDefaultLocation = async () => {
+      if (defaultLatitude && defaultLongitude) {
+        try {
+          const response = await fetch(
+            `https://maps.googleapis.com/maps/api/geocode/json?latlng=${defaultLatitude},${defaultLongitude}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`,
+          );
+
+          const data = await response.json();
+
+          if (data.status === "OK" && data.results.length > 0) {
+            const result = data.results[0];
+            const locationDetails = {
+              address: result.formatted_address,
+              city:
+                result.address_components.find((component: { types: string | string[]; }) =>
+                  component.types.includes("locality"),
+                )?.long_name || "",
+              latitude: defaultLatitude,
+              longitude: defaultLongitude,
+              id: Date.now().toString(),
+            };
+
+            setCurrentLocation(locationDetails);
+            onLocationSelect(locationDetails, questionId);
+          }
+        } catch (error) {
+          console.error("Error fetching default location details:", error);
+
+          // Fallback if geocoding fails
+          const fallbackLocation = {
+            address: "Default Location",
+            city: "",
+            latitude: defaultLatitude,
+            longitude: defaultLongitude,
+            id: Date.now().toString(),
+          };
+
+          setCurrentLocation(fallbackLocation);
+          onLocationSelect(fallbackLocation, questionId);
+        }
+      }
+    };
+
+    prefillDefaultLocation();
+  }, [defaultLatitude, defaultLongitude, questionId, onLocationSelect]);
 
   const getCurrentLocation = () => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        const currentLocation = {
-          address: location?.address || "Current Location",
-          city: location?.city || "",
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          id: Date.now().toString(),
-        };
+    setIsLoading(true);
+    setCurrentLocation(null);
 
-        onLocationSelect(currentLocation, questionId);
-        setOpen(false);
-      });
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            const response = await fetch(
+              `https://maps.googleapis.com/maps/api/geocode/json?latlng=${position.coords.latitude},${position.coords.longitude}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`,
+            );
+
+            const data = await response.json();
+
+            if (data.status === "OK" && data.results.length > 0) {
+              const result = data.results[0];
+              const locationDetails = {
+                address: result.formatted_address,
+                city:
+                  result.address_components.find((component: { types: string | string[]; }) =>
+                    component.types.includes("locality"),
+                  )?.long_name || "",
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+                accuracy: position.coords.accuracy,
+                id: Date.now().toString(),
+              };
+
+              setCurrentLocation(locationDetails);
+              onLocationSelect(locationDetails, questionId);
+            } else {
+              // Fallback if geocoding fails
+              const fallbackLocation = {
+                address: "Current Location",
+                city: "",
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+                accuracy: position.coords.accuracy,
+                id: Date.now().toString(),
+              };
+
+              setCurrentLocation(fallbackLocation);
+              onLocationSelect(fallbackLocation, questionId);
+            }
+          } catch (error) {
+            console.error("Error fetching location details:", error);
+            const fallbackLocation = {
+              address: "Current Location",
+              city: "",
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+              accuracy: position.coords.accuracy,
+              id: Date.now().toString(),
+            };
+
+            setCurrentLocation(fallbackLocation);
+            onLocationSelect(fallbackLocation, questionId);
+          } finally {
+            setIsLoading(false);
+            setOpen(false);
+          }
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+          setIsLoading(false);
+          alert(
+            "Unable to retrieve your location. Please check your permissions.",
+          );
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
+        },
+      );
     } else {
+      setIsLoading(false);
       alert("Geolocation is not supported by your browser");
     }
   };
@@ -84,13 +172,19 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({
             onClick={() => setOpen(true)}
           >
             <MapPin className="mr-2 h-5 w-5 text-gray-500" />
-            {location ? (
+            {currentLocation ? (
               <div>
-                <div className="font-medium">{location.address}</div>
-                <div className="text-sm text-gray-500">{location.city}</div>
+                <div className="font-medium">{currentLocation.address}</div>
+                <div className="text-sm text-gray-500">
+                  {currentLocation.city}
+                </div>
               </div>
             ) : (
-              <span className="text-gray-500">Search for a location...</span>
+              <span className="text-gray-500">
+                {defaultLatitude && defaultLongitude
+                  ? "Default Location"
+                  : "Search for a location..."}
+              </span>
             )}
           </button>
         </PopoverTrigger>
@@ -105,10 +199,17 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({
                 <div className="px-2 py-1.5">
                   <button
                     onClick={getCurrentLocation}
-                    className="flex w-full items-center rounded-md p-2 text-sm text-purple-600 hover:bg-gray-100"
+                    disabled={isLoading}
+                    className="flex w-full items-center rounded-md p-2 text-sm text-purple-600 hover:bg-gray-100 disabled:opacity-50"
                   >
-                    <Navigation className="mr-2 h-4 w-4" />
-                    Use my current location
+                    {isLoading ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Navigation className="mr-2 h-4 w-4" />
+                    )}
+                    {isLoading
+                      ? "Fetching location..."
+                      : "Use my current location"}
                   </button>
                 </div>
               </CommandGroup>
