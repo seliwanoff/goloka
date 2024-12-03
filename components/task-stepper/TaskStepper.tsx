@@ -62,10 +62,11 @@ const TaskStepper = ({
 
   // console.log(currentGroup, "currentGroupcurrentGroup");
   console.log(response, "responseresponseresponseresponse");
-
+const res = response?.data
   return currentGroup ? (
     <div>
       <DynamicQuestion
+        response={res}
         //@ts-ignore
         questions={currentGroup.questions}
         isUngrouped={step === question_groups.length + 1}

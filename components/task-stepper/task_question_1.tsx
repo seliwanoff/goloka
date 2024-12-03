@@ -27,6 +27,24 @@ type Question = {
   required: boolean | 0 | 1;
 };
 
+interface Answer {
+  id: number;
+  value: string;
+  question: Question;
+}
+
+interface IData {
+  id: number;
+  status: string;
+  campaign_id: number;
+  campaign_title: string;
+  payment_rate_for_response: string;
+  organization: string;
+  created_at: string;
+  unread_messages_count: number;
+  answers: Answer[];
+}
+
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { ImagePlus, FileVideo2 } from "lucide-react";
 import { Label } from "../ui/label";
@@ -56,6 +74,7 @@ const DynamicQuestion = ({
   title,
   questionsLength,
   totalQuestions,
+  response,
 }: {
   questions: Question[];
   isUngrouped?: boolean;
@@ -63,6 +82,7 @@ const DynamicQuestion = ({
   title?: string;
   questionsLength: number;
   totalQuestions: number;
+  response: IData;
 }) => {
   const searchParams = useSearchParams();
   const responseId = searchParams.get("responseID");
@@ -71,6 +91,7 @@ const DynamicQuestion = ({
   const [selectedValues, setSelectedValues] = useState<
     Record<string | number, any>
   >({});
+
   const [filePreviews, setFilePreviews] = useState<
     Record<string | number, string>
   >({});
@@ -80,18 +101,36 @@ const DynamicQuestion = ({
   >({});
 
   const KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-
-  console.log(responseId, "responseID");
-
+  console.log(response?.answers, "responseresponse");
+  // Prefill logic for initial values
   useEffect(() => {
-    const initialAnswers: Record<string | number, any> = {};
-    questions.forEach((ques) => {
-      // Prioritize existing answers from the stepper context
-      initialAnswers[ques.id] =
-        answers[ques.id] || (ques.type === "checkbox" ? [] : "");
-    });
+    const initialAnswers: Record<string | number, any> = questions.reduce(
+      (acc, ques) => {
+        const matchingAnswer = response?.answers?.find(
+          (ans) => ans.question.id === ques.id,
+        );
+
+        acc[ques.id] =
+          answers[ques.id] || (matchingAnswer ? matchingAnswer.value : "");
+
+        return acc;
+      },
+      {} as Record<string | number, any>,
+    );
+
+    // Directly update the state with initialAnswers
     setSelectedValues(initialAnswers);
-  }, [questions, answers]);
+  }, [questions, answers, response?.answers]);
+
+  // useEffect(() => {
+  //   const initialAnswers: Record<string | number, any> = {};
+  //   questions.forEach((ques) => {
+  //     // Prioritize existing answers from the stepper context
+  //     initialAnswers[ques.id] =
+  //       answers[ques.id] || (ques.type === "checkbox" ? [] : "");
+  //   });
+  //   setSelectedValues(initialAnswers);
+  // }, [questions, answers]);
 
   const handleInputChange = (
     value: string | boolean | File | string[],
@@ -296,8 +335,7 @@ const DynamicQuestion = ({
 
       if (!isLastStep) nextStep(); // Proceed to next step
     } catch (error) {
-
-      console.log(error,"errror")
+      console.log(error, "errror");
       // Error handling
       toast.error(error instanceof Error ? error.message : "An error occurred");
     } finally {
@@ -545,12 +583,16 @@ const DynamicQuestion = ({
         return (
           <div className="col-span-2">
             <input
-              //@ts-ignore
+            //@ts-ignore
               ref={(el) => (inputRefs.current[ques.id] = el)}
-              type="email"
+              type="email" // Ensures the browser treats this as an email input
               value={selectedValues[ques.id] || ""}
               id={ques.name}
-              onChange={(e) => handleInputChange(e.target.value, ques.id)}
+              placeholder="Enter email address"
+              onChange={(e) => {
+                const email = e.target.value;
+                handleInputChange(email, ques.id);
+              }}
               className="form-input w-full rounded-lg border-[#D9DCE0]"
             />
           </div>
@@ -646,8 +688,8 @@ const DynamicQuestion = ({
                 onClick={() => inputRefs.current[ques.id]?.click()}
                 className="relative flex h-40 items-center justify-center rounded-lg border-2 border-[#3365E31F] bg-[#3365E31F] text-center"
               >
-                {filePreviews[ques.id] ? (
-                  <div className="absolute inset-0 overflow-hidden rounded-lg">
+                {/* {filePreviews[ques.id] ? ( */}
+                {/* <div className="absolute inset-0 overflow-hidden rounded-lg">
                     <Image
                       src={filePreviews[ques.id]}
                       alt="Preview"
@@ -655,19 +697,24 @@ const DynamicQuestion = ({
                       layout="fill"
                     />
                   </div>
-                ) : (
-                  <div className="flex flex-col items-center">
-                    <div className="flex w-fit cursor-pointer flex-col rounded-lg px-4 py-2 text-sm font-medium text-[#3365E3]">
-                      <div className="mb-2 flex h-8 w-8 items-center justify-center self-center rounded-full border border-dashed border-slate-300 bg-slate-200">
-                        <ImagePlus />
-                      </div>
-                      <span>Upload Photo</span>
+                ) : ( */}
+                <div className="flex flex-col items-center">
+                  <div className="flex w-fit cursor-pointer flex-col rounded-lg px-4 py-2 text-sm font-medium text-[#3365E3]">
+                    <div className="mb-2 flex h-8 w-8 items-center justify-center self-center rounded-full border border-dashed border-slate-300 bg-slate-200">
+                      <ImagePlus />
                     </div>
-                    <span className="text-xs text-slate-400">
-                      JPEG size should not be more than 1MB
-                    </span>
+                    <span>Upload Photo</span>
                   </div>
-                )}
+                  <span className="text-xs text-slate-400">
+                    JPEG size should not be more than 1MB
+                  </span>
+                  {(filePreviews[ques.id] || selectedValues[ques.id]) && (
+                    <span className="border bg-amber-100 p-1 text-xs text-orange-400 rounded-lg mt-2">
+                      Image already added
+                    </span>
+                  )}
+                </div>
+                {/* )} */}
               </div>
 
               {filePreviews[ques.id] && (
@@ -724,7 +771,17 @@ const DynamicQuestion = ({
               value={selectedValues[ques.id] || ""}
               id={ques.name}
               placeholder={ques.placeholder || "Enter URL"}
-              onChange={(e) => handleInputChange(e.target.value, ques.id)}
+              onChange={(e) => {
+                const url = e.target.value;
+
+                if (
+                  !url ||
+                  url.startsWith("http://") ||
+                  url.startsWith("https://")
+                ) {
+                  handleInputChange(url, ques.id);
+                }
+              }}
               className="form-input w-full rounded-lg border-[#D9DCE0]"
             />
           </div>

@@ -57,7 +57,7 @@ export const removeBookmark = async (
 ): Promise<ServerResponseOrNull<any>> => {
   try {
     return await deleteDataById<ServerResponse<any>>(
-      `/contributor/campaigns/${taskId}/bookmark/delete`
+      `/contributor/campaigns/${taskId}/bookmark/delete`,
     );
   } catch (error) {
     console.log(error);
@@ -65,3 +65,12 @@ export const removeBookmark = async (
   }
 };
 
+export const getGuestCampaign = async (
+): Promise<AxiosResponse<any>> => {
+  try {
+    return await fetchData(`/guests/campaigns`);
+  } catch (error) {
+    console.error("Error fetching campaign questions:", error);
+    throw error;
+  }
+};

@@ -28,8 +28,13 @@ import { TiArrowRight } from "react-icons/ti";
 import Testimonials from "@/components/landing-comps/testimonials";
 import Marquee from "@/components/ui/marquee";
 import Footer from "@/components/landing-comps/footer";
+import { getGuestCampaign } from "@/services/campaign";
 
 const page = () => {
+
+  const campaigns = getGuestCampaign();
+
+  console.log(campaigns);
   return (
     <div>
       {/* ####################################### */}
