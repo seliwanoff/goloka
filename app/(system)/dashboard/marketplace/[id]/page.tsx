@@ -32,7 +32,6 @@ import { BookmarkButton } from "@/components/contributor/BookmarkButton";
 import Map from "@/components/map/map";
 import { useRemoteUserStore } from "@/stores/remoteUser";
 
-
 // Dynamically import the LocationMap component with SSR disabled
 const LocationMap = dynamic(() => import("@/components/map/locationmap"), {
   ssr: false,
@@ -109,7 +108,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
   const [responseId, setResponseId] = useState<string | null>(null);
   const { step } = useStepper();
   const { user, isAuthenticated } = useRemoteUserStore();
-   const USER_CURRENCY_SYMBOL = user?.country?.["currency-symbol"];
+  const USER_CURRENCY_SYMBOL = user?.country?.["currency-symbol"];
   const {
     data: task,
     isLoading,
@@ -175,64 +174,62 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
     );
   };
 
+  const onContribute = async () => {
+    setLoading(true);
+    try {
+      //@ts-ignore
+      if (task?.data?.responses?.length === 0) {
+        // Create new response if there are no responses
+        const response = await createCampaignResponse({}, taskId as string);
+        console.log(response, " first call");
 
+        // Fixed URL format - use & instead of second ?
+        router.push(
+          //@ts-ignore
+          `${window.location.pathname}?responseID=${response.data?.id}&stepper=true&step=1`,
+        );
 
- const onContribute = async () => {
-   setLoading(true);
-   try {
-     //@ts-ignore
-     if (task?.data?.responses?.length === 0) {
-       // Create new response if there are no responses
-       const response = await createCampaignResponse({}, taskId as string);
-       console.log(response, " first call");
+        //@ts-ignore
+        toast.success(response.message);
+      } else if (getButtonText() === "Continue") {
+        // Find the draft response
+        //@ts-ignore
+        const draftResponse = task.data.responses.find(
+          //@ts-ignore
+          (response) => response.status === "draft",
+        );
 
-    // Fixed URL format - use & instead of second ?
-       router.push(
-         //@ts-ignore
-         `${window.location.pathname}?responseID=${response.data?.id}&stepper=true&step=1`,
-       );
+        if (draftResponse?.status === "draft") {
+          setResponseId(draftResponse.id);
+          await refetchResponse();
+          console.log(getResponse, "getResponse");
 
-    //@ts-ignore
-       toast.success(response.message);
-     } else if (getButtonText() === "Continue") {
-       // Find the draft response
-       //@ts-ignore
-       const draftResponse = task.data.responses.find(
-         //@ts-ignore
-         (response) => response.status === "draft",
-       );
+          // Uncomment and fix URL format here too
+          router.push(
+            `${window.location.pathname}?responseID=${draftResponse.id}&stepper=true&step=1`,
+          );
+        }
+        //@ts-ignore
+      } else if (task?.data?.allows_multiple_responses === 1) {
+        // Create new response if multiple responses are allowed
+        const response = await createCampaignResponse({}, taskId as string);
 
- if (draftResponse?.status === "draft") {
-         setResponseId(draftResponse.id);
-         await refetchResponse();
-         console.log(getResponse, "getResponse");
+        // Fixed URL format here as well
+        router.push(
+          //@ts-ignore
+          `${window.location.pathname}?responseID=${response.data?.id}&stepper=true&step=1`,
+        );
 
-  // Uncomment and fix URL format here too
-         router.push(
-           `${window.location.pathname}?responseID=${draftResponse.id}&stepper=true&step=1`,
-         );
-       }
-       //@ts-ignore
-   } else if (task?.data?.allows_multiple_responses === 1) {
-       // Create new response if multiple responses are allowed
-       const response = await createCampaignResponse({}, taskId as string);
-
-    // Fixed URL format here as well
-       router.push(
-         //@ts-ignore
-         `${window.location.pathname}?responseID=${response.data?.id}&stepper=true&step=1`,
-       );
-
-    //@ts-ignore
-       toast.success(response.message);
-     }
-   } catch (error) {
-     console.error(error);
-     toast.error("An error occurred");
-   } finally {
-     setLoading(false);
-   }
- };
+        //@ts-ignore
+        toast.success(response.message);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("An error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const onViewResponse = () => {
     //@ts-ignore
@@ -241,7 +238,6 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
         //@ts-ignore
         task.data.responses[task.data.responses.length - 1];
       router.push(`/dashboard/responses/${latestResponse.id}`);
-
     }
   };
 
@@ -269,9 +265,11 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
   const updateStepUrl = (newStep: number) => {
     router.push(`${window.location.pathname}?stepper=true&step=${newStep}`);
   };
+     console.log(getResponse, "getResponse");
 
   const WrappedTaskStepper = () => (
     <TaskStepper
+      response={getResponse}
       //@ts-ignore
       quest={quest}
       onStepChange={(newStep: any) => {
@@ -279,6 +277,8 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
       }}
     />
   );
+
+
 
   //@ts-ignore
   const Date = moment(task?.data?.ends_at).format("DD MMMM YYYY");
@@ -507,5 +507,3 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
 };
 
 export default TaskDetail;
-
-

@@ -54,11 +54,9 @@ interface GetResponsesParams {
 }
 
 interface NotificationParams {
-
   per_page?: number;
   page?: number;
-
- }
+}
 
 export const getAllResponses = async (params: GetResponsesParams) => {
   try {
@@ -105,29 +103,57 @@ export const getAResponse = async (
       }
     },
   });
+// export const submitResponse = async (
+//   Id: string,
+// ): Promise<UseQueryResult<AxiosResponse<any[]>>> =>
+//   await queryClient.fetchQuery({
+//     queryKey: ["get a Response"],
+//     queryFn: async () => {
+//       try {
+//         return await fetchData(`/contributor/responses/${Id}/submit`);
+//       } catch (error) {
+//         return null;
+//       }
+//     },
+//   });
 
+// ~ =============================================>
+// ~ ======= submitResponse  -->
+// ~ =============================================>
+export const submitResponseEndpoint = async (
+  Id: string,
+): Promise<UseQueryResult<ServerResponse<any>>> => {
+  return queryClient.fetchQuery({
+    queryKey: ["submit Response"],
+    queryFn: async () => {
+      return await postData<ServerResponse<any>>(
+        `/contributor/responses/${Id}/submit`,
+        {},
+      );
+    },
+  });
+};
 
 export const getNotifications = async (params: NotificationParams) => {
-   try {
-     const query = new URLSearchParams();
+  try {
+    const query = new URLSearchParams();
 
-     const appendQuery = (key: string, value: any) => {
-       if (value !== undefined && value !== null) {
-         query.append(key, value.toString());
-       }
-     };
+    const appendQuery = (key: string, value: any) => {
+      if (value !== undefined && value !== null) {
+        query.append(key, value.toString());
+      }
+    };
 
-     // Append query parameters
-     appendQuery("per_page", params.per_page);
-     appendQuery("page", params.page);
+    // Append query parameters
+    appendQuery("per_page", params.per_page);
+    appendQuery("page", params.page);
 
+    const endpoint = `/notifications?${query.toString()}`;
+    const response = await fetchData<ServerResponse<any>>(endpoint);
 
-     const endpoint = `/notifications?${query.toString()}`;
-     const response = await fetchData<ServerResponse<any>>(endpoint);
-
-     return response;
-   } catch (error) {
-     console.error("Error fetching Notifications:", error);
-     throw new Error("Failed to fetch Notificatios. Please try again later.");
-   }
+    return response;
+  } catch (error) {
+    console.error("Error fetching Notifications:", error);
+    throw new Error("Failed to fetch Notificatios. Please try again later.");
+  }
 };

@@ -374,29 +374,7 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
 
         {/* FILTER TABS */}
         <div>
-          {/* <Tabs
-            value={activeTab}
-            onValueChange={setActiveTab}
-            className="mb-6 mt-7 w-full md:mt-12 md:w-max"
-          >
-            <TabsList
-              className={cn(
-                "w-full justify-start rounded-full bg-white px-1 py-6 sm:w-auto md:justify-center",
-              )}
-            >
-              {tabs.map((tab: any, index: number) => (
-                <TabsTrigger
-                  value={tab?.value}
-                  key={index}
-                  className={cn(
-                    "flex-grow rounded-full py-2.5 text-sm font-normal data-[state=active]:bg-blue-700 data-[state=active]:text-white sm:flex-grow-0",
-                  )}
-                >
-                  {tab.label}
-                </TabsTrigger>
-              ))}{" "}
-            </TabsList>
-          </Tabs> */}
+          
           <Tabs
             value={activeTab}
             onValueChange={(tab: string) => setActiveTab(tab as ResponseStatus)}

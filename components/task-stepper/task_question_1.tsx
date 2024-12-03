@@ -47,6 +47,7 @@ import CustomAreaInput from "./inputs/customAreaInput";
 import SuccessModal from "./customSuccess";
 import { useSuccessModalStore } from "@/stores/misc";
 import { uploadQuestionFile } from "@/lib/api";
+import { submitResponseEndpoint } from "@/services/response";
 
 const DynamicQuestion = ({
   questions,
@@ -82,23 +83,6 @@ const DynamicQuestion = ({
 
   console.log(responseId, "responseID");
 
-  // useEffect(() => {
-  //   if (responseID?.includes("/")) {
-  //     //@ts-ignore
-  //     setFinalResponseID(responseID.split("/")[0]);
-  //   } else {
-  //     setFinalResponseID(responseID as string);
-  //   }
-  // }, [responseID]);
-
-  // useEffect(() => {
-  //   const initialAnswers: Record<string | number, any> = {};
-  //   questions.forEach((ques) => {
-  //     initialAnswers[ques.id] =
-  //       answers[ques.id] || (ques.type === "checkbox" ? [] : "");
-  //   });
-  //   setSelectedValues(initialAnswers);
-  // }, [questions, answers]);
   useEffect(() => {
     const initialAnswers: Record<string | number, any> = {};
     questions.forEach((ques) => {
@@ -108,36 +92,6 @@ const DynamicQuestion = ({
     });
     setSelectedValues(initialAnswers);
   }, [questions, answers]);
-
-  // const handleInputChange = (
-  //   value: string | boolean | File | string[],
-  //   quesId: string | number,
-  //   type?: string,
-  // ) => {
-  //   if (type === "file" && value instanceof File) {
-  //     const reader = new FileReader();
-  //     reader.onloadend = () => {
-  //       setFilePreviews((prev) => ({
-  //         ...prev,
-  //         [quesId]: reader.result as string,
-  //       }));
-  //     };
-  //     reader.readAsDataURL(value);
-  //   }
-
-  //   if (type === "location" || "line") {
-  //     setSelectedValues((prev) => ({
-  //       ...prev,
-  //       [quesId]: value,
-  //     }));
-  //     return;
-  //   }
-
-  //   setSelectedValues((prev) => ({
-  //     ...prev,
-  //     [quesId]: value,
-  //   }));
-  // };
 
   const handleInputChange = (
     value: string | boolean | File | string[],
@@ -162,14 +116,6 @@ const DynamicQuestion = ({
       return;
     }
 
-    // if (type === "location" || "line" || "area") {
-    //   setSelectedValues((prev) => ({
-    //     ...prev,
-    //     [quesId]: value,
-    //   }));
-    //   return;
-    // }
-
     setSelectedValues((prev) => ({
       ...prev,
       [quesId]: value,
@@ -181,721 +127,8 @@ const DynamicQuestion = ({
     console.log("Current answers from stepper:", answers);
   }, [selectedValues, answers]);
 
-  // const handleInputChange = (
-  //   value: string | boolean | File | string[] | any,
-  //   quesId: string | number,
-  //   type?: string,
-  // ) => {
-  //   // Handle file uploads (images, videos)
-  //   if (type === "file" && value instanceof File) {
-  //     const reader = new FileReader();
-  //     reader.onloadend = () => {
-  //       setFilePreviews((prev) => ({
-  //         ...prev,
-  //         [quesId]: reader.result as string,
-  //       }));
-  //     };
-  //     reader.readAsDataURL(value);
-  //   }
-
-  //   // Handle location-related inputs
-  //   if (type === "location" || type === "line" || type === "area") {
-  //     setSelectedValues((prev) => ({
-  //       ...prev,
-  //       [quesId]: value,
-  //     }));
-  //     return;
-  //   }
-
-  //   // Handle checkbox selections
-  //   if (Array.isArray(value)) {
-  //     setSelectedValues((prev) => ({
-  //       ...prev,
-  //       [quesId]: value,
-  //     }));
-  //     return;
-  //   }
-
-  //   // Handle number inputs
-  //   if (type === "number") {
-  //     const numValue = Number(value);
-  //     setSelectedValues((prev) => ({
-  //       ...prev,
-  //       [quesId]: isNaN(numValue) ? "" : numValue,
-  //     }));
-  //     return;
-  //   }
-
-  //   // Default handling for other input types
-  //   setSelectedValues((prev) => ({
-  //     ...prev,
-  //     [quesId]: value,
-  //   }));
-  // };
-
   console.log(selectedValues, "selectedValues");
   console.log(answers, "answers");
-
-  // const handleNext = async () => {
-  //   const allAnswered = questions.every(({ id, type }) => {
-  //     const value = selectedValues[id];
-
-  //     switch (type) {
-  //       case "text":
-  //       case "textarea":
-  //       case "email":
-  //       case "tel":
-  //       case "password":
-  //         return typeof value === "string" && value.trim().length > 0;
-  //       case "radio":
-  //       case "dropdown":
-  //         return value !== null && value !== "";
-  //       case "checkbox":
-  //         return Array.isArray(value) && value.length > 0;
-  //       case "date":
-  //         return typeof value === "string" && !isNaN(new Date(value).getTime());
-  //       case "number":
-  //         return typeof value === "number" && !isNaN(value);
-  //       case "file":
-  //         return value instanceof File;
-  //       default:
-  //         return true;
-  //     }
-  //   });
-
-  //   if (!allAnswered) {
-  //     toast.error("Please answer all questions before proceeding");
-  //     return;
-  //   }
-
-  //   setIsLoading(true);
-  //   try {
-  //     // Format the answers to be submitted
-  //     const formattedAnswers = {
-  //       answers: Object.keys(selectedValues).map((key) => {
-  //         const value = selectedValues[key];
-  //         return {
-  //           question_id: Number(key),
-  //           value: Array.isArray(value) ? value : value,
-  //           //  value: Array.isArray(value) ? value : [value],
-  //         };
-  //       }),
-  //     };
-
-  //     // Submit the formatted answers
-  //     await createContributorAnswers(id as string, formattedAnswers);
-  //     nextStep();
-  //   } catch (err) {
-  //     console.log("Error submitting answers:", err);
-  //     toast.error("Failed to save answers. Please try again.");
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-
-  // const handleNext = async () => {
-  //   const allAnswered = questions.every(({ id, type }) => {
-  //     const value = selectedValues[id];
-
-  //     switch (type) {
-  //       case "text":
-  //       case "textarea":
-  //       case "email":
-  //       case "tel":
-  //       case "password":
-  //         return typeof value === "string" && value.trim().length > 0;
-  //       case "radio":
-  //       case "dropdown":
-  //         return value !== null && value !== "";
-  //       case "checkbox":
-  //         return Array.isArray(value) && value.length > 0;
-  //       case "date":
-  //         return typeof value === "string" && !isNaN(new Date(value).getTime());
-  //       case "number":
-  //         return typeof value === "number" && !isNaN(value);
-  //       case "file":
-  //       case "photo":
-  //       case "video":
-  //       case "audio":
-  //         return value instanceof File;
-  //       default:
-  //         return true;
-  //     }
-  //   });
-
-  //   if (!allAnswered) {
-  //     toast.error("Please answer all questions before proceeding");
-  //     return;
-  //   }
-
-  //   setIsLoading(true);
-
-  //   try {
-  //     // Filter and prepare answers for non-file types
-  //     const formattedAnswers = {
-  //       answers: Object.keys(selectedValues)
-  //         .filter((key) => {
-  //           const type = questions.find((q) => q.id === Number(key))?.type;
-  //           return !["file", "photo", "video", "audio"].includes(type ?? "");
-  //         })
-  //         .map((key) => {
-  //           const value = selectedValues[key];
-  //           return {
-  //             question_id: Number(key),
-  //             value: Array.isArray(value) ? value : value,
-  //           };
-  //         }),
-  //     };
-
-  //     // Extract file-related questions
-  //     const fileQuestions = questions.filter((q) =>
-  //       ["file", "photo", "video", "audio"].includes(q.type),
-  //     );
-  //     console.log(fileQuestions, "fileQuestions");
-  //     console.log(formattedAnswers, "formattedAnswers");
-  //     // Prepare FormData for file uploads
-  //     const formData = new FormData();
-  //     fileQuestions.forEach((currentQuestion) => {
-  //       const value = selectedValues[currentQuestion.id];
-  //       if (value) {
-  //         const file = value as File;
-  //         const ext = file.name.split(".").pop();
-  //         formData.append(
-  //           `${currentQuestion.type}s[${currentQuestion.id}]`,
-  //           new File([file], `${currentQuestion.id}.${ext}`, {
-  //             type: file.type,
-  //           }),
-  //         );
-  //       }
-  //     });
-
-  //     // Submit non-file answers
-  //     const answerResponse = await createContributorAnswers(
-  //       responseId as string,
-  //       formattedAnswers,
-  //     );
-
-  //     // Submit file-related questions
-  //     if (fileQuestions.length > 0) {
-  //       await uploadQuestionFile(responseId as string, formData);
-  //     }
-
-  //     // Update answers in the stepper context
-  //     questions.forEach((ques) => {
-  //       updateAnswer(ques.id, selectedValues[ques.id]);
-  //     });
-
-  //     // Success feedback
-  //     //@ts-ignore
-  //     toast.success(answerResponse?.message);
-
-  //     if (isLastStep) {
-  //       openModal();
-  //     }
-
-  //     // Move to the next step
-  //     nextStep();
-  //   } catch (err) {
-  //     console.error(err);
-  //     toast.error("Failed to save answers. Please try again.");
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-
-  // const handleNext = async () => {
-  //   // Prepare formatted answers before validation
-  //   const formattedAnswers = {
-  //     answers: Object.keys(selectedValues)
-  //       .filter((key) => {
-  //         // Find the type of the question
-  //         const type = questions.find((q) => q.id === Number(key))?.type;
-
-  //         // Exclude file-related types
-  //         return !["file", "photo", "video", "audio"].includes(type ?? "");
-  //       })
-  //       .map((key) => {
-  //         const value = selectedValues[key];
-  //         const question = questions.find((q) => q.id === Number(key));
-
-  //         return {
-  //           question_id: Number(key),
-  //           // Handle array values (like checkboxes) and other types
-  //           value: Array.isArray(value)
-  //             ? value.map((item) => item?.value || item) // Handle objects or primitive values
-  //             : value,
-  //         };
-  //       }),
-  //   };
-
-  //   // Validation logic
-  //   // const allAnswered = questions.every(({ id, type }) => {
-  //   //   const value = selectedValues[id];
-
-  //   //   switch (type) {
-  //   //     case "text":
-  //   //     case "textarea":
-  //   //     case "email":
-  //   //     case "tel":
-  //   //     case "password":
-  //   //       return (
-  //   //         value !== null && value !== undefined && String(value).trim().length > 0
-  //   //       );
-
-  //   //     case "radio":
-  //   //     case "dropdown":
-  //   //       return value !== null && value !== undefined && value !== "";
-
-  //   //     case "checkbox":
-  //   //       return Array.isArray(value) && value.length > 0;
-
-  //   //     case "date":
-  //   //       return (
-  //   //         value !== null &&
-  //   //         value !== undefined &&
-  //   //         !isNaN(new Date(value).getTime())
-  //   //       );
-
-  //   //     case "number":
-  //   //       return value !== null && value !== undefined && !isNaN(Number(value));
-
-  //   //     case "file":
-  //   //     case "photo":
-  //   //     case "video":
-  //   //     case "audio":
-  //   //       if (!(value instanceof File)) {
-  //   //         console.warn(`Invalid file for question ${id}:`, value);
-  //   //         return false;
-  //   //       }
-
-  //   //       const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-  //   //       const ALLOWED_TYPES = {
-  //   //         file: [".pdf", ".doc", ".docx", ".txt"],
-  //   //         photo: ["image/jpeg", "image/png", "image/gif"],
-  //   //         video: ["video/mp4", "video/mpeg", "video/quicktime"],
-  //   //         audio: ["audio/mpeg", "audio/wav", "audio/ogg", "audio/webm"],
-  //   //       };
-
-  //   //       const fileExt = value.name.split(".").pop()?.toLowerCase();
-  //   //       const fileType = value.type;
-
-  //   //       const isValidFileType =
-  //   //         type === "file"
-  //   //           ? ALLOWED_TYPES[type].includes(`.${fileExt}`)
-  //   //           : ALLOWED_TYPES[type].includes(fileType);
-
-  //   //       if (!isValidFileType) {
-  //   //         console.warn(`Invalid file type for question ${id}:`, {
-  //   //           type: fileType,
-  //   //           extension: fileExt,
-  //   //           allowedTypes: ALLOWED_TYPES[type],
-  //   //         });
-  //   //       }
-
-  //   //       return value.size <= MAX_FILE_SIZE && isValidFileType;
-
-  //   //     case "location":
-  //   //       return (
-  //   //         value !== null &&
-  //   //         value !== undefined &&
-  //   //         typeof value === "object" &&
-  //   //         "latitude" in value &&
-  //   //         "longitude" in value
-  //   //       );
-
-  //   //     case "line":
-  //   //     case "area":
-  //   //       return value !== null && value !== undefined;
-
-  //   //     default:
-  //   //       return true;
-  //   //   }
-  //   // });
-
-  //   // const allAnswered = questions.every(({ id, type }) => {
-  //   //   const value = selectedValues[id];
-
-  //   //   switch (type) {
-  //   //     case "text":
-  //   //     case "textarea":
-  //   //     case "email":
-  //   //     case "tel":
-  //   //     case "password":
-  //   //       return typeof value === "string" && value.trim().length > 0;
-  //   //     case "radio":
-  //   //     case "dropdown":
-  //   //       return value !== null && value !== "";
-  //   //     case "checkbox":
-  //   //       return Array.isArray(value) && value.length > 0;
-  //   //     case "date":
-  //   //       return typeof value === "string" && !isNaN(new Date(value).getTime());
-  //   //     case "number":
-  //   //       return typeof value === "number" && !isNaN(value);
-  //   //     case "file":
-  //   //     case "photo":
-  //   //     case "video":
-  //   //     case "audio":
-  //   //       return value instanceof File;
-  //   //     default:
-  //   //       return true;
-  //   //   }
-  //   // });
-  //   // const allAnswered = questions.every(({ id, type }) => {
-  //   //   const value = selectedValues[id];
-  //   //   switch (type) {
-  //   //     case "text":
-  //   //     case "textarea":
-  //   //     case "email":
-  //   //     case "tel":
-  //   //     case "password":
-  //   //       return typeof value === "string" && value.trim().length > 0;
-  //   //     case "radio":
-  //   //     case "dropdown":
-  //   //       return value !== null && value !== "";
-  //   //     case "checkbox":
-  //   //       return Array.isArray(value) && value.length > 0;
-  //   //     case "date":
-  //   //       return typeof value === "string" && !isNaN(new Date(value).getTime());
-  //   //     case "number":
-  //   //       return typeof value === "number" && !isNaN(value);
-
-  //   //     default:
-  //   //       return true;
-  //   //   }
-  //   // });
-
-  //   // console.log(formattedAnswers, "formattedAnswers");
-
-  //   // // Validation check
-  //   // if (!allAnswered) {
-  //   //   console.log("Validation failed. Selected values:", selectedValues);
-  //   //   console.log("Questions:", questions);
-
-  //   //   questions.forEach(({ id, type }) => {
-  //   //     const value = selectedValues[id];
-  //   //     if (!value) {
-  //   //       console.warn(`Question ${id} of type ${type} is not filled`);
-  //   //     }
-  //   //   });
-
-  //   //   toast.error("Please fill out all required fields and check file uploads");
-  //   //   return;
-  //   // }
-
-  //   // Start loading state
-  //   setIsLoading(true);
-
-  //   try {
-  //     // Prepare FormData for file uploads
-  //     const formData = new FormData();
-  //     const fileQuestions = questions.filter((q) =>
-  //       ["file", "photo", "video", "audio"].includes(q.type),
-  //     );
-
-  //     // Process file uploads
-  //     fileQuestions.forEach((currentQuestion) => {
-  //       const value = selectedValues[currentQuestion.id];
-  //       if (value instanceof File) {
-  //         // Create unique filename
-  //         const timestamp = Date.now();
-  //         const uniqueFileName = `${timestamp}_${currentQuestion.id}_${value.name}`;
-
-  //         formData.append(
-  //           `${currentQuestion.type}s[${currentQuestion.id}]`,
-  //           value,
-  //           uniqueFileName,
-  //         );
-  //       }
-  //     });
-
-  //     // Submit non-file answers
-  //     const answerResponse = await createContributorAnswers(
-  //       responseId as string,
-  //       formattedAnswers,
-  //     );
-
-  //     // Submit file uploads if present
-  //     if (fileQuestions.length > 0) {
-  //       const fileResponse = await uploadQuestionFile(
-  //         responseId as string,
-  //         formData,
-  //       );
-
-  //       // Optional: Check file upload response
-  //       if (!fileResponse?.success) {
-  //         throw new Error(fileResponse?.message || "File upload failed");
-  //       }
-  //     }
-
-  //     // Update answers in stepper context
-  //     questions.forEach((ques) => {
-  //       updateAnswer(ques.id, selectedValues[ques.id]);
-  //     });
-
-  //     toast.success(
-  //       //@ts-ignore
-  //       answerResponse?.message || "Answers submitted successfully",
-  //     );
-
-  //     // Handle last step
-  //     if (isLastStep) {
-  //       openModal();
-  //     }
-
-  //     // Move to next step
-  //     nextStep();
-  //   } catch (error) {
-  //     // Error handling
-  //     console.error("Submission error:", error);
-
-  //     // Type-safe error message extraction
-  //     const errorMessage =
-  //       error instanceof Error
-  //         ? error.message
-  //         : "An unexpected error occurred during submission";
-
-  //     toast.error(errorMessage);
-  //   } finally {
-  //     // Always reset loading state
-  //     setIsLoading(false);
-  //   }
-  // };
-
-  // const handleNext = async () => {
-  //   // Start loading state
-  //   setIsLoading(true);
-  //   // Prepare formatted answers before validation
-  //   const formattedAnswers = {
-  //     answers: Object.keys(selectedValues)
-  //       .filter((key) => {
-  //         // Find the type of the question
-  //         const type = questions.find((q) => q.id === Number(key))?.type;
-
-  //         // Exclude file-related types
-  //         return !["file", "photo", "video", "audio"].includes(type ?? "");
-  //       })
-  //       .map((key) => {
-  //         const value = selectedValues[key];
-  //         const question = questions.find((q) => q.id === Number(key));
-
-  //         return {
-  //           question_id: Number(key),
-  //           // Handle array values (like checkboxes) and other types
-  //           value: Array.isArray(value)
-  //             ? value.map((item) => item?.value || item) // Handle objects or primitive values
-  //             : value,
-  //         };
-  //       }),
-  //   };
-  //   if (isLastStep === true) {
-  //     setLastStepLoading(true);
-  //   }
-
-  //   try {
-  //     // Prepare FormData for file uploads
-  //     const formData = new FormData();
-  //     const fileQuestions = questions.filter((q) =>
-  //       ["file", "photo", "video", "audio"].includes(q.type),
-  //     );
-
-  //     // Process file uploads
-  //     fileQuestions.forEach((currentQuestion) => {
-  //       const value = selectedValues[currentQuestion.id];
-  //       if (value instanceof File) {
-  //         // Create unique filename
-  //         const timestamp = Date.now();
-  //         const uniqueFileName = `${timestamp}_${currentQuestion.id}_${value.name}`;
-
-  //         formData.append(
-  //           `${currentQuestion.type}s[${currentQuestion.id}]`,
-  //           value,
-  //           uniqueFileName,
-  //         );
-  //       }
-  //     });
-
-  //     // Submit non-file answers
-  //     const answerResponse = await createContributorAnswers(
-  //       responseId as string,
-  //       formattedAnswers,
-  //     );
-
-  //     // Submit file uploads if present
-  //     if (fileQuestions.length > 0) {
-  //       const fileResponse = await uploadQuestionFile(
-  //         responseId as string,
-  //         formData,
-  //       );
-
-  //       // Optional: Check file upload response
-  //       if (!fileResponse?.success) {
-  //         throw new Error(fileResponse?.message || "File upload failed");
-  //       }
-  //     }
-  //     if (isLastStep) {
-  //       if (answerResponse) {
-  //         await new Promise((resolve) => setTimeout(resolve, 200));
-  //         setLastStepLoading(false);
-  //         openModal();
-  //       }
-  //       // Open success modal
-  //     }
-
-  //     // Update answers in stepper context
-  //     questions.forEach((ques) => {
-  //       updateAnswer(ques.id, selectedValues[ques.id]);
-  //     });
-
-  //     toast.success(
-  //       //@ts-ignore
-  //       answerResponse?.message || "Answers submitted successfully",
-  //     );
-
-  //     // Handle last step
-
-  //     // Move to next step
-  //     nextStep();
-  //   } catch (error) {
-  //     // Error handling
-  //     console.error("Submission error:", error);
-  //     setLastStepLoading(false);
-  //     setIsLoading(false);1
-  //     // Type-safe error message extraction
-  //     const errorMessage =
-  //       error instanceof Error
-  //         ? error.message
-  //         : "An unexpected error occurred during submission";
-
-  //     toast.error(errorMessage);
-  //   } finally {
-  //     // Always reset loading state
-  //     setLastStepLoading(false);
-  //     setIsLoading(false);
-  //   }
-  // };
-
-  // const handleNext = async () => {
-  //   setIsLoading(true);
-
-  //   // Format non-file answers
-  //   const formattedAnswers = {
-  //     answers: Object.entries(selectedValues)
-  //       .filter(([key]) => {
-  //         const type = questions.find((q) => q.id === Number(key))?.type;
-  //         return !["file", "photo", "video", "audio"].includes(type ?? "");
-  //       })
-  //       .map(([key, value]) => ({
-  //         question_id: Number(key),
-  //         value: Array.isArray(value)
-  //           ? value.map((item) => item?.value || item) // Handle objects/values
-  //           : value,
-  //       })),
-  //   };
-
-  //   if (isLastStep) setLastStepLoading(true);
-
-  //   let answerResponse = null;
-  //   let fileResponse = null;
-
-  //   try {
-  //     // Start `createContributorAnswers` API call
-  //     const answerPromise = createContributorAnswers(
-  //       responseId as string,
-  //       formattedAnswers,
-  //     );
-
-  //     // Prepare FormData for file uploads
-  //     const formData = new FormData();
-  //     const fileQuestions = questions.filter((q) =>
-  //       ["file", "photo", "video", "audio"].includes(q.type),
-  //     );
-
-  //     fileQuestions.forEach((question) => {
-  //       const value = selectedValues[question.id];
-  //       let fileToUpload: File | null = null;
-
-  //       if (value instanceof File) {
-  //         fileToUpload = value;
-  //       } else if (value?.file) {
-  //         fileToUpload = value.file;
-  //       }
-
-  //       if (fileToUpload) {
-  //         const timestamp = Date.now();
-  //         const uniqueFileName = `${timestamp}_${question.id}_${fileToUpload.name}`;
-  //         const formKey = `${question.type}s[${question.id}]`;
-  //         formData.append(formKey, fileToUpload, uniqueFileName);
-  //       }
-  //     });
-
-  //     // Start `uploadQuestionFile` API call if needed
-  //     const filePromise =
-  //       fileQuestions.length > 0 && Array.from(formData.keys()).length > 0
-  //         ? uploadQuestionFile(responseId as string, formData)
-  //         : null;
-
-  //     // Resolve both promises
-  //     [answerResponse, fileResponse] = await Promise.all([
-  //       answerPromise,
-  //       filePromise,
-  //     ]);
-
-  //     // Handle file upload response
-  //     if (fileResponse && !fileResponse.success) {
-  //       throw new Error(fileResponse.message || "File upload failed");
-  //     }
-
-  //     // Final checks for the last step
-  //     if (
-  //       isLastStep &&
-  //       answerResponse &&
-  //       (fileQuestions.length === 0 || (fileResponse && fileResponse.success))
-  //     ) {
-  //       await new Promise((resolve) => setTimeout(resolve, 200)); // Simulate delay
-  //       setLastStepLoading(false);
-  //       openModal(); // Open modal only if all submissions succeed
-  //     }
-
-  //     // Update answers context
-  //     questions.forEach((question) =>
-  //       updateAnswer(question.id, selectedValues[question.id]),
-  //     );
-  //     toast.success(
-  //       //@ts-ignore
-  //       answerResponse?.message || "Answers submitted successfully",
-  //     );
-
-  //     if (!isLastStep) nextStep(); // Proceed to next step
-  //   } catch (error) {
-  //     // Distinguish errors by endpoint
-  //     if (!answerResponse) {
-  //       console.error("Error in `createContributorAnswers`:", error);
-  //       toast.error(
-  //         error instanceof Error
-  //           ? `Answer submission failed: ${error.message}`
-  //           : "Answer submission failed",
-  //       );
-  //     } else if (fileResponse && !fileResponse.success) {
-  //       console.error("Error in `uploadQuestionFile`:", error);
-  //       toast.error(
-  //         error instanceof Error
-  //           ? `File upload failed: ${error.message}`
-  //           : "File upload failed",
-  //       );
-  //     } else {
-  //       console.error("Unexpected error:", error);
-  //       toast.error(
-  //         error instanceof Error
-  //           ? error.message
-  //           : "An unexpected error occurred during submission",
-  //       );
-  //     }
-  //   } finally {
-  //     // Ensure loading states are reset
-  //     setIsLoading(false);
-  //     setLastStepLoading(false);
-  //   }
-  // };
 
   const handleNext = async () => {
     // Validate required questions before proceeding
@@ -924,7 +157,7 @@ const DynamicQuestion = ({
 
     // If there are missing required questions, show error and prevent proceeding
     if (missingRequiredQuestions.length > 0) {
-      toast.error(
+      toast.warning(
         `Please fill in all required questions: ${missingRequiredQuestions.map((q) => q.label).join(", ")}`,
       );
 
@@ -940,15 +173,27 @@ const DynamicQuestion = ({
       return; // Stop proceeding if required questions are not filled
     }
 
-    // Rest of the existing handleNext logic remains the same
     setIsLoading(true);
 
-    // Format non-file answers
+    // Filter and format only the answers for required questions or questions with values
     const formattedAnswers = {
       answers: Object.entries(selectedValues)
-        .filter(([key]) => {
-          const type = questions.find((q) => q.id === Number(key))?.type;
-          return !["file", "photo", "video", "audio"].includes(type ?? "");
+        .filter(([key, value]) => {
+          const question = questions.find((q) => q.id === Number(key));
+
+          // Only include answers for:
+          // 1. Required questions
+          // 2. Non-required questions that have a value
+          const isRequired = question?.required === 1;
+          const hasValue =
+            value !== undefined && value !== null && value !== "";
+
+          // Exclude file/media type questions from this formatting
+          const isFileType = ["file", "photo", "video", "audio"].includes(
+            question?.type ?? "",
+          );
+
+          return !isFileType && (isRequired || hasValue);
         })
         .map(([key, value]) => ({
           question_id: Number(key),
@@ -964,13 +209,13 @@ const DynamicQuestion = ({
     let fileResponse = null;
 
     try {
-      // Existing API call and file upload logic...
+      // Existing API call for answers
       const answerPromise = createContributorAnswers(
         responseId as string,
         formattedAnswers,
       );
 
-      // Prepare FormData for file uploads
+      // Prepare FormData for file uploads (only for required or filled file questions)
       const formData = new FormData();
       const fileQuestions = questions.filter((q) =>
         ["file", "photo", "video", "audio"].includes(q.type),
@@ -978,14 +223,22 @@ const DynamicQuestion = ({
 
       fileQuestions.forEach((question) => {
         const value = selectedValues[question.id];
-        let fileToUpload: File | null = null;
+        let fileToUpload: File | undefined;
 
-        if (value instanceof File) {
-          fileToUpload = value;
-        } else if (value?.file) {
-          fileToUpload = value.file;
+        // Only upload file if the question is required or has a value
+        const isRequired = question.required === 1;
+        const hasValue = value !== undefined && value !== null;
+
+        // Determine the file to upload
+        if (isRequired || hasValue) {
+          if (value instanceof File) {
+            fileToUpload = value;
+          } else if (value && "file" in value && value.file instanceof File) {
+            fileToUpload = value.file;
+          }
         }
 
+        // If we have a file to upload, add it to FormData
         if (fileToUpload) {
           const timestamp = Date.now();
           const uniqueFileName = `${timestamp}_${question.id}_${fileToUpload.name}`;
@@ -994,7 +247,7 @@ const DynamicQuestion = ({
         }
       });
 
-      // Existing promise and response handling...
+      // Existing promise and response handling
       const filePromise =
         fileQuestions.length > 0 && Array.from(formData.keys()).length > 0
           ? uploadQuestionFile(responseId as string, formData)
@@ -1005,34 +258,48 @@ const DynamicQuestion = ({
         filePromise,
       ]);
 
-      // Existing success and error handling...
-      if (fileResponse && !fileResponse.success) {
-        throw new Error(fileResponse.message || "File upload failed");
+      // Verify file upload success if files were uploaded
+      if (filePromise && (!fileResponse || !fileResponse.success)) {
+        throw new Error(fileResponse?.message || "File upload failed");
       }
 
-      // Final checks for the last step
-      if (
-        isLastStep &&
-        answerResponse &&
-        (fileQuestions.length === 0 || (fileResponse && fileResponse.success))
-      ) {
-        await new Promise((resolve) => setTimeout(resolve, 200)); // Simulate delay
-        setLastStepLoading(false);
-        openModal(); // Open modal only if all submissions succeed
+      // For the last step, submit the entire response
+      if (isLastStep) {
+        const submitResponse = await submitResponseEndpoint(
+          responseId as string,
+        );
+        console.log(submitResponse, "submitResponse");
+        // Check if submit response was successful
+        //@ts-ignore
+        if (!submitResponse.data) {
+          throw new Error(
+            //@ts-ignore
+            submitResponse.message || "Response submission failed",
+          );
+        }
+
+        // Open success modal or navigate to success page
+        openModal();
+        toast.success("Response submitted successfully");
+      } else {
+        // For intermediate steps, just show success for current step
+        toast.success(
+          //@ts-ignore
+          answerResponse?.message || "Answers submitted successfully",
+        );
       }
 
       // Update answers context
       questions.forEach((question) =>
         updateAnswer(question.id, selectedValues[question.id]),
       );
-      toast.success(
-        //@ts-ignore
-        answerResponse?.message || "Answers submitted successfully",
-      );
 
       if (!isLastStep) nextStep(); // Proceed to next step
     } catch (error) {
-      // Existing error handling logic...
+
+      console.log(error,"errror")
+      // Error handling
+      toast.error(error instanceof Error ? error.message : "An error occurred");
     } finally {
       // Ensure loading states are reset
       setIsLoading(false);

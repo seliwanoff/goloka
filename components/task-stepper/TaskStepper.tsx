@@ -36,8 +36,10 @@ import SuccessModal from "./customSuccess";
 import { useSuccessModalStore } from "@/stores/misc";
 
 const TaskStepper = ({
+  response,
   quest,
 }: {
+  response: any;
   quest: { question_groups: QuestionGroup[]; ungrouped_questions: Question[] };
 }) => {
   const { isModalOpen, closeModal, isLastStepLoading } = useSuccessModalStore();
@@ -59,11 +61,12 @@ const TaskStepper = ({
   const isLastStep = step === allGroups.length;
 
   // console.log(currentGroup, "currentGroupcurrentGroup");
-  // console.log(allGroups, "allGroups");
+  console.log(response, "responseresponseresponseresponse");
 
   return currentGroup ? (
     <div>
       <DynamicQuestion
+        //@ts-ignore
         questions={currentGroup.questions}
         isUngrouped={step === question_groups.length + 1}
         isLastStep={isLastStep}

@@ -364,7 +364,7 @@ const ResponseDetails = () => {
               </div>
 
               {/* DESKTOP VIEW */}
-              <div className="hidden md:block">
+              <div className="hidden md:block ">
                 <Table>
                   <TableHeader>
                     <TableRow className="border-0 bg-[#FBFBFB]">
@@ -442,7 +442,8 @@ const ResponseDetails = () => {
                   </figure>
                   <div className="mt-5 flex gap-5">
                     <div className="text-sm font-semibold text-[#101828]">
-                      6{" "}
+                      {/* @ts-ignore */}
+                      {task?.data?.no_of_questions}{" "}
                       <span className="font-normal text-[#828282]">
                         Questions
                       </span>
