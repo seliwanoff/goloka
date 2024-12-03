@@ -44,6 +44,7 @@ const TaskCardWidget: React.FC<TaskCardProps> = ({
   type,
   is_bookmarked,
   refetch,
+
 }) => {
   const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
   const { user } = useRemoteUserStore();
@@ -79,6 +80,7 @@ const TaskCardWidget: React.FC<TaskCardProps> = ({
 
   return (
     <Link
+      key={id}
       href={url}
       className="space-y-[18px] rounded-[16px] border border-[#F2F2F2] bg-white p-4 hover:border-main-100 hover:shadow"
     >

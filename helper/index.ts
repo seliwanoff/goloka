@@ -16,11 +16,12 @@ export function numberWithCommas(x: any) {
 }
 
 export const formatResponseDate = (dateString: string) => {
-  return moment(dateString).format("DD/M/YYYY");
+
+  return moment(dateString, "YYYY-MM-DD HH:mm:ss").format("DD/M/YYYY");
 };
 
 export const formatResponseTime = (dateString: string) => {
-  return moment(dateString).format("h:mmA");
+  return moment(dateString, "YYYY-MM-DD HH:mm:ss").format("h:mmA");
 };
 
 export const generateURL = (pathname: string, id: number) => {

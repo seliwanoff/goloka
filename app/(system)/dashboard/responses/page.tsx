@@ -281,6 +281,7 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
   ];
   const pages = chunkArray(filteredData, pageSize);
   console.log(responseData, "responseData");
+  // console.log(res, "res");
   return (
     <>
       <section className="pb-10 pt-[34px]">
@@ -374,7 +375,7 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
 
         {/* FILTER TABS */}
         <div>
-          
+
           <Tabs
             value={activeTab}
             onValueChange={(tab: string) => setActiveTab(tab as ResponseStatus)}
@@ -556,13 +557,13 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
                             </span>
                             <span className="text-xs lg:hidden">
                               {res?.payment_rate_for_response} -{" "}
-                              {formatResponseTime(res?.data?.created_at)}
+                              {formatResponseTime(res?.created_at)}
                             </span>
                           </div>{" "}
                         </TableCell>
                         <TableCell className="hidden lg:table-cell">
-                          {formatResponseDate(res?.data?.created_at)} -{" "}
-                          {formatResponseTime(res?.data?.created_at)}
+                          {formatResponseDate(res?.created_at)} -{" "}
+                          {formatResponseTime(res?.created_at)}
                         </TableCell>
                         <TableCell className={cn("hidden md:table-cell")}>
                           <span>

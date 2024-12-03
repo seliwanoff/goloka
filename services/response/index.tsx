@@ -51,7 +51,22 @@ interface GetResponsesParams {
   end_date?: string;
   allows_multiple_responses?: boolean;
   status?: string;
+
+  sort_by?: "created_at" | "id" | "campaign_title" | "organization";
+  sort_order?: "asc" | "desc";
 }
+
+// export interface GetResponsesParams {
+//   page?: number;
+//   per_page?: number;
+//   search?: string;
+//   start_date?: string;
+//   end_date?: string;
+//   status?: string;
+//   // Add these optional properties to allow sorting
+//   sort_by?: "created_at" | "id" | "campaign_title" | "organization";
+//   sort_order?: "asc" | "desc";
+// }
 
 interface NotificationParams {
   per_page?: number;
@@ -103,19 +118,7 @@ export const getAResponse = async (
       }
     },
   });
-// export const submitResponse = async (
-//   Id: string,
-// ): Promise<UseQueryResult<AxiosResponse<any[]>>> =>
-//   await queryClient.fetchQuery({
-//     queryKey: ["get a Response"],
-//     queryFn: async () => {
-//       try {
-//         return await fetchData(`/contributor/responses/${Id}/submit`);
-//       } catch (error) {
-//         return null;
-//       }
-//     },
-//   });
+
 
 // ~ =============================================>
 // ~ ======= submitResponse  -->
