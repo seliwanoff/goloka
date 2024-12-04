@@ -84,7 +84,7 @@ const TaskCardWidget: React.FC<TaskCardProps> = ({
       href={url}
       className="space-y-[18px] rounded-[16px] border border-[#F2F2F2] bg-white p-4 hover:border-main-100 hover:shadow"
     >
-      <figure className="relative h-[200px] w-full overflow-hidden rounded-[8px]">
+      <figure className="relative h-[280px] w-full overflow-hidden rounded-[8px]">
         <Image
           src={image_path?.[0]}
           alt={title}
@@ -126,7 +126,7 @@ const TaskCardWidget: React.FC<TaskCardProps> = ({
 
         <div className="mt-3 flex gap-2">
           <span className="text-[#828282]">
-            <Location size="18" color="#828282" />
+            <Location size="15" color="#828282" />
           </span>
         </div>
       </div>

@@ -29,12 +29,46 @@ import Testimonials from "@/components/landing-comps/testimonials";
 import Marquee from "@/components/ui/marquee";
 import Footer from "@/components/landing-comps/footer";
 import { getGuestCampaign } from "@/services/campaign";
+import { useQuery } from "@tanstack/react-query";
+import { StaticImport } from "next/dist/shared/lib/get-img-props";
+import {
+  ReactElement,
+  JSXElementConstructor,
+  ReactNode,
+  AwaitedReactNode,
+  ReactPortal,
+  Key,
+} from "react";
+import { Skeleton } from "@/components/task-stepper/skeleton";
+import { useRouter } from "next/navigation";
 
-const page = () => {
+const CampaignCardSkeleton = () => (
+  <div className="rounded-2xl border p-3 md:w-[380px]">
+    <Skeleton className="mb-4 aspect-[3/2] rounded-lg" />
+    <div className="space-y-3">
+      <Skeleton className="h-4 w-3/4" />
+      <Skeleton className="h-4 w-1/2" />
+      <div className="flex items-center space-x-2">
+        <Skeleton className="h-4 w-4 rounded-full" />
+        <Skeleton className="h-4 w-1/3" />
+      </div>
+    </div>
+  </div>
+);
 
-  const campaigns = getGuestCampaign();
+const LandingPage = () => {
+  const router = useRouter();
+  const {
+    data: campaignData,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["Get guest user"],
+    queryFn: getGuestCampaign,
+  });
 
-  console.log(campaigns);
+
+
   return (
     <div>
       {/* ####################################### */}
@@ -223,12 +257,7 @@ const page = () => {
           <div className="mb-16 lg:mb-0">
             <div className="mb-6 inline-flex items-center justify-center gap-3 rounded-full bg-[#EBF0FC] px-4 py-3 text-sm font-medium text-main-100">
               <span>
-                <Category2
-
-                  size={20}
-                  color="currentColor"
-                  variant="Bold"
-                />
+                <Category2 size={20} color="currentColor" variant="Bold" />
               </span>{" "}
               Goloka for organization
             </div>
@@ -415,9 +444,9 @@ const page = () => {
       {/* ####################################### */}
       {/* -- Trending Section */}
       {/* ####################################### */}
-      <section className="py-16">
+      <section className="py-10">
         <div className="wrapper">
-          <div className="mb-10 sm:flex sm:flex-col sm:items-center md:mx-auto lg:w-10/12 xl:w-7/12">
+          <div className="mb-5 sm:flex sm:flex-col sm:items-center md:mx-auto lg:w-10/12 xl:w-7/12">
             <h2 className="text-center text-2xl font-semibold text-[#333] md:text-[2rem]">
               Trending on Goloka🔥
             </h2>
@@ -430,53 +459,97 @@ const page = () => {
             </Button>
           </div>
         </div>
-        <div className="no-scrollbar wrapper md:w-full md:overflow-x-auto">
-          <div className="grid gap-6 md:flex md:w-max lg:grid-cols-2 xl:grid-cols-3">
-            {Array.from({ length: 4 }, (_: any, i: number) => (
-              <div className="rounded-2xl hover:shadow-md md:w-[380px]" key={i}>
-                <AspectRatio
-                  ratio={3 / 1}
-                  className="overflow-hidden rounded-lg"
-                >
-                  <Image
-                    src={Agric}
-                    alt="Agricultural"
-                    className="h-full w-full object-cover"
-                    fill
-                  />
-                </AspectRatio>
-                <div className="mb-4 mt-5 flex items-center justify-between">
-                  <div className="flex items-center gap-4 rounded-full bg-[#F8F8F8] p-2 pr-5">
-                    <p className="text-[#333333]">
-                      24 <span className="text-[#828282]">of 64 responses</span>
-                    </p>
-                  </div>
-                  <span className="font-semibold text-[#333333]">$15</span>
-                </div>
-                <h3 className="mb-3.5 mt-4 text-xl font-semibold text-[#333]">
-                  Agricultural & Food Security
-                </h3>
-                <p className="text-ellipsis leading-6 text-[#333]">
-                  Agriculture is the cornerstone of food security, serving as
-                  the primary means of sustenance and
-                </p>
-                <div className="mt-3 flex gap-3">
-                  <span className="text-[#4F4F4F]">
-                    <Location size={24} color="currentColor" />
-                  </span>
-                  <p className="text-[#4F4F4F]">
-                    Lagos, Kwara, Abuja, Kogi, Kano
-                  </p>
-                </div>
+      </section>
+      <section className="max-w-8xl mb-5 flex w-full flex-col items-center gap-5 overflow-hidden">
+        <div className="no-scrollbar wrapper md:w-full">
+          {isLoading ? (
+            <div className="grid gap-6 md:flex md:w-max lg:grid-cols-2 xl:grid-rows-3">
+              {[...Array(5)].map((_, index) => (
+                <CampaignCardSkeleton key={index} />
+              ))}
+            </div>
+          ) : (
+            <Marquee pauseOnHover className="relative [--duration:40s]">
+              <div className="grid gap-6 md:flex md:w-max lg:grid-cols-2 xl:grid-rows-3">
+                {campaignData?.data
+                  .slice(0, 8)
+                  .map((campaign: any, index: any) => (
+                    <div
+                      key={index}
+                      onClick={() => router.push("/signin")}
+                      className="cursor-pointer rounded-2xl border p-3 hover:shadow-xl md:w-[380px]"
+                    >
+                      <AspectRatio
+                        ratio={3 / 2}
+                        className="overflow-hidden rounded-lg"
+                      >
+                        <Image
+                          src={campaign.image_path[0]}
+                          alt={campaign.title}
+                          className="h-full w-full object-cover"
+                          fill
+                        />
+                        {/* Corner Pill */}
+                        <div className="absolute right-2 top-2 rounded-full border bg-white/10 px-3 py-1 text-xs font-semibold text-[#fff]">
+                          {campaign.status}
+                        </div>
+                      </AspectRatio>
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 rounded-full bg-main-100 bg-opacity-5 p-2">
+                          <p className="rounded-full bg-white px-2 py-1 text-[14px] font-semibold leading-[21px] text-[#333333]">
+                            {campaign.number_of_responses_received}
+                          </p>
+                          <p>of </p>
+                          <p className="text-[14px] leading-[16.71px] text-[#828282]">
+                            {campaign.number_of_responses}{" "}
+                            <span className="text-[#828282]">responses</span>
+                          </p>
+                        </div>
+                        <span className="rounded-full bg-white px-4 py-1 text-[14px] font-semibold leading-[21px] text-[#333333]">
+                          {"₦"}
+                          {campaign.payment_rate_for_response}
+                        </span>
+                      </div>
+                      <h3 className="mb-3.5 mt-4 text-[16px] font-semibold leading-[24px] text-[#333333]">
+                        {campaign.title}
+                      </h3>
+                      <p className="test-[16px] text-ellipsis font-light leading-[24px] text-[#333333]">
+                        {campaign.description}
+                      </p>
+                      <div className="mt-3 flex items-center gap-3">
+                        <span className="text-[#4F4F4F]">
+                          <Location size={18} color="currentColor" />
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <p className="leading-[24px] text-[#4F4F4F]">
+                            {campaign.locations?.label}
+                          </p>
+                          <div className="flex items-center gap-2">
+                            {campaign.locations.states.map(
+                              (loc: any, index: any) => (
+                                <p
+                                  key={index}
+                                  className="leading-[24px] text-[#4F4F4F]"
+                                >
+                                  {loc.label}
+                                </p>
+                              ),
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
               </div>
-            ))}
-          </div>
+            </Marquee>
+          )}
         </div>
       </section>
       {/* ####################################### */}
       {/* -- Blog Section */}
       {/* ####################################### */}
-      <section className="bg-[#3365E305] py-16 lg:pb-0">
+      {/* <section className="bg-[#3365E305] py-16 lg:pb-0">
         <div className="wrapper">
           <div className="mb-9 md:mx-auto md:mb-0 lg:w-10/12 xl:w-7/12">
             <h2 className="text-center text-2xl font-semibold text-[#333] md:text-[2rem]">
@@ -523,7 +596,7 @@ const page = () => {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
       {/* ####################################### */}
       {/* -- CALL TO ACTION Section */}
       {/* ####################################### */}
@@ -562,7 +635,7 @@ const page = () => {
   );
 };
 
-export default page;
+export default LandingPage;
 
 interface Benefit {
   title: string;
