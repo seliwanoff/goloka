@@ -44,7 +44,7 @@ const TaskCardWidget: React.FC<TaskCardProps> = ({
   type,
   is_bookmarked,
   refetch,
-
+  locations,
 }) => {
   const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
   const { user } = useRemoteUserStore();
@@ -124,10 +124,32 @@ const TaskCardWidget: React.FC<TaskCardProps> = ({
           {description.split(" ").slice(0, 20).join(" ")}...
         </p>
 
-        <div className="mt-3 flex gap-2">
+        {/* <div className="mt-3 flex gap-2">
           <span className="text-[#828282]">
             <Location size="15" color="#828282" />
           </span>
+        </div> */}
+        <div className="mt-3 flex items-center gap-3">
+          <span className="text-[#4F4F4F]">
+            <Location size={18} color="currentColor" />
+          </span>
+          <div className="flex items-center gap-2">
+            <p className="text-[14px] leading-[21px] text-[#4F4F4F]">
+              {/* @ts-ignore */}
+              {locations?.label}
+            </p>
+            <div className="flex items-center gap-2">
+              {/* @ts-ignore */}
+              {locations.states.map((loc: any, index: any) => (
+                <p
+                  key={index}
+                  className="text-[14px] leading-[21px] text-[#4F4F4F]"
+                >
+                  {loc.label}
+                </p>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </Link>

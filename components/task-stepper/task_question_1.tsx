@@ -170,6 +170,36 @@ const DynamicQuestion = ({
   console.log(answers, "answers");
 
   const handleNext = async () => {
+    const allQuestionsHaveDefaultValues = questions.every((ques) => {
+      const defaultValue = response?.answers?.find(
+        (ans) => ans.question.id === ques.id,
+      )?.value;
+
+      const currentValue = selectedValues[ques.id];
+
+      // If no default value exists, this check will be skipped
+      if (!defaultValue) return false;
+
+      // Compare current value with default value
+      return currentValue === defaultValue;
+    });
+    // If all questions have default values and haven't been edited, just move to next step
+    if (allQuestionsHaveDefaultValues) {
+      // Optional: Update answers context with default values
+      questions.forEach((question) => {
+        const defaultValue = response?.answers?.find(
+          (ans) => ans.question.id === question.id,
+        )?.value;
+
+        if (defaultValue) {
+          updateAnswer(question.id, defaultValue);
+        }
+      });
+
+      nextStep();
+      return;
+    }
+
     // Validate required questions before proceeding
     const requiredQuestions = questions.filter((q) => q.required === 1);
     const missingRequiredQuestions = requiredQuestions.filter((q) => {
@@ -583,7 +613,7 @@ const DynamicQuestion = ({
         return (
           <div className="col-span-2">
             <input
-            //@ts-ignore
+              //@ts-ignore
               ref={(el) => (inputRefs.current[ques.id] = el)}
               type="email" // Ensures the browser treats this as an email input
               value={selectedValues[ques.id] || ""}
@@ -709,7 +739,7 @@ const DynamicQuestion = ({
                     JPEG size should not be more than 1MB
                   </span>
                   {(filePreviews[ques.id] || selectedValues[ques.id]) && (
-                    <span className="border bg-amber-100 p-1 text-xs text-orange-400 rounded-lg mt-2">
+                    <span className="mt-2 rounded-lg border bg-amber-100 p-1 text-xs text-orange-400">
                       Image already added
                     </span>
                   )}
@@ -888,7 +918,7 @@ const DynamicQuestion = ({
       </>
 
       {questions?.map((ques: any) => (
-        <div key={ques.id} className="grid gap-3">
+        <div key={ques.id} className="grid gap-6">
           <Label
             htmlFor={ques.name}
             className="text-base leading-7 tracking-wider text-[#333333]"
