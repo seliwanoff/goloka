@@ -62,7 +62,7 @@ const TaskStepper = ({
 
   // console.log(currentGroup, "currentGroupcurrentGroup");
   console.log(response, "responseresponseresponseresponse");
-const res = response?.data
+  const res = response?.data;
   return currentGroup ? (
     <div>
       <DynamicQuestion

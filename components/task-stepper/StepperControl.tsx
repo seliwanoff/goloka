@@ -56,7 +56,7 @@ const StepperControl: React.FC<StepperControlProps> = ({
       {/* Next/Submit Button with Loading Indicator */}
       <Button
         onClick={handleNext}
-        className={`cursor-pointer rounded-full px-10 py-3 text-sm font-medium text-white ${
+        className={`cursor-pointer rounded-full px-14 py-3 text-sm font-medium text-white ${
           isLoading ? "bg-gray-400" : "bg-main-100 hover:bg-blue-700"
         }`}
         disabled={isLoading} // Disable the button while loading

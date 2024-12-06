@@ -9,6 +9,7 @@ import {
   updateDataById,
   deleteDataById,
   ServerResponse,
+  deleteDataByIdx,
 } from "@/lib/api";
 
 import { UseQueryResult } from "@tanstack/react-query";
@@ -52,12 +53,25 @@ export const bookmarkCampaign = async (
 // ~ =============================================>
 // ~ ======= delete a campaign bookmark  -->
 // ~ =============================================>
+// export const removeBookmark = async (
+//   taskId: string,
+// ): Promise<ServerResponseOrNull<any>> => {
+//   try {
+//     return await deleteDataById<ServerResponse<any>>(
+//       `/contributor/campaigns/${taskId}/bookmark/delete`,
+//     );
+//   } catch (error) {
+//     console.log(error);
+//     return null;
+//   }
+// };
+
 export const removeBookmark = async (
-  taskId: string,
+  campaignId: string,
 ): Promise<ServerResponseOrNull<any>> => {
   try {
-    return await deleteDataById<ServerResponse<any>>(
-      `/contributor/campaigns/${taskId}/bookmark/delete`,
+    return await deleteDataByIdx<ServerResponse<any>>(
+      `/contributor/campaigns/${campaignId}/bookmark/delete`,
     );
   } catch (error) {
     console.log(error);

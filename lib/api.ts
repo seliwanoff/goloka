@@ -72,14 +72,17 @@ const updateDataById = async <T>(
 
 const deleteDataById = async <T>(
   resource: string,
-  id?: string,
+  id: string,
   options = {},
 ): Promise<T> => {
   const url = `${resource}/${id}`;
   const response = await axiosInstance.delete<T>(url, options);
   return response.data;
 };
-
+const deleteDataByIdx = async <T>(url: string, options = {}): Promise<T> => {
+  const response = await axiosInstance.delete<T>(url, options);
+  return response.data;
+};
 async function getStreamData<T>(url: string) {
   const response: AxiosResponse<any> = await axiosInstance.get(url, {});
   return response.data;
@@ -147,4 +150,5 @@ export {
   deleteDataById,
   getStreamData,
   uploadQuestionFile,
+  deleteDataByIdx,
 };

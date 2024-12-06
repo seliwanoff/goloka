@@ -916,9 +916,10 @@ const DynamicQuestion = ({
           </span>
         </div>
       </>
+      <div className="space-y-10">
 
       {questions?.map((ques: any) => (
-        <div key={ques.id} className="grid gap-6">
+        <div key={ques.id} className="grid gap-2">
           <Label
             htmlFor={ques.name}
             className="text-base leading-7 tracking-wider text-[#333333]"
@@ -931,6 +932,7 @@ const DynamicQuestion = ({
           {renderQuestion(ques)}
         </div>
       ))}
+</div>
       <StepperControl
         isLastStep={isLastStep}
         next={handleNext}

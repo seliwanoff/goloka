@@ -79,7 +79,7 @@ const Location: React.FC<ComponentProps> = ({}) => {
           </div>
 
           <div className="mt-8 grid gap-6 md:grid-cols-2 first:md:col-span-2">
-            {location.map((data, index) => {
+            {location.map((data: Record<string, any>, index: number) => {
               if (data.type === "select") {
                 return (
                   <CustomSelectField
