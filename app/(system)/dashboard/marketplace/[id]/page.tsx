@@ -247,10 +247,14 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
       //@ts-ignore
       if (task?.data?.is_bookmarked) {
         const response = await removeBookmark(taskId as string);
-        toast.success(response?.message);
-        setIsBookmarkLoading(false);
+        refetch();
+        if (response) {
+          toast.success(response?.message);
+          setIsBookmarkLoading(false);
+        }
       } else {
         const response = await bookmarkCampaign({}, taskId as string);
+        refetch();
         //@ts-ignore
         toast.success(response?.message);
         setIsBookmarkLoading(false);
@@ -265,7 +269,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
   const updateStepUrl = (newStep: number) => {
     router.push(`${window.location.pathname}?stepper=true&step=${newStep}`);
   };
-     console.log(getResponse, "getResponse");
+  console.log(getResponse, "getResponse");
 
   const WrappedTaskStepper = () => (
     <TaskStepper
@@ -277,8 +281,6 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
       }}
     />
   );
-
-
 
   //@ts-ignore
   const Date = moment(task?.data?.ends_at).format("DD MMMM YYYY");
