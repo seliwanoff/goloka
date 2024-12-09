@@ -72,7 +72,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
   };
 
   return (
-    <div className="relative mx-auto flex h-40 max-w-md flex-col items-center justify-center space-y-6 rounded-lg border-2 border-[#3365E31F] bg-[#3365E31F] p-4 text-center">
+    <div className="relative  flex h-40  flex-col items-center justify-center space-y-6 rounded-lg border-2 border-[#3365E31F] bg-[#3365E31F] p-4 text-center w-full">
       <h2 className="text-center text-sm font-medium text-[#3365E3]">
         Record Audio
       </h2>

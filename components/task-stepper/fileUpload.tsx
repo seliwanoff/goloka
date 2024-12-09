@@ -8,7 +8,12 @@ const extensionIcons: { [key: string]: string } = {
   pdf: "/resource-icons/pdf.jpg",
   doc: "/resource-icons/word.jpg",
   docx: "/resource-icons/word.jpg",
-  csv: "/resource-icons/csv.jpg",
+  txt: "/resource-icons/txt.png",
+  xls: "/resource-icons/xls.png",
+  xlsx: "/resource-icons/xlsx.png",
+  png: "/resource-icons/png-file-.png",
+  jpeg: "/resource-icons/jpeg.png",
+  jpg: "/resource-icons/jpg.png",
 };
 
 interface FileUploadProps {
@@ -88,7 +93,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
   };
 
   return (
-    <div className="mx-auto max-w-md space-y-4">
+    <div className="w-full space-y-4">
       {/* Upload Box */}
       <div className="relative flex h-40 items-center justify-center rounded-lg border-2 border-[#3365E31F] bg-[#3365E31F] text-center">
         <label
@@ -103,7 +108,8 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
               <span>Upload new file</span>
             </div>
             <span className="text-xs text-slate-400">
-              DOCS, PDF, CSV. File size should not be more than 10MB
+              PNG, JPG, JPEG, DOCS, PDF, CSV. File size should not be more than
+              10MB
             </span>
             <input
               id="file-upload"

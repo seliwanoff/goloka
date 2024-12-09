@@ -152,7 +152,7 @@ const CustomAreaInput = ({
   };
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-4">
+    <div className=" w-full  space-y-4">
       {locations.map((location, index) => (
         <div key={location.id} className="relative flex items-center space-x-1">
           <div className="relative w-full">

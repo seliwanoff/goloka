@@ -46,7 +46,7 @@ interface IData {
 }
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { ImagePlus, FileVideo2 } from "lucide-react";
+import { ImagePlus, FileVideo2, Camera } from "lucide-react";
 import { Label } from "../ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useStepper } from "@/context/TaskStepperContext.tsx";
@@ -96,9 +96,13 @@ const DynamicQuestion = ({
     Record<string | number, string>
   >({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const inputRefs = useRef<
-    Record<string | number, HTMLInputElement | HTMLTextAreaElement | null>
-  >({});
+const inputRefs = useRef<
+  Record<
+    string | number,
+    HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | null
+  >
+>({});
+
 
   const KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   console.log(response?.answers, "responseresponse");
@@ -410,9 +414,11 @@ const DynamicQuestion = ({
           <div className="col-span-2">
             <RadioGroup
               value={selectedValues[ques.id] || ""}
-              onValueChange={(val: string | boolean | string[] | File) =>
-                handleInputChange(val, ques.id)
-              }
+              onValueChange={(val: string | boolean | string[] | File) => {
+                // If the selected value is the same as the current value, set it to undefined (uncheck)
+                const newValue = selectedValues[ques.id] === val ? "" : val;
+                handleInputChange(newValue, ques.id);
+              }}
               className="grid grid-cols-2 gap-5"
             >
               {ques.options?.map(
@@ -440,7 +446,7 @@ const DynamicQuestion = ({
                             "bg-main-100 text-white",
                         )}
                       >
-                        {index}
+                        {index as number}
                       </span>
                       <p
                         className={cn(
@@ -675,10 +681,28 @@ const DynamicQuestion = ({
 
       case "select":
         return (
+          // <div className="col-span-2">
+          //   <select
+          //     //@ts-ignore
+          //     ref={(el) => (inputRefs.current[ques.id] = el)}
+          //     id={ques.name}
+          //     value={selectedValues[ques.id] || ""}
+          //     onChange={(e) => handleInputChange(e.target.value, ques.id)}
+          //     className="form-select w-full rounded-lg border-[#D9DCE0]"
+          //   >
+          //     <option value="">Select an option</option>
+          //     {ques.options?.map(
+          //       (opt: any, index: React.Key | null | undefined) => (
+          //         <option key={index} value={opt?.value}>
+          //           {opt?.label}
+          //         </option>
+          //       ),
+          //     )}
+          //   </select>
+          // </div>
           <div className="col-span-2">
             <select
-              //@ts-ignore
-              ref={(el) => (inputRefs.current[ques.id] = el)}
+              ref={(el) => (inputRefs.current[ques.id] = el)} // Reference the select element
               id={ques.name}
               value={selectedValues[ques.id] || ""}
               onChange={(e) => handleInputChange(e.target.value, ques.id)}
@@ -695,48 +719,234 @@ const DynamicQuestion = ({
             </select>
           </div>
         );
+      // case "photo":
+      //   return (
+      //     <div className="col-span-2">
+      //       <input
+      //         type="file"
+      //         accept="image/*"
+      //         id={ques.name}
+      //         onChange={(e) => {
+      //           const file = e.target.files?.[0];
+      //           if (file) {
+      //             handleInputChange(file, ques.id, "file");
+      //           }
+      //         }}
+      //         className="hidden"
+      //         // @ts-ignore
+      //         ref={(el) => (inputRefs.current[ques.id] = el)}
+      //       />
+      //       <div className="flex flex-col gap-4">
+      //         {/* image container */}
+      //         <div
+      //           onClick={() => inputRefs.current[ques.id]?.click()}
+      //           className="relative flex h-40 items-center justify-center rounded-lg border-2 border-[#3365E31F] bg-[#3365E31F] text-center"
+      //         >
+      //           {/* {filePreviews[ques.id] ? ( */}
+      //           {/* <div className="absolute inset-0 overflow-hidden rounded-lg">
+      //               <Image
+      //                 src={filePreviews[ques.id]}
+      //                 alt="Preview"
+      //                 className="w-full"
+      //                 layout="fill"
+      //               />
+      //             </div>
+      //           ) : ( */}
+      //           <div className="flex flex-col items-center">
+      //             <div className="flex w-fit cursor-pointer flex-col rounded-lg px-4 py-2 text-sm font-medium text-[#3365E3]">
+      //               <div className="mb-2 flex h-8 w-8 items-center justify-center self-center rounded-full border border-dashed border-slate-300 bg-slate-200">
+      //                 <ImagePlus />
+      //               </div>
+      //               <span>Upload Photo</span>
+      //             </div>
+      //             <span className="text-xs text-slate-400">
+      //               JPEG size should not be more than 1MB
+      //             </span>
+      //             {(filePreviews[ques.id] || selectedValues[ques.id]) && (
+      //               <span className="mt-2 rounded-lg border bg-amber-100 p-1 text-xs text-orange-400">
+      //                 Image already added
+      //               </span>
+      //             )}
+      //           </div>
+      //           {/* )} */}
+      //         </div>
+
+      //         {filePreviews[ques.id] && (
+      //           <div className="relative h-32 w-32 overflow-hidden rounded-lg">
+      //             <Image
+      //               src={filePreviews[ques.id]}
+      //               alt="Preview"
+      //               className="h-full w-full object-cover"
+      //               layout="fill"
+      //             />
+      //             <button
+      //               type="button"
+      //               onClick={() => {
+      //                 setSelectedValues((prev) => ({
+      //                   ...prev,
+      //                   [ques.id]: null,
+      //                 }));
+      //                 setFilePreviews((prev) => ({
+      //                   ...prev,
+      //                   [ques.id]: "",
+      //                 }));
+      //               }}
+      //               className="absolute right-2 top-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
+      //             >
+      //               ×
+      //             </button>
+      //           </div>
+      //         )}
+      //       </div>
+      //     </div>
+      //   );
       case "photo":
         return (
           <div className="col-span-2">
-            <input
-              type="file"
-              accept="image/*"
-              id={ques.name}
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  handleInputChange(file, ques.id, "file");
-                }
-              }}
-              className="hidden"
-              // @ts-ignore
-              ref={(el) => (inputRefs.current[ques.id] = el)}
-            />
             <div className="flex flex-col gap-4">
-              {/* image container */}
               <div
-                onClick={() => inputRefs.current[ques.id]?.click()}
-                className="relative flex h-40 items-center justify-center rounded-lg border-2 border-[#3365E31F] bg-[#3365E31F] text-center"
+                onClick={async () => {
+                  try {
+                    // Explicitly request camera access
+                    const stream = await navigator.mediaDevices.getUserMedia({
+                      video: {
+                        facingMode: "environment", // Prefer back/environment camera
+                        width: { ideal: 1920 }, // Ideal width
+                        height: { ideal: 1080 }, // Ideal height
+                      },
+                    });
+
+                    // Create a modal or overlay to show camera preview
+                    const cameraOverlay = document.createElement("div");
+                    cameraOverlay.style.position = "fixed";
+                    cameraOverlay.style.top = "0";
+                    cameraOverlay.style.left = "0";
+                    cameraOverlay.style.width = "100%";
+                    cameraOverlay.style.height = "100%";
+                    cameraOverlay.style.backgroundColor = "black";
+                    cameraOverlay.style.zIndex = "1000";
+                    cameraOverlay.style.display = "flex";
+                    cameraOverlay.style.flexDirection = "column";
+                    cameraOverlay.style.alignItems = "center";
+                    cameraOverlay.style.justifyContent = "center";
+
+                    // Create video element for camera preview
+                    const video = document.createElement("video");
+                    video.style.maxWidth = "100%";
+                    video.style.maxHeight = "80%";
+                    video.style.objectFit = "contain";
+                    video.srcObject = stream;
+                    video.autoplay = true;
+
+                    // Create capture button
+                    const captureButton = document.createElement("button");
+                    captureButton.textContent = "Capture Photo";
+                    captureButton.style.marginTop = "20px";
+                    captureButton.style.padding = "10px 20px";
+                    captureButton.style.backgroundColor = "white";
+                    captureButton.style.color = "black";
+                    captureButton.style.border = "none";
+                    captureButton.style.borderRadius = "5px";
+
+                    // Create cancel button
+                    const cancelButton = document.createElement("button");
+                    cancelButton.textContent = "Cancel";
+                    cancelButton.style.marginTop = "10px";
+                    cancelButton.style.padding = "10px 20px";
+                    cancelButton.style.backgroundColor = "red";
+                    cancelButton.style.color = "white";
+                    cancelButton.style.border = "none";
+                    cancelButton.style.borderRadius = "5px";
+
+                    // Append elements to overlay
+                    cameraOverlay.appendChild(video);
+                    cameraOverlay.appendChild(captureButton);
+                    cameraOverlay.appendChild(cancelButton);
+                    document.body.appendChild(cameraOverlay);
+
+                    // Wait for video to be ready
+                    await new Promise<void>((resolve) => {
+                      video.onloadedmetadata = () => {
+                        video.play();
+                        resolve();
+                      };
+                    });
+
+                    // Capture photo when button is clicked
+                    captureButton.onclick = () => {
+                      // Create canvas to capture image
+                      const canvas = document.createElement("canvas");
+                      canvas.width = video.videoWidth;
+                      canvas.height = video.videoHeight;
+                      const ctx = canvas.getContext("2d");
+                      ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                      // Stop camera tracks
+                      stream.getTracks().forEach((track) => track.stop());
+
+                      // Remove overlay
+                      document.body.removeChild(cameraOverlay);
+
+                      // Convert to file
+                      canvas.toBlob(
+                        (blob) => {
+                          if (blob) {
+                            const file = new File(
+                              [blob],
+                              "captured-image.jpg",
+                              {
+                                type: "image/jpeg",
+                              },
+                            );
+
+                            // Check file size (1MB limit)
+                            if (file.size <= 1 * 1024 * 1024) {
+                              // Create URL for preview
+                              const previewUrl = URL.createObjectURL(file);
+
+                              // Update state
+                              setSelectedValues((prev) => ({
+                                ...prev,
+                                [ques.id]: file,
+                              }));
+                              setFilePreviews((prev) => ({
+                                ...prev,
+                                [ques.id]: previewUrl,
+                              }));
+                            } else {
+                              alert("Image size exceeds 1MB limit");
+                            }
+                          }
+                        },
+                        "image/jpeg",
+                        0.7,
+                      );
+                    };
+
+                    // Cancel button functionality
+                    cancelButton.onclick = () => {
+                      // Stop camera tracks
+                      stream.getTracks().forEach((track) => track.stop());
+
+                      // Remove overlay
+                      document.body.removeChild(cameraOverlay);
+                    };
+                  } catch (error) {
+                    console.error("Error accessing camera:", error);
+                    alert("Could not access camera. Please check permissions.");
+                  }
+                }}
+                className="relative flex h-40 cursor-pointer items-center justify-center rounded-lg border-2 border-[#3365E31F] bg-[#3365E31F] text-center"
               >
-                {/* {filePreviews[ques.id] ? ( */}
-                {/* <div className="absolute inset-0 overflow-hidden rounded-lg">
-                    <Image
-                      src={filePreviews[ques.id]}
-                      alt="Preview"
-                      className="w-full"
-                      layout="fill"
-                    />
-                  </div>
-                ) : ( */}
                 <div className="flex flex-col items-center">
-                  <div className="flex w-fit cursor-pointer flex-col rounded-lg px-4 py-2 text-sm font-medium text-[#3365E3]">
+                  <div className="flex w-fit flex-col rounded-lg px-4 py-2 text-sm font-medium text-[#3365E3]">
                     <div className="mb-2 flex h-8 w-8 items-center justify-center self-center rounded-full border border-dashed border-slate-300 bg-slate-200">
-                      <ImagePlus />
+                      <Camera />
                     </div>
-                    <span>Upload Photo</span>
+                    <span>Take Photo</span>
                   </div>
                   <span className="text-xs text-slate-400">
-                    JPEG size should not be more than 1MB
+                    Use device camera (max 1MB)
                   </span>
                   {(filePreviews[ques.id] || selectedValues[ques.id]) && (
                     <span className="mt-2 rounded-lg border bg-amber-100 p-1 text-xs text-orange-400">
@@ -744,7 +954,6 @@ const DynamicQuestion = ({
                     </span>
                   )}
                 </div>
-                {/* )} */}
               </div>
 
               {filePreviews[ques.id] && (
@@ -776,7 +985,124 @@ const DynamicQuestion = ({
             </div>
           </div>
         );
+        // return (
+        //   <div className="col-span-2">
+        //     <div className="flex flex-col gap-4">
+        //       <div
+        //         onClick={async () => {
+        //           try {
+        //             // Request camera access and capture image
+        //             const stream = await navigator.mediaDevices.getUserMedia({
+        //               video: { facingMode: "environment" },
+        //             });
 
+        //             // Create video element to capture frame
+        //             const video = document.createElement("video");
+        //             video.srcObject = stream;
+        //             await new Promise<void>((resolve) => {
+        //               video.onloadedmetadata = () => {
+        //                 video.play();
+        //                 resolve();
+        //               };
+        //             });
+
+        //             // Wait a short moment for camera to stabilize
+        //             await new Promise((resolve) => setTimeout(resolve, 500));
+
+        //             // Create canvas to capture image
+        //             const canvas = document.createElement("canvas");
+        //             canvas.width = video.videoWidth;
+        //             canvas.height = video.videoHeight;
+        //             const ctx = canvas.getContext("2d");
+        //             ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        //             // Stop all tracks to release camera
+        //             stream.getTracks().forEach((track) => track.stop());
+
+        //             // Convert canvas to file
+        //             canvas.toBlob(
+        //               (blob) => {
+        //                 if (blob) {
+        //                   const file = new File([blob], "captured-image.jpg", {
+        //                     type: "image/jpeg",
+        //                   });
+
+        //                   // Check file size (1MB limit)
+        //                   if (file.size <= 1 * 1024 * 1024) {
+        //                     // Create URL for preview
+        //                     const previewUrl = URL.createObjectURL(file);
+
+        //                     // Update state
+        //                     setSelectedValues((prev) => ({
+        //                       ...prev,
+        //                       [ques.id]: file,
+        //                     }));
+        //                     setFilePreviews((prev) => ({
+        //                       ...prev,
+        //                       [ques.id]: previewUrl,
+        //                     }));
+        //                   } else {
+        //                     alert("Image size exceeds 1MB limit");
+        //                   }
+        //                 }
+        //               },
+        //               "image/jpeg",
+        //               0.7,
+        //             ); // Compress to 70% quality
+        //           } catch (error) {
+        //             console.error("Error accessing camera:", error);
+        //             alert("Could not access camera. Please check permissions.");
+        //           }
+        //         }}
+        //         className="relative flex h-40 cursor-pointer items-center justify-center rounded-lg border-2 border-[#3365E31F] bg-[#3365E31F] text-center"
+        //       >
+        //         <div className="flex flex-col items-center">
+        //           <div className="flex w-fit flex-col rounded-lg px-4 py-2 text-sm font-medium text-[#3365E3]">
+        //             <div className="mb-2 flex h-8 w-8 items-center justify-center self-center rounded-full border border-dashed border-slate-300 bg-slate-200">
+        //               <Camera />
+        //             </div>
+        //             <span>Take Photo</span>
+        //           </div>
+        //           <span className="text-xs text-slate-400">
+        //             Use device camera (max 1MB)
+        //           </span>
+        //           {(filePreviews[ques.id] || selectedValues[ques.id]) && (
+        //             <span className="mt-2 rounded-lg border bg-amber-100 p-1 text-xs text-orange-400">
+        //               Image already added
+        //             </span>
+        //           )}
+        //         </div>
+        //       </div>
+
+        //       {filePreviews[ques.id] && (
+        //         <div className="relative h-32 w-32 overflow-hidden rounded-lg">
+        //           <Image
+        //             src={filePreviews[ques.id]}
+        //             alt="Preview"
+        //             className="h-full w-full object-cover"
+        //             layout="fill"
+        //           />
+        //           <button
+        //             type="button"
+        //             onClick={() => {
+        //               setSelectedValues((prev) => ({
+        //                 ...prev,
+        //                 [ques.id]: null,
+        //               }));
+        //               setFilePreviews((prev) => ({
+        //                 ...prev,
+        //                 [ques.id]: "",
+        //               }));
+        //             }}
+        //             className="absolute right-2 top-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
+        //           >
+        //             ×
+        //           </button>
+        //         </div>
+        //       )}
+        //     </div>
+        //   </div>
+        // );
       case "date":
         return (
           <div className="col-span-2">
@@ -794,37 +1120,43 @@ const DynamicQuestion = ({
       case "url":
         return (
           <div className="col-span-2">
-            <input
-              //@ts-ignore
-              ref={(el) => (inputRefs.current[ques.id] = el)}
-              type="url"
-              value={selectedValues[ques.id] || ""}
-              id={ques.name}
-              placeholder={ques.placeholder || "Enter URL"}
-              onChange={(e) => {
-                const url = e.target.value;
-
-                if (
-                  !url ||
-                  url.startsWith("http://") ||
-                  url.startsWith("https://")
-                ) {
-                  handleInputChange(url, ques.id);
-                }
-              }}
-              className="form-input w-full rounded-lg border-[#D9DCE0]"
-            />
+            <div className="relative">
+              <input
+                //@ts-ignore
+                ref={(el) => (inputRefs.current[ques.id] = el)}
+                type="text"
+                value={selectedValues[ques.id] || ""}
+                id={ques.name}
+                placeholder={ques.placeholder || "Enter URL or text"}
+                onChange={(e) => {
+                  const input = e.target.value;
+                  handleInputChange(input, ques.id);
+                }}
+                className="form-input w-full rounded-lg border-[#D9DCE0] pr-10"
+              />
+              {selectedValues[ques.id] && (
+                <div className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-500">
+                  {selectedValues[ques.id].startsWith("http://") ||
+                  selectedValues[ques.id].startsWith("https://") ||
+                  selectedValues[ques.id].startsWith("www.") ? (
+                    <span className="text-green-500">✓ Valid URL</span>
+                  ) : (
+                    <span className="text-orange-500">ℹ️ Invalid Input</span>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         );
-      case "audio":
-        return (
-          <div className="col-span-2">
-            <AudioRecorder
-              quesId={ques.id}
-              handleInputChange={handleInputChange}
-            />
-          </div>
-        );
+      // case "audio":
+      //   return (
+      //     <div className="col-span-2">
+      //       <AudioRecorder
+      //         quesId={ques.id}
+      //         handleInputChange={handleInputChange}
+      //       />
+      //     </div>
+      //   );
       case "tel":
         return (
           <div className="col-span-2">

@@ -301,7 +301,7 @@ const ContributionDetails: React.FC<PageProps> = ({}) => {
 
         {isStepper ? (
           <>
-            <div className="mx-auto mt-9 w-full rounded-2xl bg-white p-4 sm:w-[500px] md:mt-[96px]">
+            <div className="mx-auto mt-9 w-full rounded-2xl bg-white p-4 sm:w-[70%] md:mt-[96px]">
               <div className="mt-6">
                 {/* @ts-ignore */}
                 <WrappedTaskStepper />

@@ -94,7 +94,7 @@ const LocationSelector = ({ apiKey, questionId, onLocationSelect }: Props) => {
   );
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-4">
+    <div className=" w-full  space-y-4">
       {locations.map((location) => (
         <div key={location.id} className="relative flex items-center space-x-1">
           <div className="relative w-full">
