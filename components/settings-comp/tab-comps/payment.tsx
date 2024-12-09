@@ -19,7 +19,7 @@ import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useRemoteUserStore } from "@/stores/remoteUser";
 import { Input } from "@/components/ui/input";
-import { Loader } from "lucide-react";
+import { Loader, Trash2 } from "lucide-react";
 import { useWithdrawStepper } from "@/stores/misc";
 
 interface Beneficiary {
@@ -191,20 +191,21 @@ const Payment: React.FC<any> = () => {
                 {isLoading ? (
                   <BeneficiarySkeletonLoader count={3} />
                 ) : (
-                  <RadioGroup
-                    value={selectedValue}
-                    onValueChange={handleSelectionChange}
-                    className="gap-6"
+                  <div
+                    // value={selectedValue}
+                    // onValueChange={handleSelectionChange}
+                    className="flex flex-col gap-4"
                   >
                     {beneficiaries?.map((item: Beneficiary) => (
                       <div className="flex w-full items-center" key={item.id}>
-                        <RadioGroupItem
-                          value={item.id.toString()}
+                        <div
+                          // value={item.id.toString()}
                           id={item.id.toString()}
                           className="peer sr-only"
+                          // disabled
                         />
-                        <Label
-                          htmlFor={item.id.toString()}
+                        <div
+                          // htmlFor={item.id.toString()}
                           className={cn(
                             "grid w-full cursor-pointer grid-cols-[1.5fr_1fr] gap-y-1 rounded-lg border border-[#14342C0F] bg-[#FDFDFD] p-3 transition-all duration-200 hover:bg-gray-50",
                             selectedValue === item.id.toString() &&
@@ -220,28 +221,34 @@ const Payment: React.FC<any> = () => {
                           >
                             {item.account_name}
                           </h4>
-                          <p
-                            className={cn(
-                              "justify-self-end text-right text-sm font-semibold text-[#333]",
-                              selectedValue === item.id.toString() &&
-                                "text-main-100",
-                            )}
-                          >
-                            {item.account_number}
-                          </p>
-                          <p
-                            className={cn(
-                              "text-xs text-[#4F4F4F]",
-                              selectedValue === item.id.toString() &&
-                                "text-main-100",
-                            )}
-                          >
-                            {item.bank_name}
-                          </p>
-                        </Label>
+                          <div className="place-items-end justify-center text-red  rounded-full p-2">
+                            <Trash2 color="red"/>
+                          </div>
+
+                          <div className="flex items-center gap-5">
+                            <p
+                              className={cn(
+                                "text-[#4F4F4F]font-semibold text-xs",
+                                selectedValue === item.id.toString() &&
+                                  "text-main-100",
+                              )}
+                            >
+                              {item.bank_name}
+                            </p>
+                            <p
+                              className={cn(
+                                "justify-self-end text-right text-sm text-[#333]",
+                                selectedValue === item.id.toString() &&
+                                  "text-main-100",
+                              )}
+                            >
+                              {item.account_number}
+                            </p>
+                          </div>
+                        </div>
                       </div>
                     ))}
-                  </RadioGroup>
+                  </div>
                 )}
               </div>
             </div>

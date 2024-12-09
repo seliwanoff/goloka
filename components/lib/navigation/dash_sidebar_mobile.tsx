@@ -31,7 +31,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { VscListSelection } from "react-icons/vsc";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import Image from "next/image";
-import { DocumentCopy, MessageQuestion, Note, Wallet3 } from "iconsax-react";
+import { ArchiveMinus, DocumentCopy, MessageQuestion, Note, Wallet3 } from "iconsax-react";
 import { userLogout } from "@/services/auth";
 
 type ComponentProps = {};
@@ -140,6 +140,11 @@ const NavData: { icon: any; title: string; link: string }[] = [
     icon: Import,
     title: "My contributions",
     link: "/dashboard/my_contributions",
+  },
+  {
+    icon: ArchiveMinus,
+    title: "Bookmarks",
+    link: "/dashboard/bookmarks",
   },
   { icon: Wallet3, title: "Wallet", link: "/dashboard/wallet" },
   { icon: MessageQuestion, title: "Support", link: "/dashboard/support" },

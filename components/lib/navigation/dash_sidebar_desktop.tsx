@@ -15,6 +15,7 @@ import {
   People,
   Wallet3,
   Import,
+  ArchiveMinus,
 } from "iconsax-react";
 
 // ~ ======= icon imports  -->
@@ -160,6 +161,11 @@ const NavData: { icon: any; title: string; link: string }[] = [
     icon: Import,
     title: "My contributions",
     link: "/dashboard/my_contributions",
+  },
+  {
+    icon: ArchiveMinus,
+    title: "Bookmarks",
+    link: "/dashboard/bookmarks",
   },
   { icon: Wallet3, title: "Wallet", link: "/dashboard/wallet" },
   { icon: MessageQuestion, title: "Support", link: "/dashboard/support" },
