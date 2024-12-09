@@ -24,11 +24,12 @@ import { getContributorsProfile } from "@/services/contributor";
 import { useRemoteUserStore } from "@/stores/remoteUser";
 import { useUserStore } from "@/stores/currentUserStore";
 import CreatePinComponent from "@/components/wallet_comps/createPin/createPinComponent";
+import { useWalletStore } from "@/stores/useWithdrawal";
 
 const Wallet = () => {
   const { user, isAuthenticated } = useRemoteUserStore();
-  const { user: currentUser } = useUserStore();
-
+  const { user: currentUser, refetchUser } = useUserStore();
+  const { response, error } = useWalletStore();
   const [expenses, setExpenses] = useState<any[]>([]);
   const { filterType } = useWalletFilter();
   const { setOpen } = useWithdrawOverlay();
@@ -39,6 +40,7 @@ const Wallet = () => {
 
   console.log(user, "userx");
   console.log(currentUser?.pin_status, "currentUser?.pin_status");
+  console.log(response, "transaction response");
 
   const fetchData = () => {
     return getAllTransactions({
@@ -91,6 +93,12 @@ const Wallet = () => {
         return setExpenses(transactions);
     }
   }, [filterType]);
+
+  useEffect(() => {
+    if (response) {
+      refetchUser();
+    }
+  }, [response, refetchUser]);
   return (
     <>
       <section className="pb-10 pt-[34px]">

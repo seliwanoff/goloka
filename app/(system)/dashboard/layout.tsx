@@ -34,12 +34,14 @@ const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
     retry: 1, // Only retry once before considering it a failure
   });
 
-  const { data: remoteContributor, isLoading: isContributorLoading } = useQuery(
-    {
-      queryKey: ["Get remote contributor profile"],
-      queryFn: getContributorsProfile,
-    },
-  );
+  const {
+    data: remoteContributor,
+    isLoading: isContributorLoading,
+    refetch: isRefetch,
+  } = useQuery({
+    queryKey: ["Get remote contributor profile"],
+    queryFn: getContributorsProfile,
+  });
 
   console.log(remoteContributor, "fbfbbf");
 
@@ -80,7 +82,7 @@ const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
     }
 
     // Set up refetch function
-    setRefetchUser(refetch);
+    setRefetchUser(isRefetch);
   }, [
     currentUser,
     error,
@@ -91,6 +93,7 @@ const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
     router,
     setRefetchUser,
     setUser,
+    isRefetch,
   ]);
 
   // Show loading state while fetching user data

@@ -16,7 +16,6 @@ export function numberWithCommas(x: any) {
 }
 
 export const formatResponseDate = (dateString: string) => {
-
   return moment(dateString, "YYYY-MM-DD HH:mm:ss").format("DD/M/YYYY");
 };
 
@@ -30,7 +29,19 @@ export const generateURL = (pathname: string, id: number) => {
   }
   return `${pathname}/${id}`;
 };
-
+export const formatDate = (
+  dateString: string,
+  format: string = "DD/MM/YYYY",
+) => {
+  const date = new Date(dateString);
+  const day = date.getDate().toString().padStart(2, "0");
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const year = date.getFullYear();
+  return format
+    .replace("DD", day)
+    .replace("MM", month)
+    .replace("YYYY", year.toString());
+};
 interface StatusPillProps {
   status?: string;
   className?: string;

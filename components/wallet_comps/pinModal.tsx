@@ -8,12 +8,11 @@ import { useUserStore } from "@/stores/currentUserStore";
 import CreatePinStepper from "./createPin/createPinStepper";
 import CreatePinComponent from "./createPin/createPinComponent";
 
-
 const WithdrawPin = () => {
   const { submitTransaction, loading, error, response, setPin } =
     useWalletStore();
   const { user: currentUser } = useUserStore();
-    const { showPin, setShowPin } = useShowPin();
+  const { showPin, setShowPin } = useShowPin();
   const { setStep } = useWithdrawStepper();
   const [otp, setOtp] = useState("");
 
@@ -22,21 +21,21 @@ const WithdrawPin = () => {
     setStep(1);
   };
 
-    // useEffect(() => {
-    //   if (currentUser?.pin_status === true) {
-    //     setShowPin(true);
-    //   }
-    // }, [currentUser?.pin_status]);
+  // useEffect(() => {
+  //   if (currentUser?.pin_status === true) {
+  //     setShowPin(true);
+  //   }
+  // }, [currentUser?.pin_status]);
 
   const handleProceed = async () => {
     setPin(otp);
 
     console.log("Entered PIN:", otp);
     await submitTransaction();
-    if (!loading && response) {
-      console.log(response);
-      setStep(3);
-    }
+    // if (!loading && response) {
+    //   console.log(response);
+    //   setStep(3);
+    // }
   };
 
   return (

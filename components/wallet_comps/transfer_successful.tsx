@@ -13,9 +13,10 @@ type ComponentProps = {};
 
 const TransferSuccessful: React.FC<ComponentProps> = ({}) => {
   const { user: currentUser } = useUserStore();
+
     const { user, isAuthenticated } = useRemoteUserStore();
   const { setOpenTransfer } = useTransferOverlay();
-  const { step, setStep, clearTransaction } = useTransferStepper();
+  const { step, setStep, clearTransaction, transaction } = useTransferStepper();
    const { amount, wallet_id } = useTransactionStore();
     const USER_CURRENCY_SYMBOL = user?.country?.["currency-symbol"];
   const handleComplete = () => {
@@ -25,6 +26,7 @@ const TransferSuccessful: React.FC<ComponentProps> = ({}) => {
   };
 
   console.log(step, "step transfer");
+  console.log(transaction, "transaction transfer");
   return (
     <div>
       <span className="relative z-20 mx-auto flex h-16 w-16 items-center justify-center rounded-full text-[#27AE60]">
