@@ -17,10 +17,16 @@ const extensionIcons: { [key: string]: string } = {
 };
 
 interface FileUploadProps {
+  value: any;
+  ref: React.LegacyRef<HTMLInputElement> | undefined;
   onFileUpload?: (file: File | null, base64: string | null) => void;
 }
 
-const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
+const FileUpload: React.FC<FileUploadProps> = ({
+  onFileUpload,
+  value,
+  ref,
+}) => {
   const [file, setFile] = useState<File | null>(null);
   const [fileBase64, setFileBase64] = useState<string | null>(null);
   const [progress, setProgress] = useState<number>(0);
@@ -43,6 +49,8 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
 
     setError(null);
     setFile(selectedFile);
+
+    console.log(value, "valuevaluevalue");
 
     // Simulate upload progress
     const uploadProgress = setInterval(() => {
@@ -112,6 +120,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
               10MB
             </span>
             <input
+              ref={ref}
               id="file-upload"
               type="file"
               accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.csv,.txt,.xls,.xlsx"

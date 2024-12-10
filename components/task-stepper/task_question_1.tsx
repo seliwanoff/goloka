@@ -681,25 +681,7 @@ const inputRefs = useRef<
 
       case "select":
         return (
-          // <div className="col-span-2">
-          //   <select
-          //     //@ts-ignore
-          //     ref={(el) => (inputRefs.current[ques.id] = el)}
-          //     id={ques.name}
-          //     value={selectedValues[ques.id] || ""}
-          //     onChange={(e) => handleInputChange(e.target.value, ques.id)}
-          //     className="form-select w-full rounded-lg border-[#D9DCE0]"
-          //   >
-          //     <option value="">Select an option</option>
-          //     {ques.options?.map(
-          //       (opt: any, index: React.Key | null | undefined) => (
-          //         <option key={index} value={opt?.value}>
-          //           {opt?.label}
-          //         </option>
-          //       ),
-          //     )}
-          //   </select>
-          // </div>
+
           <div className="col-span-2">
             <select
               ref={(el) => (inputRefs.current[ques.id] = el)} // Reference the select element
@@ -719,87 +701,7 @@ const inputRefs = useRef<
             </select>
           </div>
         );
-      // case "photo":
-      //   return (
-      //     <div className="col-span-2">
-      //       <input
-      //         type="file"
-      //         accept="image/*"
-      //         id={ques.name}
-      //         onChange={(e) => {
-      //           const file = e.target.files?.[0];
-      //           if (file) {
-      //             handleInputChange(file, ques.id, "file");
-      //           }
-      //         }}
-      //         className="hidden"
-      //         // @ts-ignore
-      //         ref={(el) => (inputRefs.current[ques.id] = el)}
-      //       />
-      //       <div className="flex flex-col gap-4">
-      //         {/* image container */}
-      //         <div
-      //           onClick={() => inputRefs.current[ques.id]?.click()}
-      //           className="relative flex h-40 items-center justify-center rounded-lg border-2 border-[#3365E31F] bg-[#3365E31F] text-center"
-      //         >
-      //           {/* {filePreviews[ques.id] ? ( */}
-      //           {/* <div className="absolute inset-0 overflow-hidden rounded-lg">
-      //               <Image
-      //                 src={filePreviews[ques.id]}
-      //                 alt="Preview"
-      //                 className="w-full"
-      //                 layout="fill"
-      //               />
-      //             </div>
-      //           ) : ( */}
-      //           <div className="flex flex-col items-center">
-      //             <div className="flex w-fit cursor-pointer flex-col rounded-lg px-4 py-2 text-sm font-medium text-[#3365E3]">
-      //               <div className="mb-2 flex h-8 w-8 items-center justify-center self-center rounded-full border border-dashed border-slate-300 bg-slate-200">
-      //                 <ImagePlus />
-      //               </div>
-      //               <span>Upload Photo</span>
-      //             </div>
-      //             <span className="text-xs text-slate-400">
-      //               JPEG size should not be more than 1MB
-      //             </span>
-      //             {(filePreviews[ques.id] || selectedValues[ques.id]) && (
-      //               <span className="mt-2 rounded-lg border bg-amber-100 p-1 text-xs text-orange-400">
-      //                 Image already added
-      //               </span>
-      //             )}
-      //           </div>
-      //           {/* )} */}
-      //         </div>
 
-      //         {filePreviews[ques.id] && (
-      //           <div className="relative h-32 w-32 overflow-hidden rounded-lg">
-      //             <Image
-      //               src={filePreviews[ques.id]}
-      //               alt="Preview"
-      //               className="h-full w-full object-cover"
-      //               layout="fill"
-      //             />
-      //             <button
-      //               type="button"
-      //               onClick={() => {
-      //                 setSelectedValues((prev) => ({
-      //                   ...prev,
-      //                   [ques.id]: null,
-      //                 }));
-      //                 setFilePreviews((prev) => ({
-      //                   ...prev,
-      //                   [ques.id]: "",
-      //                 }));
-      //               }}
-      //               className="absolute right-2 top-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
-      //             >
-      //               ×
-      //             </button>
-      //           </div>
-      //         )}
-      //       </div>
-      //     </div>
-      //   );
       case "photo":
         return (
           <div className="col-span-2">
@@ -985,124 +887,7 @@ const inputRefs = useRef<
             </div>
           </div>
         );
-        // return (
-        //   <div className="col-span-2">
-        //     <div className="flex flex-col gap-4">
-        //       <div
-        //         onClick={async () => {
-        //           try {
-        //             // Request camera access and capture image
-        //             const stream = await navigator.mediaDevices.getUserMedia({
-        //               video: { facingMode: "environment" },
-        //             });
 
-        //             // Create video element to capture frame
-        //             const video = document.createElement("video");
-        //             video.srcObject = stream;
-        //             await new Promise<void>((resolve) => {
-        //               video.onloadedmetadata = () => {
-        //                 video.play();
-        //                 resolve();
-        //               };
-        //             });
-
-        //             // Wait a short moment for camera to stabilize
-        //             await new Promise((resolve) => setTimeout(resolve, 500));
-
-        //             // Create canvas to capture image
-        //             const canvas = document.createElement("canvas");
-        //             canvas.width = video.videoWidth;
-        //             canvas.height = video.videoHeight;
-        //             const ctx = canvas.getContext("2d");
-        //             ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-        //             // Stop all tracks to release camera
-        //             stream.getTracks().forEach((track) => track.stop());
-
-        //             // Convert canvas to file
-        //             canvas.toBlob(
-        //               (blob) => {
-        //                 if (blob) {
-        //                   const file = new File([blob], "captured-image.jpg", {
-        //                     type: "image/jpeg",
-        //                   });
-
-        //                   // Check file size (1MB limit)
-        //                   if (file.size <= 1 * 1024 * 1024) {
-        //                     // Create URL for preview
-        //                     const previewUrl = URL.createObjectURL(file);
-
-        //                     // Update state
-        //                     setSelectedValues((prev) => ({
-        //                       ...prev,
-        //                       [ques.id]: file,
-        //                     }));
-        //                     setFilePreviews((prev) => ({
-        //                       ...prev,
-        //                       [ques.id]: previewUrl,
-        //                     }));
-        //                   } else {
-        //                     alert("Image size exceeds 1MB limit");
-        //                   }
-        //                 }
-        //               },
-        //               "image/jpeg",
-        //               0.7,
-        //             ); // Compress to 70% quality
-        //           } catch (error) {
-        //             console.error("Error accessing camera:", error);
-        //             alert("Could not access camera. Please check permissions.");
-        //           }
-        //         }}
-        //         className="relative flex h-40 cursor-pointer items-center justify-center rounded-lg border-2 border-[#3365E31F] bg-[#3365E31F] text-center"
-        //       >
-        //         <div className="flex flex-col items-center">
-        //           <div className="flex w-fit flex-col rounded-lg px-4 py-2 text-sm font-medium text-[#3365E3]">
-        //             <div className="mb-2 flex h-8 w-8 items-center justify-center self-center rounded-full border border-dashed border-slate-300 bg-slate-200">
-        //               <Camera />
-        //             </div>
-        //             <span>Take Photo</span>
-        //           </div>
-        //           <span className="text-xs text-slate-400">
-        //             Use device camera (max 1MB)
-        //           </span>
-        //           {(filePreviews[ques.id] || selectedValues[ques.id]) && (
-        //             <span className="mt-2 rounded-lg border bg-amber-100 p-1 text-xs text-orange-400">
-        //               Image already added
-        //             </span>
-        //           )}
-        //         </div>
-        //       </div>
-
-        //       {filePreviews[ques.id] && (
-        //         <div className="relative h-32 w-32 overflow-hidden rounded-lg">
-        //           <Image
-        //             src={filePreviews[ques.id]}
-        //             alt="Preview"
-        //             className="h-full w-full object-cover"
-        //             layout="fill"
-        //           />
-        //           <button
-        //             type="button"
-        //             onClick={() => {
-        //               setSelectedValues((prev) => ({
-        //                 ...prev,
-        //                 [ques.id]: null,
-        //               }));
-        //               setFilePreviews((prev) => ({
-        //                 ...prev,
-        //                 [ques.id]: "",
-        //               }));
-        //             }}
-        //             className="absolute right-2 top-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
-        //           >
-        //             ×
-        //           </button>
-        //         </div>
-        //       )}
-        //     </div>
-        //   </div>
-        // );
       case "date":
         return (
           <div className="col-span-2">
@@ -1191,6 +976,9 @@ const inputRefs = useRef<
         return (
           <div className="col-span-2">
             <FileUpload
+              //@ts-ignore
+              ref={(el) => (inputRefs.current[ques.id] = el)}
+              value={selectedValues[ques.id] || ""}
               onFileUpload={(file, base64) =>
                 //@ts-ignore
                 handleInputChange({ file, base64 }, ques.id, "file")
