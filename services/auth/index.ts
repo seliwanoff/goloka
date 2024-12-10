@@ -71,3 +71,18 @@ export const resetPassword = async (
       }
     },
   });
+
+
+export const userLogout = async () => {
+  await queryClient.fetchQuery({
+      queryKey: ["user logout"],
+      queryFn: async () => {
+        try {
+          await postData<ServerResponse<any>>("/logout", { platform: "web" });
+        } catch (error) {
+          console.error("Error logging out:", error);
+          throw error;
+        }
+      },
+    })
+  }

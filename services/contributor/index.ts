@@ -76,25 +76,23 @@ interface TaskResponse {
 // ~ =============================================>
 // ~ ======= Create a user  -->
 // ~ =============================================>
-  export const createContributor = async (
-    data: any,
-  ): Promise<UseQueryResult<ServerResponse<any>>> => {
-    return queryClient.fetchQuery({
-      queryKey: ["create contributor"],
-      queryFn: async () => {
-        return await postData<ServerResponse<any>>(
-          "/contributor-profile/update",
-          data,
-        );
-      },
-    });
-  };
+export const createContributor = async (
+  data: any,
+): Promise<UseQueryResult<ServerResponse<any>>> => {
+  return queryClient.fetchQuery({
+    queryKey: ["create contributor"],
+    queryFn: async () => {
+      return await postData<ServerResponse<any>>(
+        "/contributor-profile/update",
+        data,
+      );
+    },
+  });
+};
 
-
-  // ~ =============================================>
-  // ~ ======= Create a contributor Response  -->
-  // ~ =============================================>
-
+// ~ =============================================>
+// ~ ======= Create a contributor Response  -->
+// ~ =============================================>
 
 export const createContributorResponse = async (
   id: string,
@@ -109,11 +107,10 @@ export const createContributorResponse = async (
       );
     },
   });
- }
-  // ~ =============================================>
-  // ~ ======= Create a contributor Answers  -->
-  // ~ =============================================>
-
+};
+// ~ =============================================>
+// ~ ======= Create a contributor Answers  -->
+// ~ =============================================>
 
 export const createContributorAnswers = async (
   id: string,
@@ -128,7 +125,7 @@ export const createContributorAnswers = async (
       );
     },
   });
- }
+};
 // ~ =============================================>
 // ~ ======= Get campaign user  -->
 // ~ =============================================>
@@ -168,6 +165,67 @@ export const getAllTask = async (params: GetAllTaskParams) => {
     appendQuery("campaign_end_date", params.campaign_end_date);
 
     const endpoint = `/campaigns?${query.toString()}`;
+    const response = await fetchData<ServerResponse<any>>(endpoint);
+
+    return response;
+  } catch (error) {
+    console.error("Error fetching tasks:", error);
+    throw new Error("Failed to fetch tasks. Please try again later.");
+  }
+};
+export const getBookmarkedCampaign = async (params: GetAllTaskParams) => {
+  try {
+    const query = new URLSearchParams();
+
+    // Add query parameters conditionally
+    const appendQuery = (key: string, value: any) => {
+      if (value !== undefined && value !== null) {
+        query.append(key, value.toString());
+      }
+    };
+
+    appendQuery("per_page", params.per_page);
+    appendQuery("page", params.page);
+    appendQuery("search", params.search);
+    appendQuery("type", params.type);
+    appendQuery("min_price", params.min_price);
+    appendQuery("max_price", params.max_price);
+    appendQuery("min_question", params.min_question);
+    appendQuery("max_question", params.max_question);
+    appendQuery("allows_multiple_responses", params.allows_multiple_responses);
+    appendQuery("campaign_end_date", params.campaign_end_date);
+    const endpoint = `/contributor/campaigns/bookmarks/all?${query.toString()}`;
+    const response = await fetchData<ServerResponse<any>>(endpoint);
+
+    return response;
+  } catch (error) {
+    console.error("Error fetching tasks:", error);
+    throw new Error("Failed to fetch tasks. Please try again later.");
+  }
+};
+export const getAllContributedTask = async (params: GetAllTaskParams) => {
+  try {
+    const query = new URLSearchParams();
+
+    // Add query parameters conditionally
+    const appendQuery = (key: string, value: any) => {
+      if (value !== undefined && value !== null) {
+        query.append(key, value.toString());
+      }
+    };
+
+    appendQuery("per_page", params.per_page);
+    appendQuery("page", params.page);
+    appendQuery("search", params.search);
+    appendQuery("type", params.type);
+    appendQuery("min_price", params.min_price);
+    appendQuery("max_price", params.max_price);
+    appendQuery("min_question", params.min_question);
+    appendQuery("max_question", params.max_question);
+    appendQuery("allows_multiple_responses", params.allows_multiple_responses);
+    appendQuery("campaign_end_date", params.campaign_end_date);
+
+    const endpoint = `/contributor/campaigns?${query.toString()}`;
     const response = await fetchData<ServerResponse<any>>(endpoint);
 
     return response;
@@ -237,13 +295,12 @@ export const getContributorsProfile = async (): Promise<
     },
   });
 
-
 export const resolveAccountInfo = async (
   account_number: string,
   bank_code: string,
 ): Promise<UseQueryResult<AxiosResponse<TaskResponse>>> =>
   await queryClient.fetchQuery({
-    queryKey: ["contributors profile"],
+    queryKey: ["Account profile"],
     queryFn: async () => {
       try {
         return await postData(`/resolve-account`, {
@@ -274,5 +331,3 @@ export const addBeneficiary = async (
       }
     },
   });
-
-

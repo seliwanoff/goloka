@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import StepperIndicator from "./StepperIndicator";
 import { Button } from "@/components/ui/button";
 import Select from "react-select";
@@ -11,57 +11,114 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useForm, Controller } from "react-hook-form";
-import {useShowOverlay} from "@/stores/overlay";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { CalendarIcon, Loader2 } from "lucide-react";
+import { useShowOverlay } from "@/stores/overlay";
 import { useContributorStore } from "@/stores/contributors";
 import { useLoadingStore } from "@/stores/misc";
-import { FaSpinner } from "react-icons/fa";
+import { cn } from "@/lib/utils";
 
 type PageProps = {
-  setStep: any;
+  setStep: (step: number | ((prev: number) => number)) => void;
   step: number;
 };
 
 const languages = [
-  { value: "english", label: "English" },
-  { label: "Mandarin Chinese", value: "mandarin_chinese" },
-  { label: "Spanish", value: "spanish" },
-  { label: "Hindi", value: "hindi" },
-  { label: "French", value: "french" },
   { label: "Arabic", value: "arabic" },
+  { label: "Bachama", value: "bachama" },
   { label: "Bengali", value: "bengali" },
-  { label: "Portuguese", value: "portuguese" },
-  { label: "Russian", value: "russian" },
-  { label: "Japanese", value: "japanese" },
-  { label: "Punjabi", value: "punjabi" },
-  { label: "German", value: "german" },
-  { label: "Korean", value: "korean" },
-  { label: "Vietnamese", value: "vietnamese" },
-  { label: "Turkish", value: "turkish" },
-  { label: "Italian", value: "italian" },
-  { label: "Persian", value: "persian" },
+  { label: "Bura", value: "bura" },
   { label: "Dutch", value: "dutch" },
-  { label: "Thai", value: "thai" },
+  { label: "Efik", value: "efik" },
+  { label: "English", value: "english" },
+  { label: "French", value: "french" },
+  { label: "Fulfulde", value: "fulfulde" },
+  { label: "Gamargu", value: "gamargu" },
+  { label: "German", value: "german" },
+  { label: "Gbagyi", value: "gbagyi" },
+  { label: "Hausa", value: "hausa" },
+  { label: "Hindi", value: "hindi" },
+  { label: "Higgi", value: "higgi" },
+  { label: "Ibibio", value: "ibibio" },
+  { label: "Ijaw", value: "ijaw" },
+  { label: "Italian", value: "italian" },
+  { label: "Japanese", value: "japanese" },
+  { label: "Jukun", value: "jukun" },
+  { label: "Kanuri", value: "kanuri" },
+  { label: "Kare Kare", value: "kare_kare" },
+  { label: "Kilba", value: "kilba" },
+  { label: "Kibaku", value: "kibaku" },
+  { label: "Korean", value: "korean" },
+  { label: "Mandara", value: "mandara" },
+  { label: "Mandarin Chinese", value: "mandarin_chinese" },
+  { label: "Marghi", value: "marghi" },
+  { label: "Nigerian Pidgin", value: "pidgin_english" },
+  { label: "Nupe", value: "nupe" },
+  { label: "Persian", value: "persian" },
+  { label: "Portuguese", value: "portuguese" },
+  { label: "Punjabi", value: "punjabi" },
+  { label: "Russian", value: "russian" },
+  { label: "Shuwa Arabic", value: "shuwa_arabic" },
+  { label: "Spanish", value: "spanish" },
   { label: "Swahili", value: "swahili" },
+  { label: "Thai", value: "thai" },
+  { label: "Tiv", value: "tiv" },
+  { label: "Turkish", value: "turkish" },
+  { label: "Urhobo", value: "urhobo" },
+  { label: "Vietnamese", value: "vietnamese" },
+  { label: "Waha", value: "waha" },
 ];
 
+
+
+
+// Validation schema
+const languageSchema = z.object({
+  primary_language: z.string({
+    required_error: "Primary language is required",
+  }),
+  spoken_languages: z
+    .array(z.string())
+    .min(1, "Select at least one spoken language"),
+});
+
+type LanguageFormValues = z.infer<typeof languageSchema>;
+
 const Language: React.FC<PageProps> = ({ setStep, step }) => {
-  const { loading } = useLoadingStore();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { setOpen } = useShowOverlay();
   const { setStep2Info, submitUserInfo } = useContributorStore();
+
   const {
     control,
     handleSubmit,
-    formState: { errors },
-  } = useForm();
+    formState: { errors, isValid },
+  } = useForm<LanguageFormValues>({
+    resolver: zodResolver(languageSchema),
+    mode: "onChange",
+  });
 
-  const onSubmit = (data: any) => {
-    setStep2Info(data);
-    console.log(data);
-    setOpen(true);
-    submitUserInfo();
+  const onSubmit = async (data: LanguageFormValues) => {
+    setIsSubmitting(true);
+    try {
+      // Simulate API call or processing
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      setStep2Info(data);
+      setOpen(true);
+      submitUserInfo();
+      setStep((prev) => prev + 1);
+    } catch (error) {
+      console.error("Error submitting language info:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleSkip = () => {};
+  const handleSkip = () => {
+    setStep((prev) => prev + 1);
+  };
 
   return (
     <>
@@ -160,15 +217,27 @@ const Language: React.FC<PageProps> = ({ setStep, step }) => {
             <div className="grid gap-3 pt-6">
               <Button
                 type="submit"
-                className="h-12 w-full rounded-full bg-main-100 text-base font-light text-white hover:bg-blue-700"
+                disabled={!isValid || isSubmitting}
+                className={cn(
+                  "h-12 w-full rounded-full bg-main-100 text-base font-light text-white transition-all",
+                  "hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50",
+                )}
               >
-                {loading ? <FaSpinner className="animate-spin" /> : "Proceed"}
+                {isSubmitting ? (
+                  <div className="flex items-center justify-center">
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Processing...
+                  </div>
+                ) : (
+                  "Proceed"
+                )}
               </Button>
 
               <Button
-                onClick={handleSkip}
                 type="button"
-                className="w-full bg-transparent text-base text-main-100 hover:bg-transparent"
+                onClick={handleSkip}
+                disabled={isSubmitting}
+                className="w-full bg-transparent text-base text-main-100 hover:bg-transparent disabled:opacity-50"
               >
                 Skip
               </Button>

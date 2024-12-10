@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { DocumentDownload } from "iconsax-react";
 import { cn, walletStatus } from "@/lib/utils";
 import { useInvoiceOverlay } from "@/stores/overlay";
+import moment from "moment";
 
 interface Transaction {
   invoiceid: string;
@@ -67,9 +68,11 @@ const WalletTable: React.FC<ComponentProps> = ({ data }) => {
                   </span>{" "}
                   <div>
                     <h3 className="text-sm font-medium text-[#101828]">
-                      {res.invoiceid}
+                      {res.reference}
                     </h3>{" "}
-                    <p className="xl:hidden">{res?.date}</p>
+                    <p className="xl:hidden">
+                      {moment(res?.created_at).format("DD MMMM YYYY")}
+                    </p>
                   </div>
                 </div>
               </TableCell>
@@ -79,25 +82,27 @@ const WalletTable: React.FC<ComponentProps> = ({ data }) => {
                   <span className="text-sm font-medium text-[#101828]">
                     {res.amount}
                   </span>
-                  <span className="text-sm xl:hidden">{res?.beneficiary}</span>
+                  <span className="text-sm xl:hidden">
+                    {res?.meta?.beneficiary?.account_name}
+                  </span>
                 </div>{" "}
               </TableCell>
               {/* BENEFICIARY */}
               <TableCell className="hidden xl:table-cell">
                 <span className="text-sm font-medium text-[#101828]">
-                  {res.beneficiary}
+                  {res?.meta?.beneficiary?.account_name}
                 </span>
               </TableCell>
               {/* BANK */}
               <TableCell className="hidden lg:table-cell">
                 <span className="text-sm font-medium text-[#101828]">
-                  {res.bank}
+                  {res?.meta?.beneficiary?.bank_name}
                 </span>
               </TableCell>
               {/* DATE */}
               <TableCell className="hidden xl:table-cell">
                 <span className="text-sm font-medium text-[#101828]">
-                  {res.date}
+                  {moment(res?.created_at).format("DD MMMM YYYY")}
                 </span>
               </TableCell>
               {/* STATUS */}

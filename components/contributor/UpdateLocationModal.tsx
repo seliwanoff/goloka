@@ -3,11 +3,12 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Location from "@/public/assets/images/location.svg";
 import { X } from "lucide-react";
-import {useShowOverlay} from "@/stores/overlay";
+import { useShowOverlay } from "@/stores/overlay";
 import { cn } from "@/lib/utils";
 import { createContributor } from "@/services/contributor";
 import { FaSpinner } from "react-icons/fa";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const OPEN_CAGE_API_KEY = "527e67fe29404253869bc02ad6b77332";
 
@@ -19,7 +20,7 @@ interface LocationData {
 }
 
 const UpdateLocationModal = () => {
-   const router = useRouter();
+  const router = useRouter();
   const { open, setOpen } = useShowOverlay();
   const [location, setLocation] = useState<LocationData | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -64,24 +65,28 @@ const UpdateLocationModal = () => {
     }
   };
 
- const updateContributorsLocation = async (locationData: LocationData) => {
-   try {
-     const res = await createContributor({
-       longitude: locationData.longitude,
-       latitude: locationData.latitude,
-     });
+  const updateContributorsLocation = async (locationData: LocationData) => {
+    try {
+      const res = await createContributor({
+        longitude: locationData.longitude,
+        latitude: locationData.latitude,
+      });
 
-     if (res) {
-       console.log(res, "Location updated successfully.");
-       setIsSubmitting(false);
-       setOpen(false);
-       router.push("/signin");
-     }
-   } catch (error) {
-     setError("Failed to update location.");
-     setIsSubmitting(false);
-   }
- };
+      if (res) {
+        console.log(res, "Location updated successfully.");
+        setIsSubmitting(false);
+        setOpen(false);
+        router.push("/dashboard/root");
+      }
+    } catch (error) {
+      //@ts-ignore
+      toast.warning(error?.response?.data?.message);
+      setError("Failed to update location.");
+      setIsSubmitting(false);
+    }
+  };
+
+  console.log(error, "error");
 
   return (
     <div
@@ -127,6 +132,12 @@ const UpdateLocationModal = () => {
             ) : (
               "Update location"
             )}
+          </Button>
+          <Button
+            className="hover:bg-white-700 mt-5 h-12 w-full rounded-full bg-white text-base font-light text-blue-500"
+            onClick={() => router.push("/dashboard/root")}
+          >
+            { "Skip"}
           </Button>
           {error && <p className="mt-4 text-red-500">{error}</p>}
         </div>

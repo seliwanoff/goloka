@@ -27,7 +27,7 @@ const ChatWidget = () => {
           />
           <div className="max-w-xs rounded-2xl bg-blue-500 p-4">
             <p className="text-white">
-              Hi Style Terrain, How can i assign role to my sraff on this
+              Hi Style Terrain, How can i assign role to my staff on this
               platform
             </p>
             <span className="mt-1 block text-left text-xs text-[#EBF0FC]">

@@ -1,16 +1,9 @@
 import { queryClient } from "@/components/layout/tanstackProvider";
 import {
-  useFetchQuery,
   postData,
   fetchData,
-  updateData,
-  deleteData,
-  fetchDataById,
-  updateDataById,
-  deleteDataById,
   ServerResponse,
 } from "@/lib/api";
-
 import { UseQueryResult } from "@tanstack/react-query";
 
 export type ServerResponseOrNull<T> = ServerResponse<T> | null;
@@ -27,9 +20,9 @@ export const getCountry = async (): Promise<ServerResponseOrNull<any>> => {
   }
 };
 
-export const getOTP = async (
-  {}: any,
-): Promise<UseQueryResult<ServerResponse<any>>> => {
+export const getOTP = async ({}: any): Promise<
+  UseQueryResult<ServerResponse<any>>
+> => {
   return queryClient.fetchQuery({
     queryKey: ["getOTP"],
     queryFn: async () => {
@@ -48,7 +41,6 @@ export const forgetPassword = async (
   });
 };
 
-
 // ~ =============================================>
 // ~ ======= location  -->
 // ~ =============================================>
@@ -62,6 +54,19 @@ export const updateLocation = async (
         "/contributor-profile/location",
         locationData,
       );
+    },
+  });
+};
+// ~ =============================================>
+// ~ ======= pIN  -->
+// ~ =============================================>
+export const updatePin = async (
+  data: any,
+): Promise<UseQueryResult<ServerResponse<any>>> => {
+  return queryClient.fetchQuery({
+    queryKey: ["update pin"],
+    queryFn: async () => {
+      return await postData<ServerResponse<any>>("/pin/create", data);
     },
   });
 };

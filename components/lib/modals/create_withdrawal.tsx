@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { X } from "lucide-react";
 import {
   Dialog,
@@ -8,17 +8,26 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useMediaQuery } from "@react-hook/media-query";
-import { useWithdrawStepper } from "@/stores/misc";
+import { useShowPin, useWithdrawStepper } from "@/stores/misc";
 import { useAddBeneficiaryOverlay, useWithdrawOverlay } from "@/stores/overlay";
 import { cn } from "@/lib/utils";
 import WithdrawalStepper from "@/components/wallet_comps/withdrawal_stepper";
 import { ArrowLeft } from "iconsax-react";
+import { useUserStore } from "@/stores/currentUserStore";
+import CreatePinComponent from "@/components/wallet_comps/createPin/createPinComponent";
 
 const CreateWithdrawal = () => {
   const { open, setOpen } = useWithdrawOverlay();
   const { step, setStep } = useWithdrawStepper();
   const isDesktop = useMediaQuery("(min-width: 640px)");
+  const { user: currentUser } = useUserStore();
+  const { showPin, setShowPin } = useShowPin();
 
+  useEffect(() => {
+    if (currentUser?.pin_status === false) {
+      setShowPin(true);
+    }
+  }, [currentUser?.pin_status]);
 
   return (
     <>
@@ -40,13 +49,19 @@ const CreateWithdrawal = () => {
                     step === 2 && "text-opacity-0",
                   )}
                 >
-                  {step === 3 ? "Payment successful" : "Withdraw fund"}
+                  {step === 3 && "Payment successful"}
+                  {step === 2 && "Withdraw Cash"}
+                  {step === 1 && "Withdraw fund"}
+                  {step === 0 && "Withdraw fund"}
                 </DialogTitle>
                 <DialogDescription className="sr-only text-white">
                   Transaction ID
                 </DialogDescription>
                 <span
-                  onClick={() => setOpen(false)}
+                  onClick={() => {
+                    setOpen(false);
+                    setStep(0);
+                  }}
                   className="absolute right-4 top-1/2 mt-0 flex h-8 w-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-[#F2F2F2] text-[#424242]"
                 >
                   <X size={20} />
@@ -59,6 +74,7 @@ const CreateWithdrawal = () => {
                   step === 3 && "mt-8",
                 )}
               />
+
               <WithdrawalStepper />
             </DialogContent>
           </Dialog>

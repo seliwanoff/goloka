@@ -14,6 +14,8 @@ import {
   Note,
   People,
   Wallet3,
+  Import,
+  ArchiveMinus,
 } from "iconsax-react";
 
 // ~ ======= icon imports  -->
@@ -37,6 +39,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { userLogout } from "@/services/auth";
 
 type ComponentProps = {
   navMenuList: { icon: any; title: string; link: string }[];
@@ -45,6 +48,18 @@ type ComponentProps = {
 const DashSideBarDesktop: React.FC<ComponentProps> = ({ navMenuList }) => {
   const pathname = usePathname();
   const router = useRouter();
+  // userLogout;
+
+  const initiateLogout = () => {
+    try {
+      const res = userLogout();
+      console.log(res, "res");
+      localStorage.removeItem("whoami");
+      router.replace("/signin");
+    } catch (error) {
+      console.log(error, "error");
+    }
+  };
 
   
 
@@ -59,31 +74,28 @@ const DashSideBarDesktop: React.FC<ComponentProps> = ({ navMenuList }) => {
 
       {/* -- nav items  */}
       <nav className="mt-10 flex flex-col gap-3">
-        {navMenuList?.map((nav_item) => {
-          console.log(nav_item?.link, pathname);
-          return (
-            <Link
-              href={nav_item.link}
-              key={nav_item.title}
+        {NavData.map((nav_item) => (
+          <Link
+            href={nav_item.link}
+            key={nav_item.title}
+            className={cn(
+              "transit flex w-full flex-row items-center justify-start gap-3 rounded-full px-4 py-2",
+              pathname.includes(nav_item.link)
+                ? "bg-main-100 text-white"
+                : "bg-white font-medium text-gray-500 ring-gray-100 hover:bg-gradient-to-br hover:from-gray-50/20 hover:via-gray-100/80 hover:to-gray-50/20 hover:text-gray-800 hover:ring-1",
+            )}
+          >
+            <nav_item.icon size={20} color="currentColor" strokeWidth={1.5} />
+            <p
               className={cn(
-                "transit flex w-full flex-row items-center justify-start gap-3 rounded-full px-4 py-2",
-                pathname.includes(nav_item.link)
-                  ? "bg-main-100 text-white"
-                  : "bg-white font-medium text-gray-500 ring-gray-100 hover:bg-gradient-to-br hover:from-gray-50/20 hover:via-gray-100/80 hover:to-gray-50/20 hover:text-gray-800 hover:ring-1",
+                "",
+                pathname.includes(nav_item.link) && "text-white",
               )}
             >
-              <nav_item.icon size={20} strokeWidth={1.5} />
-              <p
-                className={cn(
-                  "",
-                  pathname.includes(nav_item.link) && "text-white",
-                )}
-              >
-                {nav_item.title}
-              </p>
-            </Link>
-          );
-        })}
+              {nav_item.title}
+            </p>
+          </Link>
+        ))}
         <Separator className="my-3" />
         <Dialog>
           <DialogTrigger
@@ -98,7 +110,9 @@ const DashSideBarDesktop: React.FC<ComponentProps> = ({ navMenuList }) => {
             <div className="rounded-full bg-rose-50 p-2 text-rose-600">
               <OctagonAlert />
             </div>
-            <p className="-mt-8 text-xl font-bold">Proceed to logout?</p>
+            <DialogTitle className="-mt-8 text-xl font-bold">
+              Proceed to logout?
+            </DialogTitle>
             <p>
               By clicking on <b>continue</b>, you will be logged out of your
               dashboard. Do you want to proceed?
@@ -109,10 +123,7 @@ const DashSideBarDesktop: React.FC<ComponentProps> = ({ navMenuList }) => {
               </Button>
               <Button
                 className="w-full bg-rose-500 hover:bg-rose-400"
-                onClick={() => {
-                  localStorage.removeItem("whoami");
-                  router.replace("/");
-                }}
+                onClick={initiateLogout}
               >
                 Continue
               </Button>
@@ -142,3 +153,25 @@ const DashSideBarDesktop: React.FC<ComponentProps> = ({ navMenuList }) => {
 };
 
 export default DashSideBarDesktop;
+
+// ~ =============================================>
+// ~ ======= Navigation data -->
+// ~ =============================================>
+const NavData: { icon: any; title: string; link: string }[] = [
+  { icon: LayoutGrid, title: "Dashboard", link: "/dashboard/root" },
+  { icon: Note, title: "Marketplace", link: "/dashboard/marketplace" },
+  { icon: DocumentCopy, title: "Responses", link: "/dashboard/responses" },
+  {
+    icon: Import,
+    title: "My contributions",
+    link: "/dashboard/my_contributions",
+  },
+  {
+    icon: ArchiveMinus,
+    title: "Bookmarks",
+    link: "/dashboard/bookmarks",
+  },
+  { icon: Wallet3, title: "Wallet", link: "/dashboard/wallet" },
+  { icon: MessageQuestion, title: "Support", link: "/dashboard/support" },
+  { icon: Settings, title: "Settings", link: "/dashboard/settings" },
+];

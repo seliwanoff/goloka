@@ -14,6 +14,10 @@ import { userSignIn } from "@/services/auth";
 import { useRouter } from "next/navigation";
 import { FaSpinner } from "react-icons/fa";
 import { toast } from "sonner";
+import { getContributorsProfile } from "@/services/contributor";
+import { useQuery } from "@tanstack/react-query";
+import { useRemoteUserStore } from "@/stores/remoteUser";
+
 
 type PageProps = {};
 
@@ -22,7 +26,8 @@ type FormValues = {
   password: string;
 };
 
-const SignIn: React.FC<PageProps> = ({}) => {
+const SignIn: React.FC<PageProps> = ({ }) => {
+
   const [eye1, setEye1] = useState(false);
   const router = useRouter();
   const {
@@ -30,6 +35,7 @@ const SignIn: React.FC<PageProps> = ({}) => {
     handleSubmit,
     formState: { errors },
   } = useForm<FormValues>();
+
 
   const handleToggle1 = () => {
     setEye1((prev: boolean) => !prev);
@@ -50,17 +56,22 @@ const SignIn: React.FC<PageProps> = ({}) => {
           "Failed to sign in. Please check your credentials and try again.",
         );
       }
+      //@ts-ignore
+      // setUser(remoteUser.data);
       console.log(response, "response.data");
       //@ts-ignore
       const { access_token, token_type, refresh_token } = response;
 
-      localStorage.setItem("access_token", JSON.stringify(access_token));
-      localStorage.setItem("refresh_token", JSON.stringify(refresh_token));
-      localStorage.setItem("token_type", JSON.stringify(token_type));
+     const storeTokens = () => {
+       localStorage.setItem("access_token", JSON.stringify(access_token));
+       localStorage.setItem("refresh_token", JSON.stringify(refresh_token));
+       localStorage.setItem("token_type", JSON.stringify(token_type));
+     };
 
       // Redirect to the dashboard
-      router.replace("/dashboard/root");
-      toast.success("Sign in successful");
+    storeTokens();
+    toast.success("Sign in successful");
+    router.replace("/dashboard/root");
     } catch (error: any) {
       console.error("Sign-in error:", error);
       toast.error(
@@ -73,7 +84,7 @@ const SignIn: React.FC<PageProps> = ({}) => {
   };
 
   return (
-    <div className="relative overflow-hidden px-4 md:mx-auto md:w-[70%] lg:w-[80%]">
+    <div className="relative overflow-hidden  md:mx-auto md:w-[70%] lg:w-[80%]">
       <div className="relative z-10 md:w-[70%] lg:w-[80%]">
         {/* HEADING */}
         <div className="mb-8 flex flex-col items-center gap-2 pt-12">

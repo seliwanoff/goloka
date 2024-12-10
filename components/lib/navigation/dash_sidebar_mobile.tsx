@@ -20,17 +20,19 @@ import {
   Settings,
   LogOut,
   OctagonAlert,
+  Import,
 } from "lucide-react";
 import Link from "next/link";
 import { classMerge, cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { usePathname, useRouter } from "next/navigation";
 import { VscListSelection } from "react-icons/vsc";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import Image from "next/image";
-import { DocumentCopy, MessageQuestion, Note, Wallet3 } from "iconsax-react";
+import { ArchiveMinus, DocumentCopy, MessageQuestion, Note, Wallet3 } from "iconsax-react";
+import { userLogout } from "@/services/auth";
 
 type ComponentProps = {};
 
@@ -38,6 +40,17 @@ const DashSideBarMobile: FC<ComponentProps> = ({}) => {
   const [open, setOpen] = React.useState(false);
   const router = useRouter();
   const pathname = usePathname();
+
+   const initiateLogout = () => {
+     try {
+       const res = userLogout();
+       console.log(res, "res");
+       localStorage.removeItem("whoami");
+       router.replace("/signin");
+     } catch (error) {
+       console.log(error, "error");
+     }
+   };
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger className="block cursor-pointer xl:hidden">
@@ -90,7 +103,7 @@ const DashSideBarMobile: FC<ComponentProps> = ({}) => {
               <div className="rounded-full bg-rose-50 p-2 text-rose-600">
                 <OctagonAlert />
               </div>
-              <p className="-mt-8 text-xl font-bold">Proceed to logout?</p>
+              <DialogTitle className="-mt-8 text-xl font-bold">Proceed to logout?</DialogTitle>
               <p>
                 By clicking on <b>continue</b>, you will be logged out of your
                 dashboard. Do you want to proceed?
@@ -101,10 +114,7 @@ const DashSideBarMobile: FC<ComponentProps> = ({}) => {
                 </Button>
                 <Button
                   className="w-full bg-rose-500 hover:bg-rose-400"
-                  onClick={() => {
-                    localStorage.removeItem("whoami");
-                    router.replace("/");
-                  }}
+                  onClick={initiateLogout}
                 >
                   Continue
                 </Button>
@@ -124,9 +134,21 @@ export default DashSideBarMobile;
 // ~ =============================================>
 const NavData: { icon: any; title: string; link: string }[] = [
   { icon: LayoutGrid, title: "Dashboard", link: "/dashboard/root" },
-  { icon: Note, title: "Tasks", link: "/dashboard/tasks" },
+  { icon: Note, title: "Marketplace", link: "/dashboard/marketplace" },
   { icon: DocumentCopy, title: "Responses", link: "/dashboard/responses" },
+  {
+    icon: Import,
+    title: "My contributions",
+    link: "/dashboard/my_contributions",
+  },
+  {
+    icon: ArchiveMinus,
+    title: "Bookmarks",
+    link: "/dashboard/bookmarks",
+  },
   { icon: Wallet3, title: "Wallet", link: "/dashboard/wallet" },
   { icon: MessageQuestion, title: "Support", link: "/dashboard/support" },
   { icon: Settings, title: "Settings", link: "/dashboard/settings" },
 ];
+
+

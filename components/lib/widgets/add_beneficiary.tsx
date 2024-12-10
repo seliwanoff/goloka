@@ -76,16 +76,19 @@ const AddBeneficiary = () => {
   }, [accountNumber, bankCode, setValue]);
 
   const onAddBeneficiary = async (data: any) => {
+    setIsSubmitting(true);
     const { accountNumber, bankName } = data;
     try {
       console.log(data, "New Beneficiary");
       const res = await addBeneficiary(accountNumber, bankName);
       toast.success("Beneficiary added successfully!");
+       setIsSubmitting(false);
       console.log(res, "Account Added Successfully");
       setShow(false);
       reset();
     } catch (error) {
       toast.error("Failed to add beneficiary. Please try again.");
+       setIsSubmitting(false);
       //@ts-ignore
       console.error(error?.response?.data?.message);
          setShow(true);

@@ -7,6 +7,7 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 // ~ ======= icon imports  -->
 import {
+  BellRing,
   ChevronRight,
   Clock,
   FolderClosed,
@@ -36,17 +37,17 @@ const DashNotificationPopOver: React.FC<NotificationComponentProps> = ({
   // ~ ======= Empty state -->
   if (notificationList.length === 0)
     return (
-      <div className="h-72 w-64">
-        <EmptyState
-          data={{
-            style: "default",
-            icon: Search,
-            title: "Go do something",
-            content: "It's quiet in here. Get clicking and see some action!",
-            action: () => alert("Clicked the notifications action"),
-            btn_text: "Create a project",
-          }}
-        />
+      <div className="flex min-h-screen items-center justify-center p-4">
+        <div className="h-72 w-64">
+          <EmptyState
+            data={{
+              style: "default",
+              icon: BellRing,
+              title: "You have no notifications",
+              content: "It's quiet in here. Get clicking and see some action!",
+            }}
+          />
+        </div>
       </div>
     );
 

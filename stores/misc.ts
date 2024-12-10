@@ -1,4 +1,4 @@
-import { transactions } from "@/utils";
+
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
@@ -62,7 +62,45 @@ interface TransferState {
   clearTransaction: () => void;
 }
 
+// stores/misc.ts
+interface ShowPinState {
+  showPin: boolean;
+  setShowPin: (value: boolean) => void;
+  onPinCreated: () => Promise<void>;
+  setOnPinCreated: (callback: () => Promise<void>) => void;
+}
+interface ShowPasswordOTPState {
+  showOTP: boolean;
+  setShowOTP: (value: boolean) => void;
+}
 
+const useShowPin = create<ShowPinState>((set) => ({
+  showPin: false,
+  setShowPin: (value: boolean) => set({ showPin: value }),
+  onPinCreated: async () => {},
+  setOnPinCreated: (callback: () => Promise<void>) =>
+    set({ onPinCreated: callback }),
+}));
+const useShowPasswordOtp = create<ShowPasswordOTPState>((set) => ({
+  showOTP: false,
+  setShowOTP: (value: boolean) => set({ showOTP: value }),
+}));
+
+interface ModalState {
+  isLastStepLoading: boolean;
+  isModalOpen: boolean;
+  openModal: () => void;
+  closeModal: () => void;
+  setLastStepLoading: (isLoading: boolean) => void;
+}
+
+export const useSuccessModalStore = create<ModalState>((set) => ({
+  isLastStepLoading: false,
+  isModalOpen: false,
+  openModal: () => set({ isModalOpen: true }),
+  closeModal: () => set({ isModalOpen: false }),
+  setLastStepLoading: (isLoading) => set({ isLastStepLoading: isLoading }),
+}));
 
 const useWithdrawStepper = create<FundState>((set) => ({
   step: 0,
@@ -125,5 +163,6 @@ export {
   useWalletFilter,
   useWithdrawStepper,
   useTransferStepper,
-
+  useShowPin,
+  useShowPasswordOtp,
 };
