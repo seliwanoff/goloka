@@ -1,4 +1,3 @@
-
 import { queryClient } from "@/components/layout/tanstackProvider";
 import {
   useFetchQuery,
@@ -13,6 +12,12 @@ import {
 } from "@/lib/api";
 
 import { UseQueryResult } from "@tanstack/react-query";
+interface PasswordResetRequest {
+  email: string;
+  otp: string;
+  password: string;
+  password_confirmation: string;
+}
 
 export type ServerResponseOrNull<T> = ServerResponse<T> | null;
 
@@ -20,12 +25,28 @@ export type ServerResponseOrNull<T> = ServerResponse<T> | null;
 // ~ ======= Create a user  -->
 // ~ =============================================>
 export const createUser = async (
-  userData: any,
-): Promise<UseQueryResult<ServerResponse<any>>> => {
+  resetRequest: PasswordResetRequest,
+): Promise<UseQueryResult<ServerResponse<PasswordResetRequest>>> => {
   return queryClient.fetchQuery({
     queryKey: ["create user"],
     queryFn: async () => {
-      return await postData<ServerResponse<any>>("/register", userData);
+      return await postData<ServerResponse<PasswordResetRequest>>(
+        "/register",
+        resetRequest,
+      );
+    },
+  });
+};
+// ~ =============================================>
+// ~ ======= Rest a user password  -->
+// ~ =============================================>
+export const ResetUserPassword = async (
+  userData: any,
+): Promise<UseQueryResult<ServerResponse<any>>> => {
+  return queryClient.fetchQuery({
+    queryKey: ["Rest user password"],
+    queryFn: async () => {
+      return await postData<ServerResponse<any>>("/password/reset", userData);
     },
   });
 };
@@ -39,6 +60,19 @@ export const verifyOTP = async (
     queryKey: ["VERIFY OTP"],
     queryFn: async () => {
       return await postData<ServerResponse<any>>("/email/verify", otp);
+    },
+  });
+};
+// ~ =============================================>
+// ~ ======= passwordOTP  -->
+// ~ =============================================>
+export const passwordOTP = async (
+  data: any,
+): Promise<UseQueryResult<ServerResponse<any>>> => {
+  return queryClient.fetchQuery({
+    queryKey: ["PASSWORD OTP"],
+    queryFn: async () => {
+      return await postData<ServerResponse<any>>("/password/otp/send", data);
     },
   });
 };

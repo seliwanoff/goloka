@@ -8,19 +8,45 @@ type Question = {
     | "dropdown"
     | "date"
     | "file"
+    | "photo"
+    | "video"
+    | "audio"
     | "password"
     | "email"
     | "tel"
-    | "number";
+    | "number"
+    | "location"
+    | "area"
+    | "line";
+  attributes: null | Record<string, any>;
+  label: string;
+  name: string;
+  options: null | Array<{ value: string; label: string }>;
+  order: number;
+  placeholder: string;
+  required: boolean | 0 | 1;
 };
 
-type SelectedValues = Record<
-  string | number,
-  string | string[] | number | null
->;
+interface Answer {
+  id: number;
+  value: string;
+  question: Question;
+}
 
-import React, { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/router";
+interface IData {
+  id: number;
+  status: string;
+  campaign_id: number;
+  campaign_title: string;
+  payment_rate_for_response: string;
+  organization: string;
+  created_at: string;
+  unread_messages_count: number;
+  answers: Answer[];
+}
+
+import React, { useState, useEffect, useRef, useMemo } from "react";
+import { ImagePlus, FileVideo2, Camera } from "lucide-react";
 import { Label } from "../ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useStepper } from "@/context/TaskStepperContext.tsx";
@@ -28,22 +54,18 @@ import StepperControl from "./StepperControl";
 import { toast } from "sonner";
 import { Checkbox } from "../ui/checkbox";
 import { cn } from "@/lib/utils";
-import { useParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { createContributorAnswers } from "@/services/contributor";
 import Image from "next/image";
-
-const options = (index: number) => {
-  switch (index) {
-    case 0:
-      return "A";
-    case 1:
-      return "B";
-    case 2:
-      return "C";
-    case 3:
-      return "D";
-  }
-};
+import LocationDropdown from "./inputs/customLocation";
+import LocationSelector from "./inputs/customLineLocation";
+import AudioRecorder from "./customAudioRecorder";
+import FileUpload from "./fileUpload";
+import CustomAreaInput from "./inputs/customAreaInput";
+import SuccessModal from "./customSuccess";
+import { useSuccessModalStore } from "@/stores/misc";
+import { uploadQuestionFile } from "@/lib/api";
+import { submitResponseEndpoint } from "@/services/response";
 
 const DynamicQuestion = ({
   questions,
@@ -52,6 +74,7 @@ const DynamicQuestion = ({
   title,
   questionsLength,
   totalQuestions,
+  response,
 }: {
   questions: Question[];
   isUngrouped?: boolean;
@@ -59,43 +82,59 @@ const DynamicQuestion = ({
   title?: string;
   questionsLength: number;
   totalQuestions: number;
+  response: IData;
 }) => {
-   const router = useRouter();
+  const searchParams = useSearchParams();
+  const responseId = searchParams.get("responseID");
+  const { openModal, setLastStepLoading } = useSuccessModalStore();
   const { answers, nextStep, updateAnswer, step } = useStepper();
   const [selectedValues, setSelectedValues] = useState<
     Record<string | number, any>
   >({});
+
   const [filePreviews, setFilePreviews] = useState<
     Record<string | number, string>
   >({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const inputRefs = useRef<
-    Record<string | number, HTMLInputElement | HTMLTextAreaElement | null>
-  >({});
-  const { id: taskId } = useParams();
-   const [responseID, setResponseID] = useState<string | null>(null);
+const inputRefs = useRef<
+  Record<
+    string | number,
+    HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | null
+  >
+>({});
 
-   useEffect(() => {
-     if (router.isReady) {
-       // Extract the `responseID` query parameter
-       let rawResponseID = router.query.responseID as string;
 
-       // Handle cases where `responseID` has a trailing slash
-       if (rawResponseID?.includes("/")) {
-         rawResponseID = rawResponseID.split("/")[0];
-       }
-
-       setResponseID(rawResponseID);
-     }
-   }, [router.isReady, router.query]);
+  const KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+  console.log(response?.answers, "responseresponse");
+  // Prefill logic for initial values
   useEffect(() => {
-    const initialAnswers: Record<string | number, any> = {};
-    questions.forEach((ques) => {
-      initialAnswers[ques.id] =
-        answers[ques.id] || (ques.type === "checkbox" ? [] : "");
-    });
+    const initialAnswers: Record<string | number, any> = questions.reduce(
+      (acc, ques) => {
+        const matchingAnswer = response?.answers?.find(
+          (ans) => ans.question.id === ques.id,
+        );
+
+        acc[ques.id] =
+          answers[ques.id] || (matchingAnswer ? matchingAnswer.value : "");
+
+        return acc;
+      },
+      {} as Record<string | number, any>,
+    );
+
+    // Directly update the state with initialAnswers
     setSelectedValues(initialAnswers);
-  }, [questions, answers]);
+  }, [questions, answers, response?.answers]);
+
+  // useEffect(() => {
+  //   const initialAnswers: Record<string | number, any> = {};
+  //   questions.forEach((ques) => {
+  //     // Prioritize existing answers from the stepper context
+  //     initialAnswers[ques.id] =
+  //       answers[ques.id] || (ques.type === "checkbox" ? [] : "");
+  //   });
+  //   setSelectedValues(initialAnswers);
+  // }, [questions, answers]);
 
   const handleInputChange = (
     value: string | boolean | File | string[],
@@ -112,6 +151,13 @@ const DynamicQuestion = ({
       };
       reader.readAsDataURL(value);
     }
+    if (type === "location" || type === "line" || type === "area") {
+      setSelectedValues((prev) => ({
+        ...prev,
+        [quesId]: value,
+      }));
+      return;
+    }
 
     setSelectedValues((prev) => ({
       ...prev,
@@ -119,65 +165,219 @@ const DynamicQuestion = ({
     }));
   };
 
+  useEffect(() => {
+    console.log("Current selectedValues:", selectedValues);
+    console.log("Current answers from stepper:", answers);
+  }, [selectedValues, answers]);
 
+  console.log(selectedValues, "selectedValues");
+  console.log(answers, "answers");
 
-const handleNext = async () => {
-  // Check if all questions have been answered based on their type
-  const allAnswered = questions.every(({ id, type }) => {
-    const value = selectedValues[id];
+  const handleNext = async () => {
+    const allQuestionsHaveDefaultValues = questions.every((ques) => {
+      const defaultValue = response?.answers?.find(
+        (ans) => ans.question.id === ques.id,
+      )?.value;
 
-    switch (type) {
-      case "text":
-      case "textarea":
-      case "email":
-      case "tel":
-      case "password":
-        return typeof value === "string" && value.trim().length > 0;
-      case "radio":
-      case "dropdown":
-        return value !== null && value !== "";
-      case "checkbox":
-        return Array.isArray(value) && value.length > 0;
-      case "date":
-        return typeof value === "string" && !isNaN(new Date(value).getTime());
-      case "number":
-        return typeof value === "number" && !isNaN(value);
-      case "file":
-        return value instanceof File;
-      default:
-        return true;
+      const currentValue = selectedValues[ques.id];
+
+      // If no default value exists, this check will be skipped
+      if (!defaultValue) return false;
+
+      // Compare current value with default value
+      return currentValue === defaultValue;
+    });
+    // If all questions have default values and haven't been edited, just move to next step
+    if (allQuestionsHaveDefaultValues) {
+      // Optional: Update answers context with default values
+      questions.forEach((question) => {
+        const defaultValue = response?.answers?.find(
+          (ans) => ans.question.id === question.id,
+        )?.value;
+
+        if (defaultValue) {
+          updateAnswer(question.id, defaultValue);
+        }
+      });
+
+      nextStep();
+      return;
     }
-  });
 
-  if (!allAnswered) {
-    toast.error("Please answer all questions before proceeding");
-    return;
-  }
+    // Validate required questions before proceeding
+    const requiredQuestions = questions.filter((q) => q.required === 1);
+    const missingRequiredQuestions = requiredQuestions.filter((q) => {
+      const value = selectedValues[q.id];
 
-  setIsLoading(true);
-  try {
-    // Format the answers to be submitted
+      // Check different types of inputs for emptiness
+      if (value === undefined || value === null || value === "") return true;
+
+      // Special handling for array-based inputs (checkbox, multi-select)
+      if (Array.isArray(value) && value.length === 0) return true;
+
+      // Special handling for file uploads
+      if (
+        q.type === "file" ||
+        q.type === "photo" ||
+        q.type === "video" ||
+        q.type === "audio"
+      ) {
+        return !value || (value.file === undefined && value === null);
+      }
+
+      return false;
+    });
+
+    // If there are missing required questions, show error and prevent proceeding
+    if (missingRequiredQuestions.length > 0) {
+      toast.warning(
+        `Please fill in all required questions: ${missingRequiredQuestions.map((q) => q.label).join(", ")}`,
+      );
+
+      // Optionally, focus on the first missing required question
+      if (missingRequiredQuestions[0]) {
+        const firstMissingQuestionRef =
+          inputRefs.current[missingRequiredQuestions[0].id];
+        if (firstMissingQuestionRef && firstMissingQuestionRef.focus) {
+          firstMissingQuestionRef.focus();
+        }
+      }
+
+      return; // Stop proceeding if required questions are not filled
+    }
+
+    setIsLoading(true);
+
+    // Filter and format only the answers for required questions or questions with values
     const formattedAnswers = {
-      answers: Object.keys(selectedValues).map((key) => {
-        const value = selectedValues[key];
-        return {
+      answers: Object.entries(selectedValues)
+        .filter(([key, value]) => {
+          const question = questions.find((q) => q.id === Number(key));
+
+          // Only include answers for:
+          // 1. Required questions
+          // 2. Non-required questions that have a value
+          const isRequired = question?.required === 1;
+          const hasValue =
+            value !== undefined && value !== null && value !== "";
+
+          // Exclude file/media type questions from this formatting
+          const isFileType = ["file", "photo", "video", "audio"].includes(
+            question?.type ?? "",
+          );
+
+          return !isFileType && (isRequired || hasValue);
+        })
+        .map(([key, value]) => ({
           question_id: Number(key),
-          value: Array.isArray(value) ? value : value,
-          //  value: Array.isArray(value) ? value : [value],
-        };
-      }),
+          value: Array.isArray(value)
+            ? value.map((item) => item?.value || item) // Handle objects/values
+            : value,
+        })),
     };
 
-    // Submit the formatted answers
-    await createContributorAnswers(responseID as string, formattedAnswers);
-    nextStep();
-  } catch (err) {
-    toast.error("Failed to save answers. Please try again.");
-  } finally {
-    setIsLoading(false);
-  }
-};
+    if (isLastStep) setLastStepLoading(true);
 
+    let answerResponse = null;
+    let fileResponse = null;
+
+    try {
+      // Existing API call for answers
+      const answerPromise = createContributorAnswers(
+        responseId as string,
+        formattedAnswers,
+      );
+
+      // Prepare FormData for file uploads (only for required or filled file questions)
+      const formData = new FormData();
+      const fileQuestions = questions.filter((q) =>
+        ["file", "photo", "video", "audio"].includes(q.type),
+      );
+
+      fileQuestions.forEach((question) => {
+        const value = selectedValues[question.id];
+        let fileToUpload: File | undefined;
+
+        // Only upload file if the question is required or has a value
+        const isRequired = question.required === 1;
+        const hasValue = value !== undefined && value !== null;
+
+        // Determine the file to upload
+        if (isRequired || hasValue) {
+          if (value instanceof File) {
+            fileToUpload = value;
+          } else if (value && "file" in value && value.file instanceof File) {
+            fileToUpload = value.file;
+          }
+        }
+
+        // If we have a file to upload, add it to FormData
+        if (fileToUpload) {
+          const timestamp = Date.now();
+          const uniqueFileName = `${timestamp}_${question.id}_${fileToUpload.name}`;
+          const formKey = `${question.type}s[${question.id}]`;
+          formData.append(formKey, fileToUpload, uniqueFileName);
+        }
+      });
+
+      // Existing promise and response handling
+      const filePromise =
+        fileQuestions.length > 0 && Array.from(formData.keys()).length > 0
+          ? uploadQuestionFile(responseId as string, formData)
+          : null;
+
+      [answerResponse, fileResponse] = await Promise.all([
+        answerPromise,
+        filePromise,
+      ]);
+
+      // Verify file upload success if files were uploaded
+      if (filePromise && (!fileResponse || !fileResponse.success)) {
+        throw new Error(fileResponse?.message || "File upload failed");
+      }
+
+      // For the last step, submit the entire response
+      if (isLastStep) {
+        const submitResponse = await submitResponseEndpoint(
+          responseId as string,
+        );
+        console.log(submitResponse, "submitResponse");
+        // Check if submit response was successful
+        //@ts-ignore
+        if (!submitResponse.data) {
+          throw new Error(
+            //@ts-ignore
+            submitResponse.message || "Response submission failed",
+          );
+        }
+
+        // Open success modal or navigate to success page
+        openModal();
+        toast.success("Response submitted successfully");
+      } else {
+        // For intermediate steps, just show success for current step
+        toast.success(
+          //@ts-ignore
+          answerResponse?.message || "Answers submitted successfully",
+        );
+      }
+
+      // Update answers context
+      questions.forEach((question) =>
+        updateAnswer(question.id, selectedValues[question.id]),
+      );
+
+      if (!isLastStep) nextStep(); // Proceed to next step
+    } catch (error) {
+      console.log(error, "errror");
+      // Error handling
+      toast.error(error instanceof Error ? error.message : "An error occurred");
+    } finally {
+      // Ensure loading states are reset
+      setIsLoading(false);
+      setLastStepLoading(false);
+    }
+  };
 
   const renderQuestion = (ques: any) => {
     switch (ques.type) {
@@ -209,13 +409,16 @@ const handleNext = async () => {
             )}
           </div>
         );
-
       case "radio":
         return (
           <div className="col-span-2">
             <RadioGroup
               value={selectedValues[ques.id] || ""}
-              onValueChange={(val) => handleInputChange(val, ques.id)}
+              onValueChange={(val: string | boolean | string[] | File) => {
+                // If the selected value is the same as the current value, set it to undefined (uncheck)
+                const newValue = selectedValues[ques.id] === val ? "" : val;
+                handleInputChange(newValue, ques.id);
+              }}
               className="grid grid-cols-2 gap-5"
             >
               {ques.options?.map(
@@ -224,7 +427,7 @@ const handleNext = async () => {
                     <RadioGroupItem
                       //@ts-ignore
                       ref={(el) => (inputRefs.current[ques.id] = el)}
-                      value={opt!}
+                      value={opt?.value!}
                       id={`q${ques.id}-${index}`}
                       className="hidden"
                     />
@@ -232,25 +435,27 @@ const handleNext = async () => {
                       htmlFor={`q${ques.id}-${index}`}
                       className={cn(
                         "flex items-center gap-3 rounded-lg border border-[#D9DCE0] p-2.5 pr-3 transition-colors duration-200 ease-in-out",
-                        selectedValues[ques.id] === opt && "border-main-100",
+                        selectedValues[ques.id] === opt?.value &&
+                          "border-main-100",
                       )}
                     >
                       <span
                         className={cn(
                           "flex h-7 w-7 items-center justify-center rounded-md bg-[#F8F8F8] text-[#828282]",
-                          selectedValues[ques.id] === opt &&
+                          selectedValues[ques.id] === opt?.value &&
                             "bg-main-100 text-white",
                         )}
                       >
-                        {index}
+                        {index as number}
                       </span>
                       <p
                         className={cn(
                           "text-sm text-[#101828]",
-                          selectedValues[ques.id] === opt && "text-main-100",
+                          selectedValues[ques.id] === opt?.value &&
+                            "text-main-100",
                         )}
                       >
-                        {opt}
+                        {opt?.label}
                       </p>
                     </Label>
                   </div>
@@ -259,7 +464,69 @@ const handleNext = async () => {
             </RadioGroup>
           </div>
         );
-
+      case "video":
+        return (
+          <div className="col-span-2">
+            <input
+              //@ts-ignore
+              ref={(el) => (inputRefs.current[ques.id] = el)}
+              type="file"
+              accept="video/*" // Specifies that only video files are accepted
+              id={ques.name}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  handleInputChange(file, ques.id, "file");
+                }
+              }}
+              className="hidden"
+            />
+            <div className="flex flex-col gap-4">
+              <button
+                type="button"
+                onClick={() => inputRefs.current[ques.id]?.click()}
+                className="relative flex h-40 items-center justify-center rounded-lg border-2 border-[#3365E31F] bg-[#3365E31F] text-center"
+              >
+                <div className="flex flex-col items-center">
+                  <div className="flex w-fit cursor-pointer flex-col rounded-lg px-4 py-2 text-sm font-medium text-[#3365E3]">
+                    <div className="mb-2 flex h-8 w-8 items-center justify-center self-center rounded-full border border-dashed border-slate-300 bg-slate-200">
+                      <FileVideo2 />
+                    </div>
+                    <span>Upload Video</span>
+                  </div>
+                  <span className="text-xs text-slate-400">
+                    JPEG size should not be more than 1MB
+                  </span>
+                </div>
+              </button>
+              {filePreviews[ques.id] && (
+                <div className="relative h-32 w-32">
+                  <video
+                    controls
+                    src={filePreviews[ques.id]}
+                    className="h-full w-full rounded-lg object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedValues((prev) => ({
+                        ...prev,
+                        [ques.id]: null,
+                      }));
+                      setFilePreviews((prev) => ({
+                        ...prev,
+                        [ques.id]: "",
+                      }));
+                    }}
+                    className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
+                  >
+                    ×
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        );
       case "checkbox":
         return (
           <div className="col-span-2 grid grid-cols-2 gap-5">
@@ -271,14 +538,14 @@ const handleNext = async () => {
                     ref={(el) => (inputRefs.current[ques.id] = el)}
                     id={`q${ques.id}-${index}`}
                     checked={selectedValues[ques.id]?.includes(opt) || false}
-                    onCheckedChange={(checked) => {
+                    onCheckedChange={(checked: any) => {
                       const currentSelections = selectedValues[ques.id] || [];
                       let newSelections;
                       if (checked) {
                         newSelections = [...currentSelections, opt];
                       } else {
                         newSelections = currentSelections.filter(
-                          (item: string) => item !== opt,
+                          (item: string) => item !== opt?.value,
                         );
                       }
                       handleInputChange(newSelections, ques.id);
@@ -289,14 +556,13 @@ const handleNext = async () => {
                     htmlFor={`q${ques.id}-${index}`}
                     className="text-sm text-[#101828]"
                   >
-                    {opt}
+                    {opt?.label}
                   </Label>
                 </div>
               ),
             )}
           </div>
         );
-
       case "number":
         return (
           <div className="col-span-2">
@@ -311,16 +577,58 @@ const handleNext = async () => {
             />
           </div>
         );
+      case "location":
+        return (
+          <div className="col-span-2">
+            <LocationDropdown
+              questionId={ques.id}
+              onLocationSelect={(location) =>
+                handleInputChange(location, ques.id)
+              }
+            />
+          </div>
+        );
+      case "line":
+        return (
+          <div className="col-span-2">
+            <LocationSelector
+              apiKey={KEY as string}
+              questionId={ques.id}
+              onLocationSelect={(locations) =>
+                //@ts-ignore
+                handleInputChange(locations, ques.id, "location")
+              }
+            />
+          </div>
+        );
+      case "area":
+        return (
+          <div className="col-span-2">
+            <CustomAreaInput
+              apiKey={KEY as string}
+              questionId={ques.id}
+              onLocationSelect={(locations) =>
+                //@ts-ignore
+                handleInputChange(locations, ques.id, "location")
+              }
+              // maxLocations={4}
+            />
+          </div>
+        );
       case "email":
         return (
           <div className="col-span-2">
             <input
               //@ts-ignore
               ref={(el) => (inputRefs.current[ques.id] = el)}
-              type="email"
+              type="email" // Ensures the browser treats this as an email input
               value={selectedValues[ques.id] || ""}
               id={ques.name}
-              onChange={(e) => handleInputChange(e.target.value, ques.id)}
+              placeholder="Enter email address"
+              onChange={(e) => {
+                const email = e.target.value;
+                handleInputChange(email, ques.id);
+              }}
               className="form-input w-full rounded-lg border-[#D9DCE0]"
             />
           </div>
@@ -353,7 +661,6 @@ const handleNext = async () => {
             />
           </div>
         );
-
       case "range":
         return (
           <div className="col-span-2">
@@ -374,19 +681,20 @@ const handleNext = async () => {
 
       case "select":
         return (
+
           <div className="col-span-2">
             <select
-              //@ts-ignore
-              ref={(el) => (inputRefs.current[ques.id] = el)}
+              ref={(el) => (inputRefs.current[ques.id] = el)} // Reference the select element
               id={ques.name}
               value={selectedValues[ques.id] || ""}
               onChange={(e) => handleInputChange(e.target.value, ques.id)}
               className="form-select w-full rounded-lg border-[#D9DCE0]"
             >
+              <option value="">Select an option</option>
               {ques.options?.map(
                 (opt: any, index: React.Key | null | undefined) => (
-                  <option key={index} value={opt}>
-                    {opt}
+                  <option key={index} value={opt?.value}>
+                    {opt?.label}
                   </option>
                 ),
               )}
@@ -394,52 +702,169 @@ const handleNext = async () => {
           </div>
         );
 
-      case "file":
+      case "photo":
         return (
-          // <div className="col-span-2">
-          //   <input
-          //     type="file"
-          //     accept={"*/*"}
-          //     id={ques.name}
-          //     onChange={(e) => {
-          //       const file = e.target.files?.[0];
-          //       if (file) {
-          //         handleInputChange(file, ques.id);
-          //       }
-          //     }}
-          //     className="form-input w-full rounded-lg border-[#D9DCE0]"
-          //   />
-          // </div>
-
           <div className="col-span-2">
-            <input
-              type="file"
-              accept="image/*"
-              id={ques.name}
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  handleInputChange(file, ques.id, "file");
-                }
-              }}
-              className="hidden"
-              //@ts-ignore
-              ref={(el) => (inputRefs.current[ques.id] = el)}
-            />
             <div className="flex flex-col gap-4">
-              <button
-                type="button"
-                onClick={() => inputRefs.current[ques.id]?.click()}
-                className="w-fit rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200"
+              <div
+                onClick={async () => {
+                  try {
+                    // Explicitly request camera access
+                    const stream = await navigator.mediaDevices.getUserMedia({
+                      video: {
+                        facingMode: "environment", // Prefer back/environment camera
+                        width: { ideal: 1920 }, // Ideal width
+                        height: { ideal: 1080 }, // Ideal height
+                      },
+                    });
+
+                    // Create a modal or overlay to show camera preview
+                    const cameraOverlay = document.createElement("div");
+                    cameraOverlay.style.position = "fixed";
+                    cameraOverlay.style.top = "0";
+                    cameraOverlay.style.left = "0";
+                    cameraOverlay.style.width = "100%";
+                    cameraOverlay.style.height = "100%";
+                    cameraOverlay.style.backgroundColor = "black";
+                    cameraOverlay.style.zIndex = "1000";
+                    cameraOverlay.style.display = "flex";
+                    cameraOverlay.style.flexDirection = "column";
+                    cameraOverlay.style.alignItems = "center";
+                    cameraOverlay.style.justifyContent = "center";
+
+                    // Create video element for camera preview
+                    const video = document.createElement("video");
+                    video.style.maxWidth = "100%";
+                    video.style.maxHeight = "80%";
+                    video.style.objectFit = "contain";
+                    video.srcObject = stream;
+                    video.autoplay = true;
+
+                    // Create capture button
+                    const captureButton = document.createElement("button");
+                    captureButton.textContent = "Capture Photo";
+                    captureButton.style.marginTop = "20px";
+                    captureButton.style.padding = "10px 20px";
+                    captureButton.style.backgroundColor = "white";
+                    captureButton.style.color = "black";
+                    captureButton.style.border = "none";
+                    captureButton.style.borderRadius = "5px";
+
+                    // Create cancel button
+                    const cancelButton = document.createElement("button");
+                    cancelButton.textContent = "Cancel";
+                    cancelButton.style.marginTop = "10px";
+                    cancelButton.style.padding = "10px 20px";
+                    cancelButton.style.backgroundColor = "red";
+                    cancelButton.style.color = "white";
+                    cancelButton.style.border = "none";
+                    cancelButton.style.borderRadius = "5px";
+
+                    // Append elements to overlay
+                    cameraOverlay.appendChild(video);
+                    cameraOverlay.appendChild(captureButton);
+                    cameraOverlay.appendChild(cancelButton);
+                    document.body.appendChild(cameraOverlay);
+
+                    // Wait for video to be ready
+                    await new Promise<void>((resolve) => {
+                      video.onloadedmetadata = () => {
+                        video.play();
+                        resolve();
+                      };
+                    });
+
+                    // Capture photo when button is clicked
+                    captureButton.onclick = () => {
+                      // Create canvas to capture image
+                      const canvas = document.createElement("canvas");
+                      canvas.width = video.videoWidth;
+                      canvas.height = video.videoHeight;
+                      const ctx = canvas.getContext("2d");
+                      ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                      // Stop camera tracks
+                      stream.getTracks().forEach((track) => track.stop());
+
+                      // Remove overlay
+                      document.body.removeChild(cameraOverlay);
+
+                      // Convert to file
+                      canvas.toBlob(
+                        (blob) => {
+                          if (blob) {
+                            const file = new File(
+                              [blob],
+                              "captured-image.jpg",
+                              {
+                                type: "image/jpeg",
+                              },
+                            );
+
+                            // Check file size (1MB limit)
+                            if (file.size <= 1 * 1024 * 1024) {
+                              // Create URL for preview
+                              const previewUrl = URL.createObjectURL(file);
+
+                              // Update state
+                              setSelectedValues((prev) => ({
+                                ...prev,
+                                [ques.id]: file,
+                              }));
+                              setFilePreviews((prev) => ({
+                                ...prev,
+                                [ques.id]: previewUrl,
+                              }));
+                            } else {
+                              alert("Image size exceeds 1MB limit");
+                            }
+                          }
+                        },
+                        "image/jpeg",
+                        0.7,
+                      );
+                    };
+
+                    // Cancel button functionality
+                    cancelButton.onclick = () => {
+                      // Stop camera tracks
+                      stream.getTracks().forEach((track) => track.stop());
+
+                      // Remove overlay
+                      document.body.removeChild(cameraOverlay);
+                    };
+                  } catch (error) {
+                    console.error("Error accessing camera:", error);
+                    alert("Could not access camera. Please check permissions.");
+                  }
+                }}
+                className="relative flex h-40 cursor-pointer items-center justify-center rounded-lg border-2 border-[#3365E31F] bg-[#3365E31F] text-center"
               >
-                Choose File
-              </button>
+                <div className="flex flex-col items-center">
+                  <div className="flex w-fit flex-col rounded-lg px-4 py-2 text-sm font-medium text-[#3365E3]">
+                    <div className="mb-2 flex h-8 w-8 items-center justify-center self-center rounded-full border border-dashed border-slate-300 bg-slate-200">
+                      <Camera />
+                    </div>
+                    <span>Take Photo</span>
+                  </div>
+                  <span className="text-xs text-slate-400">
+                    Use device camera (max 1MB)
+                  </span>
+                  {(filePreviews[ques.id] || selectedValues[ques.id]) && (
+                    <span className="mt-2 rounded-lg border bg-amber-100 p-1 text-xs text-orange-400">
+                      Image already added
+                    </span>
+                  )}
+                </div>
+              </div>
+
               {filePreviews[ques.id] && (
-                <div className="relative h-32 w-32">
+                <div className="relative h-32 w-32 overflow-hidden rounded-lg">
                   <Image
                     src={filePreviews[ques.id]}
                     alt="Preview"
-                    className="h-full w-full rounded-lg object-cover"
+                    className="h-full w-full object-cover"
+                    layout="fill"
                   />
                   <button
                     type="button"
@@ -453,7 +878,7 @@ const handleNext = async () => {
                         [ques.id]: "",
                       }));
                     }}
-                    className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
+                    className="absolute right-2 top-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
                   >
                     ×
                   </button>
@@ -477,24 +902,46 @@ const handleNext = async () => {
             />
           </div>
         );
-
-      // Additional Input Types
       case "url":
         return (
           <div className="col-span-2">
-            <input
-              //@ts-ignore
-              ref={(el) => (inputRefs.current[ques.id] = el)}
-              type="url"
-              value={selectedValues[ques.id] || ""}
-              id={ques.name}
-              placeholder={ques.placeholder || "Enter URL"}
-              onChange={(e) => handleInputChange(e.target.value, ques.id)}
-              className="form-input w-full rounded-lg border-[#D9DCE0]"
-            />
+            <div className="relative">
+              <input
+                //@ts-ignore
+                ref={(el) => (inputRefs.current[ques.id] = el)}
+                type="text"
+                value={selectedValues[ques.id] || ""}
+                id={ques.name}
+                placeholder={ques.placeholder || "Enter URL or text"}
+                onChange={(e) => {
+                  const input = e.target.value;
+                  handleInputChange(input, ques.id);
+                }}
+                className="form-input w-full rounded-lg border-[#D9DCE0] pr-10"
+              />
+              {selectedValues[ques.id] && (
+                <div className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-500">
+                  {selectedValues[ques.id].startsWith("http://") ||
+                  selectedValues[ques.id].startsWith("https://") ||
+                  selectedValues[ques.id].startsWith("www.") ? (
+                    <span className="text-green-500">✓ Valid URL</span>
+                  ) : (
+                    <span className="text-orange-500">ℹ️ Invalid Input</span>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         );
-
+      // case "audio":
+      //   return (
+      //     <div className="col-span-2">
+      //       <AudioRecorder
+      //         quesId={ques.id}
+      //         handleInputChange={handleInputChange}
+      //       />
+      //     </div>
+      //   );
       case "tel":
         return (
           <div className="col-span-2">
@@ -525,13 +972,27 @@ const handleNext = async () => {
             />
           </div>
         );
+      case "file":
+        return (
+          <div className="col-span-2">
+            <FileUpload
+              //@ts-ignore
+              ref={(el) => (inputRefs.current[ques.id] = el)}
+              value={selectedValues[ques.id] || ""}
+              onFileUpload={(file, base64) =>
+                //@ts-ignore
+                handleInputChange({ file, base64 }, ques.id, "file")
+              }
+            />
+          </div>
+        );
 
       default:
         return null;
     }
   };
 
-  console.log(selectedValues, "gjgjfgkgf");
+  console.log(questions, "questionsquestions");
 
   return (
     <div className="space-y-5">
@@ -575,18 +1036,23 @@ const handleNext = async () => {
           </span>
         </div>
       </>
+      <div className="space-y-10">
 
-      {questions.map((ques: any) => (
-        <div key={ques.id} className="grid grid-cols-[24px_1fr] gap-3">
+      {questions?.map((ques: any) => (
+        <div key={ques.id} className="grid gap-2">
           <Label
             htmlFor={ques.name}
-            className="w-60 truncate text-base leading-7 tracking-[3%] text-[#333333]"
+            className="text-base leading-7 tracking-wider text-[#333333]"
           >
             {ques.label}
+            {ques.required === 1 && (
+              <span className="ml-1 text-red-500">*</span>
+            )}
           </Label>
           {renderQuestion(ques)}
         </div>
       ))}
+</div>
       <StepperControl
         isLastStep={isLastStep}
         next={handleNext}

@@ -42,7 +42,12 @@ const DashboardWidget: React.FC<ComponentProps> = ({ increase, ...props }) => {
               props.fg,
             )}
           >
-            <props.icon size={26} strokeWidth={1} />
+            <props.icon
+              size={26}
+          
+              color="currentColor"
+              strokeWidth={1}
+            />
           </span>
         </div>
       </div>

@@ -8,7 +8,7 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Button } from "@/components/ui/button";
 import { Dot, Eye, LoaderCircle, SquarePen, Workflow } from "lucide-react";
 import { ArchiveMinus, Note } from "iconsax-react";
-import Map from "@/public/assets/images/tasks/tasks.png";
+// import Map from "@/public/assets/images/tasks/tasks.png";
 import Link from "next/link";
 
 import { useStepper } from "@/context/TaskStepperContext.tsx";
@@ -29,7 +29,8 @@ import dynamic from "next/dynamic";
 import { toast } from "sonner";
 import { getAResponse } from "@/services/response";
 import { BookmarkButton } from "@/components/contributor/BookmarkButton";
-
+import Map from "@/components/map/map";
+import { useRemoteUserStore } from "@/stores/remoteUser";
 
 // Dynamically import the LocationMap component with SSR disabled
 const LocationMap = dynamic(() => import("@/components/map/locationmap"), {
@@ -106,7 +107,8 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
   const { id: taskId } = useParams();
   const [responseId, setResponseId] = useState<string | null>(null);
   const { step } = useStepper();
-  // const { data } = getTaskById("");taskId;
+  const { user, isAuthenticated } = useRemoteUserStore();
+  const USER_CURRENCY_SYMBOL = user?.country?.["currency-symbol"];
   const {
     data: task,
     isLoading,
@@ -121,9 +123,6 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
     queryFn: async () => (responseId ? await getAResponse(responseId) : null),
     enabled: !!responseId,
   });
-
-  console.log(task, "task");
-  console.log(responseId, "responseId");
 
   //@ts-ignore
   const locations = useMemo(() => task?.data?.locations, [task]);
@@ -175,146 +174,62 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
     );
   };
 
-  // const onContribute = async () => {
-  //   setLoading(true);
-  //   try {
-  //     const response = await createCampaignResponse({}, taskId as string);
-  //     //@ts-ignore
-  //     toast.success(response.message);
-  //     console.log(response, "response.message");
-  //     setLoading(false);
-  //     //@ts-ignore
-  //     if (task?.data?.allows_multiple_responses === 1) {
-  //       setIsStepper(true);
-  //       // router.push(
-  //       //   //@ts-ignore
-  //       //   `${window.location.pathname}?responseID=${response.data?.id}/?stepper=true&step=1`,
-  //       // );
-  //     } else {
-  //       // Navigate to response page
-  //       router.push(
-  //         //@ts-ignore
-  //         `${window.location.pathname}?responseID=${response.data?.id}`,
-  //       );
-  //     }
-  //     router.push(
-  //       //@ts-ignore
-  //       `${window.location.pathname}?responseID=${response.data?.id}/?stepper=true&step=1`,
-  //     );
-  //   } catch (error) {
-  //     console.log(error);
-  //     setLoading(false);
-  //   }
-  // };
+  const onContribute = async () => {
+    setLoading(true);
+    try {
+      //@ts-ignore
+      if (task?.data?.responses?.length === 0) {
+        // Create new response if there are no responses
+        const response = await createCampaignResponse({}, taskId as string);
+        console.log(response, " first call");
 
-  // const onContribute = async () => {
-  //   setLoading(true);
-  //   try {
-  //     //@ts-ignore
-  //     if (task?.data?.responses?.length === 0) {
-  //       // Create new response if there are no responses
-  //       const response = await createCampaignResponse({}, taskId as string);
-  //       //@ts-ignore
-  //       toast.success(response.message);
-  //       router.push(
-  //         //@ts-ignore
-  //         `${window.location.pathname}?responseID=${response.data?.id}/?stepper=true&step=1`,
-  //       );
-  //     } else if (getButtonText() === "Continue") {
-  //       console.log("continue click");
-  //       // Find the draft response and get its details
-  //       //@ts-ignore
-  //       const draftResponse = task.data.responses.find(
-  //         //@ts-ignore
-  //         (response) => response.status === "draft",
-  //       );
-  //       console.log(draftResponse, "draftResponse");
-  //       if (draftResponse?.status === "draft") {
-  //         //@ts-ignore
-  //         const responseDetails = await getResponse(draftResponse.id);
-  //         // Navigate to the response page with the fetched details
+        // Fixed URL format - use & instead of second ?
+        router.push(
+          //@ts-ignore
+          `${window.location.pathname}?responseID=${response.data?.id}&stepper=true&step=1`,
+        );
 
-  //         console.log(responseDetails, "responseDetails");
-  //         // router.push(
-  //         //   `${window.location.pathname}?responseID=${draftResponse.id}/?stepper=true&step=1`,
-  //         // );
-  //       }
-  //       //@ts-ignore
-  //     } else if (task?.data?.allows_multiple_responses === 1) {
-  //       // Create new response if multiple responses are allowed
-  //       //@ts-ignore
-  //       const response = await createCampaignResponse({}, taskId as string);
-  //       //@ts-ignore
-  //       toast.success(response.message);
-  //       router.push(
-  //         //@ts-ignore
-  //         `${window.location.pathname}?responseID=${response.data?.id}/?stepper=true&step=1`,
-  //       );
-  //     }
-  //   } catch (error) {
-  //     console.error(error);
-  //     toast.error("An error occurred");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+        //@ts-ignore
+        toast.success(response.message);
+      } else if (getButtonText() === "Continue") {
+        // Find the draft response
+        //@ts-ignore
+        const draftResponse = task.data.responses.find(
+          //@ts-ignore
+          (response) => response.status === "draft",
+        );
 
- const onContribute = async () => {
-   setLoading(true);
-   try {
-     //@ts-ignore
-     if (task?.data?.responses?.length === 0) {
-       // Create new response if there are no responses
-       const response = await createCampaignResponse({}, taskId as string);
-       console.log(response, " first call");
+        if (draftResponse?.status === "draft") {
+          setResponseId(draftResponse.id);
+          await refetchResponse();
+          console.log(getResponse, "getResponse");
 
-    // Fixed URL format - use & instead of second ?
-       router.push(
-         //@ts-ignore
-         `${window.location.pathname}?responseID=${response.data?.id}&stepper=true&step=1`,
-       );
+          // Uncomment and fix URL format here too
+          router.push(
+            `${window.location.pathname}?responseID=${draftResponse.id}&stepper=true&step=1`,
+          );
+        }
+        //@ts-ignore
+      } else if (task?.data?.allows_multiple_responses === 1) {
+        // Create new response if multiple responses are allowed
+        const response = await createCampaignResponse({}, taskId as string);
 
-    //@ts-ignore
-       toast.success(response.message);
-     } else if (getButtonText() === "Continue") {
-       // Find the draft response
-       //@ts-ignore
-       const draftResponse = task.data.responses.find(
-         //@ts-ignore
-         (response) => response.status === "draft",
-       );
+        // Fixed URL format here as well
+        router.push(
+          //@ts-ignore
+          `${window.location.pathname}?responseID=${response.data?.id}&stepper=true&step=1`,
+        );
 
- if (draftResponse?.status === "draft") {
-         setResponseId(draftResponse.id);
-         await refetchResponse();
-         console.log(getResponse, "getResponse");
-
-  // Uncomment and fix URL format here too
-         router.push(
-           `${window.location.pathname}?responseID=${draftResponse.id}&stepper=true&step=1`,
-         );
-       }
-       //@ts-ignore
-   } else if (task?.data?.allows_multiple_responses === 1) {
-       // Create new response if multiple responses are allowed
-       const response = await createCampaignResponse({}, taskId as string);
-
-    // Fixed URL format here as well
-       router.push(
-         //@ts-ignore
-         `${window.location.pathname}?responseID=${response.data?.id}&stepper=true&step=1`,
-       );
-
-    //@ts-ignore
-       toast.success(response.message);
-     }
-   } catch (error) {
-     console.error(error);
-     toast.error("An error occurred");
-   } finally {
-     setLoading(false);
-   }
- };
+        //@ts-ignore
+        toast.success(response.message);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("An error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const onViewResponse = () => {
     //@ts-ignore
@@ -323,7 +238,6 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
         //@ts-ignore
         task.data.responses[task.data.responses.length - 1];
       router.push(`/dashboard/responses/${latestResponse.id}`);
-
     }
   };
 
@@ -333,10 +247,14 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
       //@ts-ignore
       if (task?.data?.is_bookmarked) {
         const response = await removeBookmark(taskId as string);
-        toast.success(response?.message);
-        setIsBookmarkLoading(false);
+        refetch();
+        if (response) {
+          toast.success(response?.message);
+          setIsBookmarkLoading(false);
+        }
       } else {
         const response = await bookmarkCampaign({}, taskId as string);
+        refetch();
         //@ts-ignore
         toast.success(response?.message);
         setIsBookmarkLoading(false);
@@ -351,9 +269,11 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
   const updateStepUrl = (newStep: number) => {
     router.push(`${window.location.pathname}?stepper=true&step=${newStep}`);
   };
+  console.log(getResponse, "getResponse");
 
   const WrappedTaskStepper = () => (
     <TaskStepper
+      response={getResponse}
       //@ts-ignore
       quest={quest}
       onStepChange={(newStep: any) => {
@@ -379,7 +299,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
 
         {isStepper ? (
           <>
-            <div className="mx-auto mt-9 w-full rounded-2xl bg-white p-4 sm:w-[500px] md:mt-[96px]">
+            <div className="mx-auto mt-9 w-full rounded-2xl bg-white p-4 sm:w-[70%] md:mt-[96px]">
               <div className="mt-6">
                 {/* @ts-ignore */}
                 <WrappedTaskStepper />
@@ -410,7 +330,10 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
                     {/* @ts-ignore */}
                     {task?.data?.title}
                   </h3>
-                  <p className="text-sm text-[#828282]">By Muhammad Jamiu</p>
+                  <p className="text-sm text-[#828282]">
+                    {/* @ts-ignore */}
+                    By {task?.data?.organization}
+                  </p>
                 </div>
               </div>
               <div className="hidden items-center justify-center space-x-2 md:flex">
@@ -435,7 +358,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
                     {getButtonText() === "Continue" ? (
                       <Workflow size={20} />
                     ) : (
-                      <Note size={20} />
+                      <Note size={20} color="currentColor" />
                     )}
                   </span>
                   {loading ? "Loading..." : getButtonText()}
@@ -468,7 +391,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
                   </div>
                   <div>
                     <h4 className="text-[#101828]">
-                      {/* @ts-ignore */}${" "}
+                      {USER_CURRENCY_SYMBOL} {/* @ts-ignore */}
                       {task?.data?.payment_rate_for_response}{" "}
                     </h4>
                     <p className="text-sm text-gray-400">Per response</p>
@@ -496,16 +419,12 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
 
               <div className="rounded-2xl bg-white p-5">
                 <figure className="h-[85%]">
-                  <Image
-                    src={Map}
-                    alt="map"
-                    className="h-full w-full rounded-lg object-cover"
-                  />
-                  {/* <LocationMap locations={locations} /> */}
+                  <Map />
                 </figure>
                 <div className="mt-5 flex gap-5">
                   <div className="text-sm font-semibold text-[#101828]">
-                    6{" "}
+                    {/* @ts-ignore */}
+                    {task?.data?.no_of_questions}{" "}
                     <span className="font-normal text-[#828282]">
                       Questions
                     </span>
@@ -570,7 +489,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
                   {getButtonText() === "Continue" ? (
                     <Workflow size={20} />
                   ) : (
-                    <Note size={20} />
+                    <Note size={20} color="currentColor" />
                   )}
                 </span>
                 {loading ? "Loading..." : getButtonText()}
@@ -590,5 +509,3 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
 };
 
 export default TaskDetail;
-
-

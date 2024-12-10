@@ -14,10 +14,22 @@ import CreateWithdrawal from "@/components/lib/modals/create_withdrawal";
 import CreateBeneficiary from "@/components/lib/modals/create_beneficiary";
 import CreateTransfer from "@/components/lib/modals/create_transfer";
 import { useQuery } from "@tanstack/react-query";
-import { getContributorsBalance } from "@/services/wallets";
+import {
+  getContributorsBalance,
+  getOrganizationInfo,
+} from "@/services/wallets";
 import { numberWithCommas } from "@/helper";
+import { getAllTransactions } from "@/services/transactions";
+import { getContributorsProfile } from "@/services/contributor";
+import { useRemoteUserStore } from "@/stores/remoteUser";
+import { useUserStore } from "@/stores/currentUserStore";
+import CreatePinComponent from "@/components/wallet_comps/createPin/createPinComponent";
+import { useWalletStore } from "@/stores/useWithdrawal";
 
 const Wallet = () => {
+  const { user, isAuthenticated } = useRemoteUserStore();
+  const { user: currentUser, refetchUser } = useUserStore();
+  const { response, error } = useWalletStore();
   const [expenses, setExpenses] = useState<any[]>([]);
   const { filterType } = useWalletFilter();
   const { setOpen } = useWithdrawOverlay();
@@ -26,10 +38,41 @@ const Wallet = () => {
   const [pageSize, setPageSize] = useState<number>(10);
   const pages = chunkArray(expenses, pageSize);
 
-  const { data: balance } = useQuery({
-    queryKey: ["Get balance"],
-    queryFn: getContributorsBalance,
+  console.log(user, "userx");
+  console.log(currentUser?.pin_status, "currentUser?.pin_status");
+  console.log(response, "transaction response");
+
+  const fetchData = () => {
+    return getAllTransactions({
+      // search: debouncedSearchTerm,
+      // type,
+      // page,
+      // per_page: perPage,
+      // min_price: min_payment,
+      // max_price: max_payment,
+    });
+  };
+  const {
+    data: trnsactions,
+    isLoading,
+    isFetching,
+    isRefetching,
+  } = useQuery({
+    queryKey: [
+      "Get transactions list",
+      //    debouncedSearchTerm,
+      //    type,
+      //    page,
+      //    perPage,
+      //    min_payment,
+      //    max_payment,
+    ],
+    queryFn: fetchData,
   });
+
+  //@ts-ignore
+  const USER_CURRENCY_SYMBOL = user?.country?.["currency-symbol"];
+  console.log(trnsactions, "trnsactions");
 
   useEffect(() => {
     console.log(filterType);
@@ -50,6 +93,12 @@ const Wallet = () => {
         return setExpenses(transactions);
     }
   }, [filterType]);
+
+  useEffect(() => {
+    if (response) {
+      refetchUser();
+    }
+  }, [response, refetchUser]);
   return (
     <>
       <section className="pb-10 pt-[34px]">
@@ -60,13 +109,14 @@ const Wallet = () => {
           <div className="flex flex-col items-center justify-between rounded-[8px] bg-main-100 p-6">
             <div className="text-center">
               <h1 className="text-[2rem] font-bold text-white">
-              {/* @ts-ignore */}
-                $ {numberWithCommas(balance?.balance)}
+                {/* @ts-ignore */}
+                {USER_CURRENCY_SYMBOL} {numberWithCommas(user?.wallet_balance)}
               </h1>
               <p className="text-sm font-medium text-white">Wallet balance</p>
             </div>
             <p className="text-sm font-medium text-white">
-              Minimum withdrawal: <span className="font-semibold">$10</span>
+              Minimum withdrawal:{" "}
+              <span className="font-semibold">{USER_CURRENCY_SYMBOL} 100</span>
             </p>{" "}
           </div>
           <div className="grid gap-4 rounded-[8px] border border-[#F2F2F2] bg-white p-4 lg:grid-cols-2 xl:gap-6 xl:p-6">
@@ -79,7 +129,7 @@ const Wallet = () => {
               className="grid cursor-pointer grid-cols-[40px_1fr] items-center gap-4 rounded-[12px] bg-[#F8F8F8] p-3.5"
             >
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#E0E0E0]">
-                <ExportSquare size={20} />
+                <ExportSquare size={20} color="currentColor" />
               </span>
               <div className="space-y-1.5">
                 <h3 className="text-sm font-medium text-[#000000D9]">
@@ -95,7 +145,7 @@ const Wallet = () => {
               className="grid cursor-pointer grid-cols-[40px_1fr] items-center gap-4 rounded-[12px] bg-[#F8F8F8] p-3.5"
             >
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#E0E0E0]">
-                <Login size={20} />
+                <Login size={20} color="currentColor" />
               </span>
               <div className="space-y-1.5">
                 <h3 className="text-sm font-medium text-[#000000D9]">
@@ -117,21 +167,24 @@ const Wallet = () => {
           {/* TABLE */}
           <div className="">
             <div>
-              <WalletTable data={expenses} />
+              <WalletTable data={trnsactions?.data} />
             </div>
 
             <div className="mt-6">
-              <Pagination
+              {/* <Pagination
                 totalPages={pages?.length}
                 currentPage={currentPage}
                 onPageChange={setCurrentPage}
                 RowSize={pageSize}
                 onRowSizeChange={setPageSize}
-              />
+              /> */}
             </div>
           </div>
         </div>
       </section>
+      {/* <div>
+        <CreatePinComponent />
+      </div> */}
 
       {/* INVOICE SHEET */}
       <div className="col-span-2 md:col-span-1 md:place-self-end">

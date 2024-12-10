@@ -6,13 +6,16 @@ import ChangePassword from "@/components/settings-comp/tab-comps/password";
 import PersonalInfo from "@/components/settings-comp/tab-comps/personal_info";
 import Location from "@/components/settings-comp/tab-comps/location";
 
+
 type ComponentProps = {};
 const SettingsWeb: React.FC<ComponentProps> = ({}) => {
   const [activeTab, setActiveTab] = useState("profile");
+    const [step, setStep] = useState(0);
 
   return (
     <>
       <div className="mt-2.5 hidden md:block">
+
         <Tabs
           defaultValue={activeTab}
           onValueChange={setActiveTab}
@@ -51,7 +54,7 @@ const settingTabs = [
     value: "password",
     content: <ChangePassword />,
   },
-  // { label: "Location", value: "location", content: <Location /> },
+  // // { label: "Location", value: "location", content: <Location /> },
   // {
   //   label: "Payment",
   //   value: "payment",

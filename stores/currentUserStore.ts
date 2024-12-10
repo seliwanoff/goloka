@@ -1,36 +1,54 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
-export interface User {
-  data: {
-    id: number;
-    name: string;
-    email: string;
-    country: string;
-    current_role: string | null;
-    email_verified_at: string;
-  };
+
+interface UserData {
+  id: number;
+  name: string;
+  email: string;
+  country: string;
+  current_role: string | null;
+  email_verified_at: string;
+  pin_status: boolean;
 }
 
-interface UserState {
-  currentUser: User | null;
-  setUser: (user: User) => void;
-  clearUser: () => void;
+interface UserStore {
+  user: UserData | null;
+  isAuthenticated: boolean;
+  setUser: (userData: UserData | null) => void;
+  loginUser: (userData: UserData) => void;
+  logoutUser: () => void;
+  setRefetchUser: (refetchFn: () => Promise<any>) => void; // Store refetch function
+  refetchUser: () => Promise<any>;
 }
 
-export const useUserStore = create<UserState>()(
-  persist(
-    (set) => ({
-      currentUser: null,
-      setUser: (user) => set({ currentUser: user }),
-      clearUser: () => set({ currentUser: null }),
-    }),
-    {
-      name: "user-storage",
-      storage: createJSONStorage(() => sessionStorage),
-    },
-  ),
-);
+export const useUserStore = create<UserStore>()((set) => ({
+  user: null,
+  isAuthenticated: false,
+  refetchUser: async () => Promise.resolve(),
+
+  setUser: (userData) =>
+    set(() => ({
+      user: userData,
+      isAuthenticated: !!userData,
+    })),
+
+  loginUser: (userData) =>
+    set(() => ({
+      user: userData,
+      isAuthenticated: true,
+    })),
+
+  logoutUser: () =>
+    set(() => ({
+      user: null,
+      isAuthenticated: false,
+    })),
+
+  setRefetchUser: (refetchFn) => set(() => ({ refetchUser: refetchFn })),
+}));
+
+
 
 export interface IBeneficiary {
   id: number;

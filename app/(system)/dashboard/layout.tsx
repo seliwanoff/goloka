@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 // ~ ======= icon imports  -->
 import {
@@ -20,17 +20,14 @@ import {
   People,
   Wallet3,
 } from "iconsax-react";
-
-// import NotificationLayout from "@/components/layouts/notification-layout";
 import DashSideBarDesktop from "@/components/lib/navigation/dash_sidebar_desktop";
 import DashTopNav from "@/components/lib/navigation/dash_topnav";
-import { useUserStore } from "@/stores/use-user-store";
 import { StepperProvider } from "@/context/TaskStepperContext.tsx";
-// import DashSideBarDesktop from "@/components/lib/navigation/dash_sidebar_desktop";
-// import { getCurrentUser } from "@/services/user_service";
-// import { User, userStore } from "@/stores/user-store";
-// import InfoDialog from "@/components/lib/modals/info_modal";
-// import { useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+import { getCurrentUser } from "@/services/user";
+import { useUserStore } from "@/stores/currentUserStore";
+import { getContributorsProfile } from "@/services/contributor";
+import { useRemoteUserStore } from "@/stores/remoteUser";
 
 type LayoutProps = {
   children: React.ReactNode;
@@ -38,14 +35,97 @@ type LayoutProps = {
 
 const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
   const router = useRouter();
+  const { setUser } = useRemoteUserStore();
+  const loginUser = useUserStore((state) => state.loginUser);
+  const logoutUser = useUserStore((state) => state.logoutUser);
+  const setRefetchUser = useUserStore((state) => state.setRefetchUser);
 
-  const [showModal, setShowModal] = React.useState(false);
-  const setUser = useUserStore((state) => state.setUser);
+  // Query for remote user data
+  const {
+    data: currentUser,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["Get current remote user"],
+    queryFn: getCurrentUser,
+    retry: 1, // Only retry once before considering it a failure
+  });
+
+  const {
+    data: remoteContributor,
+    isLoading: isContributorLoading,
+    refetch: isRefetch,
+  } = useQuery({
+    queryKey: ["Get remote contributor profile"],
+    queryFn: getContributorsProfile,
+  });
+
+  console.log(remoteContributor, "fbfbbf");
+
+  // Handle error and authentication
+  useEffect(() => {
+    if (error) {
+      console.log("An error occurred:", error);
+      // Check for 401 Unauthorized or "Unauthenticated" message in response
+      if (
+        //@ts-ignore
+        error.response?.status === 401 &&
+        //@ts-ignore
+        error.response?.data?.message === "Unauthenticated."
+      ) {
+        logoutUser(); // Log out user if token is expired
+        router.push("/signin"); // Redirect to login page
+        return;
+      }
+
+      // Handle other errors (e.g., network errors, etc.)
+      console.error("An error occurred:", error);
+    }
+
+    // Ensure both currentUser and remoteContributor are processed
+    if (
+      currentUser &&
+      "data" in currentUser &&
+      currentUser.data &&
+      remoteContributor &&
+      "data" in remoteContributor &&
+      remoteContributor.data
+    ) {
+      // Store current user in user store
+      loginUser(currentUser.data);
+
+      //@ts-ignore
+      setUser(remoteContributor.data);
+    }
+
+    // Set up refetch function
+    setRefetchUser(isRefetch);
+  }, [
+    currentUser,
+    error,
+    loginUser,
+    logoutUser,
+    refetch,
+    remoteContributor,
+    router,
+    setRefetchUser,
+    setUser,
+    isRefetch,
+  ]);
+
+  // Show loading state while fetching user data
+  if (isLoading || isContributorLoading) {
+    return (
+      <div className="col-span-6 flex h-screen w-full items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div>
-      <StepperProvider totalSteps={5}>
-        {/* <NotificationLayout> */}
+      <StepperProvider>
         <div className="grid h-screen min-h-[200px] w-full grid-cols-6 overflow-hidden bg-[#F8F8F8]">
           {
             /*remoteUser*/ true ? (
@@ -72,7 +152,6 @@ const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
             )
           }
         </div>
-        {/* </NotificationLayout> */}
       </StepperProvider>
     </div>
   );

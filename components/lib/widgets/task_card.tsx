@@ -1,10 +1,11 @@
-
 import { BookmarkButton } from "@/components/contributor/BookmarkButton";
+import { generateURL } from "@/helper";
 import { cn } from "@/lib/utils";
 import { bookmarkCampaign, removeBookmark } from "@/services/campaign";
+import { useRemoteUserStore } from "@/stores/remoteUser";
 import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
 import { ServerResponse } from "http";
-import { ArchiveMinus, Location } from "iconsax-react";
+import { Location } from "iconsax-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -22,57 +23,68 @@ interface TaskCardProps {
   payment_rate_for_response: string;
   total_fee: string;
   type: string;
-  is_bookmarked: string;
+  is_bookmarked: boolean;
   refetch: (
     options?: RefetchOptions,
   ) => Promise<QueryObserverResult<ServerResponse<any>, Error>>;
 }
+
+export const useGenerateURL = (id: number) => {
+  const pathname = usePathname();
+  return generateURL(pathname, id);
+};
 
 const TaskCardWidget: React.FC<TaskCardProps> = ({
   id,
   title,
   description,
   image_path,
-  locations,
   number_of_responses,
   payment_rate_for_response,
-  total_fee,
   type,
   is_bookmarked,
   refetch,
+  locations,
 }) => {
   const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
-  const pathname = usePathname();
-  const [isFilled, setIsFilled] = useState(false);
-  console.log(pathname, "isFilled");
-  const handleClick = () => {
-    setIsFilled(!isFilled);
-  };
-  const handleBookmark = async () => {
-    console.log(id, "refetch");
+  const { user } = useRemoteUserStore();
+  const url = useGenerateURL(id);
+  const USER_CURRENCY_SYMBOL = user?.country?.["currency-symbol"];
+
+  const handleBookmark = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+
     setIsBookmarkLoading(true);
     try {
-      //@ts-ignore
       if (is_bookmarked) {
         const response = await removeBookmark(id as unknown as string);
-        toast.success(response?.message);
+        console.log(response, "response");
+
         refetch();
-        setIsBookmarkLoading(false);
+        if (response) {
+          toast.success(response?.message);
+          setIsBookmarkLoading(true);
+        }
       } else {
         const response = await bookmarkCampaign({}, id as unknown as string);
         //@ts-ignore
         toast.success(response?.message);
         refetch();
-        setIsBookmarkLoading(false);
       }
     } catch (err) {
+      toast.warning("Error with bookmark operation");
+    } finally {
       setIsBookmarkLoading(false);
-      toast.warning("Error with bookmark operation:");
     }
   };
+
   return (
-    <div className="space-y-[18px] rounded-[16px] border border-[#F2F2F2] bg-white p-4">
-      <figure className="relative h-[200px] w-full overflow-hidden rounded-[8px]">
+    <Link
+      key={id}
+      href={url}
+      className="space-y-[18px] rounded-[16px] border border-[#F2F2F2] bg-white p-4 hover:border-main-100 hover:shadow"
+    >
+      <figure className="relative h-[280px] w-full overflow-hidden rounded-[8px]">
         <Image
           src={image_path?.[0]}
           alt={title}
@@ -80,63 +92,30 @@ const TaskCardWidget: React.FC<TaskCardProps> = ({
           width={640}
           height={480}
         />
-        <span
-          className={cn(
-            "absolute right-3 top-3 rounded-full border border-neutral-300 border-opacity-15 bg-opacity-25 p-2 px-5 text-xs text-white backdrop-blur-sm",
-          )}
-        >
-          {type}
-        </span>
       </figure>
+
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4 rounded-full bg-main-100 bg-opacity-5 p-2 pr-5">
           <span className="rounded-full bg-white px-4 py-1 text-[14px] font-semibold leading-[21px] text-main-100">
-            ${payment_rate_for_response}
+            {USER_CURRENCY_SYMBOL}
+            {payment_rate_for_response}
           </span>
           <p className="text-[14px] leading-[16.71px] text-main-100">
             {number_of_responses}{" "}
             <span className="text-[#7698EC]">responses</span>
           </p>
         </div>
-        {/* <span
-          onClick={handleClick}
-          className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-[#7697ec84] text-main-100"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="22"
-            height="24"
-            viewBox="0 0 24 24"
-            fill={isFilled ? "#3365E3" : "none"}
-            // onClick={handleClick}
-          >
-            <path
-              d="M14.5 10.65h-5"
-              stroke={isFilled ? "#3365E3" : "#3365E3"}
-              strokeWidth="1.5"
-              strokeMiterlimit="10"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M16.82 2H7.18C5.05 2 3.32 3.74 3.32 5.86v14.09c0 1.8 1.29 2.56 2.87 1.69l4.88-2.71c.52-.29 1.36-.29 1.87 0l4.88 2.71c1.58.88 2.87.12 2.87-1.69V5.86C20.68 3.74 18.95 2 16.82 2Z"
-              stroke={isFilled ? "#3365E3" : "#3365E3"}
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </span> */}
+
         <BookmarkButton
           loading={isBookmarkLoading}
-          //@ts-ignore
           isBookmarked={is_bookmarked}
           handleBookmark={handleBookmark}
         />
       </div>
+
       <div>
         <Link
-          href={`/dashboard/tasks/${id}`}
+          href={url}
           className="mb-3 block text-[14px] font-semibold leading-[21px] text-[#333] hover:underline"
         >
           {title}
@@ -145,21 +124,35 @@ const TaskCardWidget: React.FC<TaskCardProps> = ({
           {description.split(" ").slice(0, 20).join(" ")}...
         </p>
 
-        <div className="mt-3 flex gap-2">
+        {/* <div className="mt-3 flex gap-2">
           <span className="text-[#828282]">
-            <Location size="18" color="#828282" />
+            <Location size="15" color="#828282" />
           </span>
-          {/* <p className="text-[14px] leading-[21px] text-[#4F4F4F]">
-            {locations?.map((location, index) => (
-              <React.Fragment key={index}>
-                {location?.state?.split(", ")[0]}
-                {index < locations.length - 1 && ", "}
-              </React.Fragment>
-            ))}
-          </p> */}
+        </div> */}
+        <div className="mt-3 flex items-center gap-3">
+          <span className="text-[#4F4F4F]">
+            <Location size={18} color="currentColor" />
+          </span>
+          <div className="flex items-center gap-2">
+            <p className="text-[14px] leading-[21px] text-[#4F4F4F]">
+              {/* @ts-ignore */}
+              {locations?.label}
+            </p>
+            <div className="flex items-center gap-2">
+              {/* @ts-ignore */}
+              {locations.states.map((loc: any, index: any) => (
+                <p
+                  key={index}
+                  className="text-[14px] leading-[21px] text-[#4F4F4F]"
+                >
+                  {loc.label}
+                </p>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 
