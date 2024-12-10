@@ -4,18 +4,28 @@ import { cn, walletStatus } from "@/lib/utils";
 import { TickCircle } from "iconsax-react";
 import { useTransferOverlay, useWithdrawOverlay } from "@/stores/overlay";
 import { useTransferStepper, useWithdrawStepper } from "@/stores/misc";
+import { useWalletStore } from "@/stores/useWithdrawal";
+import { formatDate } from "@/helper";
 
 type ComponentProps = {};
 
 const PaymentSuccessful: React.FC<ComponentProps> = ({}) => {
   const { setOpen } = useWithdrawOverlay();
   const { setStep, clearTransaction } = useWithdrawStepper();
+  const { response, error } = useWalletStore();
 
   const handleComplete = () => {
     clearTransaction();
     setStep(0);
     setOpen(false);
   };
+
+  // Extract meta and transaction details
+  const beneficiary = response?.meta?.beneficiary || {};
+  const amount = Math.abs(response?.amount || 0);
+  const createdAt = response?.created_at || new Date().toISOString();
+  const reference = response?.reference || "N/A";
+  const status = response?.status || "completed";
 
   return (
     <div>
@@ -32,16 +42,16 @@ const PaymentSuccessful: React.FC<ComponentProps> = ({}) => {
 
       <div className="mt-6 grid grid-cols-2 items-center">
         <div className="">
-          <h3 className="font-bold text-[#101828]">$32</h3>
+          <h3 className="font-bold text-[#101828]">${amount}</h3>
           <p className="text-sm text-[#828282]">Amount</p>
         </div>
         <span
           className={cn(
             "justify-self-end rounded-full px-4 py-2 text-xs capitalize",
-            walletStatus("successful"),
+            walletStatus(status),
           )}
         >
-          Completed
+          {status}
         </span>
 
         <div className="col-span-2 mt-6 rounded-lg border border-[#F2F2F2] bg-[#f8f8f8] p-6">
@@ -53,31 +63,31 @@ const PaymentSuccessful: React.FC<ComponentProps> = ({}) => {
             <div className="grid grid-cols-2">
               <span className="text-sm text-[#4F4F4F]">Beneficiary</span>
               <span className="justify-self-end text-right text-sm font-medium text-[#333]">
-                Muhammed Jamiu
+                {beneficiary.account_name || "N/A"}
               </span>
             </div>
             <div className="grid grid-cols-2">
               <span className="text-sm text-[#4F4F4F]">Bank</span>
               <span className="justify-self-end text-sm font-medium text-[#333]">
-                UBA
+                {beneficiary.bank_name || "N/A"}
               </span>
             </div>
             <div className="grid grid-cols-2">
               <span className="text-sm text-[#4F4F4F]">Account number</span>
               <span className="justify-self-end text-sm font-medium text-[#333]">
-                9273786272837
+                {beneficiary.account_number || "N/A"}
               </span>
             </div>
             <div className="grid grid-cols-2">
               <span className="text-sm text-[#4F4F4F]">Date</span>
               <span className="justify-self-end text-sm font-medium text-[#333]">
-                15/5/2024
+                {formatDate(createdAt, "DD/MM/YYYY")}
               </span>
             </div>
             <div className="grid grid-cols-2">
-              <span className="text-sm text-[#4F4F4F]">Amount in Naira</span>
+              <span className="text-sm text-[#4F4F4F]">Reference</span>
               <span className="justify-self-end text-sm font-medium text-[#333]">
-                ₦120,057
+                {reference}
               </span>
             </div>
           </div>

@@ -28,8 +28,47 @@ import { TiArrowRight } from "react-icons/ti";
 import Testimonials from "@/components/landing-comps/testimonials";
 import Marquee from "@/components/ui/marquee";
 import Footer from "@/components/landing-comps/footer";
+import { getGuestCampaign } from "@/services/campaign";
+import { useQuery } from "@tanstack/react-query";
+import { StaticImport } from "next/dist/shared/lib/get-img-props";
+import {
+  ReactElement,
+  JSXElementConstructor,
+  ReactNode,
+  AwaitedReactNode,
+  ReactPortal,
+  Key,
+} from "react";
+import { Skeleton } from "@/components/task-stepper/skeleton";
+import { useRouter } from "next/navigation";
 
-const page = () => {
+const CampaignCardSkeleton = () => (
+  <div className="rounded-2xl border p-3 md:w-[380px]">
+    <Skeleton className="mb-4 aspect-[3/2] rounded-lg" />
+    <div className="space-y-3">
+      <Skeleton className="h-4 w-3/4" />
+      <Skeleton className="h-4 w-1/2" />
+      <div className="flex items-center space-x-2">
+        <Skeleton className="h-4 w-4 rounded-full" />
+        <Skeleton className="h-4 w-1/3" />
+      </div>
+    </div>
+  </div>
+);
+
+const LandingPage = () => {
+  const router = useRouter();
+  const {
+    data: campaignData,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["Get guest user"],
+    queryFn: getGuestCampaign,
+  });
+
+
+
   return (
     <div>
       {/* ####################################### */}
@@ -164,26 +203,28 @@ const page = () => {
           <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3 xl:items-end">
             <div className="space-y-9 rounded-3xl bg-[#F3F3F3] p-6 md:col-span-2 xl:col-span-1">
               <h3 className="text-3xl font-extrabold leading-[40px]">
-                10k+
+                25k+
                 <br />
-                <span className="font-medium">Organizations</span>
+                <span className="font-medium">Contributors</span>
               </h3>
               <p className="text-[#333]">
-                Lorem ipsum dolor sit amet consectetur. Neque enim dignissim vel
-                faucibus leo nibh sem at sit orci.
+                Our growing community of data contributors are driven by the
+                passion to contribute to important research projects that have
+                real-world impact.
               </p>
             </div>
             <div className="relative overflow-hidden rounded-3xl bg-[#004378] p-6 xl:h-[400px]">
               <div className="relative z-10 h-full space-y-9 xl:flex xl:flex-col xl:justify-between">
                 <h3 className="text-3xl font-extrabold leading-[40px] text-white">
-                  25k+
+                  10k+
                   <br />
-                  <span className="font-normal">Contributors</span>
+                  <span className="font-normal">Organisations</span>
                 </h3>
                 <p className="text-[#fff]">
-                  Lorem ipsum dolor sit amet consectetur. Accumsan ac porttitor
-                  sit sit eget congue. Luctus gravida adipiscing netus tellus
-                  posuere et.
+                  Organisations and businesses leverage Goloka&apos;s powerful
+                  features, powered by advanced AI algorithms, to make
+                  data-driven decisions that optimise performance, reduce
+                  losses, and increase revenue.
                 </p>
               </div>
               <Image
@@ -199,8 +240,10 @@ const page = () => {
                 <span className="font-medium">Campaigns</span>
               </h3>
               <p className="text-[#fff]">
-                Lorem ipsum dolor sit amet consectetur. Tincidunt ut lectus
-                neque risus cras leo id. Purus quis.
+                Campaigns launched on Goloka harness geospatial technology,
+                integrating surveys, remote sensing technology, native
+                intelligence, and AI to collect, analyse, and verify data for
+                accurate location-based insights.
               </p>
             </div>
           </div>
@@ -214,7 +257,7 @@ const page = () => {
           <div className="mb-16 lg:mb-0">
             <div className="mb-6 inline-flex items-center justify-center gap-3 rounded-full bg-[#EBF0FC] px-4 py-3 text-sm font-medium text-main-100">
               <span>
-                <Category2 size="20" variant="Bold" />
+                <Category2 size={20} color="currentColor" variant="Bold" />
               </span>{" "}
               Goloka for organization
             </div>
@@ -223,8 +266,9 @@ const page = () => {
               with Goloka’s Data-Driven Solutions
             </h2>
             <p className="text-[#434343] md:text-balance">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Amet
-              habitant dui consectetur sed nam amet, magna. Iet se
+              A user-friendly interface that makes it easy for companies to
+              manage data collection projects and collaborate with data
+              contributors.
             </p>
             <Button className="mt-6 h-auto w-full rounded-full bg-main-100 py-3.5 text-white hover:bg-blue-700 md:w-auto">
               Get started with localised data
@@ -325,20 +369,16 @@ const page = () => {
           </div>
 
           <div className="space-y-6 md:grid md:grid-cols-2 md:gap-6 md:space-y-0 xl:grid-cols-3">
-            {Array.from({ length: 6 }, (_: any, i: number) => (
+            {benefitsData.map((benefits, i) => (
               <div className="border border-[#F2F2F2] bg-[#FCFCFC] p-4" key={i}>
                 <span className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-main-100 bg-opacity-5">
                   <Image src={Thumb} alt="Thumb" />
                 </span>
                 <h3 className="mb-4 mt-8 text-lg font-medium text-[#333]">
-                  Benefit heading goes here
+                  {benefits.title}
                 </h3>
                 <p className="text-sm leading-6 text-[#333]">
-                  Lorem ipsum dolor sit amet consectetur. At tortor morbi at
-                  enim augue duis enim nunc. Mi magna lobortis id gravida sem
-                  faucibus. Tortor diam nibh semper a at. Massa cursus volutpat
-                  accumsan amet lacinia vulputate turpis porta malesuada. Dolor
-                  laoreet.
+                  {benefits.description}
                 </p>
               </div>
             ))}
@@ -352,13 +392,20 @@ const page = () => {
         <div className="wrapper lg:grid lg:grid-cols-[1.5fr_1fr] lg:items-center xl:grid-cols-[2fr_1.5fr]">
           <div>
             <h2 className="z-40 mb-4 text-[2rem] font-semibold leading-[42px] text-white md:text-balance md:text-center md:text-[2rem] md:leading-[1.4] lg:text-pretty lg:text-left lg:text-4xl lg:leading-normal xl:text-5xl xl:leading-normal">
-              Get effortless earning <br /> experience on GoloKa Mobile
+              Effortless data collection at your <br /> fingertips on Goloka
+              Mobile
             </h2>
-            <p className="z-40 text-base leading-7 text-white md:text-balance md:text-center md:text-lg lg:text-left">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. <br />{" "}
-              Nunc integer sit nascetur.
-            </p>
 
+            <p className="z-40 text-base leading-7 text-white md:text-balance md:text-center md:text-lg lg:text-left">
+              Our AI-powered app puts effortless data collection at your
+              fingertips. <br />
+              Create campaigns and collect highly-localised data with pinpoint
+              accuracy using <br /> smartphone and remote sensing technology.{" "}
+              <br />
+              Plus, get rewarded for your contributions - earn money by
+              collecting data on Goloka Mobile. <br /> Download now and access
+              seamless data collection across all your iOS or Android devices.
+            </p>
             <div className="mt-12 flex gap-3 md:justify-center lg:mx-0 lg:w-[300px]">
               <Link
                 href="/"
@@ -397,68 +444,112 @@ const page = () => {
       {/* ####################################### */}
       {/* -- Trending Section */}
       {/* ####################################### */}
-      <section className="py-16">
+      <section className="py-10">
         <div className="wrapper">
-          <div className="mb-10 sm:flex sm:flex-col sm:items-center md:mx-auto lg:w-10/12 xl:w-7/12">
+          <div className="mb-5 sm:flex sm:flex-col sm:items-center md:mx-auto lg:w-10/12 xl:w-7/12">
             <h2 className="text-center text-2xl font-semibold text-[#333] md:text-[2rem]">
               Trending on Goloka🔥
             </h2>
             <p className="mb-6 mt-4 text-center leading-7 text-[#434343] md:text-balance">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Amet
-              habitant dui consectetur sed nam amet, magna. Iet se
+              Contribute to the most popular and engaging data collection
+              projects on the platform
             </p>
             <Button className="h-auto w-full rounded-full bg-main-100 py-3.5 text-white hover:bg-blue-700 sm:w-auto">
               Start earning in 2 minutes
             </Button>
           </div>
         </div>
-        <div className="no-scrollbar wrapper md:w-full md:overflow-x-auto">
-          <div className="grid gap-6 md:flex md:w-max lg:grid-cols-2 xl:grid-cols-3">
-            {Array.from({ length: 4 }, (_: any, i: number) => (
-              <div className="rounded-2xl hover:shadow-md md:w-[380px]" key={i}>
-                <AspectRatio
-                  ratio={3 / 1}
-                  className="overflow-hidden rounded-lg"
-                >
-                  <Image
-                    src={Agric}
-                    alt="Agricultural"
-                    className="h-full w-full object-cover"
-                    fill
-                  />
-                </AspectRatio>
-                <div className="mb-4 mt-5 flex items-center justify-between">
-                  <div className="flex items-center gap-4 rounded-full bg-[#F8F8F8] p-2 pr-5">
-                    <p className="text-[#333333]">
-                      24 <span className="text-[#828282]">of 64 responses</span>
-                    </p>
-                  </div>
-                  <span className="font-semibold text-[#333333]">$15</span>
-                </div>
-                <h3 className="mb-3.5 mt-4 text-xl font-semibold text-[#333]">
-                  Agricultural & Food Security
-                </h3>
-                <p className="text-ellipsis leading-6 text-[#333]">
-                  Agriculture is the cornerstone of food security, serving as
-                  the primary means of sustenance and
-                </p>
-                <div className="mt-3 flex gap-3">
-                  <span className="text-[#4F4F4F]">
-                    <Location size="24" />
-                  </span>
-                  <p className="text-[#4F4F4F]">
-                    Lagos, Kwara, Abuja, Kogi, Kano
-                  </p>
-                </div>
+      </section>
+      <section className="max-w-8xl mb-5 flex w-full flex-col items-center gap-5 overflow-hidden">
+        <div className="no-scrollbar wrapper md:w-full">
+          {isLoading ? (
+            <div className="grid gap-6 md:flex md:w-max lg:grid-cols-2 xl:grid-rows-3">
+              {[...Array(5)].map((_, index) => (
+                <CampaignCardSkeleton key={index} />
+              ))}
+            </div>
+          ) : (
+            <Marquee pauseOnHover className="relative [--duration:40s]">
+              <div className="grid gap-6 md:flex md:w-max lg:grid-cols-2 xl:grid-rows-3">
+                {campaignData?.data
+                  .slice(0, 8)
+                  .map((campaign: any, index: any) => (
+                    <div
+                      key={index}
+                      onClick={() => router.push("/signin")}
+                      className="cursor-pointer rounded-2xl border p-3 hover:shadow-xl md:w-[380px]"
+                    >
+                      <AspectRatio
+                        ratio={3 / 2}
+                        className="overflow-hidden rounded-lg"
+                      >
+                        <Image
+                          src={campaign.image_path[0]}
+                          alt={campaign.title}
+                          className="h-full w-full object-cover"
+                          fill
+                        />
+                        {/* Corner Pill */}
+                        <div className="absolute right-2 top-2 rounded-full border bg-white/10 px-3 py-1 text-xs font-semibold text-[#fff]">
+                          {campaign.status}
+                        </div>
+                      </AspectRatio>
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 rounded-full bg-main-100 bg-opacity-5 p-2">
+                          <p className="rounded-full bg-white px-2 py-1 text-[14px] font-semibold leading-[21px] text-[#333333]">
+                            {campaign.number_of_responses_received}
+                          </p>
+                          <p>of </p>
+                          <p className="text-[14px] leading-[16.71px] text-[#828282]">
+                            {campaign.number_of_responses}{" "}
+                            <span className="text-[#828282]">responses</span>
+                          </p>
+                        </div>
+                        <span className="rounded-full bg-white px-4 py-1 text-[14px] font-semibold leading-[21px] text-[#333333]">
+                          {"₦"}
+                          {campaign.payment_rate_for_response}
+                        </span>
+                      </div>
+                      <h3 className="mb-3.5 mt-4 text-[16px] font-semibold leading-[24px] text-[#333333]">
+                        {campaign.title}
+                      </h3>
+                      <p className="test-[16px] text-ellipsis font-light leading-[24px] text-[#333333]">
+                        {campaign.description}
+                      </p>
+                      <div className="mt-3 flex items-center gap-3">
+                        <span className="text-[#4F4F4F]">
+                          <Location size={18} color="currentColor" />
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <p className="leading-[24px] text-[#4F4F4F]">
+                            {campaign.locations?.label}
+                          </p>
+                          <div className="flex items-center gap-2">
+                            {campaign.locations.states.map(
+                              (loc: any, index: any) => (
+                                <p
+                                  key={index}
+                                  className="leading-[24px] text-[#4F4F4F]"
+                                >
+                                  {loc.label}
+                                </p>
+                              ),
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
               </div>
-            ))}
-          </div>
+            </Marquee>
+          )}
         </div>
       </section>
       {/* ####################################### */}
       {/* -- Blog Section */}
       {/* ####################################### */}
-      <section className="bg-[#3365E305] py-16 lg:pb-0">
+      {/* <section className="bg-[#3365E305] py-16 lg:pb-0">
         <div className="wrapper">
           <div className="mb-9 md:mx-auto md:mb-0 lg:w-10/12 xl:w-7/12">
             <h2 className="text-center text-2xl font-semibold text-[#333] md:text-[2rem]">
@@ -498,14 +589,14 @@ const page = () => {
                 >
                   <span>Learn more</span>
                   <span>
-                    <ArrowRight size={16} />
+                    <ArrowRight size={16} color="currentColor" />
                   </span>
                 </Link>
               </div>
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
       {/* ####################################### */}
       {/* -- CALL TO ACTION Section */}
       {/* ####################################### */}
@@ -513,12 +604,14 @@ const page = () => {
         <div className="relative rounded-3xl bg-[radial-gradient(135.58%_135.58%_at_50%_35.83%,#3365E3_0%,#1C387D_100%)] px-4 py-10 md:py-16">
           <div className="relative z-10 text-center">
             <h2 className="text-2xl font-semibold text-white md:text-balance md:text-[2rem] md:leading-normal lg:text-5xl lg:leading-normal">
-              Drive Business Success and Earn Rewards Together
+              Solve your business problems with accurate data
             </h2>
             <p className="mt-4 text-white lg:text-balance">
-              Lorem ipsum dolor sit amet consectetur. Bibendum neque a mauris id
-              integer neque nisi. Sem eros sit odio suspendisse. In ultricies
-              neque vitae integer q
+              We guarantee improved data accuracy and verification with Goloka’s
+              cutting-edge geospatial technology. The in-built wallet system,
+              ensures you can seamlessly manage your data collection project.
+              Everything is streamlined for your convenience, from the launch of
+              your project to the payment of data collectors.
             </p>
             <Button className="mt-6 h-auto w-full rounded-full bg-white py-3.5 text-main-100 hover:bg-white md:w-auto">
               Get started with Goloka
@@ -542,4 +635,43 @@ const page = () => {
   );
 };
 
-export default page;
+export default LandingPage;
+
+interface Benefit {
+  title: string;
+  description: string;
+}
+
+// Array of benefits
+const benefitsData: Benefit[] = [
+  {
+    title: "Monitor in Real-Time",
+    description:
+      "Keep a close eye on campaign performance in real-time to quickly address any issues or capitalize on emerging opportunities",
+  },
+  {
+    title: "Generate Reports ",
+    description:
+      "Summarize campaign performance and insights into comprehensive reports. These reports can include an analysis of key findings, lessons learned, and recommendations for future campaigns",
+  },
+  {
+    title: "Transparency-Centric Communication",
+    description:
+      "Using meaningful analytics guarantees transparency and data-driven explanations",
+  },
+  {
+    title: "Visualising Impact",
+    description:
+      "Use data visualization techniques such as charts, graphs, and infographics in an easily understandable format for stakeholder engagement including donors, partners, beneficiaries, and the community",
+  },
+  {
+    title: "Outlook on Trends",
+    description:
+      "Identify trends, and apply these insights to future strategies, ensuring ongoing success and growth",
+  },
+  {
+    title: "Iterate and Improve",
+    description:
+      "Use insights gained from analyzing campaign metrics to iterate, inform and improve future marketing strategies",
+  },
+];

@@ -37,7 +37,7 @@ import { responsesTableData } from "@/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "@/components/lib/widgets/DataTable";
 import { chunkArray, cn, responseStatus } from "@/lib/utils";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Pagination from "@/components/lib/navigation/Pagination";
 import { useQuery } from "@tanstack/react-query";
 import { getAllResponses, getResponseStats } from "@/services/response";
@@ -52,8 +52,15 @@ import {
 } from "@/helper";
 import { SkeletonXLoader } from "@/helper/loader";
 
-type PageProps = {};
+type ResponseStatus =
+  | "reviewed"
+  | "pending"
+  | "accepted"
+  | "rejected"
+  | "draft"
+  | "all";
 
+type PageProps = {};
 type Response = {
   campaign_id: number;
   campaign_title: string;
@@ -80,60 +87,92 @@ type DashboardData = {
 };
 
 const ResponsesPage: React.FC<PageProps> = ({}) => {
-  const fetchData = () => {
-    return getAllResponses({
-      // search: debouncedSearchTerm,
-      // type,
-      // page,
-      // per_page: perPage,
-      // min_price: min_payment,
-      // max_price: max_payment,
-    });
-  };
-  const {
-    data: responseData,
-    isLoading,
-    isFetching,
-    isRefetching,
-  } = useQuery({
-    queryKey: [
-      "Get task list",
-      //    debouncedSearchTerm,
-      //    type,
-      //    page,
-      //    perPage,
-      //    min_payment,
-      //    max_payment,
-    ],
-    queryFn: fetchData,
-  });
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState<ResponseStatus>(
+    (searchParams.get("status") as ResponseStatus) || "all",
+  );
+  const [searchTerm, setSearchTerm] = useState(
+    searchParams.get("search") || "",
+  );
+  const [startDate, setStartDate] = useState<Date | null>(
+    searchParams.get("startDate")
+      ? new Date(searchParams.get("startDate")!)
+      : null,
+  );
+  const [endDate, setEndDate] = useState<Date | null>(
+    searchParams.get("endDate") ? new Date(searchParams.get("endDate")!) : null,
+  );
+  const [currentPage, setCurrentPage] = useState(
+    Number(searchParams.get("page")) || 1,
+  );
+  const [pageSize, setPageSize] = useState(
+    Number(searchParams.get("perPage")) || 10,
+  );
 
   const [openFilter, setOpenFilter] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState("On Review");
-  const [filteredData, setFilteredData] = useState<Response[]>(
-    responseData?.data?.filter(
-      (item: { status: string }) => item?.status === activeTab,
-    ),
-  );
+
   const [data, setData] = useState<DashboardData | null>(null);
 
   const [date, setDate] = useState<Date>();
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState<number>(10);
-  const pages = chunkArray(filteredData, pageSize);
+  // const pages = chunkArray(filteredData, pageSize);
 
-  const router = useRouter();
-  const [searchTerm, setSearchTerm] = useState<string>("");
   const [type, setType] = useState<string>("");
   const [page, setPage] = useState<number>(1);
   const [perPage, setPerPage] = useState<number>(9);
   const [min_payment, setmin_payment] = useState<number | undefined>(undefined);
   const responseRef = useRef<HTMLDivElement>(null);
   const [max_payment, setmax_payment] = useState<number | undefined>(undefined);
-  const [debouncedSearchTerm, setDebouncedSearchTerm] =
-    useState<string>(searchTerm);
-  console.log(pages, "pages");
+  // const fetchData = () => {
+  //   return getAllResponses({
+  //     // search: debouncedSearchTerm,
+  //     // type,
+  //     // page,
+  //     // per_page: perPage,
+  //     // min_price: min_payment,
+  //     // max_price: max_payment,
+  //   });
+  // };
+  // const {
+  //   data: responseData,
+  //   isLoading,
+  //   isFetching,
+  //   isRefetching,
+  // } = useQuery({
+  //   queryKey: [
+  //     "Get task list",
+  //     //    debouncedSearchTerm,
+  //     //    type,
+  //     //    page,
+  //     //    perPage,
+  //     //    min_payment,
+  //     //    max_payment,
+  //   ],
+  //   queryFn: fetchData,
+  // });
+  const { data: responseData, isLoading } = useQuery({
+    queryKey: [
+      "responses",
+      activeTab !== "all" ? activeTab : undefined,
+      searchTerm,
+      startDate,
+      endDate,
+      currentPage,
+      pageSize,
+    ],
+    queryFn: () =>
+      getAllResponses({
+        page: currentPage,
+        per_page: pageSize,
+        search: searchTerm,
+        start_date: startDate?.toISOString(),
+        end_date: endDate?.toISOString(),
+        status: activeTab !== "all" ? activeTab : undefined,
+      }),
+  });
+
+  console.log(responseData, "responseData");
   const { data: stats } = useQuery({
     queryKey: ["Get response stats"],
     queryFn: getResponseStats,
@@ -143,7 +182,11 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
       setData(stats.data);
     }
   }, [stats]);
-
+  const [filteredData, setFilteredData] = useState<Response[]>(
+    responseData?.data?.filter(
+      (item: { status: string }) => item?.status === activeTab,
+    ),
+  );
   console.log(stats, "stats");
   useEffect(() => {
     const filter = (status: string) =>
@@ -152,50 +195,93 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
       );
 
     switch (activeTab) {
-      case "On Review":
+      case "reviewed":
         return setFilteredData(filter(activeTab));
-      case "Pending":
+      case "pending":
         return setFilteredData(filter(activeTab));
-      case "Accepted":
+      case "accepted":
         return setFilteredData(filter(activeTab));
-      case "Rejected":
+      case "rejected":
+        return setFilteredData(filter(activeTab));
+      case "draft":
         return setFilteredData(filter(activeTab));
     }
   }, [activeTab]);
 
+  // useEffect(() => {
+  //   const params = {
+  //     search: debouncedSearchTerm,
+  //     type,
+  //     page,
+  //     per_page: perPage,
+  //     min_price: min_payment,
+  //     max_price: max_payment,
+  //   };
+
+  //   const newParams = new URLSearchParams();
+  //   Object.entries(params).forEach(([key, value]) => {
+  //     if (value) newParams.set(key, value.toString());
+  //   });
+
+  //   router.push(`?${newParams.toString()}`);
+
+  // }, [
+  //   debouncedSearchTerm,
+  //   type,
+  //   page,
+  //   perPage,
+  //   min_payment,
+  //   max_payment,
+  //   router,
+  // ]);
+
+  const updateQueryParams = (key: string, value: string | null) => {
+    const queryParams = new URLSearchParams(window.location.search);
+
+    if (value) {
+      queryParams.set(key, value); // Add or update parameter
+    } else {
+      queryParams.delete(key); // Remove parameter if value is null
+    }
+
+    // Update the URL without reloading
+    window.history.replaceState(
+      null,
+      "",
+      `${window.location.pathname}?${queryParams.toString()}`,
+    );
+  };
+
   useEffect(() => {
-    const params = {
-      search: debouncedSearchTerm,
-      type,
-      page,
-      per_page: perPage,
-      min_price: min_payment,
-      max_price: max_payment,
-    };
+    const params = new URLSearchParams();
 
-    const newParams = new URLSearchParams();
-    Object.entries(params).forEach(([key, value]) => {
-      if (value) newParams.set(key, value.toString());
-    });
+    // Add non-default values to params
+    if (searchTerm) params.set("search", searchTerm);
+    if (activeTab !== "all") params.set("status", activeTab);
+    if (startDate) params.set("startDate", startDate.toISOString());
+    if (endDate) params.set("endDate", endDate.toISOString());
+    if (currentPage !== 1) params.set("page", currentPage.toString());
+    if (pageSize !== 10) params.set("perPage", pageSize.toString());
 
-    router.push(`?${newParams.toString()}`);
+    // Update URL without reload
+    window.history.replaceState(
+      null,
+      "",
+      `${window.location.pathname}?${params.toString()}`,
+    );
+  }, [searchTerm, activeTab, startDate, endDate, currentPage, pageSize]);
 
-    // Fetch tasks with updated params
-    //  if (tasksRef.current && searchTerm) {
-    //    tasksRef.current.scrollIntoView({ behavior: "smooth" });
-    //  }
-    fetchData();
-  }, [
-    debouncedSearchTerm,
-    type,
-    page,
-    perPage,
-    min_payment,
-    max_payment,
-    router,
-  ]);
-
+  const tabs: { label: string; value: ResponseStatus }[] = [
+    { label: "All", value: "all" },
+    { label: "On Review", value: "reviewed" },
+    { label: "Pending", value: "pending" },
+    { label: "Accepted", value: "accepted" },
+    { label: "Rejected", value: "rejected" },
+    { label: "Draft", value: "draft" },
+  ];
+  const pages = chunkArray(filteredData, pageSize);
   console.log(responseData, "responseData");
+  // console.log(res, "res");
   return (
     <>
       <section className="pb-10 pt-[34px]">
@@ -289,27 +375,22 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
 
         {/* FILTER TABS */}
         <div>
+
           <Tabs
             value={activeTab}
-            onValueChange={setActiveTab}
+            onValueChange={(tab: string) => setActiveTab(tab as ResponseStatus)}
             className="mb-6 mt-7 w-full md:mt-12 md:w-max"
           >
-            <TabsList
-              className={cn(
-                "w-full justify-start rounded-full bg-white px-1 py-6 sm:w-auto md:justify-center",
-              )}
-            >
-              {tabs.map((tab: any, index: number) => (
+            <TabsList className="w-full justify-start rounded-full bg-white px-1 py-6 sm:w-auto md:justify-center">
+              {tabs.map((tab) => (
                 <TabsTrigger
-                  value={tab?.value}
-                  key={index}
-                  className={cn(
-                    "flex-grow rounded-full py-2.5 text-sm font-normal data-[state=active]:bg-blue-700 data-[state=active]:text-white sm:flex-grow-0",
-                  )}
+                  key={tab.value}
+                  value={tab.value}
+                  className="flex-grow rounded-full py-2.5 text-sm font-normal data-[state=active]:bg-blue-700 data-[state=active]:text-white sm:flex-grow-0"
                 >
                   {tab.label}
                 </TabsTrigger>
-              ))}{" "}
+              ))}
             </TabsList>
           </Tabs>
         </div>
@@ -322,85 +403,82 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
             <div className="relative flex w-[250px] items-center justify-center md:w-[300px]">
               <Search className="absolute left-3 text-gray-500" size={18} />
               <Input
-                placeholder="Search task, organization"
-                type="text"
+                placeholder="Search campaign, organization"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full rounded-full bg-gray-50 pl-10"
               />
             </div>
 
             <div className="hidden lg:flex lg:gap-4">
-              {/* PRICE */}
-              <Select>
-                <SelectTrigger className="w-min rounded-full focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0">
-                  <SelectValue placeholder="Price" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="2">$2</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-
-              {/* NUMBER */}
-              <Popover>
-                <PopoverTrigger className="rounded-full border px-3">
-                  <div className="inline-flex items-center gap-2">
-                    <span className="text-sm">Number of question</span>{" "}
-                    <ChevronDown className="h-4 w-4 opacity-50" />
-                  </div>
-                </PopoverTrigger>
-                <PopoverContent className="w-[200px]">
-                  <Label htmlFor="number" className="mb-3 inline-block">
-                    Input number
-                  </Label>
-                  <Input
-                    name="number"
-                    id="number"
-                    type="tel"
-                    className="form-input w-full appearance-none rounded-lg border border-[#d9dec0] px-4 py-6 placeholder:text-[#828282] focus:border-0 focus:outline-none focus-visible:ring-0"
-                    placeholder="0"
-                  />
-                </PopoverContent>
-              </Popover>
-
-              {/* DATE */}
+              {/* DATE RANGE */}
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
-                    variant={"outline"}
+                    //@ts-ignore
+                    variant="outline"
                     className={cn(
                       "w-min justify-start gap-3 rounded-full px-3 pr-1 text-center text-sm font-normal",
                     )}
                   >
-                    {date ? format(date, "PPP") : <span>End date</span>}
+                    {startDate && endDate
+                      ? `${format(startDate, "PPP")} - ${format(endDate, "PPP")}`
+                      : "Select date range"}
                     <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F8F8F8]">
-                      <Calendar size={20} color="#828282" className="m-0" />
-                    </span>{" "}
+                      <Calendar size={20} color="#828282" />
+                    </span>
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <CalenderDate
-                    mode="single"
-                    selected={date}
-                    onSelect={setDate}
-                    initialFocus
-                  />
+                <PopoverContent className="w-auto p-4">
+                  <div className="flex flex-col items-center gap-4">
+                    <CalenderDate
+                      mode="range"
+                      //@ts-ignore
+                      selected={{ from: startDate, to: endDate }}
+                      onSelect={(range) => {
+                        setStartDate(range?.from || null);
+                        setEndDate(range?.to || null);
+                      }}
+                      initialFocus
+                    />
+
+                    <div className="flex w-full items-center justify-between">
+                      <button
+                        className="rounded-full bg-[#F8F8F8] px-2 py-1 text-sm text-blue-500"
+                        onClick={() => {
+                          updateQueryParams("startDate", null);
+                          updateQueryParams("endDate", null);
+                          setStartDate(null);
+                          setEndDate(null);
+                        }}
+                      >
+                        Clear
+                      </button>
+                      <button
+                        className="rounded-full bg-blue-500 px-2 py-1 text-sm text-[#F8F8F8]"
+                        // onClick={applyFilters}
+                        onClick={() => {
+                          // Update the URL with the selected dates
+                          const params = new URLSearchParams(
+                            window.location.search,
+                          );
+                          if (startDate)
+                            params.set("startDate", startDate.toISOString());
+                          if (endDate)
+                            params.set("endDate", endDate.toISOString());
+                          window.history.replaceState(
+                            null,
+                            "",
+                            `${window.location.pathname}?${params.toString()}`,
+                          );
+                        }}
+                      >
+                        Done
+                      </button>
+                    </div>
+                  </div>
                 </PopoverContent>
               </Popover>
-
-              {/* RESPONSE */}
-              <Select>
-                <SelectTrigger className="w-max rounded-full focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0">
-                  <SelectValue placeholder="Response type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Select type</SelectLabel>
-                    <SelectItem value="one-time">One-time response</SelectItem>
-                    <SelectItem value="multiple">Multiple response</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
             </div>
 
             {/* -- filter icon */}
@@ -479,13 +557,13 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
                             </span>
                             <span className="text-xs lg:hidden">
                               {res?.payment_rate_for_response} -{" "}
-                              {formatResponseTime(res?.data?.created_at)}
+                              {formatResponseTime(res?.created_at)}
                             </span>
                           </div>{" "}
                         </TableCell>
                         <TableCell className="hidden lg:table-cell">
-                          {formatResponseDate(res?.data?.created_at)} -{" "}
-                          {formatResponseTime(res?.data?.created_at)}
+                          {formatResponseDate(res?.created_at)} -{" "}
+                          {formatResponseTime(res?.created_at)}
                         </TableCell>
                         <TableCell className={cn("hidden md:table-cell")}>
                           <span>
@@ -510,18 +588,24 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
             </Card>
 
             <div className="mt-6">
-              <Pagination
+              {/* <Pagination
                 totalPages={pages?.length}
                 currentPage={currentPage}
                 onPageChange={setCurrentPage}
                 RowSize={pageSize}
                 onRowSizeChange={setPageSize}
+              /> */}
+
+              <Pagination
+                //@ts-ignore
+                totalItems={responseData?.pagination?.total_items || 0}
+                currentPage={currentPage}
+                pageSize={pageSize}
+                onPageChange={setCurrentPage}
+                onRowSizeChange={setPageSize}
               />
             </div>
           </div>
-          {/* <div className="mx-auto hidden py-10 lg:hidden">
-            <DataTable columns={columns} data={responsesTableData} />
-          </div> */}
         </div>
       </section>
     </>
@@ -529,29 +613,6 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
 };
 
 export default ResponsesPage;
-
-const tabs = [
-  {
-    label: "On Review",
-    value: "On Review",
-  },
-  {
-    label: "Pending",
-    value: "Pending",
-  },
-  {
-    label: "Accepted",
-    value: "Accepted",
-  },
-  {
-    label: "Rejected",
-    value: "Rejected",
-  },
-];
-
-
-
-
 
 // Define props for the StatusPill component
 interface StatusPillProps {
@@ -564,7 +625,7 @@ const StatusPill: React.FC<StatusPillProps> = ({ status }) => {
     <span
       className={cn(
         "inline-flex items-center justify-center rounded-full border px-2 py-1 text-xs font-medium",
-        getStatusColor(status)
+        getStatusColor(status),
       )}
     >
       {getStatusText(status)}

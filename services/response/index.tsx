@@ -51,6 +51,26 @@ interface GetResponsesParams {
   end_date?: string;
   allows_multiple_responses?: boolean;
   status?: string;
+
+  sort_by?: "created_at" | "id" | "campaign_title" | "organization";
+  sort_order?: "asc" | "desc";
+}
+
+// export interface GetResponsesParams {
+//   page?: number;
+//   per_page?: number;
+//   search?: string;
+//   start_date?: string;
+//   end_date?: string;
+//   status?: string;
+//   // Add these optional properties to allow sorting
+//   sort_by?: "created_at" | "id" | "campaign_title" | "organization";
+//   sort_order?: "asc" | "desc";
+// }
+
+interface NotificationParams {
+  per_page?: number;
+  page?: number;
 }
 
 export const getAllResponses = async (params: GetResponsesParams) => {
@@ -98,3 +118,45 @@ export const getAResponse = async (
       }
     },
   });
+
+
+// ~ =============================================>
+// ~ ======= submitResponse  -->
+// ~ =============================================>
+export const submitResponseEndpoint = async (
+  Id: string,
+): Promise<UseQueryResult<ServerResponse<any>>> => {
+  return queryClient.fetchQuery({
+    queryKey: ["submit Response"],
+    queryFn: async () => {
+      return await postData<ServerResponse<any>>(
+        `/contributor/responses/${Id}/submit`,
+        {},
+      );
+    },
+  });
+};
+
+export const getNotifications = async (params: NotificationParams) => {
+  try {
+    const query = new URLSearchParams();
+
+    const appendQuery = (key: string, value: any) => {
+      if (value !== undefined && value !== null) {
+        query.append(key, value.toString());
+      }
+    };
+
+    // Append query parameters
+    appendQuery("per_page", params.per_page);
+    appendQuery("page", params.page);
+
+    const endpoint = `/notifications?${query.toString()}`;
+    const response = await fetchData<ServerResponse<any>>(endpoint);
+
+    return response;
+  } catch (error) {
+    console.error("Error fetching Notifications:", error);
+    throw new Error("Failed to fetch Notificatios. Please try again later.");
+  }
+};

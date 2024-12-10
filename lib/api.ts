@@ -1,7 +1,9 @@
 // apiService.ts
 import axiosInstance from "./axiosInstance";
 import { UseQueryResult, QueryFunction, useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { AxiosResponse } from "axios";
+import { AxiosProgressEvent } from "axios";
 
 export interface ServerResponse<T> {
   data: T;
@@ -70,18 +72,73 @@ const updateDataById = async <T>(
 
 const deleteDataById = async <T>(
   resource: string,
-  id?: string,
+  id: string,
   options = {},
 ): Promise<T> => {
   const url = `${resource}/${id}`;
   const response = await axiosInstance.delete<T>(url, options);
   return response.data;
 };
-
+const deleteDataByIdx = async <T>(url: string, options = {}): Promise<T> => {
+  const response = await axiosInstance.delete<T>(url, options);
+  return response.data;
+};
 async function getStreamData<T>(url: string) {
   const response: AxiosResponse<any> = await axiosInstance.get(url, {});
   return response.data;
 }
+
+const uploadQuestionFile = async (
+  responseId: string,
+  formData: FormData,
+): Promise<any> => {
+  let toastId: string | number = toast.loading("Uploading file... 0%");
+
+  try {
+    const endpoint = `/contributor/responses/${responseId}/answer/upload`;
+
+    const response = await axiosInstance.post(endpoint, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      onUploadProgress: (progressEvent: AxiosProgressEvent) => {
+        if (progressEvent.total) {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total,
+          );
+          console.log(`File upload progress: ${percentCompleted}%`);
+
+          toast.message(`Uploading file... ${percentCompleted}%`, {
+            id: toastId,
+          });
+        } else {
+          console.log("Upload progress: unable to calculate percentage");
+        }
+      },
+    });
+
+    console.log("File uploaded successfully:", response.data);
+    //@ts-ignore
+    toast.success(response?.message || "File uploaded successfully", {
+      id: toastId,
+    });
+
+    return {
+      success: true,
+      //@ts-ignore
+      message: response?.message || "File uploaded successfully",
+    };
+  } catch (error) {
+    console.error("Error during file upload:", error);
+
+    toast.error("Failed to upload file. Please try again.", { id: toastId });
+
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "File upload failed",
+    };
+  }
+};
 
 export {
   fetchData,
@@ -92,4 +149,6 @@ export {
   updateDataById,
   deleteDataById,
   getStreamData,
+  uploadQuestionFile,
+  deleteDataByIdx,
 };

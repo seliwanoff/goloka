@@ -1,4 +1,5 @@
-import { type ClassValue, clsx } from "clsx";
+import clsx from "clsx";
+// import { type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import React from "react";
 import { baseURL } from "./axiosInstance";
@@ -11,48 +12,20 @@ type TokenType = {
 };
 
 // Function to merge class names with Tailwind and clsx
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+// export function cn(...inputs: ClassValue[]) {
+//   return twMerge(clsx(inputs));
+// }
+
+export function cn(...inputs: Parameters<typeof clsx>) {
+  return twMerge(clsx(...inputs));
 }
 
 // Function to merge and construct various Tailwind classes into one
 export const classMerge = (...classes: (string | boolean)[]): string =>
   classes.filter(Boolean).join(" ");
 
-// Build server routes with the base URL from environment variables
-// const serverUrl: string = process.env.NEXT_PUBLIC_SERVER_HOST as string;
 export const serverRoute = (route: string): string => `${baseURL}/${route}`;
 
-// Extract token from local storage and return token data with auth header
-// export const tokenExtractor = (): {
-//   authHeader: string;
-//   // tokenData: TokenType;
-// } | null => {
-//   const rawToken: string | null = localStorage.getItem("my_id");
-//   const token = localStorage.getItem("access_token");
-//   const token_type = localStorage.getItem("token_type");
-//   if (!token) return null;
-
-//   try {
-//     const parsedToken = JSON.parse(token);
-//     const parsedTokenType = JSON.parse(token_type as string);
-
-//     const tokenData = {
-//       token_type: parsedTokenType,
-//       access_token: token,
-//       refresh_token: parsedToken.refresh_token,
-//       expires_at: parsedToken.exp * 1000, // Convert to milliseconds
-//     };
-
-//     return {
-//       authHeader: `${parsedTokenType} ${parsedToken}`,
-//       // tokenData,
-//     };
-//   } catch (error) {
-//     console.error("Failed to parse token from local storage", error);
-//     return null;
-//   }
-// };
 export const tokenExtractor = (): {
   authHeader: string;
   tokenData: any;

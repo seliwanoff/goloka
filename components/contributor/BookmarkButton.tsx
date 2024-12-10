@@ -3,7 +3,7 @@ import { LoaderCircle } from "lucide-react";
 
 export interface BookmarkButtonProps {
   isBookmarked: boolean;
-  handleBookmark: () => void;
+  handleBookmark: (e?: any) => void;
   loading: boolean;
 }
 

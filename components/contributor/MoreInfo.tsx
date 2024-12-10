@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import StepperIndicator from "./StepperIndicator";
 import {
   Select,
@@ -7,25 +7,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { useForm, Controller } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as Yup from "yup";
-import { useUserStore } from "@/stores/use-user-store";
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useContributorStore } from "@/stores/contributors";
+import { useUserStore } from "@/stores/currentUserStore";
+import DatePickerField from "./datePicker";
 
 type PageProps = {
-  setStep: any;
-  step: any;
+  setStep: (step: number | ((prev: number) => number)) => void;
+  step: number;
 };
 
 const religions = [
@@ -51,41 +51,69 @@ const ethnicities = [
   { label: "Other", value: "other" },
 ];
 
-// Validation schema
-const validationSchema = Yup.object().shape({
-  birth_date: Yup.date()
-    .max(new Date(), "Date of birth cannot be in the future")
+// Form schema using zod
+const formSchema = z.object({
+  birth_date: z.date({
+    required_error: "Date of birth is required",
+  })
     .min(new Date("1900-01-01"), "Date of birth cannot be before 1900")
-    .required("Date of birth is required"),
-  gender: Yup.string().required("Gender is required"),
-  religion: Yup.string().required("Religion is required"),
-  ethnicity: Yup.string().required("Ethnicity is required"),
+    .max(new Date(), "Date of birth cannot be in the future"),
+  gender: z.string({
+    required_error: "Gender is required",
+  }),
+  religion: z.string({
+    required_error: "Religion is required",
+  }),
+  ethnicity: z.string({
+    required_error: "Ethnicity is required",
+  }),
 });
 
-const MoreInfo: React.FC<PageProps> = ({ step, setStep }) => {
-  const { setStep1Info } = useContributorStore();
+type FormValues = z.infer<typeof formSchema>;
 
+const MoreInfo: React.FC<PageProps> = ({ step, setStep }) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { setStep1Info } = useContributorStore();
+  const currentUser = useUserStore((state) => state.user);
 
   const {
     control,
     handleSubmit,
-    formState: { errors },
-  } = useForm({
-    resolver: yupResolver(validationSchema),
+    formState: { errors, isValid },
+  } = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    mode: "onChange",
   });
-  const currentUser = useUserStore((state) => state.currentUser);
-  const onSubmit = (data: any) => {
-    console.log(data);
-     setStep1Info(data);
+
+  const onSubmit = async (data: FormValues) => {
+    setIsSubmitting(true);
+    try {
+      // Convert Date to formatted string
+      const formattedData = {
+        birth_date: data.birth_date.toISOString().split('T')[0], // YYYY-MM-DD format
+        gender: data.gender,
+        religion: data.religion,
+        ethnicity: data.ethnicity
+      };
+
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+      setStep1Info(formattedData);
+      setStep((prev: number) => prev + 1);
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleSkip = () => {
     setStep((prev: number) => prev + 1);
   };
 
-  const handleSkip = () => {};
-const Name = currentUser?.data?.name?.split(" ")[0];
-const FirstName = Name
-  ? Name.charAt(0).toUpperCase() + Name.slice(1).toLowerCase()
-  : "";
-
+  const firstName = currentUser?.name?.split(" ")[0];
+  const formattedName = firstName
+    ? firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase()
+    : "";
 
   return (
     <>
@@ -93,17 +121,19 @@ const FirstName = Name
         <StepperIndicator setStep={setStep} step={step} />
 
         <div className="mt-6">
-          <h2 className="mb-2 text-2xl font-bold leading-9 text-[#333333]">
-            Hi{" "}
-            <span className="bg-gradient-to-b from-main-100 from-[55%] to-main-200 bg-clip-text text-transparent">
-              {FirstName}
-            </span>
-            , we would like to know you more
-          </h2>
-          <p className="leading-7 text-[#828282]">
-            Lorem ipsum dolor sit amet consectetur. Feugiat ullamcorper
-            facilisis vulputate .
-          </p>
+          <div>
+            <h2 className="mb-2 text-xl font-bold leading-tight text-[#333333] lg:text-2xl">
+              Hi{" "}
+              <span className="bg-gradient-to-b from-main-100 from-[55%] to-main-200 bg-clip-text text-transparent">
+                {formattedName}
+              </span>
+              , we would like to know you more
+            </h2>
+            <p className="text-sm leading-relaxed text-[#828282] lg:text-base">
+              Lorem ipsum dolor sit amet consectetur. Feugiat ullamcorper
+              facilisis vulputate.
+            </p>
+          </div>
 
           <form
             id="more-info"
@@ -111,7 +141,7 @@ const FirstName = Name
             onSubmit={handleSubmit(onSubmit)}
           >
             {/* DATE OF BIRTH */}
-            <div className="">
+            {/* <div className="">
               <label
                 htmlFor="birth_date"
                 className="mb-2 inline-block text-base font-normal text-[#4F4F4F]"
@@ -158,8 +188,8 @@ const FirstName = Name
                   {errors.birth_date.message}
                 </p>
               )}
-            </div>
-
+            </div> */}
+            <DatePickerField control={control} errors={errors} />
             {/* GENDER */}
             <div className="">
               <label
@@ -260,13 +290,26 @@ const FirstName = Name
             <div className="grid gap-3 pt-6">
               <Button
                 type="submit"
-                className="h-12 w-full rounded-full bg-main-100 text-base font-light text-white hover:bg-blue-700"
+                disabled={!isValid || isSubmitting}
+                className={cn(
+                  "h-12 w-full rounded-full bg-main-100 text-base font-light text-white transition-all",
+                  "hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50",
+                )}
               >
-                Proceed
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  "Proceed"
+                )}
               </Button>
               <Button
+                type="button"
                 onClick={handleSkip}
-                className="w-full bg-transparent text-base text-main-100 hover:bg-transparent"
+                className="w-full bg-transparent text-base text-main-100 hover:bg-transparent disabled:opacity-50"
+                disabled={isSubmitting}
               >
                 Skip
               </Button>
