@@ -31,14 +31,7 @@ import Footer from "@/components/landing-comps/footer";
 import { getGuestCampaign } from "@/services/campaign";
 import { useQuery } from "@tanstack/react-query";
 import { StaticImport } from "next/dist/shared/lib/get-img-props";
-import {
-  ReactElement,
-  JSXElementConstructor,
-  ReactNode,
-  AwaitedReactNode,
-  ReactPortal,
-  Key,
-} from "react";
+
 import { Skeleton } from "@/components/task-stepper/skeleton";
 import { useRouter } from "next/navigation";
 
@@ -66,8 +59,6 @@ const LandingPage = () => {
     queryKey: ["Get guest user"],
     queryFn: getGuestCampaign,
   });
-
-
 
   return (
     <div>
