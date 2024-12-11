@@ -16,7 +16,7 @@ import Thumb from "@/public/assets/images/thumb.svg";
 import AppleStore from "@/public/assets/images/App Store.png";
 import PlayStore from "@/public/assets/images/Play Store.png";
 import AppPreview from "@/public/assets/images/download-app.png";
-import Agric from "@/public/assets/images/tasks/task1.png";
+
 import cta1 from "@/public/assets/images/mac.png";
 import cta2 from "@/public/assets/images/share-thought-cta.png";
 import FinIcon from "@/public/assets/images/finance-icon.png";
@@ -30,7 +30,7 @@ import Marquee from "@/components/ui/marquee";
 import Footer from "@/components/landing-comps/footer";
 import { getGuestCampaign } from "@/services/campaign";
 import { useQuery } from "@tanstack/react-query";
-import { StaticImport } from "next/dist/shared/lib/get-img-props";
+
 
 import { Skeleton } from "@/components/task-stepper/skeleton";
 import { useRouter } from "next/navigation";
