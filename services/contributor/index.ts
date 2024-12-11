@@ -9,6 +9,7 @@ import {
   updateDataById,
   deleteDataById,
   ServerResponse,
+  deleteDataByIdx,
 } from "@/lib/api";
 import { IRemoteUser } from "@/types";
 
@@ -331,3 +332,17 @@ export const addBeneficiary = async (
       }
     },
   });
+//staging.goloka.io/api/contributor-profile/bank-account/{{bank_id}}/delete
+
+export const removeBeneficiary = async (
+  bank_id: string,
+): Promise<ServerResponseOrNull<any>> => {
+  try {
+    return await deleteDataByIdx<ServerResponse<any>>(
+      `/contributor-profile/bank-account/${bank_id}/delete`,
+    );
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};

@@ -1,8 +1,7 @@
 import CustomInput from "@/components/lib/widgets/custom_inputs";
 import { Button } from "@/components/ui/button";
-import { bankList, currencyOptions, beneficiaryStruct } from "@/utils";
+import { bankList, beneficiaryStruct } from "@/utils";
 import CustomSelectField from "../select_field";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { useForm } from "react-hook-form";
@@ -12,9 +11,17 @@ import { useEffect, useMemo, useState } from "react";
 import {
   addBeneficiary,
   getContributorsProfile,
+  removeBeneficiary,
   resolveAccountInfo,
 } from "@/services/contributor";
-
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useRemoteUserStore } from "@/stores/remoteUser";
@@ -44,6 +51,10 @@ const schema = yup.object().shape({
 const Payment: React.FC<any> = () => {
   const { user, isAuthenticated } = useRemoteUserStore();
   const [selectedValue, setSelectedValue] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [beneficiaryToDelete, setBeneficiaryToDelete] =
+    useState<Beneficiary | null>(null);
   const {
     data: remoteUser,
     isLoading,
@@ -78,6 +89,7 @@ const Payment: React.FC<any> = () => {
   const bankCode = watch("bankName");
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
   const getFieldOptions = (name: string) => {
     switch (name) {
       case "currency":
@@ -155,6 +167,37 @@ const Payment: React.FC<any> = () => {
       // setShow(true);
     }
   };
+
+  const handleDeleteConfirmation = (beneficiary: Beneficiary) => {
+    console.log("clickk");
+    console.log(beneficiary, "beneficiary");
+    setBeneficiaryToDelete(beneficiary);
+    setDeleteModalOpen(true);
+  };
+
+  const handleDelete = async () => {
+    console.log(beneficiaryToDelete, "beneficiaryToDelete");
+    if (!beneficiaryToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      //@ts-ignore
+      const res = await removeBeneficiary(beneficiaryToDelete?.id as string);
+      await refetch();
+      console.log(res, "account_number");
+      if (res) {
+        toast.success("Beneficiary deleted successfully!");
+        setDeleteModalOpen(false);
+        setSelectedValue("");
+      }
+    } catch (error) {
+      //@ts-ignore
+      toast.error(error?.response?.data);
+    } finally {
+      setIsDeleting(false);
+      setBeneficiaryToDelete(null);
+    }
+  };
   return (
     <>
       <form
@@ -197,13 +240,11 @@ const Payment: React.FC<any> = () => {
                     className="flex flex-col gap-4"
                   >
                     {beneficiaries?.map((item: Beneficiary) => (
-                      <div className="flex w-full items-center" key={item.id}>
-                        <div
-                          // value={item.id.toString()}
-                          id={item.id.toString()}
-                          className="peer sr-only"
-                          // disabled
-                        />
+                      <div
+                        className="flex w-full items-center"
+                        key={item.account_number}
+                      >
+                        <div className="peer sr-only" />
                         <div
                           // htmlFor={item.id.toString()}
                           className={cn(
@@ -221,8 +262,12 @@ const Payment: React.FC<any> = () => {
                           >
                             {item.account_name}
                           </h4>
-                          <div className="place-items-end justify-center text-red  rounded-full p-2">
-                            <Trash2 color="red"/>
+                          <div className="text-red relative top-4 place-items-end justify-center rounded-full p-2">
+                            <Trash2
+                              onClick={() => handleDeleteConfirmation(item)}
+                              color="red"
+                              className="rounded-full p-1 hover:bg-red-200"
+                            />
                           </div>
 
                           <div className="flex items-center gap-5">
@@ -334,6 +379,34 @@ const Payment: React.FC<any> = () => {
           </div>
         </div>
       </form>
+
+      {/* Delete Confirmation Modal */}
+      <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Beneficiary</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this beneficiary account?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteModalOpen(false)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? <Loader className="animate-spin" /> : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

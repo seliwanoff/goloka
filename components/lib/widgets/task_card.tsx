@@ -20,6 +20,7 @@ interface TaskCardProps {
   image_path: string[];
   locations: { state: string; lgas: string[] }[];
   number_of_responses: number;
+  number_of_responses_received: number;
   payment_rate_for_response: string;
   total_fee: string;
   type: string;
@@ -40,6 +41,7 @@ const TaskCardWidget: React.FC<TaskCardProps> = ({
   description,
   image_path,
   number_of_responses,
+  number_of_responses_received,
   payment_rate_for_response,
   type,
   is_bookmarked,
@@ -95,13 +97,13 @@ const TaskCardWidget: React.FC<TaskCardProps> = ({
       </figure>
 
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4 rounded-full bg-main-100 bg-opacity-5 p-2 pr-5">
+        <div className="flex items-center gap-2 rounded-full bg-main-100 bg-opacity-5 p-2 pr-5">
           <span className="rounded-full bg-white px-4 py-1 text-[14px] font-semibold leading-[21px] text-main-100">
             {USER_CURRENCY_SYMBOL}
             {payment_rate_for_response}
           </span>
           <p className="text-[14px] leading-[16.71px] text-main-100">
-            {number_of_responses}{" "}
+            {number_of_responses_received} of {number_of_responses}{" "}
             <span className="text-[#7698EC]">responses</span>
           </p>
         </div>

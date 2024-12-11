@@ -96,13 +96,16 @@ const DynamicQuestion = ({
     Record<string | number, string>
   >({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
-const inputRefs = useRef<
-  Record<
-    string | number,
-    HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | null
-  >
->({});
-
+  const inputRefs = useRef<
+    Record<
+      string | number,
+      | HTMLInputElement
+      | HTMLTextAreaElement
+      | HTMLButtonElement
+      | HTMLSelectElement
+      | null
+    >
+  >({});
 
   const KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   console.log(response?.answers, "responseresponse");
@@ -126,15 +129,7 @@ const inputRefs = useRef<
     setSelectedValues(initialAnswers);
   }, [questions, answers, response?.answers]);
 
-  // useEffect(() => {
-  //   const initialAnswers: Record<string | number, any> = {};
-  //   questions.forEach((ques) => {
-  //     // Prioritize existing answers from the stepper context
-  //     initialAnswers[ques.id] =
-  //       answers[ques.id] || (ques.type === "checkbox" ? [] : "");
-  //   });
-  //   setSelectedValues(initialAnswers);
-  // }, [questions, answers]);
+
 
   const handleInputChange = (
     value: string | boolean | File | string[],
@@ -276,7 +271,7 @@ const inputRefs = useRef<
         })),
     };
 
-    if (isLastStep) setLastStepLoading(true);
+     setLastStepLoading(true);
 
     let answerResponse = null;
     let fileResponse = null;
@@ -531,23 +526,65 @@ const inputRefs = useRef<
         return (
           <div className="col-span-2 grid grid-cols-2 gap-5">
             {ques.options?.map(
-              (opt: any, index: React.Key | null | undefined) => (
-                <div key={index} className="group flex items-center gap-3">
+              (opt: { label: string; value: string }, index: number) => (
+                <div
+                  key={`${ques.id}-${index}`}
+                  className="group flex items-center gap-3"
+                >
                   <Checkbox
-                    //@ts-ignore
-                    ref={(el) => (inputRefs.current[ques.id] = el)}
+                    ref={(el) => {
+                      if (el) {
+                        if (!inputRefs.current) inputRefs.current = {};
+                        inputRefs.current[ques.id] = el;
+                      }
+                    }}
                     id={`q${ques.id}-${index}`}
-                    checked={selectedValues[ques.id]?.includes(opt) || false}
-                    onCheckedChange={(checked: any) => {
-                      const currentSelections = selectedValues[ques.id] || [];
+                    // Defensive check for selectedValues
+                    checked={
+                      Array.isArray(selectedValues[ques.id])
+                        ? selectedValues[ques.id].some(
+                            (item: any) =>
+                              (typeof item === "string"
+                                ? item
+                                : item?.value) === opt.value,
+                          )
+                        : false
+                    }
+                    onCheckedChange={(checked: boolean) => {
+                      // Ensure currentSelections is always an array
+                      const currentSelections = Array.isArray(
+                        selectedValues[ques.id],
+                      )
+                        ? selectedValues[ques.id]
+                        : [];
+
                       let newSelections;
                       if (checked) {
-                        newSelections = [...currentSelections, opt];
+                        // Add the option if it's not already present
+                        if (
+                          !currentSelections.some(
+                            (item: any) =>
+                              (typeof item === "string"
+                                ? item
+                                : item?.value) === opt.value,
+                          )
+                        ) {
+                          newSelections = [...currentSelections, opt];
+                        } else {
+                          newSelections = currentSelections;
+                        }
                       } else {
+                        // Remove the option
                         newSelections = currentSelections.filter(
-                          (item: string) => item !== opt?.value,
+                          (item: any) =>
+                            (typeof item === "string" ? item : item?.value) !==
+                            opt.value,
                         );
                       }
+
+                      // Log for debugging
+                      console.log("New Selections:", newSelections);
+
                       handleInputChange(newSelections, ques.id);
                     }}
                     className="form-checkbox h-5 w-5 text-main-100"
@@ -556,7 +593,7 @@ const inputRefs = useRef<
                     htmlFor={`q${ques.id}-${index}`}
                     className="text-sm text-[#101828]"
                   >
-                    {opt?.label}
+                    {opt.label}
                   </Label>
                 </div>
               ),
@@ -681,9 +718,9 @@ const inputRefs = useRef<
 
       case "select":
         return (
-
           <div className="col-span-2">
             <select
+              //@ts-ignore
               ref={(el) => (inputRefs.current[ques.id] = el)} // Reference the select element
               id={ques.name}
               value={selectedValues[ques.id] || ""}
@@ -939,6 +976,7 @@ const inputRefs = useRef<
       //       <AudioRecorder
       //         quesId={ques.id}
       //         handleInputChange={handleInputChange}
+      //         defaultAudio={selectedValues[ques.id]} // Pass the default audio
       //       />
       //     </div>
       //   );
@@ -1037,22 +1075,21 @@ const inputRefs = useRef<
         </div>
       </>
       <div className="space-y-10">
-
-      {questions?.map((ques: any) => (
-        <div key={ques.id} className="grid gap-2">
-          <Label
-            htmlFor={ques.name}
-            className="text-base leading-7 tracking-wider text-[#333333]"
-          >
-            {ques.label}
-            {ques.required === 1 && (
-              <span className="ml-1 text-red-500">*</span>
-            )}
-          </Label>
-          {renderQuestion(ques)}
-        </div>
-      ))}
-</div>
+        {questions?.map((ques: any) => (
+          <div key={ques.id} className="grid gap-2">
+            <Label
+              htmlFor={ques.name}
+              className="text-base leading-7 tracking-wider text-[#333333]"
+            >
+              {ques.label}
+              {ques.required === 1 && (
+                <span className="ml-1 text-red-500">*</span>
+              )}
+            </Label>
+            {renderQuestion(ques)}
+          </div>
+        ))}
+      </div>
       <StepperControl
         isLastStep={isLastStep}
         next={handleNext}
