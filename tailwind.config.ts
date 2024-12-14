@@ -1,5 +1,3 @@
-
-
 import type { Config } from "tailwindcss";
 
 const config = {
@@ -20,6 +18,9 @@ const config = {
       },
     },
     extend: {
+      fontFamily: {
+        poppins: '"Poppins", sans-serif',
+      },
       colors: {
         // emerald: require("tailwindcss/colors").emerald,
         main: {
