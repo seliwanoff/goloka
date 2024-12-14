@@ -6,10 +6,13 @@ import { useTransferOverlay, useWithdrawOverlay } from "@/stores/overlay";
 import { useTransferStepper, useWithdrawStepper } from "@/stores/misc";
 import { useWalletStore } from "@/stores/useWithdrawal";
 import { formatDate } from "@/helper";
+import { useRemoteUserStore } from "@/stores/remoteUser";
 
 type ComponentProps = {};
 
 const PaymentSuccessful: React.FC<ComponentProps> = ({}) => {
+  const { user, isAuthenticated } = useRemoteUserStore();
+  const USER_CURRENCY_SYMBOL = user?.country?.["currency-symbol"];
   const { setOpen } = useWithdrawOverlay();
   const { setStep, clearTransaction } = useWithdrawStepper();
   const { response, error } = useWalletStore();
@@ -42,7 +45,12 @@ const PaymentSuccessful: React.FC<ComponentProps> = ({}) => {
 
       <div className="mt-6 grid grid-cols-2 items-center">
         <div className="">
-          <h3 className="font-bold text-[#101828]">${amount}</h3>
+          <h3 className="font-bold text-[#101828]">
+            {USER_CURRENCY_SYMBOL}{" "}
+            {Math.abs(
+              parseFloat((amount as unknown as string) || "0"),
+            ).toLocaleString()}
+          </h3>
           <p className="text-sm text-[#828282]">Amount</p>
         </div>
         <span

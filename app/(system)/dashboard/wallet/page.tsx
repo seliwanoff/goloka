@@ -5,30 +5,28 @@ import React, { useEffect, useState } from "react";
 import WalletTable from "@/components/lib/widgets/wallet_table";
 import WalletTableOptions from "@/components/lib/widgets/WalletTableOptions";
 import { useWalletFilter } from "@/stores/misc";
-import { transactions } from "@/utils";
+
 import InvoiceModal from "@/components/lib/modals/invoice_modal";
 
 import { useTransferOverlay, useWithdrawOverlay } from "@/stores/overlay";
-import Pagination from "@/components/lib/navigation/Pagination";
+
 import CreateWithdrawal from "@/components/lib/modals/create_withdrawal";
 import CreateBeneficiary from "@/components/lib/modals/create_beneficiary";
 import CreateTransfer from "@/components/lib/modals/create_transfer";
 import { useQuery } from "@tanstack/react-query";
-import {
-  getContributorsBalance,
-  getOrganizationInfo,
-} from "@/services/wallets";
+
 import { numberWithCommas } from "@/helper";
 import { getAllTransactions } from "@/services/transactions";
-import { getContributorsProfile } from "@/services/contributor";
+
 import { useRemoteUserStore } from "@/stores/remoteUser";
 import { useUserStore } from "@/stores/currentUserStore";
-import CreatePinComponent from "@/components/wallet_comps/createPin/createPinComponent";
+
 import { useWalletStore } from "@/stores/useWithdrawal";
 
 const Wallet = () => {
   const { user, isAuthenticated } = useRemoteUserStore();
   const { user: currentUser, refetchUser } = useUserStore();
+  const [trxId, setTrxId] = useState("");
   const { response, error } = useWalletStore();
   const [expenses, setExpenses] = useState<any[]>([]);
   const { filterType } = useWalletFilter();
@@ -42,57 +40,40 @@ const Wallet = () => {
   console.log(currentUser?.pin_status, "currentUser?.pin_status");
   console.log(response, "transaction response");
 
-  const fetchData = () => {
-    return getAllTransactions({
-      // search: debouncedSearchTerm,
-      // type,
-      // page,
-      // per_page: perPage,
-      // min_price: min_payment,
-      // max_price: max_payment,
-    });
-  };
-  const {
-    data: trnsactions,
-    isLoading,
-    isFetching,
-    isRefetching,
-  } = useQuery({
-    queryKey: [
-      "Get transactions list",
-      //    debouncedSearchTerm,
-      //    type,
-      //    page,
-      //    perPage,
-      //    min_payment,
-      //    max_payment,
-    ],
-    queryFn: fetchData,
-  });
+  // const fetchData = () => {
+  //   return getAllTransactions({
+  //     // search: debouncedSearchTerm,
+  //     // type,
+  //     // page,
+  //     // per_page: perPage,
+  //     // min_price: min_payment,
+  //     // max_price: max_payment,
+  //   });
+  // };
+
 
   //@ts-ignore
   const USER_CURRENCY_SYMBOL = user?.country?.["currency-symbol"];
-  console.log(trnsactions, "trnsactions");
 
-  useEffect(() => {
-    console.log(filterType);
+  // useEffect(() => {
+  //   console.log(filterType);
 
-    const filter = (status: string) =>
-      transactions?.filter(
-        (item) => item?.status?.toLowerCase() === status?.toLowerCase(),
-      );
-    switch (filterType) {
-      case "pending":
-        return setExpenses(filter("pending"));
-      case "failed":
-        return setExpenses(filter("failed"));
-      case "successful":
-        return setExpenses(filter("successful"));
-      case "all":
-      default:
-        return setExpenses(transactions);
-    }
-  }, [filterType]);
+  //   const filter = (status: string) =>
+  //     transactions?.filter(
+  //       (item) => item?.status?.toLowerCase() === status?.toLowerCase(),
+  //     );
+  //   switch (filterType) {
+  //     case "pending":
+  //       return setExpenses(filter("pending"));
+  //     case "failed":
+  //       return setExpenses(filter("failed"));
+  //     case "successful":
+  //       return setExpenses(filter("successful"));
+  //     case "all":
+  //     default:
+  //       return setExpenses(transactions);
+  //   }
+  // }, [filterType]);
 
   useEffect(() => {
     if (response) {
@@ -161,13 +142,16 @@ const Wallet = () => {
 
         {/* TABLE */}
         <div className="rounded-2xl bg-white p-[14px]">
-          {/* OPTIONS */}
-          <WalletTableOptions />
+          {/* OPTIONS
+          <WalletTableOptions /> */}
 
           {/* TABLE */}
           <div className="">
             <div>
-              <WalletTable data={trnsactions?.data} />
+              <WalletTable
+
+
+              />
             </div>
 
             <div className="mt-6">

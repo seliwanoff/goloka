@@ -17,10 +17,10 @@ import { AxiosResponse } from "axios";
 
 interface GetTransactions {
   per_page?: number;
-
+  search?: string;
   start_date?: string;
   end_date?: string;
-
+  page: number;
   type?: string;
 }
 
@@ -36,11 +36,12 @@ export const getAllTransactions = async (params: GetTransactions) => {
 
     // Append query parameters
     appendQuery("per_page", params.per_page);
-
+    appendQuery("search", params.search);
+    appendQuery("page", params.page);
     appendQuery("start_date", params.start_date);
     appendQuery("end_date", params.end_date);
 
-    appendQuery("status", params.type);
+    appendQuery("type", params.type);
 
     const endpoint = `/contributor/transactions?${query.toString()}`;
     const response = await fetchData<ServerResponse<any>>(endpoint);
@@ -51,7 +52,6 @@ export const getAllTransactions = async (params: GetTransactions) => {
     throw new Error("Failed to fetch transactions. Please try again later.");
   }
 };
-// /contributor/aacinnorsstt / 20241211115553302927;
 
 export const getTrxId = async (
   Id: string,

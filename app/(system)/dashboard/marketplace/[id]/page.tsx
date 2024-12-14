@@ -32,10 +32,7 @@ import { BookmarkButton } from "@/components/contributor/BookmarkButton";
 import Map from "@/components/map/map";
 import { useRemoteUserStore } from "@/stores/remoteUser";
 
-// Dynamically import the LocationMap component with SSR disabled
-const LocationMap = dynamic(() => import("@/components/map/locationmap"), {
-  ssr: false,
-});
+
 
 const SkeletonBox = ({ className }: { className?: string }) => (
   <div className={`animate-pulse bg-gray-300 ${className}`}></div>

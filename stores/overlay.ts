@@ -1,8 +1,10 @@
 import { create } from "zustand";
 
 interface StoreState {
+  id?: string;
   open: boolean;
   setOpen: (value: boolean) => void;
+  setId?: (id: string) => void;
 }
 
 interface FilterState {
@@ -31,6 +33,7 @@ const useShowFilter = create<FilterState>((set) => ({
 }));
 
 const useInvoiceOverlay = create<StoreState>((set) => ({
+  setId: (value: string) => set({ id: value }),
   open: false,
   setOpen: (value) => set({ open: value }),
 }));
