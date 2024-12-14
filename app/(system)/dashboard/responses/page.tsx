@@ -170,8 +170,6 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
     }
   }, [activeTab]);
 
-
-
   const updateQueryParams = (key: string, value: string | null) => {
     const queryParams = new URLSearchParams(window.location.search);
 
@@ -524,14 +522,6 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
             </Card>
 
             <div className="mt-6">
-              {/* <Pagination
-                totalPages={pages?.length}
-                currentPage={currentPage}
-                onPageChange={setCurrentPage}
-                RowSize={pageSize}
-                onRowSizeChange={setPageSize}
-              /> */}
-
               <Pagination
                 //@ts-ignore
                 totalItems={responseData?.pagination?.total_items || 0}
@@ -550,7 +540,7 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
 
 export default ResponsesPage;
 
-// Define props for the StatusPill component
+
 interface StatusPillProps {
   status: Status;
 }
