@@ -128,9 +128,9 @@ const LandingNavbar: React.FC<ComponentProps> = ({}) => {
 export default LandingNavbar;
 
 const navLinks: { text: string; href: string }[] = [
-  { text: "Products", href: "#" },
-  { text: "Solution", href: "#" },
-  { text: "Case study", href: "#" },
-  { text: "Pricing", href: "#" },
-  { text: "Blog", href: "#" },
+  // { text: "Products", href: "/" },
+  // { text: "Solution", href: "/" },
+  { text: "Case study", href: "/case-study" },
+  { text: "Pricing", href: "/pricing" },
+  { text: "Blog", href: "/blog" },
 ];

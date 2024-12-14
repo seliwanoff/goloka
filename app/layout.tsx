@@ -21,7 +21,7 @@
 // }
 import "./globals.css";
 import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
+// import { Poppins } from "next/font/google";
 
 // import { Satoshi } from "@/assets/fonts/font";
 import TanstackProvider from "@/components/layout/tanstackProvider";
@@ -33,10 +33,10 @@ export const metadata: Metadata = {
   description: "Goloka is your personal writer",
 };
 
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800", "900"],
-});
+// const poppins = Poppins({
+//   subsets: ["latin"],
+//   weight: ["400", "500", "600", "700", "800", "900"],
+// });
 
 export default function RootLayout({
   children,
@@ -45,7 +45,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={poppins.className}>
+      {/* className={poppins.className} */}
+      <body>
         <TanstackProvider>
           <LandingNavbar />
           <div className="-z-10">{children}</div>
