@@ -21,11 +21,27 @@ import {
 import { useInvoiceOverlay } from "@/stores/overlay";
 import { X } from "lucide-react";
 import DownloadInvoice from "../widgets/download_invoice";
+import { getTrxId } from "@/services/transactions";
+import { useQuery } from "@tanstack/react-query";
+
 
 const InvoiceModal = () => {
-    const { open, setOpen } = useInvoiceOverlay();
-    const isDesktop = useMediaQuery("(min-width: 768px)");
+  const { open, setOpen } = useInvoiceOverlay();
+  const isDesktop = useMediaQuery("(min-width: 768px)");
 
+   const {  id } = useInvoiceOverlay();
+   const {
+     data: getResponse,
+     isLoading,
+     isError,
+     error,
+     refetch: refetchResponse,
+   } = useQuery({
+     queryKey: ["get a Response", id],
+     queryFn: async () => (id ? await getTrxId(id) : null),
+     enabled: !!id,
+   });
+  const getResponseData = getResponse?.data || null;
   return (
     <>
       {isDesktop ? (
@@ -34,7 +50,8 @@ const InvoiceModal = () => {
             <SheetContent className="border-0 p-0 md:max-w-md lg:max-w-xl">
               <SheetHeader className="absolute right-0 top-0 z-10 w-full bg-main-100 p-5">
                 <SheetTitle className="font-normal text-white">
-                  Invoice #1838942022
+                  {/* @ts-ignore */}
+                  Invoice #1 {getResponseData?.reference}
                 </SheetTitle>
                 <SheetDescription className="text-white">
                   Transaction ID
@@ -50,7 +67,12 @@ const InvoiceModal = () => {
 
               {/* INVOICE WIDGET */}
               <div className="mt-24">
-                <DownloadInvoice />
+                <DownloadInvoice
+                  //@ts-ignore
+                  getResponseData={getResponseData}
+                  isError={isError}
+                  isLoading={isLoading}
+                />
               </div>
             </SheetContent>
           </Sheet>
@@ -74,7 +96,8 @@ const InvoiceModal = () => {
                 </span>
               </DrawerHeader>
               <div className="mt-24" />
-              <DownloadInvoice />
+              {/* @ts-ignore */}
+              <DownloadInvoice getResponseData={getResponseData} />
             </DrawerContent>
           </Drawer>
         </div>

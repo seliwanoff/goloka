@@ -573,10 +573,10 @@ export const supportTabs = [
     label: "Help center",
     value: "help",
   },
-  {
-    label: "Chat with Goloka",
-    value: "chat",
-  },
+  // {
+  //   label: "Chat with Goloka",
+  //   value: "chat",
+  // },
   {
     label: "Report an issue",
     value: "report",
@@ -586,45 +586,47 @@ export const supportTabs = [
 export const pushNotifications = [
   {
     label: "Task Updates",
-    value: "taskUpdates",
+    value: "push_task_updates",
     isActive: true,
   },
   {
     label: "Tasks related to me",
-    value: "tasksRelatedToMe",
+    value: "push_tasks_related",
     isActive: true,
   },
   {
     label: "Messages from organization",
-    value: "messagesFromOrganization",
+    value: "push_messages",
     isActive: true,
   },
   {
     label: "Payments",
-    value: "payments",
+    value: "push_payments",
     isActive: true,
   },
 ];
 
+
+
 export const emailNotifications = [
   {
     label: "Task Updates",
-    value: "taskUpdates",
+    value: "email_task_updates",
     isActive: true,
   },
   {
     label: "Tasks related to me",
-    value: "tasksRelatedToMe",
+    value: "email_tasks_related",
     isActive: false,
   },
   {
     label: "Messages from organization",
-    value: "messagesFromOrganization",
+    value: "email_message",
     isActive: true,
   },
   {
     label: "Payments",
-    value: "payments",
+    value: "email_payments",
     isActive: true,
   },
 ];

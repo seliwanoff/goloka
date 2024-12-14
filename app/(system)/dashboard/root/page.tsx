@@ -50,6 +50,37 @@ import { useUserStore } from "@/stores/currentUserStore";
 import { toast } from "sonner";
 import Map from "@/components/map/map";
 import { useLocationAddress } from "@/stores/useLocation";
+const locationData = {
+  label: "Nigeria",
+  lat: "8.9773705",
+  lng: "8.6774730",
+  states: [
+    {
+      label: "Enugu",
+      lat: "6.3962482",
+      lng: "7.3203590",
+      lgas: [
+        {
+          label: "Isi uzo",
+          lat: "6.7132491",
+          lng: "7.6401447",
+        },
+      ],
+    },
+    {
+      label: "Rivers",
+      lat: "4.8768905",
+      lng: "6.8806697",
+      lgas: [
+        {
+          label: "Ogba egbema ndoni",
+          lat: "5.3950449",
+          lng: "6.6022382",
+        },
+      ],
+    },
+  ],
+};
 
 type PageProps = {};
 
@@ -433,7 +464,7 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
           </h3>
           <figure className="h-[200px] xl:h-[300px]">
             {/* <Image src={Map} alt="map" className="h-full w-full object-cover" /> */}
-            <Map />
+            <Map location={locationData} />
           </figure>
         </div>
 

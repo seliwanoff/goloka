@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Mic, StopCircle, Trash2 } from "lucide-react";
 import RecordRTC from "recordrtc";
 
@@ -9,11 +9,13 @@ interface AudioRecorderProps {
     quesId: string | number,
     type?: string,
   ) => void;
+  defaultAudio?: string | File;
 }
 
 const AudioRecorder: React.FC<AudioRecorderProps> = ({
   quesId,
   handleInputChange,
+  defaultAudio,
 }) => {
   const { StereoAudioRecorder } = RecordRTC;
 
@@ -21,6 +23,59 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
   const [audioURL, setAudioURL] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const recorderRef = useRef<any | null>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  // Safely create object URL
+  const createObjectURL = (blob: Blob | File | string) => {
+    if (
+      typeof window !== "undefined" &&
+      window.URL &&
+      window.URL.createObjectURL
+    ) {
+      // Type guard to check if input is a Blob or File
+      if (typeof blob === "object" && blob !== null && "type" in blob) {
+        return window.URL.createObjectURL(blob as Blob | File);
+      }
+      return blob as string;
+    }
+    return null;
+  };
+
+  // Effect to handle default audio
+  useEffect(() => {
+    let url: string | null = null;
+
+    if (defaultAudio) {
+      // If it's already a URL string, use it directly
+      if (typeof defaultAudio === "string") {
+        url = defaultAudio;
+      }
+      // If it's a File, create an object URL
+      else if (
+        defaultAudio &&
+        typeof defaultAudio === "object" &&
+        "type" in defaultAudio
+      ) {
+        url = createObjectURL(defaultAudio);
+      }
+
+      if (url) {
+        setAudioURL(url);
+      }
+    }
+
+    // Cleanup function
+    return () => {
+      if (
+        url &&
+        typeof window !== "undefined" &&
+        window.URL &&
+        window.URL.revokeObjectURL
+      ) {
+        window.URL.revokeObjectURL(url);
+      }
+    };
+  }, [defaultAudio]);
 
   const startRecording = async () => {
     setError(null);
@@ -30,9 +85,9 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
 
       const recorder = new RecordRTC(stream, {
         type: "audio",
-        mimeType: "audio/wav", // Choose 'audio/mp3', 'audio/m4a', or 'audio/wav'
+        mimeType: "audio/wav",
         recorderType: StereoAudioRecorder,
-        desiredSampRate: 16000, // For higher-quality audio
+        desiredSampRate: 16000,
       });
 
       recorder.startRecording();
@@ -49,16 +104,17 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
       recorderRef.current.stopRecording(() => {
         const blob = recorderRef.current?.getBlob();
         if (blob) {
-          const audioURL = URL.createObjectURL(blob);
-          setAudioURL(audioURL);
+          const url = createObjectURL(blob);
 
-          const audioFile = new File(
-            [blob],
-            `recording-${quesId}.wav`, // Change extension based on mimeType
-            { type: blob.type },
-          );
+          if (url) {
+            setAudioURL(url);
 
-          handleInputChange(audioFile, quesId, "audio");
+            const audioFile = new File([blob], `recording-${quesId}.wav`, {
+              type: blob.type,
+            });
+
+            handleInputChange(audioFile, quesId, "audio");
+          }
         }
       });
       setIsRecording(false);
@@ -66,13 +122,24 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
   };
 
   const deleteRecording = () => {
+    // Revoke the previous object URL to free up memory
+    if (
+      audioURL &&
+      typeof window !== "undefined" &&
+      window.URL &&
+      window.URL.revokeObjectURL
+    ) {
+      window.URL.revokeObjectURL(audioURL);
+    }
+
     setAudioURL(null);
-    //@ts-ignore
-    handleInputChange(null, quesId, "audio");
+
+    // For deleteRecording, pass an empty array to match the type signature
+    handleInputChange([], quesId, "audio");
   };
 
   return (
-    <div className="relative  flex h-40  flex-col items-center justify-center space-y-6 rounded-lg border-2 border-[#3365E31F] bg-[#3365E31F] p-4 text-center w-full">
+    <div className="relative flex h-40 w-full flex-col items-center justify-center space-y-6 rounded-lg border-2 border-[#3365E31F] bg-[#3365E31F] p-4 text-center">
       <h2 className="text-center text-sm font-medium text-[#3365E3]">
         Record Audio
       </h2>
@@ -102,6 +169,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
         <div className="space-y-4">
           <div className="flex items-center space-x-4">
             <audio
+              ref={audioRef}
               controls
               src={audioURL}
               className="w-full rounded-md border border-gray-300 p-2"

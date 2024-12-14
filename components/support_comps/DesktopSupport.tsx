@@ -75,11 +75,11 @@ const supportTabContent = [
     label: <HelpTab />,
     value: "help",
   },
-  {
-    title: "Chat with Goloka",
-    label: <ChatTab />,
-    value: "chat",
-  },
+  // {
+  //   title: "Chat with Goloka",
+  //   label: <ChatTab />,
+  //   value: "chat",
+  // },
   {
     title: "Report an issue",
     label: <ReportTab />,

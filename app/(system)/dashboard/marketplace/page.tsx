@@ -450,11 +450,7 @@ const TaskPage: React.FC<ComponentProps> = ({}) => {
                     ? `${format(startDate, "PPP")} - ${format(endDate, "PPP")}`
                     : "Select date range"}
                   <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F8F8F8]">
-                    <Calendar
-                      size={20}
-                     
-                      color="#828282"
-                    />
+                    <Calendar size={20} color="#828282" />
                   </span>
                 </Button>
               </PopoverTrigger>

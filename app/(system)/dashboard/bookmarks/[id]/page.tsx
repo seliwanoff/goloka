@@ -8,7 +8,7 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Button } from "@/components/ui/button";
 import { Dot, Eye, LoaderCircle, SquarePen, Workflow } from "lucide-react";
 import { ArchiveMinus, Note } from "iconsax-react";
-// import Map from "@/public/assets/images/tasks/tasks.png";
+
 import Link from "next/link";
 
 import { useStepper } from "@/context/TaskStepperContext.tsx";
@@ -29,9 +29,8 @@ import dynamic from "next/dynamic";
 import { toast } from "sonner";
 import { getAResponse } from "@/services/response";
 import { BookmarkButton } from "@/components/contributor/BookmarkButton";
-import { useRemoteUserStore } from "@/stores/remoteUser";
-import ResponseList from "@/components/response/responseListCard";
 import Map from "@/components/map/map";
+import { useRemoteUserStore } from "@/stores/remoteUser";
 
 // Dynamically import the LocationMap component with SSR disabled
 const LocationMap = dynamic(() => import("@/components/map/locationmap"), {
@@ -99,16 +98,16 @@ const SkeletonLoader: React.FC = () => {
 
 type PageProps = {};
 
-const ContributionDetails: React.FC<PageProps> = ({}) => {
+const TaskDetail: React.FC<PageProps> = ({}) => {
   const [isStepper, setIsStepper] = useState<boolean>(false);
   const router = useRouter();
-  const { user, isAuthenticated } = useRemoteUserStore();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
   const { id: taskId } = useParams();
   const [responseId, setResponseId] = useState<string | null>(null);
   const { step } = useStepper();
+  const { user, isAuthenticated } = useRemoteUserStore();
   const USER_CURRENCY_SYMBOL = user?.country?.["currency-symbol"];
   const {
     data: task,
@@ -125,14 +124,10 @@ const ContributionDetails: React.FC<PageProps> = ({}) => {
     enabled: !!responseId,
   });
 
-  const responses = useMemo(() => {
-    //@ts-ignore
-    return task?.data?.responses || [];
-    //@ts-ignore
-  }, [task?.data?.responses]);
-
   //@ts-ignore
   const locations = useMemo(() => task?.data?.locations, [task]);
+  //@ts-ignore
+  const responses = useMemo(() => task?.data?.responses, [task]);
 
   console.log(responses, "response");
 
@@ -244,7 +239,6 @@ const ContributionDetails: React.FC<PageProps> = ({}) => {
         task.data.responses[task.data.responses.length - 1];
       router.push(`/dashboard/responses/${latestResponse.id}`);
     }
-    // router.push(`/dashboard/responses/${res?.id}`);
   };
 
   const handleBookmark = async () => {
@@ -253,10 +247,14 @@ const ContributionDetails: React.FC<PageProps> = ({}) => {
       //@ts-ignore
       if (task?.data?.is_bookmarked) {
         const response = await removeBookmark(taskId as string);
-        toast.success(response?.message);
-        setIsBookmarkLoading(false);
+        refetch();
+        if (response) {
+          toast.success(response?.message);
+          setIsBookmarkLoading(false);
+        }
       } else {
         const response = await bookmarkCampaign({}, taskId as string);
+        refetch();
         //@ts-ignore
         toast.success(response?.message);
         setIsBookmarkLoading(false);
@@ -271,9 +269,11 @@ const ContributionDetails: React.FC<PageProps> = ({}) => {
   const updateStepUrl = (newStep: number) => {
     router.push(`${window.location.pathname}?stepper=true&step=${newStep}`);
   };
+  console.log(getResponse, "getResponse");
 
   const WrappedTaskStepper = () => (
     <TaskStepper
+      response={getResponse}
       //@ts-ignore
       quest={quest}
       onStepChange={(newStep: any) => {
@@ -291,8 +291,6 @@ const ContributionDetails: React.FC<PageProps> = ({}) => {
   if (isLoading) {
     return <SkeletonLoader />;
   }
-  //@ts-ignore
-  console.log(task?.data?.responses, "jtjtjjt");
 
   return (
     <>
@@ -341,7 +339,7 @@ const ContributionDetails: React.FC<PageProps> = ({}) => {
               </div>
               <div className="hidden items-center justify-center space-x-2 md:flex">
                 {/* @ts-ignore */}
-                {/* {task?.data?.responses && task.data.responses.length > 0 && (
+                {task?.data?.responses && task.data.responses.length > 0 && (
                   <Button
                     onClick={onViewResponse}
                     className="h-auto gap-3 rounded-full border border-main-100 bg-white px-6 py-3 text-sm text-main-100 hover:bg-main-100 hover:text-white"
@@ -351,7 +349,7 @@ const ContributionDetails: React.FC<PageProps> = ({}) => {
                     </span>
                     View Response
                   </Button>
-                )} */}
+                )}
                 <Button
                   disabled={isContributeDisabled()}
                   onClick={onContribute}
@@ -361,7 +359,7 @@ const ContributionDetails: React.FC<PageProps> = ({}) => {
                     {getButtonText() === "Continue" ? (
                       <Workflow size={20} />
                     ) : (
-                      <Note size={20} />
+                      <Note size={20} color="currentColor" />
                     )}
                   </span>
                   {loading ? "Loading..." : getButtonText()}
@@ -426,7 +424,8 @@ const ContributionDetails: React.FC<PageProps> = ({}) => {
                 </figure>
                 <div className="mt-5 flex gap-5">
                   <div className="text-sm font-semibold text-[#101828]">
-                    6{" "}
+                    {/* @ts-ignore */}
+                    {task?.data?.no_of_questions}{" "}
                     <span className="font-normal text-[#828282]">
                       Questions
                     </span>
@@ -446,30 +445,26 @@ const ContributionDetails: React.FC<PageProps> = ({}) => {
             {/* ####################################### */}
             {/* -- Tasks section */}
             {/* ####################################### */}
-            <div className="col-span-5 mt-8 rounded-2xl bg-[#fff] p-6">
+            <div className="col-span-5 mt-8">
               <div className="mb-6 flex justify-between">
-                <div>
-                  <span className="text-lg font-semibold text-[#000]">
-                    {/* @ts-ignore */}
-                    {task?.data?.responses?.length}{" "}
-                  </span>
-                  <span className="text-lg text-[#828282]">
-                    {/* @ts-ignore */}
-                    {task?.data?.responses?.length === 1
-                      ? "Response"
-                      : "Responses"}
-                  </span>
-                </div>
+                <h3 className="text-lg font-semibold text-[#333]">
+                  Related Tasks
+                </h3>
 
-                {/* <Link
+                <Link
                   href="/dashboard/marketplace"
                   className="text-lg font-semibold text-main-100"
                 >
                   See all
-                </Link> */}
+                </Link>
               </div>
 
-              <ResponseList responses={responses} isLoading={isLoading} />
+              {/* Task list */}
+              {/* <div className="grid gap-5 md:grid-cols-2 1xl:grid-cols-3 xl:grid-cols-3">
+                {tasks.map((task: any, index: number) => (
+                  <TaskCardWidget {...task} key={index} />
+                ))}
+              </div> */}
             </div>
 
             {/* MOBILE CTA */}
@@ -495,7 +490,7 @@ const ContributionDetails: React.FC<PageProps> = ({}) => {
                   {getButtonText() === "Continue" ? (
                     <Workflow size={20} />
                   ) : (
-                    <Note size={20} />
+                    <Note size={20} color="currentColor" />
                   )}
                 </span>
                 {loading ? "Loading..." : getButtonText()}
@@ -514,4 +509,4 @@ const ContributionDetails: React.FC<PageProps> = ({}) => {
   );
 };
 
-export default ContributionDetails;
+export default TaskDetail;

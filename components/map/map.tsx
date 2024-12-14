@@ -1,7 +1,32 @@
 import React, { useEffect } from "react";
 import { Loader } from "@googlemaps/js-api-loader";
 
-const Map = () => {
+// Define interfaces for the location data
+interface LGA {
+  label: string;
+  lat: string;
+  lng: string;
+}
+
+interface State {
+  label: string;
+  lat: string;
+  lng: string;
+  lgas: LGA[];
+}
+
+interface Location {
+  label: string;
+  lat: string;
+  lng: string;
+  states: State[];
+}
+
+interface MapProps {
+  location: Location;
+}
+
+const Map: React.FC<MapProps> = ({ location }) => {
   const mapRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -15,21 +40,67 @@ const Map = () => {
       const { Map } = await loader.importLibrary("maps");
       const { Marker } = await loader.importLibrary("marker");
 
+      const centerLat =
+        location.states.length > 0
+          ? parseFloat(location.states[0].lat)
+          : parseFloat(location.lat);
+      const centerLng =
+        location.states.length > 0
+          ? parseFloat(location.states[0].lng)
+          : parseFloat(location.lng);
+
+      // Comprehensive map styles to hide all labels
+      const mapStyles = [
+        // Hide administrative area labels
+        {
+          featureType: "administrative",
+          elementType: "labels",
+          stylers: [{ visibility: "off" }],
+        },
+        // Hide landscape labels
+        {
+          featureType: "landscape",
+          elementType: "labels",
+          stylers: [{ visibility: "off" }],
+        },
+        // Hide point of interest labels
+        {
+          featureType: "poi",
+          elementType: "labels",
+          stylers: [{ visibility: "off" }],
+        },
+        // Hide road labels
+        {
+          featureType: "road",
+          elementType: "labels",
+          stylers: [{ visibility: "off" }],
+        },
+        // Hide transit labels
+        {
+          featureType: "transit",
+          elementType: "labels",
+          stylers: [{ visibility: "off" }],
+        },
+        // Hide water area labels
+        {
+          featureType: "water",
+          elementType: "labels",
+          stylers: [{ visibility: "off" }],
+        },
+        // Optional: If you want to make the map appear more minimal
+        {
+          featureType: "landscape.natural",
+          elementType: "geometry",
+          stylers: [{ color: "#f5f5f5" }],
+        },
+      ];
+
       const mapOptions: google.maps.MapOptions = {
-        center: { lat: 9.0765, lng: 7.3986 }, // Abuja, Nigeria
-        zoom: 12,
+        center: { lat: centerLat, lng: centerLng },
+        zoom: 7,
         mapId: "goloka",
-        styles: [
-          {
-            featureType: "all",
-            elementType: "labels",
-            stylers: [
-              {
-                visibility: "off",
-              },
-            ],
-          },
-        ],
+        styles: mapStyles,
+        disableDefaultUI: false, // Optionally remove all default UI controls
       };
 
       const map = new Map(mapRef.current!, mapOptions);
@@ -40,37 +111,36 @@ const Map = () => {
         scaledSize: new google.maps.Size(40, 40),
       };
 
-      // Add markers
-      const markers: google.maps.Marker[] = [
+      // Add markers for each state and its LGAs
+      const markers: google.maps.Marker[] = location.states.flatMap((state) => [
+        // State marker
         new Marker({
-          position: { lat: 9.0765, lng: 7.3986 },
+          position: {
+            lat: parseFloat(state.lat),
+            lng: parseFloat(state.lng),
+          },
           map: map,
+          title: state.label,
           icon: markerIcon,
         }),
-        new Marker({
-          position: { lat: 9.0667, lng: 7.4667 },
-          map: map,
-          icon: markerIcon,
-        }),
-        new Marker({
-          position: { lat: 9.0833, lng: 7.5333 },
-          map: map,
-          icon: markerIcon,
-        }),
-        new Marker({
-          position: { lat: 9.1, lng: 7.35 },
-          map: map,
-          icon: markerIcon,
-        }),
-        new Marker({
-          position: { lat: 9.05, lng: 7.4 },
-          map: map,
-          icon: markerIcon,
-        }),
-      ];
+        // LGA markers
+        ...state.lgas.map(
+          (lga) =>
+            new Marker({
+              position: {
+                lat: parseFloat(lga.lat),
+                lng: parseFloat(lga.lng),
+              },
+              map: map,
+              title: `${state.label} - ${lga.label}`,
+              icon: markerIcon,
+            }),
+        ),
+      ]);
     };
+
     initMap();
-  }, []);
+  }, [location]);
 
   return (
     <div

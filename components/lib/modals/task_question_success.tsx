@@ -23,7 +23,7 @@ const TaskSuccessModal: React.FC<ComponentProps> = ({ open, setOpen }) => {
   const handeClick = () => {
     setStep(1);
     setAnswers({});
-    router.push("/dashboard/tasks");
+    router.push("/dashboard/marketplace");
   };
 
   return (
