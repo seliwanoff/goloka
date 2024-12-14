@@ -48,6 +48,8 @@ type ComponentProps = {
 const DashSideBarDesktop: React.FC<ComponentProps> = ({ navMenuList }) => {
   const pathname = usePathname();
   const router = useRouter();
+
+  
   // userLogout;
 
   const initiateLogout = () => {
@@ -60,8 +62,6 @@ const DashSideBarDesktop: React.FC<ComponentProps> = ({ navMenuList }) => {
       console.log(error, "error");
     }
   };
-
-  
 
   return (
     <aside className="col-span-1 hidden h-full w-full flex-col bg-white px-4 py-3 shadow-md xl:flex">

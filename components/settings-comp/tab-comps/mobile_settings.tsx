@@ -79,19 +79,19 @@ const settingTabs = [
     value: "password",
     label: <ChangePassword />,
   },
-  {
-    title: "Location",
-    value: "location",
-    label: <Location />,
-  },
-  {
-    title: "Payment",
-    value: "payment",
-    label: <Payment />,
-  },
-  {
-    title: "Notification",
-    value: "notification",
-    label: <Notification />,
-  },
+  // {
+  //   title: "Location",
+  //   value: "location",
+  //   label: <Location />,
+  // },
+  // {
+  //   title: "Payment",
+  //   value: "payment",
+  //   label: <Payment />,
+  // },
+  // {
+  //   title: "Notification",
+  //   value: "notification",
+  //   label: <Notification />,
+  // },
 ];

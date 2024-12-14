@@ -28,7 +28,7 @@ const SettingsWeb: React.FC<ComponentProps> = ({}) => {
               <TabsTrigger
                 value={tab.value}
                 key={index}
-                className="flex items-center justify-between rounded-none border-b-2 border-transparent pb-4 pt-2.5 text-sm font-light text-[#828282] data-[state=active]:border-main-100 data-[state=active]:bg-transparent data-[state=active]:text-main-100 data-[state=active]:shadow-none"
+                className="flex items-center justify-between rounded-none border-b-2 border-transparent pb-4 pt-2.5 text-sm font-normal text-[#828282] data-[state=active]:border-main-100 data-[state=active]:bg-transparent data-[state=active]:text-main-100 data-[state=active]:shadow-none"
               >
                 {tab.label}
               </TabsTrigger>
@@ -54,11 +54,11 @@ const settingTabs = [
     value: "password",
     content: <ChangePassword />,
   },
-  // { label: "Location", value: "location", content: <Location /> },
-  {
-    label: "Payment",
-    value: "payment",
-    content: <Payment />,
-  },
-  { label: "Notification", value: "notification", content: <Notification /> },
+  // // { label: "Location", value: "location", content: <Location /> },
+  // {
+  //   label: "Payment",
+  //   value: "payment",
+  //   content: <Payment />,
+  // },
+  // { label: "Notification", value: "notification", content: <Notification /> },
 ];

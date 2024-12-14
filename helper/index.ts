@@ -76,9 +76,9 @@ export const getStatusColor = (status: Status) => {
 };
 
 // Utility function to format the status text
-export const getStatusText = (status: Status) => {
-  const firstChar = status.charAt(0).toUpperCase();
-  const rest = status.slice(1).toLowerCase();
+export const getStatusText = (status: Status | string) => {
+  const firstChar = status?.charAt(0)?.toUpperCase();
+  const rest = status?.slice(1).toLowerCase();
   return `${firstChar}${rest}`;
 };
 
