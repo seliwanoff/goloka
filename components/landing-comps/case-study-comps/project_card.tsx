@@ -3,7 +3,13 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
-const ProjectCard = ({ data, className }: { data: any; className?: string }) => {
+const ProjectCard = ({
+  data,
+  className,
+}: {
+  data: any;
+  className?: string;
+}) => {
   return (
     <div
       className={cn(
@@ -24,7 +30,7 @@ const ProjectCard = ({ data, className }: { data: any; className?: string }) => 
       <div className="relative z-10">
         <p className="mb-1.5 text-sm text-white">{data.date}</p>
         <Link
-          href="/case-study/1"
+          href="/case-studies/1"
           className="text-lg font-semibold tracking-wide text-white md:text-xl"
         >
           {data.name}
