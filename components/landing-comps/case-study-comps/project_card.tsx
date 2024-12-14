@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
-const ProjectCard = ({ data, className }: { data: any; className: string }) => {
+const ProjectCard = ({ data, className }: { data: any; className?: string }) => {
   return (
     <div
       className={cn(
