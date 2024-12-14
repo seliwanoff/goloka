@@ -25,8 +25,9 @@ import {
 // import NotificationLayout from "@/components/layouts/notification-layout";
 import DashSideBarDesktop from "@/components/lib/navigation/dash_sidebar_desktop";
 import DashTopNav from "@/components/lib/navigation/dash_topnav";
-import { useUserStore } from "@/stores/use-user-store";
+// import { useUserStore } from "@/stores/use-user-store";
 import { StepperProvider } from "@/context/TaskStepperContext.tsx";
+import { useUserStore } from "@/stores/currentUserStore";
 // import DashSideBarDesktop from "@/components/lib/navigation/dash_sidebar_desktop";
 // import { getCurrentUser } from "@/services/user_service";
 // import { User, userStore } from "@/stores/user-store";

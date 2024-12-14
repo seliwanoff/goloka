@@ -116,6 +116,7 @@ const Report = () => {
           {" "}
           <div className="mt-6">
             <Pagination
+              // @ts-ignore
               totalPages={pages?.length}
               currentPage={currentPage}
               onPageChange={setCurrentPage}

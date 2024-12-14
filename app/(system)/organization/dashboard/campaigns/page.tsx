@@ -256,6 +256,7 @@ const Page = () => {
         {/* Pagination */}
         <div className="mt-6">
           <Pagination
+            // @ts-ignore
             totalPages={pages?.length}
             currentPage={currentPage}
             onPageChange={setCurrentPage}
@@ -270,7 +271,7 @@ const Page = () => {
 
 export default Page;
 
- const getStatusColor = (status: string) => {
+const getStatusColor = (status: string) => {
   switch (status?.toLowerCase()) {
     case "running":
       return "bg-orange-400/5 border-orange-400 text-orange-400";

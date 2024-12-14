@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import CustomSelectField from "@/components/settings-comp/select_field";
-import { addBeneficiary, bankOptions, currencyOptions } from "@/utils";
+import { bankOptions, beneficiaryStruct, currencyOptions } from "@/utils";
 import { Button } from "@/components/ui/button";
 
 const getFieldOptions = (name: string) => {
@@ -50,7 +50,7 @@ const AddNewBeneficiary = () => {
           Add new beneficiary
         </h3>
         <div className="grid gap-6 md:grid-cols-2">
-          {addBeneficiary.map((data, index) => {
+          {beneficiaryStruct.map((data, index) => {
             if (data.type === "select") {
               return (
                 <CustomSelectField

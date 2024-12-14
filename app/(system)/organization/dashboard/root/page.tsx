@@ -394,6 +394,7 @@ const Dashboard = () => {
 
           <div className="mt-6">
             <Pagination
+              //@ts-ignore
               totalPages={pages?.length}
               currentPage={currentPage}
               onPageChange={setCurrentPage}
@@ -430,7 +431,7 @@ const StatusPill: React.FC<StatusPillProps> = ({ status }) => {
   );
 };
 
-export const getStatusColor = (status: Status) => {
+const getStatusColor = (status: Status) => {
   switch (status?.toLowerCase()) {
     case "pending":
       return "bg-orange-400/5 border-orange-400 text-orange-400";

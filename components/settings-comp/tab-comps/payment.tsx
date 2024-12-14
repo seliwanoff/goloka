@@ -56,6 +56,7 @@ import Image from "next/image";
 import AddCard from "@/components/organization-comps/payment-comps/addcard";
 import AddNewCard from "@/components/organization-comps/payment-comps/addcard";
 import AddNewBeneficiary from "../add_new_beneficiary";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const Payment: React.FC<any> = () => {
   const [cards, setCards] = useState([

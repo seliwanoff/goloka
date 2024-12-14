@@ -16,7 +16,7 @@ const DesktopSupport = () => {
 
   useEffect(() => {
     router.replace(`${pathname}?tab=${tab}`);
-  }, [tab]);
+  }, [pathname, router, tab]);
 
   return (
     <section className="hidden pb-10 pt-[34px] md:block">
