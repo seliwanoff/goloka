@@ -12,30 +12,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ChevronDown, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
+
 import { Button } from "@/components/ui/button";
 import { Calendar as CalenderDate } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { Calendar, Setting4 } from "iconsax-react";
-import { responsesTableData } from "@/utils";
-import { ColumnDef } from "@tanstack/react-table";
-import DataTable from "@/components/lib/widgets/DataTable";
 import { chunkArray, cn, responseStatus } from "@/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import Pagination from "@/components/lib/navigation/Pagination";
@@ -124,33 +112,7 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
   const [min_payment, setmin_payment] = useState<number | undefined>(undefined);
   const responseRef = useRef<HTMLDivElement>(null);
   const [max_payment, setmax_payment] = useState<number | undefined>(undefined);
-  // const fetchData = () => {
-  //   return getAllResponses({
-  //     // search: debouncedSearchTerm,
-  //     // type,
-  //     // page,
-  //     // per_page: perPage,
-  //     // min_price: min_payment,
-  //     // max_price: max_payment,
-  //   });
-  // };
-  // const {
-  //   data: responseData,
-  //   isLoading,
-  //   isFetching,
-  //   isRefetching,
-  // } = useQuery({
-  //   queryKey: [
-  //     "Get task list",
-  //     //    debouncedSearchTerm,
-  //     //    type,
-  //     //    page,
-  //     //    perPage,
-  //     //    min_payment,
-  //     //    max_payment,
-  //   ],
-  //   queryFn: fetchData,
-  // });
+
   const { data: responseData, isLoading } = useQuery({
     queryKey: [
       "responses",
@@ -208,32 +170,7 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
     }
   }, [activeTab]);
 
-  // useEffect(() => {
-  //   const params = {
-  //     search: debouncedSearchTerm,
-  //     type,
-  //     page,
-  //     per_page: perPage,
-  //     min_price: min_payment,
-  //     max_price: max_payment,
-  //   };
 
-  //   const newParams = new URLSearchParams();
-  //   Object.entries(params).forEach(([key, value]) => {
-  //     if (value) newParams.set(key, value.toString());
-  //   });
-
-  //   router.push(`?${newParams.toString()}`);
-
-  // }, [
-  //   debouncedSearchTerm,
-  //   type,
-  //   page,
-  //   perPage,
-  //   min_payment,
-  //   max_payment,
-  //   router,
-  // ]);
 
   const updateQueryParams = (key: string, value: string | null) => {
     const queryParams = new URLSearchParams(window.location.search);
@@ -375,7 +312,6 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
 
         {/* FILTER TABS */}
         <div>
-
           <Tabs
             value={activeTab}
             onValueChange={(tab: string) => setActiveTab(tab as ResponseStatus)}
