@@ -5,6 +5,9 @@ import Task4 from "@/public/assets/images/tasks/task4.png";
 import Task5 from "@/public/assets/images/tasks/task5.png";
 import Task6 from "@/public/assets/images/tasks/task6.png";
 
+import Img from "@/public/assets/case-studies/case-1.png";
+import Img2 from "@/public/assets/case-studies/case-2.png";
+import Img3 from "@/public/assets/case-studies/case-3.png";
 
 // questions.ts
 export const questions1 = [
@@ -919,7 +922,6 @@ export const countriesAndCities = [
   },
 ];
 
-
 export const bankList = [
   {
     label: "Abbey Mortgage Bank",
@@ -1620,5 +1622,38 @@ export const bankList = [
   {
     label: "Zenith Bank",
     value: "057",
+  },
+];
+
+export const projects = [
+  {
+    date: "May 31st, 2024",
+    name: "Goloka use in Mining site location, ownership data and verification (Environment case study)",
+    image: Img2,
+  },
+  {
+    date: "May 31st, 2024",
+    name: "Goloka use for database for Small Scale Women Farmers in Nigeria",
+    image: Img,
+  },
+  {
+    date: "May 31st, 2024",
+    name: "Transforming Public Policy with Localized Insights from Goloka",
+    image: Img3,
+  },
+  {
+    date: "May 31st, 2024",
+    name: "Empowering Small Businesses: How Goloka Drives Market Research Success",
+    image: Img2,
+  },
+  {
+    date: "May 31st, 2024",
+    name: "Revolutionizing Academic Research: Goloka as a Tool for Youth Studies",
+    image: Img,
+  },
+  {
+    date: "May 31st, 2024",
+    name: "Harnessing Event Feedback: Goloka's Role in Creating Memorable Experiences",
+    image: Img3,
   },
 ];
