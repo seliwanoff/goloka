@@ -281,7 +281,8 @@ const ContributionDetails: React.FC<PageProps> = ({}) => {
       }}
     />
   );
-
+  //@ts-ignore
+  const locationData = task?.data?.locations;
   //@ts-ignore
   const Date = moment(task?.data?.ends_at).format("DD MMMM YYYY");
   //@ts-ignore
@@ -421,13 +422,7 @@ const ContributionDetails: React.FC<PageProps> = ({}) => {
 
               <div className="rounded-2xl bg-white p-5">
                 <figure className="h-[85%]">
-                  {/* <Image
-                    src={Map}
-                    alt="map"
-                    className="h-full w-full rounded-lg object-cover"
-                  /> */}
-                  <Map />
-                  {/* <LocationMap locations={locations} /> */}
+                  <Map location={locationData} />
                 </figure>
                 <div className="mt-5 flex gap-5">
                   <div className="text-sm font-semibold text-[#101828]">
@@ -467,7 +462,7 @@ const ContributionDetails: React.FC<PageProps> = ({}) => {
                 </div>
 
                 {/* <Link
-                  href="/dashboard/tasks"
+                  href="/dashboard/marketplace"
                   className="text-lg font-semibold text-main-100"
                 >
                   See all

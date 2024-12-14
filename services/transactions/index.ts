@@ -51,3 +51,18 @@ export const getAllTransactions = async (params: GetTransactions) => {
     throw new Error("Failed to fetch transactions. Please try again later.");
   }
 };
+// /contributor/aacinnorsstt / 20241211115553302927;
+
+export const getTrxId = async (
+  Id: string,
+): Promise<UseQueryResult<AxiosResponse<any>>> =>
+  await queryClient.fetchQuery({
+    queryKey: ["Trx by TrxId"],
+    queryFn: async () => {
+      try {
+        return await fetchData(`/contributor/transactions/${Id}`);
+      } catch (error) {
+        return null;
+      }
+    },
+  });

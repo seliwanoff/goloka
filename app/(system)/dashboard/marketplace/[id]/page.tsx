@@ -270,7 +270,9 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
     router.push(`${window.location.pathname}?stepper=true&step=${newStep}`);
   };
   console.log(getResponse, "getResponse");
-
+  console.log(task, "task");
+  //@ts-ignore
+  const locationData = task?.data?.locations;
   const WrappedTaskStepper = () => (
     <TaskStepper
       response={getResponse}
@@ -400,7 +402,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
                     <h4 className="font-medium text-[#101828]">Multiple</h4>
                     <p className="text-sm text-gray-400">Response type </p>
                   </div>
-                  <div className="md:text-right">
+                  <div className="md:text-left">
                     <h4 className="font-medium text-[#101828]">
                       {/* @ts-ignore */}
                       {task?.data?.type}{" "}
@@ -419,7 +421,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
 
               <div className="rounded-2xl bg-white p-5">
                 <figure className="h-[85%]">
-                  <Map />
+                  <Map location={locationData} />
                 </figure>
                 <div className="mt-5 flex gap-5">
                   <div className="text-sm font-semibold text-[#101828]">
@@ -451,7 +453,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
                 </h3>
 
                 <Link
-                  href="/dashboard/tasks"
+                  href="/dashboard/marketplace"
                   className="text-lg font-semibold text-main-100"
                 >
                   See all

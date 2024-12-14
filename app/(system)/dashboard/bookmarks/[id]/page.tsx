@@ -8,7 +8,7 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Button } from "@/components/ui/button";
 import { Dot, Eye, LoaderCircle, SquarePen, Workflow } from "lucide-react";
 import { ArchiveMinus, Note } from "iconsax-react";
-// import Map from "@/public/assets/images/tasks/tasks.png";
+
 import Link from "next/link";
 
 import { useStepper } from "@/context/TaskStepperContext.tsx";
@@ -281,7 +281,8 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
       }}
     />
   );
-
+  //@ts-ignore
+  const locationData = task?.data?.locations;
   //@ts-ignore
   const Date = moment(task?.data?.ends_at).format("DD MMMM YYYY");
   //@ts-ignore
@@ -419,7 +420,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
 
               <div className="rounded-2xl bg-white p-5">
                 <figure className="h-[85%]">
-                  <Map />
+                  <Map location={locationData} />
                 </figure>
                 <div className="mt-5 flex gap-5">
                   <div className="text-sm font-semibold text-[#101828]">
@@ -451,7 +452,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
                 </h3>
 
                 <Link
-                  href="/dashboard/tasks"
+                  href="/dashboard/marketplace"
                   className="text-lg font-semibold text-main-100"
                 >
                   See all

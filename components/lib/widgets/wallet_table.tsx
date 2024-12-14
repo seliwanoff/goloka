@@ -10,7 +10,7 @@ import {
 import { useRouter } from "next/navigation";
 import PDF from "@/public/assets/images/svg/pdf-file-icon.svg";
 import Image from "next/image";
-import { transactions } from "@/utils";
+
 import { Button } from "@/components/ui/button";
 import { DocumentDownload } from "iconsax-react";
 import { cn, walletStatus } from "@/lib/utils";
