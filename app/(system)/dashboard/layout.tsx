@@ -1,5 +1,5 @@
 "use client";
-
+import Logo from "@/public/assets/images/thumb.svg";
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import DashSideBarDesktop from "@/components/lib/navigation/dash_sidebar_desktop";
@@ -10,6 +10,7 @@ import { getCurrentUser } from "@/services/user";
 import { useUserStore } from "@/stores/currentUserStore";
 import { getContributorsProfile } from "@/services/contributor";
 import { useRemoteUserStore } from "@/stores/remoteUser";
+import Image from "next/image";
 
 type LayoutProps = {
   children: React.ReactNode;
@@ -99,8 +100,15 @@ const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
   // Show loading state while fetching user data
   if (isLoading || isContributorLoading) {
     return (
-      <div className="col-span-6 flex h-screen w-full items-center justify-center">
-        <p>Loading...</p>
+      <div className=" flex flex-col h-screen w-full items-center justify-center">
+        <Image
+          src={Logo}
+          alt="goloka logo"
+          width={100}
+          height={160}
+          className="animate-pulse"
+        />
+        <p className="text-main-100 font-bold text-lg animate-pulse font-serif">Loading...</p>
       </div>
     );
   }

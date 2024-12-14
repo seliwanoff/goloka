@@ -403,7 +403,7 @@ const ContributionDetails: React.FC<PageProps> = ({}) => {
                     <h4 className="font-medium text-[#101828]">Multiple</h4>
                     <p className="text-sm text-gray-400">Response type </p>
                   </div>
-                  <div className="md:text-right">
+                  <div className="md:text-left">
                     <h4 className="font-medium text-[#101828]">
                       {/* @ts-ignore */}
                       {task?.data?.type}{" "}

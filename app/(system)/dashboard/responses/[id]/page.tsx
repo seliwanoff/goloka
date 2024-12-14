@@ -130,7 +130,8 @@ const ResponseDetails = () => {
   const Date = moment(task?.data?.ends_at).format("DD MMMM YYYY");
   //@ts-ignore
   const Time = moment(task?.data?.ends_at).format("hh:mm A");
-
+  //@ts-ignore
+  const locationData = task?.data?.locations;
 
   return (
     <>
@@ -364,7 +365,7 @@ const ResponseDetails = () => {
               </div>
 
               {/* DESKTOP VIEW */}
-              <div className="hidden md:block ">
+              <div className="hidden md:block">
                 <Table>
                   <TableHeader>
                     <TableRow className="border-0 bg-[#FBFBFB]">
@@ -418,7 +419,7 @@ const ResponseDetails = () => {
                       <h4 className="font-medium text-[#101828]">Multiple</h4>
                       <p className="text-sm text-gray-400">Response type </p>
                     </div>
-                    <div className="md:text-right">
+                    <div className="md:text-left">
                       <h4 className="font-medium text-[#101828]">
                         {/* @ts-ignore */}
                         {task?.data?.type}{" "}
@@ -437,7 +438,7 @@ const ResponseDetails = () => {
 
                 <div className="rounded-2xl bg-white p-5">
                   <figure className="h-[85%]">
-                    <Map />
+                    <Map location={locationData} />
                     {/* <LocationMap locations={locations} /> */}
                   </figure>
                   <div className="mt-5 flex gap-5">

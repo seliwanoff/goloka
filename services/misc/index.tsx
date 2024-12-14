@@ -1,9 +1,5 @@
 import { queryClient } from "@/components/layout/tanstackProvider";
-import {
-  postData,
-  fetchData,
-  ServerResponse,
-} from "@/lib/api";
+import { postData, fetchData, ServerResponse } from "@/lib/api";
 import { UseQueryResult } from "@tanstack/react-query";
 
 export type ServerResponseOrNull<T> = ServerResponse<T> | null;
@@ -67,6 +63,20 @@ export const updatePin = async (
     queryKey: ["update pin"],
     queryFn: async () => {
       return await postData<ServerResponse<any>>("/pin/create", data);
+    },
+  });
+};
+
+export const notificationPreferences = async (
+  data: any,
+): Promise<UseQueryResult<ServerResponse<any>>> => {
+  return queryClient.fetchQuery({
+    queryKey: ["forgetPassword"],
+    queryFn: async () => {
+      return await postData<ServerResponse<any>>(
+        "/notifications/set-preference",
+        data,
+      );
     },
   });
 };
