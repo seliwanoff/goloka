@@ -48,7 +48,13 @@ interface StatusPillProps {
 }
 
 // Define possible statuses as a union type
-export type Status = "draft" | "pending" | "reviewed" | "approved" | "rejected";
+export type Status =
+  | "draft"
+  | "pending"
+  | "reviewed"
+  | "approved"
+  | "rejected"
+  | "accepted";
 
 // Utility function to return the appropriate color classes
 export const getStatusColor = (status: Status) => {
@@ -60,6 +66,7 @@ export const getStatusColor = (status: Status) => {
     case "reviewed":
       return "bg-blue-500/5 border-blue-500 text-blue-500";
     case "approved":
+    case "accepted":
       return "bg-emerald-600/5 border-emerald-600 text-emerald-600";
     case "rejected":
       return "bg-red-500/5 border-red-500 text-red-500";
@@ -69,9 +76,9 @@ export const getStatusColor = (status: Status) => {
 };
 
 // Utility function to format the status text
-export const getStatusText = (status: Status) => {
-  const firstChar = status.charAt(0).toUpperCase();
-  const rest = status.slice(1).toLowerCase();
+export const getStatusText = (status: Status | string) => {
+  const firstChar = status?.charAt(0)?.toUpperCase();
+  const rest = status?.slice(1).toLowerCase();
   return `${firstChar}${rest}`;
 };
 

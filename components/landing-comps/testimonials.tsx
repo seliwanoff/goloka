@@ -32,8 +32,8 @@ const Testimonials: FC<ComponentProps> = ({}) => {
       {/* -- content */}
       {/* -- row 1 */}
       <div className="relative w-full">
-        <div className="absolute left-0 top-0 z-10 h-full w-[300px] bg-gradient-to-tr from-white to-transparent" />
-        <div className="absolute right-0 top-0 z-10 h-full w-[300px] bg-gradient-to-tl from-white to-transparent" />
+        <div className="absolute left-0 top-0 z-10 h-full w-[300px] bg-[linear-gradient(to_right,white_50%,transparent)]" />
+        <div className="absolute right-0 top-0 z-10 h-full w-[300px] bg-[linear-gradient(to_left,white_50%,transparent)]" />
         <Marquee pauseOnHover className="relative mt-10 [--duration:40s]">
           {testimonialData.map((data, idx) => (
             <div
@@ -103,7 +103,6 @@ const Testimonials: FC<ComponentProps> = ({}) => {
           ))}
         </Marquee>
       </div>
-      
     </section>
   );
 };

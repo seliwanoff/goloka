@@ -41,11 +41,15 @@ import { Button } from "@/components/ui/button";
 import { SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { userLogout } from "@/services/auth";
 
-type ComponentProps = {};
+type ComponentProps = {
+  navMenuList: { icon: any; title: string; link: string }[];
+};
 
-const DashSideBarDesktop: React.FC<ComponentProps> = ({}) => {
+const DashSideBarDesktop: React.FC<ComponentProps> = ({ navMenuList }) => {
   const pathname = usePathname();
   const router = useRouter();
+
+  
   // userLogout;
 
   const initiateLogout = () => {

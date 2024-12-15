@@ -92,7 +92,7 @@ const FundTransfer = () => {
       toast.error("Failed to fetch organization Wallet");
       console.log(isError, "isError");
     }
-  }, [orgData, setValue]);
+  }, [isError, orgData, setAccountName, setValue]);
 
   // Handle amount input with proper formatting
   // const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {

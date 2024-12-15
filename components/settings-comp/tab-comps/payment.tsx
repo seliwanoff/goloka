@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import {
   addBeneficiary,
   getContributorsProfile,
@@ -47,9 +47,24 @@ const schema = yup.object().shape({
     .min(10, "Account number must be exactly 10 digits")
     .max(10, "Account number must be exactly 10 digits"),
 });
+import { useState } from "react";
+import { usePathname } from "next/navigation";
+import { Trash } from "iconsax-react";
+import MasterCard from "@/public/assets/images/Mastercard.svg";
+import Visa from "@/public/assets/images/Vector.svg";
+import Image from "next/image";
+import AddCard from "@/components/organization-comps/payment-comps/addcard";
+import AddNewCard from "@/components/organization-comps/payment-comps/addcard";
+import AddNewBeneficiary from "../add_new_beneficiary";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const Payment: React.FC<any> = () => {
+  const [cards, setCards] = useState([
+    { cardType: "mastercard", beneficiary: "Jamiu Mohammed" },
+    { cardType: "visa", beneficiary: "Jamiu Mohammed" },
+  ]);
   const { user, isAuthenticated } = useRemoteUserStore();
+  const pathname = usePathname();
   const [selectedValue, setSelectedValue] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -209,10 +224,14 @@ const Payment: React.FC<any> = () => {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="mb-1 text-lg font-semibold text-[#101828]">
-                Beneficiary accounts
+                {pathname.startsWith("/organization")
+                  ? "Saved cards"
+                  : "Beneficiary accounts"}
               </h3>
               <p className="text-sm text-[#475467]">
-                Add or remove beneficiary account
+                {pathname.startsWith("/organization")
+                  ? "Add or remove card"
+                  : "Add or remove beneficiary account"}
               </p>
             </div>
             {transaction?.accountNumber && (
@@ -228,154 +247,107 @@ const Payment: React.FC<any> = () => {
           </div>
 
           <div className="mt-8">
-            {/* BENEFICIARIES */}
-            <div className="mt-12 h-[245px] overflow-y-auto">
-              <div className="p-1">
-                {isLoading ? (
-                  <BeneficiarySkeletonLoader count={3} />
-                ) : (
-                  <div
-                    // value={selectedValue}
-                    // onValueChange={handleSelectionChange}
-                    className="flex flex-col gap-4"
-                  >
-                    {beneficiaries?.map((item: Beneficiary) => (
+            {pathname.startsWith("/organization") ? (
+              <>
+                {/* SAVED CARDS */}
+                <div className="no-scrollbar h-[180px] space-y-5 overflow-y-auto">
+                  {cards.map((card: any, i: number) => {
+                    return (
                       <div
-                        className="flex w-full items-center"
-                        key={item.account_number}
+                        key={i}
+                        className="flex items-center justify-between rounded-full border border-[#F2F2F2] bg-[#F8F8F8] p-3"
                       >
-                        <div className="peer sr-only" />
-                        <div
-                          // htmlFor={item.id.toString()}
-                          className={cn(
-                            "grid w-full cursor-pointer grid-cols-[1.5fr_1fr] gap-y-1 rounded-lg border border-[#14342C0F] bg-[#FDFDFD] p-3 transition-all duration-200 hover:bg-gray-50",
-                            selectedValue === item.id.toString() &&
-                              "border-main-100 bg-main-100 bg-opacity-5 ring-1 ring-main-100",
-                          )}
-                        >
-                          <h4
-                            className={cn(
-                              "text-sm font-medium text-[#4F4F4F]",
-                              selectedValue === item.id.toString() &&
-                                "text-main-100",
+                        <div className="flex items-center gap-2">
+                          <div>
+                            {card?.cardType === "mastercard" ? (
+                              <Image src={MasterCard} alt="mastercard" />
+                            ) : (
+                              <Image src={Visa} alt="visa" />
                             )}
-                          >
-                            {item.account_name}
-                          </h4>
-                          <div className="text-red relative top-4 place-items-end justify-center rounded-full p-2">
-                            <Trash2
-                              onClick={() => handleDeleteConfirmation(item)}
-                              color="red"
-                              className="rounded-full p-1 hover:bg-red-200"
-                            />
                           </div>
 
-                          <div className="flex items-center gap-5">
-                            <p
-                              className={cn(
-                                "text-[#4F4F4F]font-semibold text-xs",
-                                selectedValue === item.id.toString() &&
-                                  "text-main-100",
-                              )}
-                            >
-                              {item.bank_name}
-                            </p>
-                            <p
-                              className={cn(
-                                "justify-self-end text-right text-sm text-[#333]",
-                                selectedValue === item.id.toString() &&
-                                  "text-main-100",
-                              )}
-                            >
-                              {item.account_number}
-                            </p>
+                          <div>
+                            <h3>{card?.beneficiary}</h3>
+                            <p>**** **** **** 1121</p>
                           </div>
                         </div>
+                        <span className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-[#FF36001F] text-[#FF3600]">
+                          <Trash />
+                        </span>
                       </div>
-                    ))}
+                    );
+                  })}
+                </div>
+              </>
+            ) : (
+              <>
+                {/* BENEFICIARIES */}
+                <div className="no-scrollbar h-[180px] overflow-y-auto">
+                  <div className="p-1">
+                    <RadioGroup
+                      defaultValue={selectedValue}
+                      onValueChange={setSelectedValue}
+                      className="gap-5"
+                    >
+                      {beneficiaries.map((item: any, i: number) => {
+                        if (i > 1) return;
+                        return (
+                          <div className="flex w-full items-center" key={i}>
+                            <RadioGroupItem
+                              value={item.value}
+                              id={item.value}
+                              className="peer sr-only"
+                            />
+                            <Label
+                              htmlFor={item.value}
+                              className={cn(
+                                "grid w-full grid-cols-[1.5fr_1fr] gap-y-1 rounded-lg border border-[#14342C0F] bg-[#FDFDFD] p-3.5",
+                                selectedValue === item?.value &&
+                                  "border-main-100 bg-main-100 bg-opacity-5 ring-1 ring-main-100",
+                              )}
+                            >
+                              <h4
+                                className={cn(
+                                  "text-sm font-medium text-[#4F4F4F]",
+                                  selectedValue === item?.value &&
+                                    "text-main-100",
+                                )}
+                              >
+                                {item?.name}
+                              </h4>
+                              <p
+                                className={cn(
+                                  "justify-self-end text-right text-sm font-semibold text-[#333]",
+                                  selectedValue === item?.value &&
+                                    "text-main-100",
+                                )}
+                              >
+                                {item.accountNumber}
+                              </p>
+                              <p
+                                className={cn(
+                                  "text-xs text-[#4F4F4F]",
+                                  selectedValue === item?.value &&
+                                    "text-main-100",
+                                )}
+                              >
+                                {item.bank}
+                              </p>
+                            </Label>
+                          </div>
+                        );
+                      })}
+                    </RadioGroup>
                   </div>
-                )}
-              </div>
-            </div>
+                </div>
+              </>
+            )}
 
-            {/* ADD NEW BENEFICIARY */}
-            <div className="mt-11">
-              <h3 className="mb-4 text-base font-medium leading-7 text-[#333333]">
-                Add new beneficiary
-              </h3>
-              <div className="grid gap-6 md:grid-cols-2">
-                {beneficiaryStruct.map((data, index) => {
-                  // Check if the input name is "accountName"
-                  if (data.name === "accountName") {
-                    return (
-                      <div key={data.name} className="relative">
-                        {/* ACCOUNT NAME */}
-                        <Label
-                          htmlFor="accountName"
-                          className="mb-2 inline-block text-base text-[#4F4F4F]"
-                        >
-                          Account name
-                        </Label>
-                        <Input
-                          {...register("accountName")}
-                          id="accountName"
-                          name="accountName"
-                          placeholder="Resolved account name"
-                          className={cn(
-                            "form-input h-14 w-full rounded-lg border border-[#D9DCE0] p-4 placeholder:text-sm placeholder:text-[#828282]",
-                            errors.accountName &&
-                              "border-red-600 focus:border-red-600 focus-visible:ring-red-600",
-                          )}
-                          disabled
-                        />
-                        {loading && (
-                          <Loader className="absolute right-0 top-12 animate-spin text-blue-700" />
-                        )}
-                      </div>
-                    );
-                  } else if (data.type === "select") {
-                    // Render CustomSelectField if data.type is "select"
-                    return (
-                      <CustomSelectField
-                        key={data.name}
-                        data={data}
-                        errors={errors}
-                        register={register}
-                        control={control}
-                        options={getFieldOptions(data.name)}
-                      />
-                    );
-                  } else {
-                    // Render CustomInput for other cases
-                    return (
-                      <div key={data.name} className="relative">
-                        <CustomInput
-                          key={data.name}
-                          data={data}
-                          errors={errors}
-                          register={register}
-                          control={control}
-                        />
-                      </div>
-                    );
-                  }
-                })}
-              </div>
-            </div>
-
-            <div className="fixed bottom-0 left-0 z-30 mt-[42px] grid w-full grid-cols-1 items-center gap-3 bg-white p-4 shadow-[0_0_20px_rgba(0,0,0,0.1)] md:static md:flex md:bg-transparent md:p-0 md:shadow-none">
-              <Button
-                type="submit"
-                className="h-auto w-full rounded-full bg-main-100 py-3.5 text-white hover:bg-blue-600"
-                disabled={watch("accountName") === undefined && true}
-              >
-                {isSubmitting ? (
-                  <Loader className="animate-spin text-[#fff]" />
-                ) : (
-                  " Add beneficiary"
-                )}
-              </Button>
-            </div>
+            {pathname.startsWith("/organization") ? (
+              <AddNewCard />
+            ) : (
+              <AddNewBeneficiary />
+            )}
           </div>
         </div>
       </form>

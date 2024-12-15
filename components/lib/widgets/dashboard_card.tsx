@@ -12,8 +12,8 @@ interface ComponentProps {
   value: string | number | null; // Allow value to be nullable
   title: string;
   percents: number | null; // Allow percents to be nullable
-  increase: boolean;
-  isAnalytics: boolean;
+  increase?: boolean;
+  isAnalytics?: boolean;
   textColor?: string;
 }
 

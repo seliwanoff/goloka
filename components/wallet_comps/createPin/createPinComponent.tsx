@@ -32,7 +32,7 @@ const CreatePinComponent = () => {
     if (currentUser?.pin_status === false) {
       setShowPin(true);
     }
-  }, [currentUser?.pin_status]);
+  }, [currentUser?.pin_status, setShowPin]);
 
   const handleCancel = () => {
     setShowPin(false);

@@ -27,7 +27,7 @@ const CreateWithdrawal = () => {
     if (currentUser?.pin_status === false) {
       setShowPin(true);
     }
-  }, [currentUser?.pin_status]);
+  }, [currentUser?.pin_status, setShowPin]);
 
   return (
     <>
