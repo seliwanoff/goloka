@@ -15,10 +15,17 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
+// interface Location {
+//   id: number;
+//   latitude?: number;
+//   longitude?: number;
+// }
+
 interface Location {
   id: number;
   latitude?: number;
   longitude?: number;
+  address?: string;
 }
 
 interface DefaultLocation {
@@ -31,7 +38,7 @@ interface Props {
   questionId: number | string;
   onLocationSelect: (locations: Location[]) => void;
   maxLocations?: number;
-  defaultLocations?: DefaultLocation[];
+  defaultLocations?: Location[];
 }
 
 const CustomAreaInput = ({
@@ -49,6 +56,7 @@ const CustomAreaInput = ({
         id: index + 1,
         latitude: defaultLocation?.latitude,
         longitude: defaultLocation?.longitude,
+        address: defaultLocation?.address,
       };
     }),
   );
@@ -85,6 +93,7 @@ const CustomAreaInput = ({
       // Safely extract coordinates
       const lat = place.geometry?.location?.lat();
       const lng = place.geometry?.location?.lng();
+      const address = place.formatted_address;
 
       if (lat !== undefined && lng !== undefined) {
         const updatedLocations = locations.map((loc) =>
@@ -93,6 +102,7 @@ const CustomAreaInput = ({
                 ...loc,
                 latitude: lat,
                 longitude: lng,
+                address: address,
               }
             : loc,
         );
@@ -106,23 +116,34 @@ const CustomAreaInput = ({
   );
 
   // Handle current location selection
+  // Handle current location selection
   const handleCurrentLocation = useCallback(
-    (
-      locationIndex: number,
-      currentPosition: { latitude: number; longitude: number },
-    ) => {
-      const updatedLocations = locations.map((loc) =>
-        loc.id === locationIndex
-          ? {
-              ...loc,
-              latitude: currentPosition.latitude,
-              longitude: currentPosition.longitude,
-            }
-          : loc,
-      );
+    async (locationIndex: number, place?: google.maps.places.PlaceResult) => {
+      try {
+        const position = await getCurrentLocation();
+        let address = "Current Location";
 
-      updateLocations(updatedLocations);
-      setOpenPopoverIndex(null);
+        // If a place is provided, try to get its address
+        if (place) {
+          address = place.formatted_address || address;
+        }
+
+        const updatedLocations = locations.map((loc) =>
+          loc.id === locationIndex
+            ? {
+                ...loc,
+                latitude: position.latitude,
+                longitude: position.longitude,
+                address: address,
+              }
+            : loc,
+        );
+
+        updateLocations(updatedLocations);
+        setOpenPopoverIndex(null);
+      } catch (error) {
+        console.error("Error getting current location:", error);
+      }
     },
     [locations, updateLocations],
   );
@@ -152,7 +173,7 @@ const CustomAreaInput = ({
   };
 
   return (
-    <div className=" w-full  space-y-4">
+    <div className="w-full space-y-4">
       {locations.map((location, index) => (
         <div key={location.id} className="relative flex items-center space-x-1">
           <div className="relative w-full">
@@ -203,15 +224,30 @@ const CustomAreaInput = ({
                   <Command>
                     <CommandList>
                       <CommandGroup>
-                        <CommandItem
+                        {/* <CommandItem
                           onSelect={async () => {
                             try {
                               const currentLocation =
                                 await getCurrentLocation();
                               handleCurrentLocation(
                                 location.id,
-                                currentLocation,
+                                // currentLocation,
                               );
+                            } catch (error) {
+                              console.error(
+                                "Failed to get current location",
+                                error,
+                              );
+                            }
+                          }}
+                          className="flex items-center"
+                        > */}
+                        <CommandItem
+                          onSelect={async () => {
+                            try {
+                              const currentLocation =
+                                await getCurrentLocation();
+                              handleCurrentLocation(location.id);
                             } catch (error) {
                               console.error(
                                 "Failed to get current location",

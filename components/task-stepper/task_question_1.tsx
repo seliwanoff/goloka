@@ -129,8 +129,6 @@ const DynamicQuestion = ({
     setSelectedValues(initialAnswers);
   }, [questions, answers, response?.answers]);
 
-
-
   const handleInputChange = (
     value: string | boolean | File | string[],
     quesId: string | number,
@@ -271,7 +269,7 @@ const DynamicQuestion = ({
         })),
     };
 
-     setLastStepLoading(true);
+    setLastStepLoading(true);
 
     let answerResponse = null;
     let fileResponse = null;
@@ -299,9 +297,17 @@ const DynamicQuestion = ({
 
         // Determine the file to upload
         if (isRequired || hasValue) {
-          if (value instanceof File) {
-            fileToUpload = value;
-          } else if (value && "file" in value && value.file instanceof File) {
+          // if (value instanceof File) {
+          //   fileToUpload = value;
+          // } else if (value && "file" in value && value.file instanceof File) {
+          //   fileToUpload = value.file;
+          // }
+          if (
+            value &&
+            typeof value === "object" && // Ensure value is an object
+            "file" in value &&
+            value.file instanceof File
+          ) {
             fileToUpload = value.file;
           }
         }
@@ -472,6 +478,11 @@ const DynamicQuestion = ({
                 const file = e.target.files?.[0];
                 if (file) {
                   handleInputChange(file, ques.id, "file");
+                  const fileURL = URL.createObjectURL(file);
+                  setFilePreviews((prev) => ({
+                    ...prev,
+                    [ques.id]: fileURL,
+                  }));
                 }
               }}
               className="hidden"
@@ -494,11 +505,12 @@ const DynamicQuestion = ({
                   </span>
                 </div>
               </button>
-              {filePreviews[ques.id] && (
+              {/* Display the video preview or prefilled video */}
+              {filePreviews[ques.id] || selectedValues[ques.id] ? (
                 <div className="relative h-32 w-32">
                   <video
                     controls
-                    src={filePreviews[ques.id]}
+                    src={filePreviews[ques.id] || selectedValues[ques.id]} // Use prefilled value if no uploaded file
                     className="h-full w-full rounded-lg object-cover"
                   />
                   <button
@@ -518,10 +530,11 @@ const DynamicQuestion = ({
                     ×
                   </button>
                 </div>
-              )}
+              ) : null}
             </div>
           </div>
         );
+
       case "checkbox":
         return (
           <div className="col-span-2 grid grid-cols-2 gap-5">
@@ -622,6 +635,9 @@ const DynamicQuestion = ({
               onLocationSelect={(location) =>
                 handleInputChange(location, ques.id)
               }
+              // Pass default latitude and longitude if available in selectedValues
+              defaultLatitude={selectedValues[ques.id]?.latitude}
+              defaultLongitude={selectedValues[ques.id]?.longitude}
             />
           </div>
         );
@@ -648,7 +664,16 @@ const DynamicQuestion = ({
                 //@ts-ignore
                 handleInputChange(locations, ques.id, "location")
               }
-              // maxLocations={4}
+              defaultLocations={
+                selectedValues[ques.id]
+                  ? selectedValues[ques.id].map((loc: any, index: number) => ({
+                      id: index + 1,
+                      latitude: loc.latitude,
+                      longitude: loc.longitude,
+                      address: ".address",
+                    }))
+                  : undefined
+              }
             />
           </div>
         );
@@ -723,7 +748,7 @@ const DynamicQuestion = ({
               //@ts-ignore
               ref={(el) => (inputRefs.current[ques.id] = el)} // Reference the select element
               id={ques.name}
-              value={selectedValues[ques.id] || ""}
+              value={selectedValues[ques.id] || ques.defaultValue || ""}
               onChange={(e) => handleInputChange(e.target.value, ques.id)}
               className="form-select w-full rounded-lg border-[#D9DCE0]"
             >
@@ -895,10 +920,15 @@ const DynamicQuestion = ({
                 </div>
               </div>
 
-              {filePreviews[ques.id] && (
+              {/* Prefill the default value */}
+              {(filePreviews[ques.id] || selectedValues[ques.id]) && (
                 <div className="relative h-32 w-32 overflow-hidden rounded-lg">
                   <Image
-                    src={filePreviews[ques.id]}
+                    src={
+                      filePreviews[ques.id] || // If a new file is selected
+                      (typeof selectedValues[ques.id] === "string" &&
+                        selectedValues[ques.id]) // If the default S3 URL is provided
+                    }
                     alt="Preview"
                     className="h-full w-full object-cover"
                     layout="fill"

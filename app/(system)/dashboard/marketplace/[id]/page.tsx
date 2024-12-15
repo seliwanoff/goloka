@@ -32,8 +32,6 @@ import { BookmarkButton } from "@/components/contributor/BookmarkButton";
 import Map from "@/components/map/map";
 import { useRemoteUserStore } from "@/stores/remoteUser";
 
-
-
 const SkeletonBox = ({ className }: { className?: string }) => (
   <div className={`animate-pulse bg-gray-300 ${className}`}></div>
 );
@@ -103,8 +101,8 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
   const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
   const { id: taskId } = useParams();
   const [responseId, setResponseId] = useState<string | null>(null);
-  const { step } = useStepper();
-  const { user, isAuthenticated } = useRemoteUserStore();
+  // const { step } = useStepper();
+  const { user } = useRemoteUserStore();
   const USER_CURRENCY_SYMBOL = user?.country?.["currency-symbol"];
   const {
     data: task,
@@ -114,7 +112,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
     queryKey: ["Get task"],
     queryFn: async () => await getTaskById(taskId as string),
   });
-
+  console.log(responseId, "responseId");
   const { data: getResponse, refetch: refetchResponse } = useQuery({
     queryKey: ["get a Response", responseId],
     queryFn: async () => (responseId ? await getAResponse(responseId) : null),

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FilePlus2, X } from "lucide-react";
 import Image from "next/image";
 
@@ -14,6 +14,7 @@ const extensionIcons: { [key: string]: string } = {
   png: "/resource-icons/png-file-.png",
   jpeg: "/resource-icons/jpeg.png",
   jpg: "/resource-icons/jpg.png",
+  file: "/resource-icons/gallery.png",
 };
 
 interface FileUploadProps {
@@ -31,6 +32,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
   const [fileBase64, setFileBase64] = useState<string | null>(null);
   const [progress, setProgress] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
@@ -49,8 +51,6 @@ const FileUpload: React.FC<FileUploadProps> = ({
 
     setError(null);
     setFile(selectedFile);
-
-    console.log(value, "valuevaluevalue");
 
     // Simulate upload progress
     const uploadProgress = setInterval(() => {
@@ -89,16 +89,38 @@ const FileUpload: React.FC<FileUploadProps> = ({
     if (onFileUpload) {
       onFileUpload(null, null);
     }
+    setPreview(null);
   };
 
+  useEffect(() => {
+    if (typeof value === "string" && value) {
+      // Handle value as S3 URL or a string
+      setPreview(value);
+    } else if (value && value.base64) {
+      setPreview(value.base64);
+    }
+  }, [value]);
+
+  // const getFileExtension = (fileName: string) => {
+  //   return fileName.split(".").pop()?.toLowerCase() || "";
+  // };
   const getFileExtension = (fileName: string) => {
-    return fileName.split(".").pop()?.toLowerCase() || "";
+    const extension = fileName.split(".").pop()?.toLowerCase();
+    // Check if extension is found and return it, otherwise return an empty string
+    return extension && extension !== fileName ? extension : "";
   };
 
   const getFileIcon = (fileName: string) => {
     const extension = getFileExtension(fileName);
-    return extensionIcons[extension] || "/icons/default-file-icon.png";
+    // If the extension is not found or invalid, return the 'file' icon
+    return extensionIcons[extension] || extensionIcons.file;
   };
+
+
+  // const getFileIcon = (fileName: string) => {
+  //   const extension = getFileExtension(fileName);
+  //   return extensionIcons[extension] || extensionIcons.file;
+  // };
 
   return (
     <div className="w-full space-y-4">
@@ -136,33 +158,46 @@ const FileUpload: React.FC<FileUploadProps> = ({
         )}
       </div>
 
-      {/* File Progress */}
-      {file && (
+      {/* File Preview or Progress */}
+      {(preview || file) && (
         <div className="flex items-center rounded-lg bg-gray-50 shadow-sm">
           <div className="relative mr-3 h-10 w-10">
             <Image
-              src={getFileIcon(file.name)}
+              src={file ? getFileIcon(file.name) : extensionIcons.file}
               alt="File icon"
               fill
               className="object-contain"
             />
           </div>
 
-          {/* File Details */}
           <div className="flex-1">
-            <p className="truncate font-medium text-gray-700">{file.name}</p>
+            <p className="truncate font-medium text-gray-700">
+              {file ? file.name : "Uploaded file"}
+            </p>
             <div className="flex items-center space-x-2">
-              <p className="text-[10px] text-blue-500">{progress}% Done</p>
-              <div className="h-1 w-full rounded-full bg-gray-200">
-                <div
-                  className="h-1 rounded-full bg-blue-500"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
+              {file ? (
+                <>
+                  <p className="text-[10px] text-blue-500">{progress}% Done</p>
+                  <div className="h-1 w-full rounded-full bg-gray-200">
+                    <div
+                      className="h-1 rounded-full bg-blue-500"
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                </>
+              ) : (
+                <a
+                  href={preview || "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-blue-500 underline"
+                >
+                  View File
+                </a>
+              )}
             </div>
           </div>
 
-          {/* Remove Button */}
           <button
             onClick={removeFile}
             className="ml-3 rounded-full p-1 text-red-500 hover:bg-red-50"

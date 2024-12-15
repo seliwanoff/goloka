@@ -6,7 +6,7 @@ import Task1 from "@/public/assets/images/tasks/task1.png";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Button } from "@/components/ui/button";
 import { cn, responseStatus } from "@/lib/utils";
-
+import Logo from "@/public/assets/images/thumb.svg";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Sheet,
@@ -118,7 +118,20 @@ const ResponseDetails = () => {
 
   // Optional: Handle loading states
   if (isResponseLoading || isTaskLoading) {
-    return <div>seeding response...</div>;
+    return (
+      <div className="flex h-screen w-full flex-col items-center justify-center">
+        <Image
+          src={Logo}
+          alt="goloka logo"
+          width={100}
+          height={160}
+          className="animate-pulse"
+        />
+        <p className="animate-pulse font-serif text-lg font-bold text-main-100">
+          Loading...
+        </p>
+      </div>
+    );
   }
 
   console.log("Response:", res);
@@ -365,6 +378,28 @@ const ResponseDetails = () => {
               </div>
 
               {/* DESKTOP VIEW */}
+              {/* <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-0 bg-[#FBFBFB]">
+                      <TableHead className="">Questions</TableHead>
+                      <TableHead>Answers</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {answers?.map((answer: AnswerItem, index: number) => (
+                      <TableRow key={`${answer.id}-${index}`}>
+                        <TableCell className="w-1/2 text-sm">
+                          {answer.question.label}
+                        </TableCell>
+                        <TableCell className="w-1/2 text-sm">
+                          {formatValue(answer.value)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div> */}
               <div className="hidden md:block">
                 <Table>
                   <TableHeader>
@@ -380,6 +415,7 @@ const ResponseDetails = () => {
                           {answer.question.label}
                         </TableCell>
                         <TableCell className="w-1/2 text-sm">
+                          {/* Render the value using the enhanced formatValue function */}
                           {formatValue(answer.value)}
                         </TableCell>
                       </TableRow>
@@ -470,7 +506,32 @@ const ResponseDetails = () => {
 
 export default ResponseDetails;
 
-const formatValue = (value: any): string => {
+// const formatValue = (value: any): string => {
+//   if (Array.isArray(value)) {
+//     return value
+//       .filter((item) => item !== null && item !== undefined)
+//       .map((item) => {
+//         if (typeof item === "object" && item !== null) {
+//           return formatObjectPairs(item);
+//         }
+//         return String(item);
+//       })
+//       .filter((item) => item !== "")
+//       .join(" | ");
+//   } else if (typeof value === "object" && value !== null) {
+//     return formatObjectPairs(value);
+//   }
+//   return value?.toString() || "";
+// };
+
+// const formatObjectPairs = (obj: any): string => {
+//   if (!obj || typeof obj !== "object") return "";
+
+//   return Object.entries(obj)
+//     .map(([key, value]) => `${key}: ${value}`)
+//     .join(", ");
+// };
+const formatValue = (value: any): JSX.Element | string => {
   if (Array.isArray(value)) {
     return value
       .filter((item) => item !== null && item !== undefined)
@@ -478,20 +539,44 @@ const formatValue = (value: any): string => {
         if (typeof item === "object" && item !== null) {
           return formatObjectPairs(item);
         }
-        return String(item);
+        return formatSpecialValues(String(item));
       })
       .filter((item) => item !== "")
       .join(" | ");
   } else if (typeof value === "object" && value !== null) {
     return formatObjectPairs(value);
   }
-  return value?.toString() || "";
+  return formatSpecialValues(value?.toString() || "");
 };
 
 const formatObjectPairs = (obj: any): string => {
   if (!obj || typeof obj !== "object") return "";
 
   return Object.entries(obj)
-    .map(([key, value]) => `${key}: ${value}`)
+    .map(([key, value]) => `${key}: ${formatSpecialValues(value as string)}`)
     .join(", ");
+};
+
+const formatSpecialValues = (value: string): JSX.Element | string => {
+  if (value.startsWith("http")) {
+    // Handle links
+    return (
+      <a
+        href={value}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-blue-500 underline"
+      >
+        {value}
+      </a>
+    );
+  } else if (value.includes("@")) {
+    // Handle emails
+    return (
+      <a href={`mailto:${value}`} className="text-blue-500 underline">
+        {value}
+      </a>
+    );
+  }
+  return value;
 };
