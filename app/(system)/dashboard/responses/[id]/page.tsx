@@ -54,6 +54,8 @@ import {
   // PopoverClose,
 } from "@/components/ui/popover";
 import Map from "@/components/map/map";
+import { useUserStore } from "@/stores/currentUserStore";
+
 
 interface QuestionOptions {
   id: number;
@@ -90,7 +92,7 @@ const ResponseDetails = () => {
   const [open, setOpen] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
   // const response = getAResponse(responseId as string);
-
+  const currentUser = useUserStore((state) => state.user);
   const {
     data: response,
     isLoading: isResponseLoading,
@@ -136,6 +138,7 @@ const ResponseDetails = () => {
 
   console.log("Response:", res);
   console.log("Task:", task);
+  console.log("remoteUser:", currentUser);
 
   //@ts-ignore
   const answers = response?.data?.answers;
@@ -267,11 +270,15 @@ const ResponseDetails = () => {
 
                       {/* CHAT WIDGET */}
                       <div className="mt-24">
-                        <ChatWidget />
+                        <ChatWidget
+                          modelType="response"
+                          modelId={+responseId}
+                          currentUserId={currentUser?.id as number}
+                        />
                       </div>
 
                       {/* CHAT MESSAGE INPUT */}
-                      <SheetFooter className="absolute bottom-0 left-0 w-full border-t md:flex-row md:justify-start md:p-4">
+                      {/* <SheetFooter className="absolute bottom-0 left-0 w-full border-t md:flex-row md:justify-start md:p-4">
                         <form id="chat-box" className="block w-full">
                           <div className="flex w-full items-center gap-6">
                             <Input
@@ -290,7 +297,7 @@ const ResponseDetails = () => {
                             </Button>
                           </div>
                         </form>
-                      </SheetFooter>
+                      </SheetFooter> */}
                     </SheetContent>
                   </Sheet>
                 </>
@@ -323,8 +330,13 @@ const ResponseDetails = () => {
                         </span>
                       </DrawerHeader>
                       <div className="mt-24" />
-                      <ChatWidget />
-                      <DrawerFooter className="border-t">
+                      {/* <ChatWidget /> */}
+                      <ChatWidget
+                        modelType="response"
+                        modelId={+responseId}
+                        currentUserId={currentUser?.id as number}
+                      />
+                      {/* <DrawerFooter className="border-t">
                         <form id="chat-box">
                           <div className="flex items-center gap-6">
                             <Input
@@ -343,7 +355,7 @@ const ResponseDetails = () => {
                             </Button>
                           </div>
                         </form>
-                      </DrawerFooter>
+                      </DrawerFooter> */}
                     </DrawerContent>
                   </Drawer>
                 </>
@@ -378,28 +390,7 @@ const ResponseDetails = () => {
               </div>
 
               {/* DESKTOP VIEW */}
-              {/* <div className="hidden md:block">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-0 bg-[#FBFBFB]">
-                      <TableHead className="">Questions</TableHead>
-                      <TableHead>Answers</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {answers?.map((answer: AnswerItem, index: number) => (
-                      <TableRow key={`${answer.id}-${index}`}>
-                        <TableCell className="w-1/2 text-sm">
-                          {answer.question.label}
-                        </TableCell>
-                        <TableCell className="w-1/2 text-sm">
-                          {formatValue(answer.value)}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div> */}
+
               <div className="hidden md:block">
                 <Table>
                   <TableHeader>
@@ -506,31 +497,6 @@ const ResponseDetails = () => {
 
 export default ResponseDetails;
 
-// const formatValue = (value: any): string => {
-//   if (Array.isArray(value)) {
-//     return value
-//       .filter((item) => item !== null && item !== undefined)
-//       .map((item) => {
-//         if (typeof item === "object" && item !== null) {
-//           return formatObjectPairs(item);
-//         }
-//         return String(item);
-//       })
-//       .filter((item) => item !== "")
-//       .join(" | ");
-//   } else if (typeof value === "object" && value !== null) {
-//     return formatObjectPairs(value);
-//   }
-//   return value?.toString() || "";
-// };
-
-// const formatObjectPairs = (obj: any): string => {
-//   if (!obj || typeof obj !== "object") return "";
-
-//   return Object.entries(obj)
-//     .map(([key, value]) => `${key}: ${value}`)
-//     .join(", ");
-// };
 const formatValue = (value: any): JSX.Element | string => {
   if (Array.isArray(value)) {
     return value
@@ -558,7 +524,7 @@ const formatObjectPairs = (obj: any): string => {
 };
 
 const formatSpecialValues = (value: string): JSX.Element | string => {
-  if (value.startsWith("http")) {
+  if (typeof value === "string" && value.startsWith("http")) {
     // Handle links
     return (
       <a
@@ -570,7 +536,7 @@ const formatSpecialValues = (value: string): JSX.Element | string => {
         {value}
       </a>
     );
-  } else if (value.includes("@")) {
+  } else if (typeof value === "string" && value.includes("@")) {
     // Handle emails
     return (
       <a href={`mailto:${value}`} className="text-blue-500 underline">

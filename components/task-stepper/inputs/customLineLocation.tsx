@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useEffect, useMemo } from "react";
 import { MapPin, Map } from "lucide-react";
 import Autocomplete from "react-google-autocomplete";
 import { Button } from "@/components/ui/button";
@@ -20,10 +20,86 @@ interface Props {
   apiKey: string;
   questionId: number | string;
   onLocationSelect: (locations: CoordinateLocation[]) => void;
+  defaultLocations?: CoordinateLocation[];
 }
 
-const LocationSelector = ({ apiKey, questionId, onLocationSelect }: Props) => {
+const LocationSelector = ({
+  apiKey,
+  questionId,
+  onLocationSelect,
+  defaultLocations,
+}: Props) => {
   const [locations, setLocations] = useState<Location[]>([{ id: 1, name: "" }]);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Memoize the default locations to prevent unnecessary re-renders
+  const memoizedDefaultLocations = useMemo(
+    () => defaultLocations || [],
+    [defaultLocations],
+  );
+
+  // Geocoding function to convert lat/long to address
+  const getAddressFromCoordinates = useCallback(
+    async (lat: number, lng: number) => {
+      try {
+        const response = await fetch(
+          `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`,
+        );
+        const data = await response.json();
+
+        if (data.results && data.results.length > 0) {
+          return data.results[0].formatted_address;
+        }
+        return "";
+      } catch (error) {
+        console.error("Error fetching address:", error);
+        return "";
+      }
+    },
+    [apiKey],
+  );
+
+  // Initialize locations from default values
+  useEffect(() => {
+    const initializeLocations = async () => {
+      // Prevent re-running if already initialized or no default locations
+      if (isInitialized || memoizedDefaultLocations.length === 0) return;
+
+      try {
+        const initializedLocations = await Promise.all(
+          memoizedDefaultLocations.map(async (loc, index) => {
+            const address = await getAddressFromCoordinates(
+              loc.latitude,
+              loc.longitude,
+            );
+            return {
+              id: index === 0 ? 1 : Date.now() + index,
+              name: address,
+              latitude: loc.latitude,
+              longitude: loc.longitude,
+            };
+          }),
+        );
+
+        // Update locations and mark as initialized
+        setLocations(initializedLocations);
+        setIsInitialized(true);
+
+        // Trigger location select
+        onLocationSelect(memoizedDefaultLocations);
+      } catch (error) {
+        console.error("Error initializing locations:", error);
+        setIsInitialized(true);
+      }
+    };
+
+    initializeLocations();
+  }, [
+    memoizedDefaultLocations,
+    getAddressFromCoordinates,
+    isInitialized,
+    onLocationSelect,
+  ]);
 
   const updateLocations = useCallback(
     (newLocations: Location[]) => {
@@ -94,7 +170,7 @@ const LocationSelector = ({ apiKey, questionId, onLocationSelect }: Props) => {
   );
 
   return (
-    <div className=" w-full  space-y-4">
+    <div className="w-full space-y-4">
       {locations.map((location) => (
         <div key={location.id} className="relative flex items-center space-x-1">
           <div className="relative w-full">

@@ -595,7 +595,7 @@ const BookmarkPage: React.FC<ComponentProps> = ({}) => {
               {/* Determine heading based on filter status */}
               {searchParams.toString()
                 ? "No Tasks Found"
-                : "No Campaign hs been bookmarked yet"}
+                : "No Campaign has been bookmarked yet"}
             </h3>
             <p className="text-center text-base text-[#4F4F4F]">
               {searchParams.toString()

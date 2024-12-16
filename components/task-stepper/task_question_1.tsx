@@ -633,9 +633,9 @@ const DynamicQuestion = ({
             <LocationDropdown
               questionId={ques.id}
               onLocationSelect={(location) =>
+                //@ts-ignore
                 handleInputChange(location, ques.id)
               }
-              // Pass default latitude and longitude if available in selectedValues
               defaultLatitude={selectedValues[ques.id]?.latitude}
               defaultLongitude={selectedValues[ques.id]?.longitude}
             />
@@ -651,9 +651,32 @@ const DynamicQuestion = ({
                 //@ts-ignore
                 handleInputChange(locations, ques.id, "location")
               }
+              defaultLocations={selectedValues[ques.id] || []}
             />
           </div>
         );
+      // case "area":
+      //   return (
+      //     <div className="col-span-2">
+      //       <CustomAreaInput
+      //         apiKey={KEY as string}
+      //         questionId={ques.id}
+      //         onLocationSelect={(locations) =>
+      //           //@ts-ignore
+      //           handleInputChange(locations, ques.id, "location")
+      //         }
+      //         defaultLocations={
+      //           selectedValues[ques.id]
+      //             ? selectedValues[ques.id].map((loc: any) => ({
+      //                 latitude: loc.latitude,
+      //                 longitude: loc.longitude,
+      //               }))
+      //             : undefined
+      //         }
+      //       />
+      //     </div>
+      //   );
+
       case "area":
         return (
           <div className="col-span-2">
@@ -664,16 +687,7 @@ const DynamicQuestion = ({
                 //@ts-ignore
                 handleInputChange(locations, ques.id, "location")
               }
-              defaultLocations={
-                selectedValues[ques.id]
-                  ? selectedValues[ques.id].map((loc: any, index: number) => ({
-                      id: index + 1,
-                      latitude: loc.latitude,
-                      longitude: loc.longitude,
-                      address: ".address",
-                    }))
-                  : undefined
-              }
+              defaultLocations={selectedValues[ques.id] || []}
             />
           </div>
         );

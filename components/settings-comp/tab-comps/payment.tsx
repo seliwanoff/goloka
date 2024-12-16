@@ -121,7 +121,8 @@ const Payment: React.FC<any> = () => {
     [remoteUser?.data],
   );
 
-  console.log(transaction, "transaction");
+  console.log(beneficiaries, "beneficiaries");
+  console.log(remoteUser, "remoteUser");
 
   // Handle selection change
   const handleSelectionChange = (value: string) => {
@@ -289,7 +290,7 @@ const Payment: React.FC<any> = () => {
                       onValueChange={setSelectedValue}
                       className="gap-5"
                     >
-                      {beneficiaries.map((item: any, i: number) => {
+                      {beneficiaries?.map((item: any, i: number) => {
                         if (i > 1) return;
                         return (
                           <div className="flex w-full items-center" key={i}>

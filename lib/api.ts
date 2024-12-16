@@ -140,7 +140,70 @@ const uploadQuestionFile = async (
   }
 };
 
+// In apiService.ts
+const postDataWithFormData = async <T>(
+  url: string,
+  formData: FormData,
+  options: {
+    onUploadProgress?: (progressEvent: AxiosProgressEvent) => void;
+  } = {}
+): Promise<T> => {
+  let toastId: string | number | undefined;
+
+  try {
+    // Show loading toast if not already passed in options
+    if (!options.onUploadProgress) {
+      toastId = toast.loading("Uploading... 0%");
+    }
+
+    const response = await axiosInstance.post<T>(url, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      onUploadProgress: (progressEvent: AxiosProgressEvent) => {
+        if (progressEvent.total) {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+
+          // Use custom progress callback if provided, otherwise use default toast
+          if (options.onUploadProgress) {
+            options.onUploadProgress(progressEvent);
+          } else {
+            toast.message(`Uploading... ${percentCompleted}%`, {
+              id: toastId,
+            });
+          }
+        }
+      },
+    });
+
+    // Dismiss loading toast and show success
+    if (toastId) {
+      //@ts-ignore
+      toast.success(response.data.message || "Upload successful", {
+        id: toastId,
+      });
+    }
+
+    return response.data;
+  } catch (error: any) {
+    // Dismiss loading toast and show error
+    if (toastId) {
+      toast.error(
+        error.response?.data?.message ||
+        "Upload failed. Please try again.",
+        { id: toastId }
+      );
+    }
+
+    // Re-throw the error for further handling if needed
+    throw error;
+  }
+};
+
 export {
+  postDataWithFormData,
   fetchData,
   postData,
   updateData,
