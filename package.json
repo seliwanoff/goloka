@@ -41,6 +41,7 @@
     "iconsax-react": "^0.0.8",
     "input-otp": "^1.2.4",
     "jspdf": "^2.5.2",
+    "lamejs": "^1.2.1",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.454.0",
     "moment": "^2.30.1",

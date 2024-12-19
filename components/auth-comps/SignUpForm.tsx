@@ -101,9 +101,9 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
   console.log(countryData, "countryData");
 
   return (
-    <div className="relative  md:w-[70%] lg:w-[80%]">
+    <div className="relative md:w-[70%] lg:w-[80%]">
       {/* HEADING */}
-      <div className="mb-8 flex flex-col items-center gap-2 mt-60 lg:mt-12">
+      <div className="mb-8 mt-60 flex flex-col items-center gap-2 lg:mt-12">
         <Image src={Logo} alt="goloka_logo" />
         <h1 className="text-center text-2xl font-bold">
           Welcome to{" "}
@@ -112,8 +112,8 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
           </span>
         </h1>
         <p className="text-center text-sm font-thin text-[#828282] lg:text-balance">
-          Lorem ipsum dolor sit amet consectetur. Sapien ipsum lorem volutpat
-          magna tortor.
+          Join Goloka today and start turning your insights into earnings while
+          shaping smarter decisions.
         </p>
       </div>
 

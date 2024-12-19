@@ -84,20 +84,19 @@ const SignIn: React.FC<PageProps> = ({ }) => {
   };
 
   return (
-    <div className="relative overflow-hidden  md:mx-auto md:w-[70%] lg:w-[80%]">
-      <div className="relative z-10 md:w-[70%] lg:w-[80%]">
+    <div className="mx-auto w-full max-w-lg px-4 sm:px-6 lg:px-8">
+      <div className="w-full rounded-lg bg-white p-8 ">
         {/* HEADING */}
-        <div className="mb-8 flex flex-col items-center gap-2 pt-12">
-          <Image src={Logo} alt="goloka logo" />
-          <h1 className="text-center text-2xl font-bold">
+        <div className="mb-8 text-center">
+          <Image src={Logo} alt="goloka logo" className="mx-auto mb-4" />
+          <h1 className="mb-2 text-2xl font-bold">
             Welcome&nbsp;
             <span className="bg-gradient-to-b from-main-100 from-[55%] to-main-200 bg-clip-text text-transparent">
               Back!
             </span>
           </h1>
-          <p className="text-center text-sm font-thin text-[#828282] lg:text-balance">
-            Lorem ipsum dolor sit amet consectetur. Sapien ipsum lorem volutpat
-            magna tortor.
+          <p className="mx-auto max-w-xs text-sm text-gray-500">
+            Log in to keep contributing and earning with Goloka
           </p>
         </div>
 

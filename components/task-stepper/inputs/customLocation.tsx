@@ -91,7 +91,14 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({
     let isMounted = true;
 
     const prefillDefaultLocation = async () => {
-      if (defaultLatitude && defaultLongitude) {
+      // Only set default location if no current location exists
+      if (
+        defaultLatitude &&
+        defaultLongitude &&
+        (!currentLocation ||
+          currentLocation.latitude !== defaultLatitude ||
+          currentLocation.longitude !== defaultLongitude)
+      ) {
         try {
           const locationDetails = await fetchLocationDetails(
             defaultLatitude,
@@ -99,8 +106,15 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({
           );
 
           if (isMounted) {
-            setCurrentLocation(locationDetails);
-            onLocationSelect(locationDetails, questionId);
+            // Avoid calling onLocationSelect if location is the same
+            if (
+              !currentLocation ||
+              currentLocation.latitude !== locationDetails.latitude ||
+              currentLocation.longitude !== locationDetails.longitude
+            ) {
+              setCurrentLocation(locationDetails);
+              onLocationSelect(locationDetails, questionId);
+            }
           }
         } catch (error) {
           console.error("Error prefilling default location:", error);
@@ -120,11 +134,11 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({
     questionId,
     fetchLocationDetails,
     onLocationSelect,
+    currentLocation,
   ]);
 
   const getCurrentLocation = useCallback(() => {
     setIsLoading(true);
-    setCurrentLocation(null);
 
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
@@ -135,17 +149,20 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({
               position.coords.longitude,
             );
 
-            setCurrentLocation({
+            const fullLocationDetails = {
               ...locationDetails,
               accuracy: position.coords.accuracy,
-            });
-            onLocationSelect(
-              {
-                ...locationDetails,
-                accuracy: position.coords.accuracy,
-              },
-              questionId,
-            );
+            };
+
+            // Only update and call onLocationSelect if location is different
+            if (
+              !currentLocation ||
+              currentLocation.latitude !== fullLocationDetails.latitude ||
+              currentLocation.longitude !== fullLocationDetails.longitude
+            ) {
+              setCurrentLocation(fullLocationDetails);
+              onLocationSelect(fullLocationDetails, questionId);
+            }
           } catch (error) {
             console.error("Error getting location:", error);
             alert(
@@ -173,7 +190,7 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({
       setIsLoading(false);
       alert("Geolocation is not supported by your browser");
     }
-  }, [fetchLocationDetails, onLocationSelect, questionId]);
+  }, [fetchLocationDetails, onLocationSelect, questionId, currentLocation]);
 
   // Memoize the location display text
   const locationDisplayText = useMemo(() => {

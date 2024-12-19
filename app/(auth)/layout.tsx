@@ -39,11 +39,11 @@ const AuthLayout: React.FC<LayoutProps> = ({ children }) => {
           />
           <div className="absolute bottom-0 left-0 w-full rounded-b-3xl border-t border-opacity-20 bg-white bg-opacity-20 p-6 backdrop-blur-md">
             <h3 className="mb-2 text-2xl font-semibold text-white">
-              Lorem ipsum dolor sit amet consectetur.
+              Earn by contributing to campaigns
             </h3>
             <p className="font-normal text-white">
-              Lorem ipsum dolor sit amet consectetur. Feugiat ullamcorper
-              facilisis nisl quisque ante id. Neque vulputate .
+              Earn money by participating in paid surveys and sharing your
+              opinions.
             </p>
             <div className="mt-7 flex gap-1">
               {Array.from({ length: 3 }, (_, index) => (

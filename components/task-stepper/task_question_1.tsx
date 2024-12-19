@@ -106,7 +106,7 @@ const DynamicQuestion = ({
       | null
     >
   >({});
-
+  const startingQuestionNumber = 1;
   const KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   console.log(response?.answers, "responseresponse");
   // Prefill logic for initial values
@@ -129,8 +129,37 @@ const DynamicQuestion = ({
     setSelectedValues(initialAnswers);
   }, [questions, answers, response?.answers]);
 
+  // const handleInputChange = (
+  //   value: string | boolean | File | string[],
+  //   quesId: string | number,
+  //   type?: string,
+  // ) => {
+  //   if (type === "file" && value instanceof File) {
+  //     const reader = new FileReader();
+  //     reader.onloadend = () => {
+  //       setFilePreviews((prev) => ({
+  //         ...prev,
+  //         [quesId]: reader.result as string,
+  //       }));
+  //     };
+  //     reader.readAsDataURL(value);
+  //   }
+  //   if (type === "location" || type === "line" || type === "area") {
+  //     setSelectedValues((prev) => ({
+  //       ...prev,
+  //       [quesId]: value,
+  //     }));
+  //     return;
+  //   }
+
+  //   setSelectedValues((prev) => ({
+  //     ...prev,
+  //     [quesId]: value,
+  //   }));
+  // };
+
   const handleInputChange = (
-    value: string | boolean | File | string[],
+    value: string | boolean | File | string[] | Location[],
     quesId: string | number,
     type?: string,
   ) => {
@@ -144,7 +173,41 @@ const DynamicQuestion = ({
       };
       reader.readAsDataURL(value);
     }
-    if (type === "location" || type === "line" || type === "area") {
+
+    // Special handling for area type
+    if (type === "area") {
+      setSelectedValues((prev) => {
+        // If the new value is an array of locations, merge or replace existing locations
+        if (Array.isArray(value)) {
+          const existingLocations = prev[quesId] || [];
+
+          // Merge new locations, removing duplicates based on id
+          const mergedLocations = [
+            ...existingLocations.filter(
+              (existingLoc: { id: any }) =>
+                //@ts-ignore
+                !value.some((newLoc) => newLoc.id === existingLoc.id),
+            ),
+            ...value,
+          ];
+
+          return {
+            ...prev,
+            [quesId]: mergedLocations,
+          };
+        }
+
+        // Fallback for non-array values
+        return {
+          ...prev,
+          [quesId]: value,
+        };
+      });
+      return;
+    }
+
+    // Keep existing behavior for location, line, and other types
+    if (type === "location" || type === "line") {
       setSelectedValues((prev) => ({
         ...prev,
         [quesId]: value,
@@ -152,6 +215,7 @@ const DynamicQuestion = ({
       return;
     }
 
+    // Default behavior for other types
     setSelectedValues((prev) => ({
       ...prev,
       [quesId]: value,
@@ -166,68 +230,294 @@ const DynamicQuestion = ({
   console.log(selectedValues, "selectedValues");
   console.log(answers, "answers");
 
+  // const handleNext = async () => {
+  //   // const allQuestionsHaveDefaultValues = questions.every((ques) => {
+  //   //   const defaultValue = response?.answers?.find(
+  //   //     (ans) => ans.question.id === ques.id,
+  //   //   )?.value;
+
+  //   //   const currentValue = selectedValues[ques.id];
+
+  //   //   // If no default value exists, this check will be skipped
+  //   //   if (!defaultValue) return false;
+
+  //   //   // Compare current value with default value
+  //   //   return currentValue === defaultValue;
+  //   // });
+  //   // // If all questions have default values and haven't been edited, just move to next step
+  //   // if (allQuestionsHaveDefaultValues) {
+  //   //   // Optional: Update answers context with default values
+  //   //   questions.forEach((question) => {
+  //   //     const defaultValue = response?.answers?.find(
+  //   //       (ans) => ans.question.id === question.id,
+  //   //     )?.value;
+
+  //   //     if (defaultValue) {
+  //   //       updateAnswer(question.id, defaultValue);
+  //   //     }
+  //   //   });
+
+  //   //   nextStep();
+  //   //   return;
+  //   // }
+
+  //   // Check if all questions have default values and haven't been edited
+  //   const allQuestionsUnchanged = questions.every((ques) => {
+  //     const defaultValue = response?.answers?.find(
+  //       (ans) => ans.question.id === ques.id,
+  //     )?.value;
+
+  //     const currentValue = selectedValues[ques.id];
+
+  //     // If no default value exists, consider it as potentially modified
+  //     if (!defaultValue) return false;
+
+  //     // Compare current value with default value
+  //     // Use JSON.stringify for deep comparison of complex types like arrays or objects
+  //     return JSON.stringify(currentValue) === JSON.stringify(defaultValue);
+  //   });
+
+  //   // If all questions are unchanged, just move to next step
+  //   if (allQuestionsUnchanged) {
+  //     nextStep();
+  //     return;
+  //   }
+
+  //   // Validate required questions before proceeding
+  //   const requiredQuestions = questions.filter((q) => q.required === 1);
+  //   const missingRequiredQuestions = requiredQuestions.filter((q) => {
+  //     const value = selectedValues[q.id];
+
+  //     // Check different types of inputs for emptiness
+  //     if (value === undefined || value === null || value === "") return true;
+
+  //     // Special handling for array-based inputs (checkbox, multi-select)
+  //     if (Array.isArray(value) && value.length === 0) return true;
+
+  //     // Special handling for file uploads
+  //     if (
+  //       q.type === "file" ||
+  //       q.type === "photo" ||
+  //       q.type === "video" ||
+  //       q.type === "audio"
+  //     ) {
+  //       return !value || (value.file === undefined && value === null);
+  //     }
+
+  //     return false;
+  //   });
+
+  //   // If there are missing required questions, show error and prevent proceeding
+  //   if (missingRequiredQuestions.length > 0) {
+  //     toast.warning(
+  //       `Please fill in all required questions: ${missingRequiredQuestions.map((q) => q.label).join(", ")}`,
+  //     );
+
+  //     // Optionally, focus on the first missing required question
+  //     if (missingRequiredQuestions[0]) {
+  //       const firstMissingQuestionRef =
+  //         inputRefs.current[missingRequiredQuestions[0].id];
+  //       if (firstMissingQuestionRef && firstMissingQuestionRef.focus) {
+  //         firstMissingQuestionRef.focus();
+  //       }
+  //     }
+
+  //     return; // Stop proceeding if required questions are not filled
+  //   }
+
+  //   setIsLoading(true);
+
+  //   // Filter and format only the answers for required questions or questions with values
+  //   const formattedAnswers = {
+  //     answers: Object.entries(selectedValues)
+  //       .filter(([key, value]) => {
+  //         const question = questions.find((q) => q.id === Number(key));
+
+  //         // Only include answers for:
+  //         // 1. Required questions
+  //         // 2. Non-required questions that have a value
+  //         const isRequired = question?.required === 1;
+  //         const hasValue =
+  //           value !== undefined && value !== null && value !== "";
+
+  //         // Exclude file/media type questions from this formatting
+  //         const isFileType = ["file", "photo", "video", "audio"].includes(
+  //           question?.type ?? "",
+  //         );
+
+  //         return !isFileType && (isRequired || hasValue);
+  //       })
+  //       .map(([key, value]) => ({
+  //         question_id: Number(key),
+  //         value: Array.isArray(value)
+  //           ? value.map((item) => item?.value || item) // Handle objects/values
+  //           : value,
+  //       })),
+  //   };
+
+  //   setLastStepLoading(true);
+
+  //   let answerResponse = null;
+  //   let fileResponse = null;
+
+  //   try {
+  //     // Existing API call for answers
+  //     const answerPromise = createContributorAnswers(
+  //       responseId as string,
+  //       formattedAnswers,
+  //     );
+
+  //     // Prepare FormData for file uploads (only for required or filled file questions)
+  //     const formData = new FormData();
+  //     const fileQuestions = questions.filter((q) =>
+  //       ["file", "photo", "video", "audio"].includes(q.type),
+  //     );
+
+  //     fileQuestions.forEach((question) => {
+  //       const value = selectedValues[question.id];
+  //       let fileToUpload: File | undefined;
+
+  //       // Only upload file if the question is required or has a value
+  //       const isRequired = question.required === 1;
+  //       const hasValue = value !== undefined && value !== null;
+
+  //       // Determine the file to upload
+  //       if (isRequired || hasValue) {
+  //         // if (value instanceof File) {
+  //         //   fileToUpload = value;
+  //         // } else if (value && "file" in value && value.file instanceof File) {
+  //         //   fileToUpload = value.file;
+  //         // }
+  //         if (
+  //           value &&
+  //           typeof value === "object" && // Ensure value is an object
+  //           "file" in value &&
+  //           value.file instanceof File
+  //         ) {
+  //           fileToUpload = value.file;
+  //         }
+  //       }
+
+  //       // If we have a file to upload, add it to FormData
+  //       if (fileToUpload) {
+  //         const timestamp = Date.now();
+  //         const uniqueFileName = `${timestamp}_${question.id}_${fileToUpload.name}`;
+  //         const formKey = `${question.type}s[${question.id}]`;
+  //         formData.append(formKey, fileToUpload, uniqueFileName);
+  //       }
+  //     });
+
+  //     // Existing promise and response handling
+  //     const filePromise =
+  //       fileQuestions.length > 0 && Array.from(formData.keys()).length > 0
+  //         ? uploadQuestionFile(responseId as string, formData)
+  //         : null;
+
+  //     [answerResponse, fileResponse] = await Promise.all([
+  //       answerPromise,
+  //       filePromise,
+  //     ]);
+
+  //     // Verify file upload success if files were uploaded
+  //     if (filePromise && (!fileResponse || !fileResponse.success)) {
+  //       throw new Error(fileResponse?.message || "File upload failed");
+  //     }
+
+  //     // For the last step, submit the entire response
+  //     if (isLastStep) {
+  //       const submitResponse = await submitResponseEndpoint(
+  //         responseId as string,
+  //       );
+  //       console.log(submitResponse, "submitResponse");
+  //       // Check if submit response was successful
+  //       //@ts-ignore
+  //       if (!submitResponse.data) {
+  //         throw new Error(
+  //           //@ts-ignore
+  //           submitResponse.message || "Response submission failed",
+  //         );
+  //       }
+
+  //       // Open success modal or navigate to success page
+  //       openModal();
+  //       toast.success("Response submitted successfully");
+  //     } else {
+  //       // For intermediate steps, just show success for current step
+  //       toast.success(
+  //         //@ts-ignore
+  //         answerResponse?.message || "Answers submitted successfully",
+  //       );
+  //     }
+
+  //     // Update answers context
+  //     questions.forEach((question) =>
+  //       updateAnswer(question.id, selectedValues[question.id]),
+  //     );
+
+  //     if (!isLastStep) nextStep(); // Proceed to next step
+  //   } catch (error) {
+  //     console.log(error, "errror");
+  //     // Error handling
+  //     toast.error(error instanceof Error ? error.message : "An error occurred");
+  //   } finally {
+  //     // Ensure loading states are reset
+  //     setIsLoading(false);
+  //     setLastStepLoading(false);
+  //   }
+  // };
+
   const handleNext = async () => {
-    const allQuestionsHaveDefaultValues = questions.every((ques) => {
+    // Check for unchanged answers (same logic as before)
+    const allQuestionsUnchanged = questions.every((ques) => {
       const defaultValue = response?.answers?.find(
         (ans) => ans.question.id === ques.id,
       )?.value;
 
       const currentValue = selectedValues[ques.id];
 
-      // If no default value exists, this check will be skipped
-      if (!defaultValue) return false;
-
-      // Compare current value with default value
-      return currentValue === defaultValue;
+      // Deep comparison using JSON.stringify
+      return JSON.stringify(currentValue) === JSON.stringify(defaultValue);
     });
-    // If all questions have default values and haven't been edited, just move to next step
-    if (allQuestionsHaveDefaultValues) {
-      // Optional: Update answers context with default values
-      questions.forEach((question) => {
-        const defaultValue = response?.answers?.find(
-          (ans) => ans.question.id === question.id,
-        )?.value;
 
-        if (defaultValue) {
-          updateAnswer(question.id, defaultValue);
-        }
-      });
-
+    // If all questions are unchanged, just move to next step
+    if (allQuestionsUnchanged) {
       nextStep();
       return;
     }
 
-    // Validate required questions before proceeding
+    // Validation for required questions (same as before)
     const requiredQuestions = questions.filter((q) => q.required === 1);
     const missingRequiredQuestions = requiredQuestions.filter((q) => {
       const value = selectedValues[q.id];
 
-      // Check different types of inputs for emptiness
+      // Comprehensive emptiness check
       if (value === undefined || value === null || value === "") return true;
 
-      // Special handling for array-based inputs (checkbox, multi-select)
+      // Special handling for array-based inputs
       if (Array.isArray(value) && value.length === 0) return true;
 
-      // Special handling for file uploads
-      if (
-        q.type === "file" ||
-        q.type === "photo" ||
-        q.type === "video" ||
-        q.type === "audio"
-      ) {
-        return !value || (value.file === undefined && value === null);
+      // Special handling for file/media uploads
+      if (["file", "photo", "video", "audio"].includes(q.type)) {
+        // More robust file check
+        return !(
+          value &&
+          ((typeof value === "object" &&
+            "file" in value &&
+            value.file instanceof File) ||
+            value instanceof File ||
+            (typeof value === "string" && value.trim() !== ""))
+        );
       }
 
       return false;
     });
 
-    // If there are missing required questions, show error and prevent proceeding
+    // Validation error handling (same as before)
     if (missingRequiredQuestions.length > 0) {
       toast.warning(
         `Please fill in all required questions: ${missingRequiredQuestions.map((q) => q.label).join(", ")}`,
       );
 
-      // Optionally, focus on the first missing required question
       if (missingRequiredQuestions[0]) {
         const firstMissingQuestionRef =
           inputRefs.current[missingRequiredQuestions[0].id];
@@ -236,25 +526,19 @@ const DynamicQuestion = ({
         }
       }
 
-      return; // Stop proceeding if required questions are not filled
+      return;
     }
 
     setIsLoading(true);
 
-    // Filter and format only the answers for required questions or questions with values
+    // Answers formatting (same as before)
     const formattedAnswers = {
       answers: Object.entries(selectedValues)
         .filter(([key, value]) => {
           const question = questions.find((q) => q.id === Number(key));
-
-          // Only include answers for:
-          // 1. Required questions
-          // 2. Non-required questions that have a value
           const isRequired = question?.required === 1;
           const hasValue =
             value !== undefined && value !== null && value !== "";
-
-          // Exclude file/media type questions from this formatting
           const isFileType = ["file", "photo", "video", "audio"].includes(
             question?.type ?? "",
           );
@@ -264,87 +548,123 @@ const DynamicQuestion = ({
         .map(([key, value]) => ({
           question_id: Number(key),
           value: Array.isArray(value)
-            ? value.map((item) => item?.value || item) // Handle objects/values
+            ? value.map((item) => item?.value || item)
             : value,
         })),
     };
 
     setLastStepLoading(true);
 
-    let answerResponse = null;
-    let fileResponse = null;
-
     try {
-      // Existing API call for answers
+      // Prepare answers submission
       const answerPromise = createContributorAnswers(
         responseId as string,
         formattedAnswers,
       );
 
-      // Prepare FormData for file uploads (only for required or filled file questions)
+      // Enhanced file upload preparation
       const formData = new FormData();
       const fileQuestions = questions.filter((q) =>
         ["file", "photo", "video", "audio"].includes(q.type),
       );
 
+      let hasFileToUpload = false;
+
       fileQuestions.forEach((question) => {
         const value = selectedValues[question.id];
         let fileToUpload: File | undefined;
 
-        // Only upload file if the question is required or has a value
-        const isRequired = question.required === 1;
-        const hasValue = value !== undefined && value !== null;
-
-        // Determine the file to upload
-        if (isRequired || hasValue) {
-          // if (value instanceof File) {
-          //   fileToUpload = value;
-          // } else if (value && "file" in value && value.file instanceof File) {
-          //   fileToUpload = value.file;
-          // }
-          if (
-            value &&
-            typeof value === "object" && // Ensure value is an object
+        // More comprehensive file detection
+        if (value) {
+          if (value instanceof File) {
+            fileToUpload = value;
+          } else if (
+            typeof value === "object" &&
             "file" in value &&
             value.file instanceof File
           ) {
             fileToUpload = value.file;
+          } else if (typeof value === "string" && value.startsWith("blob:")) {
+            // Handle blob URLs
+            fetch(value)
+              .then((r) => r.blob())
+              .then((blob) => {
+                const file = new File([blob], "captured-media", {
+                  type: blob.type,
+                });
+                return file;
+              });
           }
         }
 
-        // If we have a file to upload, add it to FormData
-        if (fileToUpload) {
-          const timestamp = Date.now();
-          const uniqueFileName = `${timestamp}_${question.id}_${fileToUpload.name}`;
-          const formKey = `${question.type}s[${question.id}]`;
-          formData.append(formKey, fileToUpload, uniqueFileName);
-        }
+        // File size and type validation
+         if (fileToUpload) {
+           // Allowed file types for different question types
+           const allowedTypes = {
+             audio: ["audio/mpeg", "audio/wav", "audio/m4a", "audio/x-m4a"],
+             video: [
+               "video/mp4",
+               "video/mpeg",
+               "video/quicktime",
+               "video/webm",
+             ],
+             photo: ["image/jpeg", "image/png", "image/gif"],
+             file: [], // Add specific file types if needed
+           };
+
+           // Get allowed types for this question type
+           const typeAllowList =
+             allowedTypes[question.type as keyof typeof allowedTypes] || [];
+
+           // File size and type validation
+           const isValidFileType =
+             typeAllowList.length === 0 ||
+             //@ts-ignore
+             typeAllowList.includes(fileToUpload.type);
+           const isValidFileSize = fileToUpload.size <= 1 * 1024 * 1024; // 1MB limit
+
+           if (isValidFileType && isValidFileSize) {
+             const timestamp = Date.now();
+             const uniqueFileName = `${timestamp}_${question.id}_${fileToUpload.name}`;
+             const formKey = `${question.type}s[${question.id}]`;
+             formData.append(formKey, fileToUpload, uniqueFileName);
+             hasFileToUpload = true;
+           } else {
+             // Detailed error messaging
+             if (!isValidFileType) {
+               toast.error(
+                 `Invalid file type for ${question.label}. Allowed types: ${typeAllowList.join(", ")}`,
+               );
+             }
+             if (!isValidFileSize) {
+               toast.error(`File for ${question.label} exceeds 1MB limit`);
+             }
+           }
+         }
       });
 
-      // Existing promise and response handling
-      const filePromise =
-        fileQuestions.length > 0 && Array.from(formData.keys()).length > 0
-          ? uploadQuestionFile(responseId as string, formData)
-          : null;
+      // File upload and answers submission
+      const promises: Promise<any>[] = [answerPromise];
 
-      [answerResponse, fileResponse] = await Promise.all([
-        answerPromise,
-        filePromise,
-      ]);
+      // Only add file upload promise if there are files
+      if (hasFileToUpload) {
+        promises.push(uploadQuestionFile(responseId as string, formData));
+      }
+
+      // Wait for both promises
+      const [answerResponse, fileResponse] = await Promise.all(promises);
 
       // Verify file upload success if files were uploaded
-      if (filePromise && (!fileResponse || !fileResponse.success)) {
+      if (hasFileToUpload && (!fileResponse || !fileResponse.success)) {
         throw new Error(fileResponse?.message || "File upload failed");
       }
 
-      // For the last step, submit the entire response
+      // Last step submission logic (same as before)
       if (isLastStep) {
         const submitResponse = await submitResponseEndpoint(
           responseId as string,
         );
-        console.log(submitResponse, "submitResponse");
-        // Check if submit response was successful
-        //@ts-ignore
+
         if (!submitResponse.data) {
           throw new Error(
             //@ts-ignore
@@ -352,13 +672,10 @@ const DynamicQuestion = ({
           );
         }
 
-        // Open success modal or navigate to success page
         openModal();
         toast.success("Response submitted successfully");
       } else {
-        // For intermediate steps, just show success for current step
         toast.success(
-          //@ts-ignore
           answerResponse?.message || "Answers submitted successfully",
         );
       }
@@ -368,19 +685,17 @@ const DynamicQuestion = ({
         updateAnswer(question.id, selectedValues[question.id]),
       );
 
-      if (!isLastStep) nextStep(); // Proceed to next step
+      if (!isLastStep) nextStep();
     } catch (error) {
-      console.log(error, "errror");
-      // Error handling
+      console.error("Submission error:", error);
       toast.error(error instanceof Error ? error.message : "An error occurred");
     } finally {
-      // Ensure loading states are reset
       setIsLoading(false);
       setLastStepLoading(false);
     }
   };
 
-  const renderQuestion = (ques: any) => {
+  const renderQuestionInput = (ques: any) => {
     switch (ques.type) {
       case "text":
       case "textarea":
@@ -677,6 +992,21 @@ const DynamicQuestion = ({
       //     </div>
       //   );
 
+      // case "area":
+      //   return (
+      //     <div className="col-span-2">
+      //       <CustomAreaInput
+      //         apiKey={KEY as string}
+      //         questionId={ques.id}
+      //         onLocationSelect={(locations) =>
+      //           //@ts-ignore
+      //           handleInputChange(locations, ques.id, "location")
+      //         }
+      //         defaultLocations={selectedValues[ques.id] || []}
+      //       />
+      //     </div>
+      //   );
+
       case "area":
         return (
           <div className="col-span-2">
@@ -685,9 +1015,10 @@ const DynamicQuestion = ({
               questionId={ques.id}
               onLocationSelect={(locations) =>
                 //@ts-ignore
-                handleInputChange(locations, ques.id, "location")
+                handleInputChange(locations, ques.id, "area")
               }
-              defaultLocations={selectedValues[ques.id] || []}
+              defaultLocations={selectedValues[ques.id]}
+              maxLocations={2}
             />
           </div>
         );
@@ -1018,6 +1349,7 @@ const DynamicQuestion = ({
       //   return (
       //     <div className="col-span-2">
       //       <AudioRecorder
+      //         // audioType="mp3"
       //         quesId={ques.id}
       //         handleInputChange={handleInputChange}
       //         defaultAudio={selectedValues[ques.id]} // Pass the default audio
@@ -1076,6 +1408,45 @@ const DynamicQuestion = ({
 
   console.log(questions, "questionsquestions");
 
+  // const renderQuestion = (ques: Question, index: number) => {
+  //   return (
+  //     <div key={ques.id} className="grid gap-2">
+  //       <Label
+  //         htmlFor={ques.name}
+  //         className="text-base leading-7 tracking-wider text-[#333333]"
+  //       >
+  //         {/* Add question numbering */}
+  //         <span className="mr-2 font-bold text-main-100">{index + 1}.</span>
+  //         {ques.label}
+  //         {ques.required === 1 && <span className="ml-1 text-red-500">*</span>}
+  //       </Label>
+  //       {renderQuestionInput(ques)}
+  //     </div>
+  //   );
+  // };
+
+  const renderQuestion = (ques: Question, stepQuestionIndex: number) => {
+    // Calculate the overall question number by combining the starting number and current step's question index
+    const overallQuestionNumber = startingQuestionNumber + stepQuestionIndex;
+
+    return (
+      <div key={ques.id} className="grid gap-2">
+        <Label
+          htmlFor={ques.name}
+          className="text-base leading-7 tracking-wider text-[#333333]"
+        >
+          {/* Use the overall question number */}
+          <span className="mr-2 font-bold text-main-100">
+            {overallQuestionNumber}.
+          </span>
+          {ques.label}
+          {ques.required === 1 && <span className="ml-1 text-red-500">*</span>}
+        </Label>
+        {renderQuestionInput(ques)}
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-5">
       <>
@@ -1119,20 +1490,9 @@ const DynamicQuestion = ({
         </div>
       </>
       <div className="space-y-10">
-        {questions?.map((ques: any) => (
-          <div key={ques.id} className="grid gap-2">
-            <Label
-              htmlFor={ques.name}
-              className="text-base leading-7 tracking-wider text-[#333333]"
-            >
-              {ques.label}
-              {ques.required === 1 && (
-                <span className="ml-1 text-red-500">*</span>
-              )}
-            </Label>
-            {renderQuestion(ques)}
-          </div>
-        ))}
+        {questions?.map((ques: Question, index: number) =>
+          renderQuestion(ques, index),
+        )}
       </div>
       <StepperControl
         isLastStep={isLastStep}
