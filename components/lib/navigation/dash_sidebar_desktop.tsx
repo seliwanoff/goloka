@@ -74,7 +74,7 @@ const DashSideBarDesktop: React.FC<ComponentProps> = ({ navMenuList }) => {
 
       {/* -- nav items  */}
       <nav className="mt-10 flex flex-col gap-3">
-        {NavData.map((nav_item) => (
+        {navMenuList.map((nav_item) => (
           <Link
             href={nav_item.link}
             key={nav_item.title}
@@ -154,24 +154,3 @@ const DashSideBarDesktop: React.FC<ComponentProps> = ({ navMenuList }) => {
 
 export default DashSideBarDesktop;
 
-// ~ =============================================>
-// ~ ======= Navigation data -->
-// ~ =============================================>
-const NavData: { icon: any; title: string; link: string }[] = [
-  { icon: LayoutGrid, title: "Dashboard", link: "/dashboard/root" },
-  { icon: Note, title: "Marketplace", link: "/dashboard/marketplace" },
-  { icon: DocumentCopy, title: "Responses", link: "/dashboard/responses" },
-  {
-    icon: Import,
-    title: "My contributions",
-    link: "/dashboard/my_contributions",
-  },
-  {
-    icon: ArchiveMinus,
-    title: "Bookmarks",
-    link: "/dashboard/bookmarks",
-  },
-  { icon: Wallet3, title: "Wallet", link: "/dashboard/wallet" },
-  { icon: MessageQuestion, title: "Support", link: "/dashboard/support" },
-  { icon: Settings, title: "Settings", link: "/dashboard/settings" },
-];

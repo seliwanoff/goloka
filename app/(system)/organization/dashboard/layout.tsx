@@ -103,16 +103,16 @@ const NavData: { icon: any; title: string; link: string }[] = [
     title: "Support",
     link: "/organization/dashboard/support",
   },
-  {
-    icon: Settings,
-    title: "Finances",
-    link: "/organization/dashboard/finances",
-  },
-  {
-    icon: Note1,
-    title: "Reports",
-    link: "/organization/dashboard/reports",
-  },
+  // {
+  //   icon: Settings,
+  //   title: "Finances",
+  //   link: "/organization/dashboard/finances",
+  // },
+  // {
+  //   icon: Note1,
+  //   title: "Reports",
+  //   link: "/organization/dashboard/reports",
+  // },
   {
     icon: Settings,
     title: "Settings",
