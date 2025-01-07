@@ -1,0 +1,4 @@
+{
+  "plugins": ["prettier-plugin-tailwindcss"],
+  "max_line_length": 80
+}
