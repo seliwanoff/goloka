@@ -87,13 +87,13 @@ const TaskCardWidget: React.FC<TaskCardProps> = ({
       className="space-y-[18px] rounded-[16px] border border-[#F2F2F2] bg-white p-4 hover:border-main-100 hover:shadow"
     >
       <figure className="relative h-[280px] w-full overflow-hidden rounded-[8px]">
-        <Image
+        {/* <Image
           src={image_path?.[0]}
           alt={title}
           className="h-full w-full object-cover"
           width={640}
           height={480}
-        />
+        /> */}
       </figure>
 
       <div className="flex items-center justify-between">
