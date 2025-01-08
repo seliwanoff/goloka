@@ -30,29 +30,64 @@ const Verify: React.FC<PageProps> = ({ setStep }) => {
     setHasSubmitted(false); // Reset submission state when OTP changes
   }, []);
 
-  const handleOtpSubmit = useCallback(async () => {
-    if (isSubmitting) return;
+  // const handleOtpSubmit = useCallback(async () => {
+  //   if (isSubmitting) return;
 
-    const otpValue = otpValues.join("");
-    if (otpValue.length !== 6) {
-      setError("Please enter all digits.");
+  //   const otpValue = otpValues.join("");
+  //   if (otpValue.length !== 6) {
+  //     setError("Please enter all digits.");
+  //     return;
+  //   }
+
+  //   setIsSubmitting(true);
+  //   setHasSubmitted(true); // Mark that we've attempted submission
+
+  //   try {
+  //     const response = await verifyOTP({ otp: otpValue });
+  //     const { data } = response;
+  //     console.log(data, "dgtg");
+  //     setStep(3);
+  //   } catch (error) {
+  //     toast("Failed to verify OTP. Please try again.");
+  //   } finally {
+  //     setIsSubmitting(false);
+  //   }
+  // }, [otpValues, isSubmitting, setStep]);
+
+  const handleOtpSubmit = useCallback(async () => {
+  // Prevent multiple submissions
+  if (isSubmitting) return;
+
+  // Validate OTP length
+  const otpValue = otpValues.join("");
+  if (otpValue.length !== 6) {
+    setError("Please enter all digits.");
+    return;
+  }
+
+  setIsSubmitting(true);
+  setHasSubmitted(true);
+
+  try {
+    const response = await verifyOTP({ otp: otpValue });
+    const { data } = response;
+
+    // Check if verification was successful
+    if (!data) {
+      toast("Invalid OTP code. Please try again.");
       return;
     }
 
-    setIsSubmitting(true);
-    setHasSubmitted(true); // Mark that we've attempted submission
-
-    try {
-      const response = await verifyOTP({ otp: otpValue });
-      const { data } = response;
-      console.log(data, "dgtg");
-      setStep(3);
-    } catch (error) {
-      toast("Failed to verify OTP. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [otpValues, isSubmitting, setStep]);
+    // Only proceed to next step if verification was successful
+    console.log(data, "verification successful");
+    setStep(3);
+  } catch (error) {
+    toast("Failed to verify OTP. Please try again.");
+    // Don't proceed to next step on error
+  } finally {
+    setIsSubmitting(false);
+  }
+}, [otpValues, isSubmitting, setStep]);
 
 const handleResendOtp = async () => {
   if (isResending || sec > 0) return;
