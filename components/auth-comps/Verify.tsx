@@ -14,13 +14,15 @@ type PageProps = {
 
 const Verify: React.FC<PageProps> = ({ setStep }) => {
 
-  const [sec, setSec] = useState(60);
-  const [otpValues, setOtpValues] = useState<string[]>(Array(6).fill(""));
-  const [error, setError] = useState("");
-  const [email, setEmail] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [hasSubmitted, setHasSubmitted] = useState(false); // Track if we've attempted submission
-  const searchParams = useSearchParams();
+ const [sec, setSec] = useState(60);
+ const [otpValues, setOtpValues] = useState<string[]>(Array(6).fill(""));
+ const [error, setError] = useState("");
+ const [email, setEmail] = useState<string | null>(null);
+ const [isSubmitting, setIsSubmitting] = useState(false);
+ const [isResending, setIsResending] = useState(false);
+ const [hasSubmitted, setHasSubmitted] = useState(false);
+ const [timerKey, setTimerKey] = useState(0); // Add this to force timer reset
+ const searchParams = useSearchParams();
 
   const handleOtpChange = useCallback((otpArray: string[]) => {
     setOtpValues(otpArray);
@@ -52,23 +54,27 @@ const Verify: React.FC<PageProps> = ({ setStep }) => {
     }
   }, [otpValues, isSubmitting, setStep]);
 
-  const handleResendOtp = async () => {
-    try {
-      setSec(60);
-     const res = await getOTP({});
+const handleResendOtp = async () => {
+  if (isResending || sec > 0) return;
 
-     if (res) {
-       console.log(res, "response");
-      //  setIsLoading(false);
-       //@ts-ignore
-      //  toast.success(response?.message);
+  setIsResending(true);
+  try {
+    const res = await getOTP({});
+    if (res) {
+      console.log(res, "response");
       toast("OTP resent successfully");
-      //  setStep(2, data.email);
-     }
-    } catch (error) {
-      toast("Failed to resend OTP. Please try again.");
+      setSec(60);
+      setTimerKey((prev) => prev + 1); // Increment timer key to force reset
+      // Clear previous OTP
+      setOtpValues(Array(6).fill(""));
+      setHasSubmitted(false);
     }
-  };
+  } catch (error) {
+    toast("Failed to resend OTP. Please try again.");
+  } finally {
+    setIsResending(false);
+  }
+};
 
   useEffect(() => {
     const emailParam = searchParams.get("email");
@@ -77,18 +83,23 @@ const Verify: React.FC<PageProps> = ({ setStep }) => {
     }
   }, [searchParams]);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setSec((prevSeconds) => {
-        if (prevSeconds <= 1) {
-          clearInterval(interval);
-          return 0;
-        }
-        return prevSeconds - 1;
-      });
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
+ useEffect(() => {
+   let interval: NodeJS.Timeout;
+   if (sec > 0) {
+     interval = setInterval(() => {
+       setSec((prev) => {
+         if (prev <= 1) {
+           clearInterval(interval);
+           return 0;
+         }
+         return prev - 1;
+       });
+     }, 1000);
+   }
+   return () => {
+     if (interval) clearInterval(interval);
+   };
+ }, [timerKey]);
 
   // Only trigger submit once when OTP is complete
   useEffect(() => {
@@ -124,16 +135,18 @@ const Verify: React.FC<PageProps> = ({ setStep }) => {
         <span
           className={cn(
             "cursor-pointer font-semibold text-main-100",
-            sec < 1
+            sec < 1 && !isResending
               ? "pointer-events-auto opacity-100"
               : "pointer-events-none opacity-40",
           )}
           onClick={handleResendOtp}
         >
-          Resend
+          {isResending ? "Sending..." : "Resend"}
         </span>{" "}
         <br />
-        <span className="mt-4 inline-block text-main-100">{sec} secs</span>
+        <span className="mt-4 inline-block text-main-100">
+          {isResending ? "Sending new code..." : `${sec} secs`}
+        </span>
       </div>
 
       <Button
