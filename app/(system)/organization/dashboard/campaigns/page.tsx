@@ -35,6 +35,8 @@ import {
 import { BsThreeDots } from "react-icons/bs";
 import Pagination from "@/components/lib/navigation/Pagination";
 import { getStatusText } from "@/helper";
+import router from "next/router";
+import Link from "next/link";
 
 const renderTable = (tab: string, tdata: any[]) => {
   switch (tab.toLowerCase()) {
@@ -93,7 +95,7 @@ const Page = () => {
     }
   }, [activeTab]);
 
-  console.log(activeTab, "Tabs");
+  //console.log(activeTab, "Tabs");
   return (
     <section className="mt-5">
       {/* HEADING */}
@@ -103,19 +105,21 @@ const Page = () => {
         <div className="inline-flex items-center gap-2">
           <Button
             variant="outline"
-            className="rounded-[50px] border-main-100 text-main-100"
+            className="font-Satoshi rounded-[50px] border-main-100 text-main-100"
           >
             Create campaign group
           </Button>
-          <Button
-            variant="outline"
-            className="items-center gap-2 rounded-[50px] bg-main-100 text-white"
-          >
-            <span>
-              <Note />
-            </span>
-            Create new campaign
-          </Button>
+          <Link href="/organization/dashboard/campaigns/create">
+            <Button
+              variant="outline"
+              className="font-Satoshi items-center gap-2 rounded-[50px] bg-main-100 text-white"
+            >
+              <span>
+                <Note />
+              </span>
+              Create new campaign
+            </Button>
+          </Link>
         </div>
       </div>
 

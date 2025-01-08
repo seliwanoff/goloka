@@ -62,10 +62,8 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
     setEye2((prev: boolean) => !prev);
   };
 
-  console.log(process.env);
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     setIsLoading(true);
-    console.log(data);
     const userData = {
       name: data.fullname,
       email: data.email,
@@ -99,7 +97,7 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
     setIsLoading(false);
   };
 
-  console.log(countryData, "countryData");
+  // console.log(countryData, "countryData");
 
   return (
     <div className="relative md:w-[70%] lg:w-[80%]">
