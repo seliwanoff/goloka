@@ -1,6 +1,6 @@
 import CustomInput from "@/components/lib/widgets/custom_inputs";
 import OtherPersonalInfo from "./other_personal_info";
-import { genderOptions, personalInfo } from "@/utils";
+import { genderOptions, personalFirstName, personalInfo } from "@/utils";
 import CustomSelectField from "../select_field";
 import { Camera } from "iconsax-react";
 import Image from "next/image";
@@ -73,50 +73,50 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
   const currentUser = useUserStore((state) => state.user);
 
   // Merge user data, prioritizing remoteUser and handling duplicates
-const mergedUserData = useMemo(() => {
-  // Safely get values or return empty string
-  const safeGet = (obj: any, key: string) => {
-    return obj && obj[key] !== undefined ? obj[key] : "";
-  };
+  const mergedUserData = useMemo(() => {
+    // Safely get values or return empty string
+    const safeGet = (obj: any, key: string) => {
+      return obj && obj[key] !== undefined ? obj[key] : "";
+    };
 
-  // Mapping of incoming keys to form field keys
-  const keyMapping: Record<string, string> = {
-    name: "firstName",
-    lastName: "lastName",
-    birth_date: "dateOfBirth",
-    email: "email",
-    gender: "gender",
-    primary_language: "primaryLanguage",
-    religion: "religion",
-    ethnicity: "ethnicity",
-    spoken_languages: "spokenLanguage",
-    phone_code: "phoneNo",
-  };
+    // Mapping of incoming keys to form field keys
+    const keyMapping: Record<string, string> = {
+      name: "firstName",
+      lastName: "lastName",
+      birth_date: "dateOfBirth",
+      email: "email",
+      gender: "gender",
+      primary_language: "primaryLanguage",
+      religion: "religion",
+      ethnicity: "ethnicity",
+      spoken_languages: "spokenLanguage",
+      phone_code: "phoneNo",
+    };
 
-  // Merge and transform data
-  const merged: Record<string, string> = {};
+    // Merge and transform data
+    const merged: Record<string, string> = {};
 
-  Object.keys(keyMapping).forEach((sourceKey) => {
-    const targetKey = keyMapping[sourceKey];
+    Object.keys(keyMapping).forEach((sourceKey) => {
+      const targetKey = keyMapping[sourceKey];
 
-    // Prioritize remoteUser, then currentUser
-    let value =
-      safeGet(remoteUser, sourceKey) || safeGet(currentUser, sourceKey);
+      // Prioritize remoteUser, then currentUser
+      let value =
+        safeGet(remoteUser, sourceKey) || safeGet(currentUser, sourceKey);
 
-    if (value !== undefined && value !== null) {
-      // Special handling for some fields
-      if (sourceKey === "birth_date") {
-        merged[targetKey] = value.split(" ")[0]; // Extract date part
-      } else if (sourceKey === "spoken_languages") {
-        merged[targetKey] = Array.isArray(value) ? value.join(", ") : value;
-      } else {
-        merged[targetKey] = value;
+      if (value !== undefined && value !== null) {
+        // Special handling for some fields
+        if (sourceKey === "birth_date") {
+          merged[targetKey] = value.split(" ")[0]; // Extract date part
+        } else if (sourceKey === "spoken_languages") {
+          merged[targetKey] = Array.isArray(value) ? value.join(", ") : value;
+        } else {
+          merged[targetKey] = value;
+        }
       }
-    }
-  });
+    });
 
-  return merged;
-}, [currentUser, remoteUser]);
+    return merged;
+  }, [currentUser, remoteUser]);
 
   // Generate initial avatar if no image is provided
   const initialAvatar = useMemo(() => {
@@ -133,16 +133,16 @@ const mergedUserData = useMemo(() => {
 
   console.log(mergedUserData, "mergedUserData");
 
-const {
-  handleSubmit,
-  register,
-  control,
-  formState: { errors },
-  reset,
-} = useForm<FormValues>({
-  resolver: yupResolver(schema),
-  defaultValues: mergedUserData,
-});
+  const {
+    handleSubmit,
+    register,
+    control,
+    formState: { errors },
+    reset,
+  } = useForm<FormValues>({
+    resolver: yupResolver(schema),
+    defaultValues: mergedUserData,
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files && e.target.files[0];
@@ -226,31 +226,45 @@ const {
             />
           </div>
         </div>
-
-        <div className="space-y-4 md:grid md:grid-cols-2 md:gap-x-[18px] md:gap-y-6 md:space-y-0">
-          {personalInfo.map((data: any, index: number) => {
-            if (data.type === "select") {
+        <div>
+          <div>
+            {personalFirstName.map((data: any, index: number) => {
               return (
-                <CustomSelectField
+                <CustomInput
                   data={data}
                   errors={errors}
                   register={register}
                   control={control}
                   key={data?.name + index}
-                  options={genderOptions}
                 />
               );
-            }
-            return (
-              <CustomInput
-                data={data}
-                errors={errors}
-                register={register}
-                control={control}
-                key={data?.name + index}
-              />
-            );
-          })}
+            })}
+          </div>
+          <div className="space-y-4 md:grid md:grid-cols-2 md:gap-x-[18px] md:gap-y-6 md:space-y-0">
+            {personalInfo.map((data: any, index: number) => {
+              if (data.type === "select") {
+                return (
+                  <CustomSelectField
+                    data={data}
+                    errors={errors}
+                    register={register}
+                    control={control}
+                    key={data?.name + index}
+                    options={genderOptions}
+                  />
+                );
+              }
+              return (
+                <CustomInput
+                  data={data}
+                  errors={errors}
+                  register={register}
+                  control={control}
+                  key={data?.name + index}
+                />
+              );
+            })}
+          </div>
         </div>
       </div>
 

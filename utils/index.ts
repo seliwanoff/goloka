@@ -609,8 +609,6 @@ export const pushNotifications = [
   },
 ];
 
-
-
 export const emailNotifications = [
   {
     label: "Task Updates",
@@ -734,8 +732,7 @@ export const passwordFormData = [
     placeholder: "Input password",
   },
 ];
-
-export const personalInfo = [
+export const personalFirstName = [
   {
     name: "firstName",
     label: "First name",
@@ -744,14 +741,10 @@ export const personalInfo = [
     err_message: "Input your first name",
     placeholder: "Input first name",
   },
-  {
-    label: "Last name",
-    type: "text",
-    required: true,
-    err_message: "Input your first name",
-    name: "lastName",
-    placeholder: "Input first name",
-  },
+];
+
+export const personalInfo = [
+
   {
     label: "Email address",
     type: "email",
@@ -787,22 +780,7 @@ export const personalInfo = [
 ];
 
 export const otherInfo = [
-  // {
-  //   label: "Date of birth",
-  //   type: "date",
-  //   required: true,
-  //   err_message: "Select your date of birth",
-  //   name: "dateOfBirth1",
-  //   placeholder: "Select date",
-  // },
-  // {
-  //   label: "Gender",
-  //   type: "select",
-  //   required: true,
-  //   err_message: "Select your gender",
-  //   name: "gender1",
-  //   placeholder: "Select your gender",
-  // },
+ 
 
   {
     label: "Religion",
@@ -1686,8 +1664,3 @@ export const projects = [
     image: Img3,
   },
 ];
-
-
-
-
-
