@@ -57,9 +57,8 @@ const CustomMultiSelect = ({
       <Controller
         name={data.name}
         control={control}
-        defaultValue={[]} // Start with empty array if no default
+        defaultValue={normalizeSpokenLanguages(defaultValue)} // Normalize default values
         render={({ field }) => {
-          // Ensure we always have an array of values
           const currentValues = normalizeSpokenLanguages(field.value);
 
           return (
@@ -111,17 +110,15 @@ const CustomMultiSelect = ({
                   <CommandGroup className="max-h-64 overflow-auto">
                     {options.map((option: any) => {
                       const isSelected = currentValues.includes(
-                        option.value.toLowerCase(),
+                        option.value, // Use normalized or raw value based on `normalizeSpokenLanguages`
                       );
                       return (
                         <CommandItem
                           key={option.value}
                           onSelect={() => {
                             const newValues = isSelected
-                              ? currentValues.filter(
-                                  (v) => v !== option.value.toLowerCase(),
-                                )
-                              : [...currentValues, option.value.toLowerCase()];
+                              ? currentValues.filter((v) => v !== option.value)
+                              : [...currentValues, option.value];
                             field.onChange(newValues);
                           }}
                         >
@@ -147,3 +144,6 @@ const CustomMultiSelect = ({
 };
 
 export default CustomMultiSelect;
+
+
+

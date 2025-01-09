@@ -14,6 +14,7 @@ import Avatar from "@/public/assets/images/avatar.png";
 import { useUserStore } from "@/stores/currentUserStore";
 import { useRemoteUserStore } from "@/stores/remoteUser";
 import { normalizeSpokenLanguages } from "../multiSelect";
+import { createContributor } from "@/services/contributor";
 
 type ComponentProps = {};
 
@@ -73,45 +74,45 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
   const { user: remoteUser } = useRemoteUserStore();
   const currentUser = useUserStore((state) => state.user);
 
- const mergedUserData = useMemo(() => {
-   const safeGet = (obj: any, key: string) => {
-     return obj && obj[key] !== undefined ? obj[key] : "";
-   };
+  const mergedUserData = useMemo(() => {
+    const safeGet = (obj: any, key: string) => {
+      return obj && obj[key] !== undefined ? obj[key] : "";
+    };
 
-   const keyMapping: Record<string, string> = {
-     name: "firstName",
-     lastName: "lastName",
-     birth_date: "dateOfBirth",
-     email: "email",
-     gender: "gender",
-     primary_language: "primaryLanguage",
-     religion: "religion",
-     ethnicity: "ethnicity",
-     spoken_languages: "spokenLanguage",
-     phone_code: "phoneNo",
-   };
+    const keyMapping: Record<string, string> = {
+      name: "firstName",
+      lastName: "lastName",
+      birth_date: "dateOfBirth",
+      email: "email",
+      gender: "gender",
+      primary_language: "primaryLanguage",
+      religion: "religion",
+      ethnicity: "ethnicity",
+      spoken_languages: "spokenLanguage",
+      phone_code: "phoneNo",
+    };
 
-   const merged: Record<string, any> = {}; // Changed type to allow for arrays
+    const merged: Record<string, any> = {}; // Changed type to allow for arrays
 
-   Object.keys(keyMapping).forEach((sourceKey) => {
-     const targetKey = keyMapping[sourceKey];
-     let value =
-       safeGet(remoteUser, sourceKey) || safeGet(currentUser, sourceKey);
+    Object.keys(keyMapping).forEach((sourceKey) => {
+      const targetKey = keyMapping[sourceKey];
+      let value =
+        safeGet(remoteUser, sourceKey) || safeGet(currentUser, sourceKey);
 
-     if (value !== undefined && value !== null) {
-       if (sourceKey === "birth_date") {
-         merged[targetKey] = value.split(" ")[0];
-       } else if (sourceKey === "spoken_languages") {
-         merged[targetKey] = normalizeSpokenLanguages(value);
-       } else {
-         merged[targetKey] =
-           typeof value === "string" ? value.toLowerCase() : value;
-       }
-     }
-   });
+      if (value !== undefined && value !== null) {
+        if (sourceKey === "birth_date") {
+          merged[targetKey] = value.split(" ")[0];
+        } else if (sourceKey === "spoken_languages") {
+          merged[targetKey] = normalizeSpokenLanguages(value);
+        } else {
+          merged[targetKey] =
+            typeof value === "string" ? value.toLowerCase() : value;
+        }
+      }
+    });
 
-   return merged;
- }, [currentUser, remoteUser]);
+    return merged;
+  }, [currentUser, remoteUser]);
 
   // Generate initial avatar if no image is provided
   const initialAvatar = useMemo(() => {
@@ -128,20 +129,20 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
 
   console.log(mergedUserData, "mergedUserData");
 
-const {
-  handleSubmit,
-  register,
-  control,
-  formState: { errors },
-  reset,
-} = useForm<FormValues>({
-  //@ts-ignore
-  resolver: yupResolver(schema),
-  defaultValues: {
-    ...mergedUserData,
-    spokenLanguage: normalizeSpokenLanguages(mergedUserData.spokenLanguage),
-  },
-});
+  const {
+    handleSubmit,
+    register,
+    control,
+    formState: { errors },
+    reset,
+  } = useForm<FormValues>({
+    //@ts-ignore
+    resolver: yupResolver(schema),
+    defaultValues: {
+      ...mergedUserData,
+      spokenLanguage: normalizeSpokenLanguages(mergedUserData.spokenLanguage),
+    },
+  });
 
   useEffect(() => {
     if (mergedUserData) {
@@ -158,7 +159,7 @@ const {
     }
   };
 
-  const onSubmit = (data: FormValues) => {
+  const onSubmit = async (data: FormValues) => {
     const finalData = {
       ...data,
       // Join array back to string if needed for API
@@ -169,7 +170,9 @@ const {
         ? URL.createObjectURL(image)
         : mergedUserData.profile_photo_url,
     };
-
+    // try {
+    //   const response = await createContributor(finalData);
+    // } catch {}
     console.log("All form data:", finalData);
   };
   return (
