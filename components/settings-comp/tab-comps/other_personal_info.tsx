@@ -1,28 +1,23 @@
-import {
-  ethnicityOptions,
-  genderOptions,
-  otherInfo,
-  primaryLanguageOptions,
-  religionOptions,
-  spokenLanguageOptions,
-} from "@/utils";
+import { ethnicityOptions, genderOptions, otherInfo } from "@/utils";
 import CustomSelectField from "../select_field";
 import DatePicker from "../date_picker";
+import { languages } from "@/components/contributor/Language";
+import { ethnicities, religions } from "@/components/contributor/MoreInfo";
 import { useEffect } from "react";
-import { useRemoteUserStore } from "@/stores/contributors";
+import CustomMultiSelect from "../multiSelect";
 
 const getOptionsByName = (name: string) => {
   switch (name) {
     case "gender1":
       return genderOptions;
     case "religion":
-      return religionOptions;
+      return religions;
     case "ethnicity":
-      return ethnicityOptions;
+      return ethnicities;
     case "primaryLanguage":
-      return primaryLanguageOptions;
+      return languages;
     case "spokenLanguage":
-      return spokenLanguageOptions;
+      return languages;
     default:
       return [];
   }
@@ -33,19 +28,17 @@ const OtherPersonalInfo: React.FC<any> = ({
   register,
   control,
   reset,
+  defaultValues,
 }) => {
+  useEffect(() => {
+    console.log("OtherPersonalInfo defaultValues:", defaultValues);
+  }, [defaultValues]);
 
-
-
-
+  const isMultiSelect = (fieldName: string) => {
+    return ["spokenLanguage"].includes(fieldName);
+  };
   return (
     <div className="mt-8 rounded-2xl bg-white p-6">
-      <div>
-        <h3 className="mb-1 text-lg font-semibold text-[#101828]">
-          Other info
-        </h3>
-        <p className="text-sm text-[#475467]">Edit your location preference</p>
-      </div>
       <div className="space-y-4 md:mt-8 md:grid md:grid-cols-2 md:gap-x-[18px] md:gap-y-6 md:space-y-0">
         {otherInfo.map((data, index) => {
           if (data.type === "date") {
@@ -56,18 +49,24 @@ const OtherPersonalInfo: React.FC<any> = ({
                 errors={errors}
                 register={register}
                 control={control}
+                defaultValue={defaultValues?.[data.name]}
               />
             );
           }
 
+          const SelectComponent = isMultiSelect(data.name)
+            ? CustomMultiSelect
+            : CustomSelectField;
+
           return (
-            <CustomSelectField
+            <SelectComponent
               key={data.name + index}
               data={data}
               errors={errors}
               register={register}
               control={control}
               options={getOptionsByName(data.name)}
+              defaultValue={defaultValues?.[data.name]}
             />
           );
         })}

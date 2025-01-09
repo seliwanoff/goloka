@@ -780,7 +780,7 @@ export const personalInfo = [
 ];
 
 export const otherInfo = [
- 
+
 
   {
     label: "Religion",
@@ -857,7 +857,7 @@ export const genderOptions = [
   { label: "Other", value: "other" },
 ];
 
-export const religionOptions = [
+export const IslamreligionOptions = [
   { label: "Christianity", value: "christianity" },
   { label: "Islam", value: "islam" },
   { label: "Hinduism", value: "hinduism" },

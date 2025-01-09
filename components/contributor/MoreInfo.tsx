@@ -28,7 +28,7 @@ type PageProps = {
   step: number;
 };
 
-const religions = [
+export const religions = [
   { label: "Christianity", value: "christianity" },
   { label: "Islam", value: "islam" },
   { label: "Hinduism", value: "hinduism" },
@@ -40,7 +40,7 @@ const religions = [
   { label: "Other", value: "other" },
 ];
 
-const ethnicities = [
+export const ethnicities = [
   { label: "Asian", value: "asian" },
   { label: "Black or African American", value: "black_or_african_american" },
   { label: "Hispanic or Latino", value: "hispanic_or_latino" },

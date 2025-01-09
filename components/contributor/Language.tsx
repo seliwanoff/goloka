@@ -24,7 +24,7 @@ type PageProps = {
   step: number;
 };
 
-const languages = [
+export const languages = [
   { label: "Arabic", value: "arabic" },
   { label: "Bachama", value: "bachama" },
   { label: "Bengali", value: "bengali" },
