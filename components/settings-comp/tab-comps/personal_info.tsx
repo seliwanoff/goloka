@@ -1,3 +1,4 @@
+import React from "react";
 import CustomInput from "@/components/lib/widgets/custom_inputs";
 import OtherPersonalInfo from "./other_personal_info";
 import { genderOptions, personalFirstName, personalInfo } from "@/utils";
@@ -10,7 +11,6 @@ import * as yup from "yup";
 import { useState, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import Avatar from "@/public/assets/images/avatar.png";
-
 import { useUserStore } from "@/stores/currentUserStore";
 import { useRemoteUserStore } from "@/stores/remoteUser";
 import { normalizeSpokenLanguages } from "../multiSelect";
@@ -20,12 +20,9 @@ type ComponentProps = {};
 
 const schema = yup.object().shape({
   firstName: yup.string().required(),
-  lastName: yup.string().required(),
   dateOfBirth: yup.string().required(),
-  // dateOfBirth1: yup.string().required(),
   phoneNo: yup.string().required(),
   gender: yup.string().required(),
-  // gender1: yup.string().required(),
   email: yup.string().email().required(),
   primaryLanguage: yup.string().required(),
   religion: yup.string().required(),
@@ -36,7 +33,6 @@ const schema = yup.object().shape({
 type FormValues = {
   email: string;
   firstName: string;
-  lastName: string;
   dateOfBirth: string;
   phoneNo: string;
   gender: string;
@@ -73,6 +69,8 @@ const generateAvatarFromInitials = (name: string) => {
 const PersonalInfo: React.FC<ComponentProps> = ({}) => {
   const { user: remoteUser } = useRemoteUserStore();
   const currentUser = useUserStore((state) => state.user);
+  const [isFormDirty, setIsFormDirty] = useState(false);
+  const [initialValues, setInitialValues] = useState<FormValues | null>(null);
 
   const mergedUserData = useMemo(() => {
     const safeGet = (obj: any, key: string) => {
@@ -81,7 +79,7 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
 
     const keyMapping: Record<string, string> = {
       name: "firstName",
-      lastName: "lastName",
+
       birth_date: "dateOfBirth",
       email: "email",
       gender: "gender",
@@ -89,10 +87,10 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
       religion: "religion",
       ethnicity: "ethnicity",
       spoken_languages: "spokenLanguage",
-      phone_code: "phoneNo",
+      tel: "phoneNo",
     };
 
-    const merged: Record<string, any> = {}; // Changed type to allow for arrays
+    const merged: Record<string, any> = {};
 
     Object.keys(keyMapping).forEach((sourceKey) => {
       const targetKey = keyMapping[sourceKey];
@@ -114,9 +112,8 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
     return merged;
   }, [currentUser, remoteUser]);
 
-  // Generate initial avatar if no image is provided
   const initialAvatar = useMemo(() => {
-    const fullName = `${mergedUserData.name || ""}`.trim();
+    const fullName = `${mergedUserData.firstName || ""}`.trim();
     return (
       mergedUserData?.profile_photo_url ||
       generateAvatarFromInitials(fullName) ||
@@ -127,14 +124,13 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
   const [imgUrl, setImgUrl] = useState<string>(initialAvatar);
   const [image, setImage] = useState<File | null>(null);
 
-  console.log(mergedUserData, "mergedUserData");
-
   const {
     handleSubmit,
     register,
     control,
-    formState: { errors },
+    formState: { errors, isDirty },
     reset,
+    watch,
   } = useForm<FormValues>({
     //@ts-ignore
     resolver: yupResolver(schema),
@@ -144,11 +140,36 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
     },
   });
 
+  // Watch all form fields
+  const formValues = watch();
+
   useEffect(() => {
-    if (mergedUserData) {
+    if (mergedUserData && !initialValues) {
+      //@ts-ignore
+      setInitialValues(mergedUserData);
       reset(mergedUserData);
     }
-  }, [mergedUserData, reset]);
+  }, [mergedUserData, reset, initialValues]);
+
+  // Check if any values have changed from initial values
+  useEffect(() => {
+    if (initialValues) {
+      const hasChanges = Object.keys(formValues).some((key) => {
+        if (key === "spokenLanguage") {
+          const initial = normalizeSpokenLanguages(initialValues[key]);
+          const current = normalizeSpokenLanguages(formValues[key]);
+          return JSON.stringify(initial) !== JSON.stringify(current);
+        }
+        return (
+          initialValues[key as keyof FormValues] !==
+          formValues[key as keyof FormValues]
+        );
+      });
+
+      const hasImageChange = image !== null;
+      setIsFormDirty(hasChanges || hasImageChange);
+    }
+  }, [formValues, initialValues, image]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files && e.target.files[0];
@@ -160,26 +181,79 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
   };
 
   const onSubmit = async (data: FormValues) => {
-    const finalData = {
-      ...data,
-      // Join array back to string if needed for API
-      spokenLanguage: Array.isArray(data.spokenLanguage)
-        ? data.spokenLanguage.join(", ")
-        : data.spokenLanguage,
-      profileImage: image
-        ? URL.createObjectURL(image)
-        : mergedUserData.profile_photo_url,
-    };
-    // try {
-    //   const response = await createContributor(finalData);
-    // } catch {}
-    console.log("All form data:", finalData);
+    try {
+      // First, log the raw form data
+      console.log("Raw form data:", data);
+
+      // Create the final data object
+      const finalData = {
+        ...data,
+        spokenLanguage: Array.isArray(data.spokenLanguage)
+          ? data.spokenLanguage.join(", ")
+          : data.spokenLanguage,
+        profileImage: image
+          ? URL.createObjectURL(image)
+          : mergedUserData.profile_photo_url,
+      };
+
+      // Log the final data
+      console.log("Processed final data:", finalData);
+
+      // Calculate changed values by comparing with initial values
+      const changedValues = Object.entries(data).reduce(
+        (acc: any, [key, value]) => {
+          const initialValue = initialValues?.[key as keyof FormValues];
+
+          // Handle arrays (like spokenLanguage) specially
+          if (Array.isArray(value)) {
+            if (JSON.stringify(value) !== JSON.stringify(initialValue)) {
+              acc[key] = value;
+            }
+          } else if (value !== initialValue) {
+            acc[key] = value;
+          }
+
+          return acc;
+        },
+        {},
+      );
+
+      // Add image to changed values if it was updated
+      if (image) {
+        changedValues.profileImage = URL.createObjectURL(image);
+      }
+
+      // Log the changed values
+      console.log("Changed values:", changedValues);
+      //   const response = await createContributor(finalData);
+
+      // Here you can add your API call
+      // try {
+      //   console.log("API Response:", response);
+      // } catch (error) {
+      //   console.error("API Error:", error);
+      // }
+    } catch (error) {
+      console.error("Form submission error:", error);
+    }
   };
+
+  useEffect(() => {
+    console.log("Form values changed:", formValues);
+  }, [formValues]);
+
   return (
     <form
       className="block max-w-4xl"
       id="personal-info"
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={(e) => {
+        e.preventDefault();
+        console.log("Form submission started");
+        handleSubmit((data) => {
+          console.log("HandleSubmit callback triggered");
+          return onSubmit(data);
+        })(e);
+      }}
     >
       <div className="rounded-2xl bg-white p-6">
         <div className="flex items-center justify-between">
@@ -196,19 +270,27 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
               type="button"
               variant="outline"
               className="rounded-full px-6"
+              onClick={() => {
+                reset(initialValues || {});
+                setImage(null);
+                setImgUrl(initialAvatar);
+              }}
             >
               Cancel
             </Button>
             <Button
               type="submit"
               className="rounded-full bg-main-100 text-white"
+              disabled={!isFormDirty}
+              onClick={() => {
+                console.log("Submit button clicked");
+              }}
             >
               Save Changes
             </Button>
           </div>
         </div>
 
-        {/* PROFILE IMAGE */}
         <div className="my-8 flex items-center justify-center">
           <div className="relative sm:inline-block">
             <Image
@@ -235,19 +317,18 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
             />
           </div>
         </div>
+
         <div>
           <div>
-            {personalFirstName.map((data: any, index: number) => {
-              return (
-                <CustomInput
-                  data={data}
-                  errors={errors}
-                  register={register}
-                  control={control}
-                  key={data?.name + index}
-                />
-              );
-            })}
+            {personalFirstName.map((data: any, index: number) => (
+              <CustomInput
+                data={data}
+                errors={errors}
+                register={register}
+                control={control}
+                key={data?.name + index}
+              />
+            ))}
           </div>
           <div className="space-y-4 md:grid md:grid-cols-2 md:gap-x-[18px] md:gap-y-6 md:space-y-0">
             {personalInfo.map((data: any, index: number) => {
@@ -277,12 +358,11 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
         </div>
       </div>
 
-      {/* OTHER PERSONAL INFO */}
       <OtherPersonalInfo
         errors={errors}
         register={register}
         control={control}
-        defaultValues={mergedUserData} // Pass merged data to OtherPersonalInfo
+        defaultValues={mergedUserData}
       />
     </form>
   );

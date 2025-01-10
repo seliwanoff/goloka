@@ -51,7 +51,7 @@ const CustomInput = ({
   switch (data?.type) {
     case "select":
       return <CustomSelectField {...{ errors, data, control, options }} />;
-    case "phone":
+    case "phoneNo":
       return <PhoneInputField {...{ errors, data, control }} />;
     case "date":
       return <DatePicker {...{ errors, data, control }} />;

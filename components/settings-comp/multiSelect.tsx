@@ -1,5 +1,5 @@
 import React from "react";
-import { Controller, FieldErrors } from "react-hook-form";
+import { Controller } from "react-hook-form";
 import {
   Command,
   CommandEmpty,
@@ -15,21 +15,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Check, ChevronsUpDown, X } from "lucide-react";
-
-// interface MultiSelectProps {
-//   errors: FieldErrors<FormValues>;
-//   data: {
-//     name: string;
-//     label: string;
-//     placeholder: string;
-//     err_message: string;
-//     required: boolean;
-//     type: string;
-//   };
-//   control: Control<FormValues>;
-//   options: { label: string; value: string }[];
-//   defaultValue?: string[];
-// }
 
 export const normalizeSpokenLanguages = (value: unknown): string[] => {
   if (!value) return [];
@@ -57,9 +42,9 @@ const CustomMultiSelect = ({
       <Controller
         name={data.name}
         control={control}
-        defaultValue={normalizeSpokenLanguages(defaultValue)} // Normalize default values
-        render={({ field }) => {
-          const currentValues = normalizeSpokenLanguages(field.value);
+        defaultValue={normalizeSpokenLanguages(defaultValue)}
+        render={({ field: { onChange, value } }) => {
+          const currentValues = normalizeSpokenLanguages(value);
 
           return (
             <Popover>
@@ -87,7 +72,7 @@ const CustomMultiSelect = ({
                               const newValues = currentValues.filter(
                                 (v) => v !== val,
                               );
-                              field.onChange(newValues);
+                              onChange(newValues);
                             }}
                           />
                         </span>
@@ -109,20 +94,37 @@ const CustomMultiSelect = ({
                   </CommandEmpty>
                   <CommandGroup className="max-h-64 overflow-auto">
                     {options.map((option: any) => {
-                      const isSelected = currentValues.includes(
-                        option.value, // Use normalized or raw value based on `normalizeSpokenLanguages`
-                      );
+                      const isSelected = currentValues.includes(option.value);
                       return (
                         <CommandItem
                           key={option.value}
                           onSelect={() => {
-                            const newValues = isSelected
-                              ? currentValues.filter((v) => v !== option.value)
-                              : [...currentValues, option.value];
-                            field.onChange(newValues);
+                            let newValues;
+                            if (isSelected) {
+                              newValues = currentValues.filter(
+                                (v) => v !== option.value
+                              );
+                            } else {
+                              newValues = [...currentValues, option.value];
+                            }
+                            onChange(newValues);
                           }}
                         >
-                          <div className="flex w-full items-center justify-between">
+                          <div
+                            className="flex w-full items-center justify-between cursor-pointer"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              let newValues;
+                              if (isSelected) {
+                                newValues = currentValues.filter(
+                                  (v) => v !== option.value
+                                );
+                              } else {
+                                newValues = [...currentValues, option.value];
+                              }
+                              onChange(newValues);
+                            }}
+                          >
                             <span>{option.label}</span>
                             {isSelected && <Check className="h-4 w-4" />}
                           </div>
@@ -144,6 +146,3 @@ const CustomMultiSelect = ({
 };
 
 export default CustomMultiSelect;
-
-
-

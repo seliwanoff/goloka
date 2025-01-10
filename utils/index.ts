@@ -744,7 +744,6 @@ export const personalFirstName = [
 ];
 
 export const personalInfo = [
-
   {
     label: "Email address",
     type: "email",
@@ -758,7 +757,7 @@ export const personalInfo = [
     type: "phone",
     required: true,
     err_message: "Input your phone number",
-    name: "firstName",
+    name: "phoneNo",
     placeholder: "Input phone number",
   },
   {
