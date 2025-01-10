@@ -18,6 +18,7 @@ const TextField = ({ errors, data, register, ...props }: any) => {
           type={inputType}
           id={data?.name}
           name={data?.name}
+          disabled={data?.disabled}
           placeholder={data?.placeholder}
           {...props}
           className={cn(

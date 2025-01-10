@@ -735,11 +735,11 @@ export const passwordFormData = [
 export const personalFirstName = [
   {
     name: "firstName",
-    label: "First name",
+    label: "Full Name",
     type: "text",
     required: true,
-    err_message: "Input your first name",
-    placeholder: "Input first name",
+    err_message: "Input your full name",
+    placeholder: "Input full name",
   },
 ];
 
@@ -751,6 +751,7 @@ export const personalInfo = [
     err_message: "Input your email address",
     name: "email",
     placeholder: "Input email address",
+    disabled: true
   },
   {
     label: "Phone number",

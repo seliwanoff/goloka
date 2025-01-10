@@ -15,13 +15,14 @@ import { useUserStore } from "@/stores/currentUserStore";
 import { useRemoteUserStore } from "@/stores/remoteUser";
 import { normalizeSpokenLanguages } from "../multiSelect";
 import { createContributor } from "@/services/contributor";
+import { toast } from "sonner";
 
 type ComponentProps = {};
 
 const schema = yup.object().shape({
   firstName: yup.string().required(),
   dateOfBirth: yup.string().required(),
-  phoneNo: yup.string().required(),
+  phoneNo: yup.string(),
   gender: yup.string().required(),
   email: yup.string().email().required(),
   primaryLanguage: yup.string().required(),
@@ -70,7 +71,9 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
   const { user: remoteUser } = useRemoteUserStore();
   const currentUser = useUserStore((state) => state.user);
   const [isFormDirty, setIsFormDirty] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [initialValues, setInitialValues] = useState<FormValues | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const mergedUserData = useMemo(() => {
     const safeGet = (obj: any, key: string) => {
@@ -79,7 +82,6 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
 
     const keyMapping: Record<string, string> = {
       name: "firstName",
-
       birth_date: "dateOfBirth",
       email: "email",
       gender: "gender",
@@ -131,25 +133,27 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
     formState: { errors, isDirty },
     reset,
     watch,
+    setValue,
   } = useForm<FormValues>({
     //@ts-ignore
     resolver: yupResolver(schema),
-    defaultValues: {
-      ...mergedUserData,
-      spokenLanguage: normalizeSpokenLanguages(mergedUserData.spokenLanguage),
-    },
+    defaultValues: mergedUserData,
   });
 
   // Watch all form fields
   const formValues = watch();
 
+  // Initialize form with merged data
   useEffect(() => {
-    if (mergedUserData && !initialValues) {
+    if (mergedUserData && !isInitialized) {
+      Object.entries(mergedUserData).forEach(([key, value]) => {
+        setValue(key as keyof FormValues, value);
+      });
       //@ts-ignore
       setInitialValues(mergedUserData);
-      reset(mergedUserData);
+      setIsInitialized(true);
     }
-  }, [mergedUserData, reset, initialValues]);
+  }, [mergedUserData, setValue, isInitialized]);
 
   // Check if any values have changed from initial values
   useEffect(() => {
@@ -182,78 +186,50 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
 
   const onSubmit = async (data: FormValues) => {
     try {
-      // First, log the raw form data
-      console.log("Raw form data:", data);
+      setIsLoading(true);
 
-      // Create the final data object
-      const finalData = {
-        ...data,
-        spokenLanguage: Array.isArray(data.spokenLanguage)
-          ? data.spokenLanguage.join(", ")
-          : data.spokenLanguage,
-        profileImage: image
+      const formattedData = {
+        name: data.firstName,
+        birth_date: data.dateOfBirth,
+        tel: data.phoneNo,
+        gender: data.gender,
+        religion: data.religion,
+        ethnicity: data.ethnicity,
+        primary_language: data.primaryLanguage,
+        profile_photo: image
           ? URL.createObjectURL(image)
           : mergedUserData.profile_photo_url,
+        ...data.spokenLanguage.reduce(
+          (acc, lang, index) => ({
+            ...acc,
+            [`spoken_languages[${index}]`]: lang,
+          }),
+          {},
+        ),
       };
 
-      // Log the final data
-      console.log("Processed final data:", finalData);
+      const response = await createContributor(formattedData);
 
-      // Calculate changed values by comparing with initial values
-      const changedValues = Object.entries(data).reduce(
-        (acc: any, [key, value]) => {
-          const initialValue = initialValues?.[key as keyof FormValues];
-
-          // Handle arrays (like spokenLanguage) specially
-          if (Array.isArray(value)) {
-            if (JSON.stringify(value) !== JSON.stringify(initialValue)) {
-              acc[key] = value;
-            }
-          } else if (value !== initialValue) {
-            acc[key] = value;
-          }
-
-          return acc;
-        },
-        {},
-      );
-
-      // Add image to changed values if it was updated
-      if (image) {
-        changedValues.profileImage = URL.createObjectURL(image);
+      if (!response) {
+        throw new Error("Failed to submit the form. Please try again.");
       }
-
-      // Log the changed values
-      console.log("Changed values:", changedValues);
-      //   const response = await createContributor(finalData);
-
-      // Here you can add your API call
-      // try {
-      //   console.log("API Response:", response);
-      // } catch (error) {
-      //   console.error("API Error:", error);
-      // }
+//@ts-ignore
+      toast.success(response?.message );
+      setInitialValues(data);
+      setIsFormDirty(false);
     } catch (error) {
       console.error("Form submission error:", error);
+      toast.error("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    console.log("Form values changed:", formValues);
-  }, [formValues]);
 
   return (
     <form
       className="block max-w-4xl"
       id="personal-info"
-      onSubmit={(e) => {
-        e.preventDefault();
-        console.log("Form submission started");
-        handleSubmit((data) => {
-          console.log("HandleSubmit callback triggered");
-          return onSubmit(data);
-        })(e);
-      }}
+      onSubmit={handleSubmit(onSubmit)}
     >
       <div className="rounded-2xl bg-white p-6">
         <div className="flex items-center justify-between">
@@ -275,21 +251,27 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
                 setImage(null);
                 setImgUrl(initialAvatar);
               }}
+              disabled={isLoading}
             >
               Cancel
             </Button>
             <Button
               type="submit"
               className="rounded-full bg-main-100 text-white"
-              disabled={!isFormDirty}
-              onClick={() => {
-                console.log("Submit button clicked");
-              }}
+              disabled={!isFormDirty || isLoading}
             >
-              Save Changes
+              {isLoading ? "Saving..." : "Save Changes"}
             </Button>
           </div>
         </div>
+
+        {isLoading && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="rounded-lg bg-white p-4">
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-main-100 border-t-transparent"></div>
+            </div>
+          </div>
+        )}
 
         <div className="my-8 flex items-center justify-center">
           <div className="relative sm:inline-block">
@@ -314,6 +296,7 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
               className="hidden"
               accept="image/png, image/jpeg, image/webp"
               onChange={handleChange}
+              disabled={isLoading}
             />
           </div>
         </div>
@@ -327,6 +310,7 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
                 register={register}
                 control={control}
                 key={data?.name + index}
+                // disabled={isLoading}
               />
             ))}
           </div>
@@ -341,6 +325,7 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
                     control={control}
                     key={data?.name + index}
                     options={genderOptions}
+                    disabled={isLoading}
                   />
                 );
               }
@@ -351,6 +336,7 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
                   register={register}
                   control={control}
                   key={data?.name + index}
+                  // disabled={isLoading}
                 />
               );
             })}
@@ -363,6 +349,7 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
         register={register}
         control={control}
         defaultValues={mergedUserData}
+        disabled={isLoading}
       />
     </form>
   );
