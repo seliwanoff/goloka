@@ -139,6 +139,84 @@ const uploadQuestionFile = async (
     };
   }
 };
+interface StateItem {
+  id: number;
+  name: string;
+  // other properties
+}
+// Function to format date as YYYY-MM-DD
+const formatDate = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, "0"); // Get month (1-based, so we add 1)
+  const day = date.getDate().toString().padStart(2, "0"); // Get day
+
+  return `${year}-${month}-${day}`;
+};
+
+export const createCampaign = async ({
+  title,
+  description,
+  selectedLgs,
+  selectedStates,
+  number_of_responses,
+  payment_rate_for_response,
+  starts_at,
+  ends_at,
+  allows_multiple_responses,
+  images,
+}: {
+  title: string;
+  description: string;
+  selectedStates: StateItem[]; // array of StateItem
+  selectedLgs: StateItem[]; // array of StateItem
+  number_of_responses: any;
+  payment_rate_for_response: any;
+  starts_at: any;
+  ends_at: any;
+  allows_multiple_responses: number;
+  images: string[];
+}) => {
+  const formattedStartsAt = formatDate(starts_at);
+  const formattedEndsAt = formatDate(ends_at);
+
+  // Extracting ids from StateItem objects
+  const stateIds = selectedStates.map((state) => state.id); // Extract 'id' from each StateItem
+  const lgaIds = selectedLgs.map((lga) => lga.id); // Extract 'id' from each StateItem
+
+  // Define the type for the accumulator
+  const payload: { [key: string]: string | number | string[] } = {
+    title,
+    type: "survey",
+    description,
+    number_of_responses,
+    payment_rate_for_response,
+    starts_at: formattedStartsAt,
+    ends_at: formattedEndsAt,
+    allows_multiple_responses,
+    images,
+  };
+
+  // Add state_ids and lga_ids in the correct form
+  stateIds.forEach((id, index) => {
+    payload[`state_ids[${index}]`] = id;
+  });
+
+  lgaIds.forEach((id, index) => {
+    payload[`lga_ids[${index}]`] = id;
+  });
+
+  try {
+    const response = await axiosInstance.post(
+      "/organizations/campaigns/create",
+      payload,
+    );
+    console.log("Campaign created successfully:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating campaign:", error);
+    throw error;
+  }
+};
 
 // In apiService.ts
 const postDataWithFormData = async <T>(
@@ -146,7 +224,7 @@ const postDataWithFormData = async <T>(
   formData: FormData,
   options: {
     onUploadProgress?: (progressEvent: AxiosProgressEvent) => void;
-  } = {}
+  } = {},
 ): Promise<T> => {
   let toastId: string | number | undefined;
 
@@ -163,7 +241,7 @@ const postDataWithFormData = async <T>(
       onUploadProgress: (progressEvent: AxiosProgressEvent) => {
         if (progressEvent.total) {
           const percentCompleted = Math.round(
-            (progressEvent.loaded * 100) / progressEvent.total
+            (progressEvent.loaded * 100) / progressEvent.total,
           );
 
           // Use custom progress callback if provided, otherwise use default toast
@@ -191,9 +269,8 @@ const postDataWithFormData = async <T>(
     // Dismiss loading toast and show error
     if (toastId) {
       toast.error(
-        error.response?.data?.message ||
-        "Upload failed. Please try again.",
-        { id: toastId }
+        error.response?.data?.message || "Upload failed. Please try again.",
+        { id: toastId },
       );
     }
 

@@ -16,6 +16,29 @@ export const getCountry = async (): Promise<ServerResponseOrNull<any>> => {
   }
 };
 
+export const getState = async (
+  countryId: any,
+): Promise<ServerResponseOrNull<any>> => {
+  try {
+    return await fetchData<ServerResponse<any>>(
+      `states?country_id=${countryId}`,
+    );
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
+export const getLgs = async (
+  stateId: any,
+): Promise<ServerResponseOrNull<any>> => {
+  try {
+    return await fetchData<ServerResponse<any>>(`lgas?state_id=1=${stateId}`);
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
+
 export const getOTP = async ({}: any): Promise<
   UseQueryResult<ServerResponse<any>>
 > => {

@@ -22,6 +22,20 @@ interface TransferState {
   setOpenTransfer: (value: boolean) => void;
 }
 
+interface CampaignGroupState {
+  show: boolean;
+  setShowCreate: (value: boolean) => void;
+}
+
+interface EditCampaignState {
+  show: boolean;
+  setShow: (value: boolean) => void;
+  title: string;
+  setTitle: (value: string) => void;
+  description: string;
+  setDescription: (alue: string) => void;
+}
+
 const useShowOverlay = create<StoreState>((set) => ({
   open: false,
   setOpen: (value) => set({ open: value }),
@@ -53,6 +67,19 @@ const useAddBeneficiaryOverlay = create<AddBeneState>((set) => ({
   setShow: (value) => set({ show: value }),
 }));
 
+const useAddcampaignGroupOverlay = create<CampaignGroupState>((set) => ({
+  show: false,
+  setShowCreate: (value) => set({ show: value }),
+}));
+
+const useEditCampaignOverlay = create<EditCampaignState>((set) => ({
+  show: false,
+  setShow: (value) => set({ show: value }),
+  title: "",
+  setTitle: (value) => set({ title: value }),
+  description: "",
+  setDescription: (value) => set({ description: value }),
+}));
 export {
   useShowOverlay,
   useShowFilter,
@@ -60,4 +87,6 @@ export {
   useWithdrawOverlay,
   useAddBeneficiaryOverlay,
   useTransferOverlay,
+  useAddcampaignGroupOverlay,
+  useEditCampaignOverlay,
 };

@@ -78,9 +78,17 @@ export const removeBookmark = async (
     return null;
   }
 };
-
-export const getGuestCampaign = async (
-): Promise<AxiosResponse<any>> => {
+export const getOrganizationCampaign = async (): Promise<
+  AxiosResponse<any>
+> => {
+  try {
+    return await fetchData(`/organizations/campaign-groups`);
+  } catch (error) {
+    console.error("Error fetching campaign questions:", error);
+    throw error;
+  }
+};
+export const getGuestCampaign = async (): Promise<AxiosResponse<any>> => {
   try {
     return await fetchData(`/guests/campaigns`);
   } catch (error) {

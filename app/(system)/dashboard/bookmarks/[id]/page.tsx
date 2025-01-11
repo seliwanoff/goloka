@@ -269,7 +269,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
   const updateStepUrl = (newStep: number) => {
     router.push(`${window.location.pathname}?stepper=true&step=${newStep}`);
   };
-  console.log(getResponse, "getResponse");
+  // console.log(getResponse, "getResponse");
 
   const WrappedTaskStepper = () => (
     <TaskStepper
