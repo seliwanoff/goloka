@@ -84,7 +84,7 @@ const DeleteDialog: React.FC<ComponentProps> = ({
                     className="w-full max-w-[185px] rounded-full bg-[#EB5757]"
                     onClick={action}
                   >
-                    Delete group
+                    Delete groups
                   </Button>
                 </div>
               </DialogPanel>
