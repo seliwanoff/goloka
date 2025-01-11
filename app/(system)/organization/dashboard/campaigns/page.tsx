@@ -24,6 +24,8 @@ import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
 import { Calendar as CalenderDate } from "@/components/ui/calendar";
 import { Calendar, Setting4 } from "iconsax-react";
+import CreateCampaingGroup from "@/components/lib/modals/create_campaign_group";
+
 import {
   Table,
   TableBody,
@@ -106,7 +108,14 @@ const Page = () => {
       {/*** Edit Campaign */}
       <EditCampaign />
 
+
+      {/*** CREATE CAMPAIGN GROUP */}
+
+      <CreateCampaingGroup />
+
+
       {/*** DELETE MODAL */}
+
 
       <section className="mt-5">
         {/* HEADING */}

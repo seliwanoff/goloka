@@ -242,7 +242,10 @@ const CreateNewCampaign = () => {
   return (
     <>
       {/*** CREATE CAMPAIGN GROUP */}
-      {<CreateCampaingGroup />}
+      <CreateCampaingGroup />
+
+
+
       <section className="mx-auto mt-5 w-full max-w-[700px]">
         <div className="flex flex-col gap-[12px]">
           <div className="flex items-center justify-between">
@@ -272,7 +275,7 @@ const CreateNewCampaign = () => {
                     onClick={() => setShowCreate(true)}
                   >
                     <Image src={IconAdd} alt="add group" className="h-[18px]" />{" "}
-                    Create new group
+                    Create new groups
                   </span>
                 </div>
 

@@ -6,6 +6,8 @@ export const baseURL =
     ? process.env.NEXT_PUBLIC_PRODUCTION_API_BASE_URL
     : process.env.NEXT_PUBLIC_LOCAL_API_BASE_URL;
 
+
+    console.log( process.env.NODE_ENV)
 const axiosInstance = axios.create({
   baseURL,
 });
