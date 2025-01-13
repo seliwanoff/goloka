@@ -27,6 +27,10 @@ interface CampaignGroupState {
   setShowCreate: (value: boolean) => void;
 }
 
+interface openSuccessModalState {
+  open: boolean;
+  setOpen: (value: boolean) => void;
+}
 interface EditCampaignState {
   show: boolean;
   setShow: (value: boolean) => void;
@@ -57,6 +61,10 @@ const useWithdrawOverlay = create<StoreState>((set) => ({
   setOpen: (value) => set({ open: value }),
 }));
 
+const useOpenSuccessModalOverlay = create<openSuccessModalState>((set) => ({
+  open: false,
+  setOpen: (value) => set({ open: value }),
+}));
 const useTransferOverlay = create<TransferState>((set) => ({
   openTransfer: false,
   setOpenTransfer: (value) => set({ openTransfer: value }),
@@ -89,4 +97,5 @@ export {
   useTransferOverlay,
   useAddcampaignGroupOverlay,
   useEditCampaignOverlay,
+  useOpenSuccessModalOverlay,
 };

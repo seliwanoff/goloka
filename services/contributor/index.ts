@@ -332,6 +332,28 @@ export const addBeneficiary = async (
       }
     },
   });
+
+export const addCampaignGroup = async (
+  name: string,
+  description: string,
+): Promise<UseQueryResult<AxiosResponse<TaskResponse>>> =>
+  await queryClient.fetchQuery({
+    queryKey: ["contributors bank"],
+    queryFn: async () => {
+      try {
+        return await postData(
+          `organizations/97731bff-9cad-4c47-bf9f-8867dec0da1a/campaign-groups/create`,
+          {
+            name,
+            description,
+          },
+        );
+      } catch (error) {
+        console.error("Failed:", error);
+        return null;
+      }
+    },
+  });
 //staging.goloka.io/api/contributor-profile/bank-account/{{bank_id}}/delete
 
 export const removeBeneficiary = async (

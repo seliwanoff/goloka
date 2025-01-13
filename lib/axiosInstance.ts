@@ -12,7 +12,6 @@ const axiosInstance = axios.create({
   baseURL,
 });
 
-// Request interceptor to add Authorization header and Content-Type
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     // console.log(config, "configuration");

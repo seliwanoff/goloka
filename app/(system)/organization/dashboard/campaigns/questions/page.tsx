@@ -15,28 +15,61 @@ import {
   SelectLabel,
   SelectItem,
 } from "@/components/ui/select";
-
-const dropdownData = [
-  {
-    id: "shortAnswer",
-    label: "Short Answer",
-    image: "/images/short-answer.png",
-  },
-  { id: "paragraph", label: "Paragraph", image: "/images/paragraph.png" },
-  { id: "checkbox", label: "Checkbox", image: "/images/checkbox.png" },
-  {
-    id: "multipleChoices",
-    label: "Multiple Choices",
-    image: "/images/multiple-choices.png",
-  },
-  { id: "boolean", label: "Boolean", image: "/images/boolean.png" },
-  { id: "dropdowns", label: "Dropdowns", image: "/images/dropdowns.png" },
-  { id: "email", label: "Email", image: "/images/email.png" },
-  { id: "image", label: "Image", image: "/images/image.png" },
-];
+import Image from "next/image";
+import dropdownData from "@/utils/question";
+import Add from "@/components/ui/add";
 
 const Create = () => {
-  const [selectedQuestionType, setSelectedQuestionType] = useState("");
+  const [questions, setQuestions] = useState([
+    { id: 1, type: "shortAnswer", content: "" },
+  ]);
+
+  const handleAddQuestion = () => {
+    setQuestions((prevQuestions) => [
+      ...prevQuestions,
+      { id: prevQuestions.length + 1, type: "", content: "" },
+    ]);
+  };
+
+  const handleQuestionTypeChange = (id: number, type: string) => {
+    setQuestions((prevQuestions) =>
+      prevQuestions.map((q) => (q.id === id ? { ...q, type } : q)),
+    );
+  };
+
+  const handleContentChange = (id: number, content: string) => {
+    setQuestions((prevQuestions) =>
+      prevQuestions.map((q) => (q.id === id ? { ...q, content } : q)),
+    );
+  };
+
+  const renderQuestionInput = (type: string, id: number) => {
+    switch (type) {
+      case "shortAnswer":
+        return <SmallAnswer placeholder="Text area for contributors" />;
+      case "paragraph":
+        return (
+          <textarea
+            placeholder="Type your paragraph here"
+            className="h-24 w-full rounded-md border bg-[#F2F2F7] p-2 placeholder:text-red-600"
+            value={questions.find((q) => q.id === id)?.content || ""}
+            onChange={(e) => handleContentChange(id, e.target.value)}
+          />
+        );
+      case "multipleChoices":
+        return (
+          <SmallAnswer
+            placeholder="Enter multiple choices separated by commas"
+            value={questions.find((q) => q.id === id)?.content || ""}
+            name={`question-${id}`}
+            onChange={(e) => handleContentChange(id, e.target.value)}
+          />
+        );
+      // Add more cases for other question types if necessary
+      default:
+        return null;
+    }
+  };
 
   return (
     <section className="mx-auto mt-5 w-full max-w-[896px]">
@@ -71,65 +104,80 @@ const Create = () => {
           </span>
         </div>
         <div className="container-xxl mt-4 flex w-full flex-col gap-8 rounded-[18px] bg-[#ffffff] p-8">
-          <div className="flex w-full flex-col gap-6">
-            <div className="flex w-full items-center gap-6">
-              <Label htmlFor="question" className="w-2/3">
-                <span className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
-                  Question
-                </span>
-                <Input
-                  name="question"
-                  id="question"
-                  placeholder="Type your questions"
-                  className="h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
-                />
-              </Label>
-
-              <Label htmlFor="questionType" className="w-1/3">
-                <span className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
-                  Question type
-                </span>
-                <Select
-                  value={selectedQuestionType}
-                  onValueChange={(value) => {
-                    const selected = dropdownData.find(
-                      (item) => item.id === value,
-                    );
-                    setSelectedQuestionType(selected?.label || "");
-                  }}
+          {/*** QUESTION SECTION */}
+          {questions.map((question) => (
+            <div
+              key={question.id}
+              className="flex w-full flex-col gap-6 border-b pb-6"
+            >
+              <div className="flex w-full items-center gap-6">
+                <Label htmlFor={`question-${question.id}`} className="w-2/3">
+                  <span className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
+                    Question
+                  </span>
+                  <Input
+                    name={`question-${question.id}`}
+                    id={`question-${question.id}`}
+                    placeholder="Type your question here"
+                    className="h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
+                  />
+                </Label>
+                <Label
+                  htmlFor={`questionType-${question.id}`}
+                  className="w-1/3"
                 >
-                  <SelectTrigger className="h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0">
-                    <SelectValue placeholder="Select question type" />
-                  </SelectTrigger>
-                  <SelectContent className="max-w-full">
-                    <SelectGroup>
-                      <SelectLabel>Question Types</SelectLabel>
-                      {dropdownData.map((item) => (
-                        <SelectItem
-                          key={item.id}
-                          value={item.id}
-                          className="flex items-center gap-2"
-                        >
-                          <img
-                            src={item.image}
-                            alt={item.label}
-                            className="h-5 w-5"
-                          />
-                          {item.label}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </Label>
+                  <span className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
+                    Question type
+                  </span>
+                  <Select
+                    value={question.type}
+                    onValueChange={(value) =>
+                      handleQuestionTypeChange(question.id, value)
+                    }
+                  >
+                    <SelectTrigger className="h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0">
+                      <SelectValue placeholder="Select question type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Question Types</SelectLabel>
+                        {dropdownData.map((item) => (
+                          <SelectItem key={item.id} value={item.id}>
+                            <div className="flex items-center gap-2">
+                              <Image
+                                src={item.image}
+                                alt={item.label}
+                                width={16}
+                                height={16}
+                              />
+                              <span>{item.label}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </Label>
+              </div>
+              {renderQuestionInput(question.type, question.id)}
             </div>
-            <SmallAnswer
-              placeholder="Text area for contributors"
-              name="question"
-            />
-          </div>
-          <div className="w-full items-center justify-between border">
-            <div className="flex items-center gap-4"></div>
+          ))}
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Add
+                imageSrc="/assets/images/questions/add.png"
+                onClick={handleAddQuestion}
+              >
+                Add question
+              </Add>
+              <Add
+                imageSrc="/assets/images/questions/section.png"
+                onClick={handleAddQuestion}
+              >
+                Add section
+              </Add>
+            </div>
           </div>
         </div>
       </div>

@@ -1,4 +1,6 @@
 "use client";
+import { useRouter } from "next/navigation";
+
 import CustomBreadCrumbs from "@/components/lib/navigation/custom_breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,27 +39,15 @@ import Link from "next/link";
 import Image from "next/image";
 import IconAdd from "@/public/assets/images/add.png";
 import CreateCampaingGroup from "@/components/lib/modals/create_campaign_group";
-import { useAddcampaignGroupOverlay } from "@/stores/overlay";
-//import { icon } from "leaflet";
+import SuccessDialog from "@/components/lib/modals/success_modal";
+import { toast } from "sonner";
 
-const dropdownData = [
-  {
-    id: "shortAnswer",
-    label: "Short Answer",
-    image: "/images/short-answer.png",
-  },
-  { id: "paragraph", label: "Paragraph", image: "/images/paragraph.png" },
-  { id: "checkbox", label: "Checkbox", image: "/images/checkbox.png" },
-  {
-    id: "multipleChoices",
-    label: "Multiple Choices",
-    image: "/images/multiple-choices.png",
-  },
-  { id: "boolean", label: "Boolean", image: "/images/boolean.png" },
-  { id: "dropdowns", label: "Dropdowns", image: "/images/dropdowns.png" },
-  { id: "email", label: "Email", image: "/images/email.png" },
-  { id: "image", label: "Image", image: "/images/image.png" },
-];
+import {
+  useAddcampaignGroupOverlay,
+  useOpenSuccessModalOverlay,
+} from "@/stores/overlay";
+import FileUpload from "@/components/task-stepper/fileUpload";
+
 interface StateItem {
   id: number;
   label: string;
@@ -66,10 +56,12 @@ const CreateNewCampaign = () => {
   const [selectedCampaignGroup, setSelectedCampaignGroup] = useState("");
   const [selectedCampaignGroupId, setSelectedCampaignGroupId] =
     useState<any>("");
-
+  const [selectedCampaignType, setSelectedCampaignType] = useState("");
+  const [selectedCampaignTypeId, setSelectedCampaignTypeId] = useState<any>("");
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const { setShowCreate } = useAddcampaignGroupOverlay();
+  const [file, setFile] = useState<File | null>(null);
 
   const [organizationCampaign, setOrganizationCampaign] = useState([
     {
@@ -81,6 +73,14 @@ const CreateNewCampaign = () => {
       id: 2,
       name: "Group 2",
       description: "This is Dataphyte campaign group 2",
+    },
+  ]);
+
+  const [organizationCampaignType, setOrganizationCampaignType] = useState([
+    {
+      id: 1,
+      name: "survey",
+      description: "This is Dataphyte campaign group 1",
     },
   ]);
   const [countryId, setCountryId] = useState("");
@@ -97,6 +97,8 @@ const CreateNewCampaign = () => {
   const [responseNumber, setResponseNumber] = useState("");
   const [description, setDescription] = useState("");
 
+  const router = useRouter();
+
   const { data: country, isLoading: countryLoading } = useQuery({
     queryKey: ["Get Country list"],
     queryFn: getCountry,
@@ -105,6 +107,7 @@ const CreateNewCampaign = () => {
 
   const [selectedStates, setSelectedStates] = useState<number[]>([]);
 
+  const { setOpen } = useOpenSuccessModalOverlay();
   const toggleStateSelection = (value: number) => {
     setSelectedStates(
       (prev) =>
@@ -123,8 +126,6 @@ const CreateNewCampaign = () => {
   const getCampaignGroup = async () => {
     try {
       const response = await getOrganizationCampaign();
-      // console.log(response);
-      //  setOrganizationCampaign(response.data); // Assuming `data` contains the campaign groups
     } catch (error) {
       console.error("Error fetching campaign groups:", error);
     }
@@ -170,7 +171,6 @@ const CreateNewCampaign = () => {
 
       const lgaResults = await Promise.all(lgaPromises);
 
-      // Flatten the results into a single array and set state
       const allLgas = lgaResults.flat();
 
       setLgaData(allLgas);
@@ -199,54 +199,69 @@ const CreateNewCampaign = () => {
 
     return `${year}-${month}-${day}`;
   };
-
   const handleCreateCampaign = async (e: any) => {
     e.preventDefault();
     setIsLoading(true);
+
     const formattedStartsAt = formatDate(startDate);
     const formattedEndsAt = formatDate(endDate);
+    const formData = new FormData();
 
-    const stateIds = selectedStates.map((state: any) => state.id);
-    const lgaIds = selectedLgs.map((lga: any) => lga.id);
+    // Append basic fields
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("campaign_group_id", selectedCampaignGroupId);
+    formData.append("type", selectedCampaignType);
+    formData.append("number_of_responses", responseNumber.toString());
+    formData.append("payment_rate_for_response", paymentRate.toString());
+    formData.append("starts_at", formattedStartsAt);
+    formData.append("ends_at", formattedEndsAt);
+    formData.append("allows_multiple_responses", "1");
+
+    // Append image file, if any
+    if (file) {
+      formData.append("images[0]", file, file.name);
+    }
+
+    // Append state and LGA IDs
+
+    console.log(selectedStates);
+    selectedStates.forEach((state: any, index: number) => {
+      formData.append(`state_ids[${index}]`, state);
+    });
+    selectedLgs.forEach((lga: any, index: number) => {
+      formData.append(`lga_ids[${index}]`, lga.id);
+    });
+
     try {
       const response = await axiosInstance.post(
-        "/organizations/campaigns/create",
+        "/organizations/97731bff-9cad-4c47-bf9f-8867dec0da1a/campaigns/create",
+        formData,
         {
-          title,
-          description,
-          type: "survey",
-          number_of_responses: responseNumber,
-          payment_rate_for_response: paymentRate,
-          starts_at: formattedStartsAt,
-          ends_at: formattedEndsAt,
-          allows_multiple_responses: 1,
-          //images,
-          // Dynamically constructing state_ids and lga_ids
-          ...stateIds.reduce((acc: any, id: any, index: any) => {
-            acc[`state_ids[${index}]`] = id;
-            return acc;
-          }, {}),
-          ...lgaIds.reduce((acc: any, id: any, index: any) => {
-            acc[`lga_ids[${index}]`] = id;
-            return acc;
-          }, {}),
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         },
       );
+
+      setOpen(true);
       console.log("Created Campaign:", response);
     } catch (error) {
       console.error("Error creating campaign:", error);
+      toast.error("Failed to add campaign. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
+
+  const createQuetion = () => {
+    //  window.location.replace('/organization/dashboard/campaigns/create/question');
+
+    router.push("/organization/dashboard/campaigns/questions");
+  };
   return (
     <>
-      {/*** CREATE CAMPAIGN GROUP */}
-      <CreateCampaingGroup />
-
-
-
-      <section className="mx-auto mt-5 w-full max-w-[700px]">
+      <section className="mx-auto mt-6 w-full max-w-[700px]">
         <div className="flex flex-col gap-[12px]">
           <div className="flex items-center justify-between">
             <CustomBreadCrumbs />
@@ -280,11 +295,13 @@ const CreateNewCampaign = () => {
                 </div>
 
                 <Select
-                  value={selectedCampaignGroup}
-                  onValueChange={(value) => {
+                  value={selectedCampaignGroupId}
+                  onValueChange={(value: any) => {
                     const selected = organizationCampaign.find(
-                      (item: any) => item.id === value,
+                      (item) => item.id === parseInt(value),
                     );
+
+                    // console.log(selected);
                     setSelectedCampaignGroup(selected?.name || "");
                     setSelectedCampaignGroupId(selected?.id);
                   }}
@@ -297,13 +314,70 @@ const CreateNewCampaign = () => {
                       {selectedCampaignGroup || "Campaign group"}
                     </SelectValue>
                   </SelectTrigger>
+
+                  {/* Dropdown Content */}
                   <SelectContent className="max-w-full">
                     <SelectGroup>
                       <SelectLabel>Campaign group</SelectLabel>
-                      {organizationCampaign?.map((item: any) => (
+                      {organizationCampaign.map((item) => (
                         <SelectItem
                           key={item.id}
-                          value={item.id}
+                          value={item.id.toString()}
+                          className="flex items-center gap-2"
+                        >
+                          {item.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </Label>
+
+              <Label htmlFor="questionType" className="w-full">
+                <div className="flex items-center justify-between">
+                  <span className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
+                    Campaign Type
+                  </span>
+                  {/**
+                  <span
+                    className="mb-2 inline-flex cursor-pointer items-center gap-1 font-poppins text-base font-extralight text-[#3365E3]"
+                    onClick={() => setShowCreate(true)}
+                  >
+                    <Image src={IconAdd} alt="add group" className="h-[18px]" />{" "}
+                    Create new groups
+                  </span>
+                  */}
+                </div>
+
+                <Select
+                  value={selectedCampaignTypeId}
+                  onValueChange={(value: any) => {
+                    const selected = organizationCampaignType.find(
+                      (item) => item.id === parseInt(value),
+                    );
+
+                    //  console.log(selected);
+                    setSelectedCampaignType(selected?.name || "");
+                    setSelectedCampaignTypeId(selected?.id);
+                  }}
+                >
+                  <SelectTrigger className="h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0">
+                    <SelectValue
+                      placeholder="Campaign type"
+                      className="text-neutral-40 placeholder:text-neutral-40 text-sm font-light"
+                    >
+                      {selectedCampaignType || "Campaign Type"}
+                    </SelectValue>
+                  </SelectTrigger>
+
+                  {/* Dropdown Content */}
+                  <SelectContent className="max-w-full">
+                    <SelectGroup>
+                      <SelectLabel>Campaign Type</SelectLabel>
+                      {organizationCampaignType.map((item) => (
+                        <SelectItem
+                          key={item.id}
+                          value={item.id.toString()}
                           className="flex items-center gap-2"
                         >
                           {item.name}
@@ -331,12 +405,12 @@ const CreateNewCampaign = () => {
                 <span className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
                   Campaign Description
                 </span>
-                <Textarea
+                <Input
                   name="question"
                   id="question"
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Type your description"
-                  className="h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
+                  className="h-[100px] w-full rounded-md border bg-transparent align-text-top placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
                 />
               </Label>
 
@@ -528,7 +602,7 @@ const CreateNewCampaign = () => {
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-4">
-                      <div className="flex flex-col items-center gap-4 rounded-md bg-[#fff] shadow-md">
+                      <div className="flex flex-col items-center gap-4 rounded-md border bg-[#fff] shadow-md">
                         <CalenderDate
                           mode="single"
                           //@ts-ignore
@@ -569,7 +643,7 @@ const CreateNewCampaign = () => {
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-4">
-                      <div className="flex flex-col items-center gap-4 rounded-md bg-[#fff] shadow-md">
+                      <div className="flex flex-col items-center gap-4 rounded-md border bg-[#fff] shadow-md">
                         <CalenderDate
                           mode="single"
                           //@ts-ignore
@@ -590,6 +664,14 @@ const CreateNewCampaign = () => {
                   </Popover>
                 </Label>
               </div>
+              <FileUpload
+                ref={null}
+                value={null}
+                onFileUpload={(file: any) => {
+                  setFile(file);
+                  console.log(file);
+                }}
+              />
             </div>
 
             <Button
@@ -606,6 +688,17 @@ const CreateNewCampaign = () => {
           </form>
         </div>
       </section>
+
+      {/*** CREATE CAMPAIGN GROUP */}
+      <CreateCampaingGroup />
+
+      {/*** SUCCESS DIALOG */}
+
+      <SuccessDialog
+        title="Campaign created successfully!"
+        content="This campaign has been saved to your draft. Add campaign questions in order to submit it for approval"
+        action={createQuetion}
+      />
     </>
   );
 };

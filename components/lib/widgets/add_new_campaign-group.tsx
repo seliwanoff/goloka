@@ -16,20 +16,27 @@ import { Input } from "@/components/ui/input";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { useAddBeneficiaryOverlay } from "@/stores/overlay";
+import {
+  useAddBeneficiaryOverlay,
+  useAddcampaignGroupOverlay,
+} from "@/stores/overlay";
 import { bankList } from "@/utils";
-import { addBeneficiary, resolveAccountInfo } from "@/services/contributor";
+import {
+  addBeneficiary,
+  addCampaignGroup,
+  resolveAccountInfo,
+} from "@/services/contributor";
 import { toast } from "sonner";
 import { BankAutocomplete } from "./bankAutoComplete";
 import { Textarea } from "@/components/ui/textarea";
 
 const schema = yup.object().shape({
   // currency: yup.string().required(),
-  groupName: yup.string().required(),
+  name: yup.string().required(),
   description: yup.string().required(),
 });
 const AddNewCampaignGroup = () => {
-  const { setShow } = useAddBeneficiaryOverlay();
+  const { setShowCreate } = useAddcampaignGroupOverlay();
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const {
@@ -44,26 +51,28 @@ const AddNewCampaignGroup = () => {
     resolver: yupResolver(schema),
   });
 
-  const groupName = watch("groupName");
+  const name = watch("name");
   const description = watch("description");
 
   const onAddBeneficiary = async (data: any) => {
     setIsSubmitting(true);
-    const { accountNumber, bankName } = data;
+    const { name, description } = data;
+
+    //console.log(data);
     try {
       console.log(data, "New Beneficiary");
-      const res = await addBeneficiary(accountNumber, bankName);
-      toast.success("Beneficiary added successfully!");
+      const res = await addCampaignGroup(name, description);
+      toast.success("Campaign group added successfully!");
       setIsSubmitting(false);
-      console.log(res, "Account Added Successfully");
-      setShow(false);
+
+      setShowCreate(false);
       reset();
     } catch (error) {
-      toast.error("Failed to add beneficiary. Please try again.");
+      toast.error("Failed to add campaign group. Please try again.");
       setIsSubmitting(false);
       //@ts-ignore
       console.error(error?.response?.data?.message);
-      setShow(true);
+      setShowCreate(true);
     }
   };
 
@@ -94,13 +103,13 @@ const AddNewCampaignGroup = () => {
               </Label>
               <div className="relative">
                 <Input
-                  {...register("groupName")}
-                  id="groupName"
-                  name="groupName"
+                  {...register("name")}
+                  id="name"
+                  name="name"
                   placeholder="Input name"
                   className={cn(
                     "form-input rounded-lg border border-[#D9DCE0] px-4 py-[18px] outline-0 placeholder:text-[#828282] focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0",
-                    errors.groupName &&
+                    errors.name &&
                       "border-red-600 focus:border-red-600 focus-visible:ring-red-600",
                   )}
                 />
@@ -121,7 +130,7 @@ const AddNewCampaignGroup = () => {
               <Textarea
                 {...register("description")}
                 id="description"
-                name="accountName"
+                name="description"
                 placeholder="describe the group here."
                 className={cn(
                   "form-input rounded-lg border border-[#D9DCE0] px-4 py-[18px] outline-0 placeholder:text-[#828282] focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0",
@@ -135,7 +144,7 @@ const AddNewCampaignGroup = () => {
               <Button
                 className="mt-4 h-auto w-full rounded-full bg-main-100 py-3 text-white hover:bg-blue-700 hover:text-white"
                 type="submit"
-                disabled={watch("groupName") === undefined && true}
+                disabled={watch("name") === undefined && true}
               >
                 {isSubmitting ? (
                   <Loader className="animate-spin text-[#fff]" />
