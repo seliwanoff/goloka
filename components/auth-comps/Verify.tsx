@@ -222,6 +222,119 @@ interface OtpInputProps {
   errorMessage?: string;
 }
 
+// const OtpInput: React.FC<OtpInputProps> = ({
+//   length,
+//   otp,
+//   onChange,
+//   errorMessage,
+// }) => {
+//   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+//   const handlePaste = useCallback(
+//     (e: React.ClipboardEvent<HTMLInputElement>) => {
+//       e.preventDefault();
+//       const pasteData = e.clipboardData.getData("Text").trim();
+//       if (/^[0-9a-zA-Z]+$/.test(pasteData)) {
+//         const otpArray = Array(length).fill("");
+//         [...pasteData].slice(0, length).forEach((char, index) => {
+//           otpArray[index] = char;
+//         });
+//         onChange(otpArray);
+//         // Focus the next empty input or the last input
+//         const nextEmptyIndex =
+//           otpArray.findIndex((val) => val === "") ?? length - 1;
+//         inputRefs.current[nextEmptyIndex]?.focus();
+//       }
+//     },
+//     [length, onChange],
+//   );
+
+//   const handleChange = useCallback(
+//     (value: string, index: number) => {
+//       if (/^[0-9a-zA-Z]$/.test(value) || value === "") {
+//         const newOtp = [...otp];
+//         newOtp[index] = value;
+//         onChange(newOtp);
+
+//         // Automatically move focus to next input when typing
+//         if (value !== "" && index < length - 1) {
+//           inputRefs.current[index + 1]?.focus();
+//         }
+//       }
+//     },
+//     [length, onChange, otp],
+//   );
+
+//   const handleKeyDown = useCallback(
+//     (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
+//       if (e.key === "Backspace") {
+//         if (otp[index] === "") {
+//           // If current input is empty, move to previous input and clear it
+//           if (index > 0) {
+//             const newOtp = [...otp];
+//             newOtp[index - 1] = "";
+//             onChange(newOtp);
+//             inputRefs.current[index - 1]?.focus();
+//           }
+//         } else {
+//           // Clear current input
+//           const newOtp = [...otp];
+//           newOtp[index] = "";
+//           onChange(newOtp);
+//         }
+//       } else if (e.key === "ArrowLeft" && index > 0) {
+//         inputRefs.current[index - 1]?.focus();
+//       } else if (e.key === "ArrowRight" && index < length - 1) {
+//         inputRefs.current[index + 1]?.focus();
+//       }
+//     },
+//     [length, onChange, otp],
+//   );
+
+//   const handleClick = useCallback(
+//     (index: number) => {
+//       // When clicking an input, if previous inputs are empty, focus the first empty input
+//       for (let i = 0; i < index; i++) {
+//         if (!otp[i]) {
+//           inputRefs.current[i]?.focus();
+//           return;
+//         }
+//       }
+//     },
+//     [otp],
+//   );
+
+//   return (
+//     <div className="flex flex-col items-center">
+//       <div className="flex space-x-2">
+//         {Array.from({ length }).map((_, index) => (
+//           <input
+//             key={index}
+//             ref={(el) => (inputRefs.current[index] = el)}
+//             type="text"
+//             inputMode="numeric"
+//             maxLength={1}
+//             value={otp[index] || ""}
+//             onChange={(e) => handleChange(e.target.value, index)}
+//             onKeyDown={(e) => handleKeyDown(e, index)}
+//             onClick={() => handleClick(index)}
+//             onPaste={handlePaste}
+//             className={`h-[55px] w-[53px] rounded-md border text-center outline-none focus:border-[#C0CFF6] focus:bg-[#F5F8FF] ${
+//               otp[index]
+//                 ? "border-[#C0CFF6] bg-[#F5F8FF]"
+//                 : "border-[#E7E7E7] bg-[#F9F9F9]"
+//             } ${errorMessage ? "border-red-500" : ""}`}
+//           />
+//         ))}
+//       </div>
+//       {errorMessage && (
+//         <p className="mt-2 text-xs text-red-500">{errorMessage}</p>
+//       )}
+//     </div>
+//   );
+// };
+
+// export default OtpInput;
 const OtpInput: React.FC<OtpInputProps> = ({
   length,
   otp,
@@ -231,29 +344,39 @@ const OtpInput: React.FC<OtpInputProps> = ({
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const handlePaste = useCallback(
-    (e: React.ClipboardEvent<HTMLInputElement>) => {
+    (e: React.ClipboardEvent<HTMLInputElement>, currentIndex: number) => {
       e.preventDefault();
       const pasteData = e.clipboardData.getData("Text").trim();
+
       if (/^[0-9a-zA-Z]+$/.test(pasteData)) {
-        const otpArray = Array(length).fill("");
-        [...pasteData].slice(0, length).forEach((char, index) => {
-          otpArray[index] = char;
-        });
+        const otpArray = [...otp]; // Preserve existing values
+
+        // Start pasting from the current input position
+        [...pasteData]
+          .slice(0, length - currentIndex)
+          .forEach((char, index) => {
+            otpArray[currentIndex + index] = char;
+          });
+
         onChange(otpArray);
+
         // Focus the next empty input or the last input
-        const nextEmptyIndex =
-          otpArray.findIndex((val) => val === "") ?? length - 1;
-        inputRefs.current[nextEmptyIndex]?.focus();
+        const nextEmptyIndex = otpArray.findIndex(
+          (val, idx) => idx >= currentIndex && val === "",
+        );
+
+        const focusIndex = nextEmptyIndex !== -1 ? nextEmptyIndex : length - 1;
+        inputRefs.current[focusIndex]?.focus();
       }
     },
-    [length, onChange],
+    [length, onChange, otp],
   );
 
   const handleChange = useCallback(
     (value: string, index: number) => {
       if (/^[0-9a-zA-Z]$/.test(value) || value === "") {
         const newOtp = [...otp];
-        newOtp[index] = value;
+        newOtp[index] = value; // Replace existing value
         onChange(newOtp);
 
         // Automatically move focus to next input when typing
@@ -268,41 +391,42 @@ const OtpInput: React.FC<OtpInputProps> = ({
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
       if (e.key === "Backspace") {
-        if (otp[index] === "") {
-          // If current input is empty, move to previous input and clear it
-          if (index > 0) {
-            const newOtp = [...otp];
-            newOtp[index - 1] = "";
-            onChange(newOtp);
-            inputRefs.current[index - 1]?.focus();
-          }
-        } else {
-          // Clear current input
-          const newOtp = [...otp];
+        e.preventDefault(); // Prevent default backspace behavior
+
+        const newOtp = [...otp];
+        if (otp[index] !== "") {
+          // If current input has value, clear it
           newOtp[index] = "";
           onChange(newOtp);
+        } else if (index > 0) {
+          // If current input is empty, move to previous input and clear it
+          newOtp[index - 1] = "";
+          onChange(newOtp);
+          inputRefs.current[index - 1]?.focus();
         }
       } else if (e.key === "ArrowLeft" && index > 0) {
+        e.preventDefault();
         inputRefs.current[index - 1]?.focus();
       } else if (e.key === "ArrowRight" && index < length - 1) {
+        e.preventDefault();
         inputRefs.current[index + 1]?.focus();
+      } else if (e.key === "Delete") {
+        e.preventDefault();
+        const newOtp = [...otp];
+        newOtp[index] = "";
+        onChange(newOtp);
       }
     },
     [length, onChange, otp],
   );
 
-  const handleClick = useCallback(
-    (index: number) => {
-      // When clicking an input, if previous inputs are empty, focus the first empty input
-      for (let i = 0; i < index; i++) {
-        if (!otp[i]) {
-          inputRefs.current[i]?.focus();
-          return;
-        }
-      }
-    },
-    [otp],
-  );
+  const handleClick = useCallback((index: number) => {
+    // Allow clicking any input directly
+    inputRefs.current[index]?.focus();
+
+    // Optional: Select the content of the clicked input
+    inputRefs.current[index]?.select();
+  }, []);
 
   return (
     <div className="flex flex-col items-center">
@@ -318,7 +442,7 @@ const OtpInput: React.FC<OtpInputProps> = ({
             onChange={(e) => handleChange(e.target.value, index)}
             onKeyDown={(e) => handleKeyDown(e, index)}
             onClick={() => handleClick(index)}
-            onPaste={handlePaste}
+            onPaste={(e) => handlePaste(e, index)}
             className={`h-[55px] w-[53px] rounded-md border text-center outline-none focus:border-[#C0CFF6] focus:bg-[#F5F8FF] ${
               otp[index]
                 ? "border-[#C0CFF6] bg-[#F5F8FF]"
@@ -333,5 +457,3 @@ const OtpInput: React.FC<OtpInputProps> = ({
     </div>
   );
 };
-
-// export default OtpInput;
