@@ -82,7 +82,9 @@ export const getOrganizationCampaign = async (): Promise<
   AxiosResponse<any>
 > => {
   try {
-    return await fetchData(`/organizations/campaign-groups`);
+    return await fetchData(
+      `/organizations/97731bff-9cad-4c47-bf9f-8867dec0da1a/campaign-groups`,
+    );
   } catch (error) {
     console.error("Error fetching campaign questions:", error);
     throw error;

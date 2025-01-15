@@ -117,15 +117,15 @@ const CreateNewCampaign = () => {
     );
   };
 
-  const getSelectedLabels = () =>
+  const getSelectedLabels = (): string[] =>
     stateData
       .filter((item) => selectedStates.includes(item.id))
-      .map((item) => item.label)
-      .join(", ");
+      .map((item) => item.label);
 
   const getCampaignGroup = async () => {
     try {
       const response = await getOrganizationCampaign();
+      console.log(response);
     } catch (error) {
       console.error("Error fetching campaign groups:", error);
     }
@@ -185,7 +185,6 @@ const CreateNewCampaign = () => {
   useEffect(() => {
     if (countryId) getCountryState();
   }, [countryId]);
-  // console.log(selectedStates);
 
   useEffect(() => {
     if (selectedStates.length > 0) {
@@ -194,8 +193,8 @@ const CreateNewCampaign = () => {
   }, [selectedStates]);
   const formatDate = (date: any): string => {
     const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, "0"); // Get month (1-based, so we add 1)
-    const day = date.getDate().toString().padStart(2, "0"); // Get day
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
 
     return `${year}-${month}-${day}`;
   };
@@ -218,12 +217,9 @@ const CreateNewCampaign = () => {
     formData.append("ends_at", formattedEndsAt);
     formData.append("allows_multiple_responses", "1");
 
-    // Append image file, if any
     if (file) {
       formData.append("images[0]", file, file.name);
     }
-
-    // Append state and LGA IDs
 
     console.log(selectedStates);
     selectedStates.forEach((state: any, index: number) => {
@@ -255,8 +251,6 @@ const CreateNewCampaign = () => {
   };
 
   const createQuetion = () => {
-    //  window.location.replace('/organization/dashboard/campaigns/create/question');
-
     router.push("/organization/dashboard/campaigns/questions");
   };
   return (
@@ -278,7 +272,7 @@ const CreateNewCampaign = () => {
             className="container-xxl mt-4 flex w-full flex-col gap-8 rounded-[18px] bg-[#ffffff] p-8"
             onSubmit={handleCreateCampaign}
           >
-            <div className="flex w-full flex-col gap-12">
+            <div className="flex w-full flex-col gap-6">
               <Label htmlFor="questionType" className="w-full">
                 <div className="flex items-center justify-between">
                   <span className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
@@ -301,7 +295,6 @@ const CreateNewCampaign = () => {
                       (item) => item.id === parseInt(value),
                     );
 
-                    // console.log(selected);
                     setSelectedCampaignGroup(selected?.name || "");
                     setSelectedCampaignGroupId(selected?.id);
                   }}
@@ -311,7 +304,7 @@ const CreateNewCampaign = () => {
                       placeholder="Campaign group"
                       className="text-neutral-40 placeholder:text-neutral-40 text-sm font-light"
                     >
-                      {selectedCampaignGroup || "Campaign group"}
+                      {selectedCampaignGroup}
                     </SelectValue>
                   </SelectTrigger>
 
@@ -338,15 +331,6 @@ const CreateNewCampaign = () => {
                   <span className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
                     Campaign Type
                   </span>
-                  {/**
-                  <span
-                    className="mb-2 inline-flex cursor-pointer items-center gap-1 font-poppins text-base font-extralight text-[#3365E3]"
-                    onClick={() => setShowCreate(true)}
-                  >
-                    <Image src={IconAdd} alt="add group" className="h-[18px]" />{" "}
-                    Create new groups
-                  </span>
-                  */}
                 </div>
 
                 <Select
@@ -356,7 +340,6 @@ const CreateNewCampaign = () => {
                       (item) => item.id === parseInt(value),
                     );
 
-                    //  console.log(selected);
                     setSelectedCampaignType(selected?.name || "");
                     setSelectedCampaignTypeId(selected?.id);
                   }}
@@ -366,7 +349,7 @@ const CreateNewCampaign = () => {
                       placeholder="Campaign type"
                       className="text-neutral-40 placeholder:text-neutral-40 text-sm font-light"
                     >
-                      {selectedCampaignType || "Campaign Type"}
+                      {selectedCampaignType || ""}
                     </SelectValue>
                   </SelectTrigger>
 
@@ -424,11 +407,18 @@ const CreateNewCampaign = () => {
                 <Select
                   value={selectedCountryLabel}
                   onValueChange={(value) => {
+                    // Find the selected country
                     const selectedCountry = countryData.find(
                       (item: any) => item.id === value,
                     );
-                    setSelectedCountryLabel(selectedCountry.label);
-                    setCountryId(selectedCountry.id);
+
+                    if (selectedCountry) {
+                      //  console.log(selectedCountry);
+                      setSelectedCountryLabel(selectedCountry.label);
+                      setCountryId(selectedCountry.id);
+                    } else {
+                      console.warn("Selected country not found!");
+                    }
                   }}
                 >
                   <SelectTrigger className="h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0">
@@ -454,6 +444,7 @@ const CreateNewCampaign = () => {
                     </SelectGroup>
                   </SelectContent>
                 </Select>
+
                 <span className="font-poppins text-sm font-normal leading-[21px] text-[#828282]">
                   Leave empty to campaigns to be available all location
                 </span>
@@ -466,9 +457,8 @@ const CreateNewCampaign = () => {
                       State
                     </span>
                   </div>
-
                   <Select
-                    value={selectedStates.toString()}
+                    value={undefined} // Keep undefined to avoid single value binding
                     onValueChange={(value) =>
                       toggleStateSelection(Number(value))
                     }
@@ -478,7 +468,9 @@ const CreateNewCampaign = () => {
                         placeholder="Select state"
                         className="text-neutral-40 placeholder:text-neutral-40 text-sm font-light"
                       >
-                        {getSelectedLabels() || "Select state"}
+                        {getSelectedLabels().length > 0
+                          ? getSelectedLabels().join(", ")
+                          : "Select state"}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent className="max-w-full">
@@ -490,7 +482,7 @@ const CreateNewCampaign = () => {
                             value={item.id.toString()}
                             className={`flex items-center gap-2 ${
                               selectedStates.includes(item.id)
-                                ? "font-bold"
+                                ? "font-bold text-main-100"
                                 : ""
                             }`}
                           >
@@ -512,9 +504,7 @@ const CreateNewCampaign = () => {
                   </div>
 
                   <Select
-                    //value={selectedLgs.map((lga) => lga.id.toString())} // Multiple LGAs selection
-                    onValueChange={(value) => toggleLgaSelection(Number(value))} // Handle LGA selection
-                    //multiple // Enable multiple selection
+                    onValueChange={(value) => toggleLgaSelection(Number(value))}
                   >
                     <SelectTrigger className="h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0">
                       <SelectValue

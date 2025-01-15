@@ -32,7 +32,7 @@ export const getLgs = async (
   stateId: any,
 ): Promise<ServerResponseOrNull<any>> => {
   try {
-    return await fetchData<ServerResponse<any>>(`lgas?state_id=1=${stateId}`);
+    return await fetchData<ServerResponse<any>>(`lgas?state_id=${stateId}`);
   } catch (error) {
     console.log(error);
     return null;
