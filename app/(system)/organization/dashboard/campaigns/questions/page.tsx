@@ -18,12 +18,22 @@ import {
 import Image from "next/image";
 import dropdownData from "@/utils/question";
 import Add from "@/components/ui/add";
+import MultipleChoices from "@/components/ui/multiple-choices";
+import FileUpload from "@/components/task-stepper/fileUpload";
+import AudioRecorder from "@/components/task-stepper/customAudioRecorder";
 
 const Create = () => {
   const [questions, setQuestions] = useState([
     { id: 1, type: "shortAnswer", content: "" },
   ]);
+  const [file, setFile] = useState<File | null>(null);
 
+  const [options, setOptions] = useState([]);
+
+  const handleOptionsChange = (updatedOptions: any) => {
+    setOptions(updatedOptions);
+    console.log("Updated Options:", updatedOptions);
+  };
   const handleAddQuestion = () => {
     setQuestions((prevQuestions) => [
       ...prevQuestions,
@@ -32,6 +42,7 @@ const Create = () => {
   };
 
   const handleQuestionTypeChange = (id: number, type: string) => {
+    console.log(type);
     setQuestions((prevQuestions) =>
       prevQuestions.map((q) => (q.id === id ? { ...q, type } : q)),
     );
@@ -51,21 +62,67 @@ const Create = () => {
         return (
           <textarea
             placeholder="Type your paragraph here"
-            className="h-24 w-full rounded-md border bg-[#F2F2F7] p-2 placeholder:text-red-600"
+            className="h-24 w-full rounded-md border bg-[#F2F2F7] p-2 placeholder:text-gray-600"
             value={questions.find((q) => q.id === id)?.content || ""}
             onChange={(e) => handleContentChange(id, e.target.value)}
           />
         );
       case "multipleChoices":
         return (
-          <SmallAnswer
-            placeholder="Enter multiple choices separated by commas"
-            value={questions.find((q) => q.id === id)?.content || ""}
-            name={`question-${id}`}
-            onChange={(e) => handleContentChange(id, e.target.value)}
+          <MultipleChoices
+            label="Advanced Options List"
+            placeholder="Type something..."
+            initialOptions={[{ id: 1, value: "Option 1" }]}
+            onOptionsChange={handleOptionsChange}
           />
         );
-      // Add more cases for other question types if necessary
+      case "video":
+        return (
+          <FileUpload
+            ref={null}
+            value={null}
+            onFileUpload={(file: any) => {
+              setFile(file);
+              // console.log(file);
+            }}
+          />
+        );
+      case "image":
+        return (
+          <FileUpload
+            ref={null}
+            value={null}
+            onFileUpload={(file: any) => {
+              setFile(file);
+              // console.log(file);
+            }}
+          />
+        );
+      case "audio":
+        return (
+          <AudioRecorder
+            quesId={""}
+            handleInputChange={function (
+              value: string | boolean | File | string[],
+              quesId: string | number,
+              type?: string,
+            ): void {
+              throw new Error("Function not implemented.");
+            }}
+          />
+        );
+      case "file":
+        return (
+          <FileUpload
+            ref={null}
+            value={null}
+            onFileUpload={(file: any) => {
+              setFile(file);
+              // console.log(file);
+            }}
+          />
+        );
+
       default:
         return null;
     }

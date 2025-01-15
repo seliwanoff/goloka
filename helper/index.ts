@@ -14,7 +14,7 @@ export function numberWithCommas(x: any) {
     maximumFractionDigits: 2,
   });
 }
-
+export const organization_id = "4753d96c-ecf1-41fd-a1f7-1e36e6092f73";
 export const formatResponseDate = (dateString: string) => {
   return moment(dateString, "YYYY-MM-DD HH:mm:ss").format("DD/M/YYYY");
 };

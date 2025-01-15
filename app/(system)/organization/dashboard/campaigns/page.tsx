@@ -43,6 +43,7 @@ import {
   useEditCampaignOverlay,
 } from "@/stores/overlay";
 import EditCampaign from "@/components/lib/modals/edit_campaign";
+import { getOrganizationCampaign } from "@/services/campaign";
 
 const renderTable = (tab: string, tdata: any[]) => {
   switch (tab.toLowerCase()) {
@@ -68,6 +69,25 @@ const Page = () => {
   const currentPageData = pages[currentPage - 1] || [];
   const [activeStatus, setActiveStatus] = useState<string>("all");
   const { setShowCreate } = useAddcampaignGroupOverlay();
+
+  const [campaignGroupList, setCampaignGroupList] = useState<[]>([]);
+
+  const getCampaignGroup = async () => {
+    try {
+      const response = await getOrganizationCampaign();
+      //  console.log(response);
+      if (response && response.data) {
+        setCampaignGroupList(response.data);
+      } else {
+        console.warn("Response is null or does not contain data");
+      }
+    } catch (error) {
+      console.error("Error fetching campaign groups:", error);
+    }
+  };
+  useEffect(() => {
+    getCampaignGroup();
+  }, []);
 
   useEffect(() => {
     function filter(status: string) {
@@ -108,14 +128,11 @@ const Page = () => {
       {/*** Edit Campaign */}
       <EditCampaign />
 
-
       {/*** CREATE CAMPAIGN GROUP */}
 
       <CreateCampaingGroup />
 
-
       {/*** DELETE MODAL */}
-
 
       <section className="mt-5">
         {/* HEADING */}
@@ -125,7 +142,7 @@ const Page = () => {
           <div className="inline-flex items-center gap-2">
             <Button
               variant="outline"
-              className="font-Satoshi rounded-[50px] border-main-100 text-main-100"
+              className="rounded-[50px] border-main-100 font-Satoshi text-main-100"
               onClick={() => setShowCreate(true)}
             >
               Create campaign group
@@ -133,7 +150,7 @@ const Page = () => {
             <Link href="/organization/dashboard/campaigns/create">
               <Button
                 variant="outline"
-                className="font-Satoshi items-center gap-2 rounded-[50px] bg-main-100 text-white"
+                className="items-center gap-2 rounded-[50px] bg-main-100 font-Satoshi text-white"
               >
                 <span>
                   <Note />
@@ -361,7 +378,9 @@ const CampaignGroupTable = ({ tdata }: { tdata: any[] }) => {
         <TableRow>
           <TableHead>Group Title</TableHead>
           <TableHead className="">Description</TableHead>
+          {/**
           <TableHead className="table-cell">Total Campaign</TableHead>
+          **/}
           <TableHead className=" ">Last updated </TableHead>
           <TableHead className="">Action</TableHead>
           <TableHead className=""></TableHead>
@@ -370,9 +389,11 @@ const CampaignGroupTable = ({ tdata }: { tdata: any[] }) => {
       <TableBody>
         {tdata?.map((data, index) => (
           <TableRow key={index}>
-            <TableCell>{data?.title}</TableCell>
+            <TableCell>{data?.name}</TableCell>
             <TableCell className="">{data?.description}</TableCell>
+            {/**
             <TableCell className="">{data?.totalCampaign}</TableCell>
+            **/}
             <TableCell className=" ">{data?.lastUpdated}</TableCell>
             <TableCell className="">
               <Link href="/organization/dashboard/campaigns/profile">
@@ -635,7 +656,8 @@ const campaignList = [
     responses: "184",
   },
 ];
-
+{
+  /**
 const campaignGroupList = [
   {
     title: "Dataphyte customers",
@@ -644,3 +666,5 @@ const campaignGroupList = [
     lastUpdated: "Tue 28th June",
   },
 ];
+*/
+}

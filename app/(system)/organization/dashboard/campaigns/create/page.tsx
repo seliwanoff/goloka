@@ -47,6 +47,7 @@ import {
   useOpenSuccessModalOverlay,
 } from "@/stores/overlay";
 import FileUpload from "@/components/task-stepper/fileUpload";
+import { organization_id } from "@/helper";
 
 interface StateItem {
   id: number;
@@ -63,18 +64,7 @@ const CreateNewCampaign = () => {
   const { setShowCreate } = useAddcampaignGroupOverlay();
   const [file, setFile] = useState<File | null>(null);
 
-  const [organizationCampaign, setOrganizationCampaign] = useState([
-    {
-      id: 1,
-      name: "Group 1",
-      description: "This is Dataphyte campaign group 1",
-    },
-    {
-      id: 2,
-      name: "Group 2",
-      description: "This is Dataphyte campaign group 2",
-    },
-  ]);
+  const [organizationCampaign, setOrganizationCampaign] = useState([]);
 
   const [organizationCampaignType, setOrganizationCampaignType] = useState([
     {
@@ -125,7 +115,12 @@ const CreateNewCampaign = () => {
   const getCampaignGroup = async () => {
     try {
       const response = await getOrganizationCampaign();
-      console.log(response);
+      // console.log(response);
+      if (response && response.data) {
+        setOrganizationCampaign(response.data);
+      } else {
+        console.warn("Response is null or does not contain data");
+      }
     } catch (error) {
       console.error("Error fetching campaign groups:", error);
     }
@@ -221,7 +216,6 @@ const CreateNewCampaign = () => {
       formData.append("images[0]", file, file.name);
     }
 
-    console.log(selectedStates);
     selectedStates.forEach((state: any, index: number) => {
       formData.append(`state_ids[${index}]`, state);
     });
@@ -231,7 +225,7 @@ const CreateNewCampaign = () => {
 
     try {
       const response = await axiosInstance.post(
-        "/organizations/97731bff-9cad-4c47-bf9f-8867dec0da1a/campaigns/create",
+        `/organizations/${organization_id}/campaigns/create`,
         formData,
         {
           headers: {
@@ -292,8 +286,8 @@ const CreateNewCampaign = () => {
                   value={selectedCampaignGroupId}
                   onValueChange={(value: any) => {
                     const selected = organizationCampaign.find(
-                      (item) => item.id === parseInt(value),
-                    );
+                      (item: any) => item.id === parseInt(value),
+                    ) as { id: number; name: string } | undefined;
 
                     setSelectedCampaignGroup(selected?.name || "");
                     setSelectedCampaignGroupId(selected?.id);
@@ -312,7 +306,7 @@ const CreateNewCampaign = () => {
                   <SelectContent className="max-w-full">
                     <SelectGroup>
                       <SelectLabel>Campaign group</SelectLabel>
-                      {organizationCampaign.map((item) => (
+                      {organizationCampaign.map((item: any) => (
                         <SelectItem
                           key={item.id}
                           value={item.id.toString()}
