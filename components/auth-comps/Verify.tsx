@@ -13,16 +13,15 @@ type PageProps = {
 };
 
 const Verify: React.FC<PageProps> = ({ setStep }) => {
-
- const [sec, setSec] = useState(60);
- const [otpValues, setOtpValues] = useState<string[]>(Array(6).fill(""));
- const [error, setError] = useState("");
- const [email, setEmail] = useState<string | null>(null);
- const [isSubmitting, setIsSubmitting] = useState(false);
- const [isResending, setIsResending] = useState(false);
- const [hasSubmitted, setHasSubmitted] = useState(false);
- const [timerKey, setTimerKey] = useState(0); // Add this to force timer reset
- const searchParams = useSearchParams();
+  const [sec, setSec] = useState(60);
+  const [otpValues, setOtpValues] = useState<string[]>(Array(6).fill(""));
+  const [error, setError] = useState("");
+  const [email, setEmail] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [timerKey, setTimerKey] = useState(0); // Add this to force timer reset
+  const searchParams = useSearchParams();
 
   const handleOtpChange = useCallback((otpArray: string[]) => {
     setOtpValues(otpArray);
@@ -30,9 +29,13 @@ const Verify: React.FC<PageProps> = ({ setStep }) => {
     setHasSubmitted(false); // Reset submission state when OTP changes
   }, []);
 
+
+
   // const handleOtpSubmit = useCallback(async () => {
+  //   // Prevent multiple submissions
   //   if (isSubmitting) return;
 
+  //   // Validate OTP length
   //   const otpValue = otpValues.join("");
   //   if (otpValue.length !== 6) {
   //     setError("Please enter all digits.");
@@ -40,101 +43,112 @@ const Verify: React.FC<PageProps> = ({ setStep }) => {
   //   }
 
   //   setIsSubmitting(true);
-  //   setHasSubmitted(true); // Mark that we've attempted submission
+  //   setHasSubmitted(true);
 
   //   try {
   //     const response = await verifyOTP({ otp: otpValue });
+
+  //     console.log(response);
   //     const { data } = response;
-  //     console.log(data, "dgtg");
+
+  //     // @ts-ignore
+  //     if (!response?.message) {
+  //       toast("Invalid OTP code. Please try again.");
+  //       return;
+  //     }
+
+  //     // @ts-ignore
+  //     toast.success(response?.message);
   //     setStep(3);
   //   } catch (error) {
   //     toast("Failed to verify OTP. Please try again.");
+  //     // Don't proceed to next step on error
   //   } finally {
   //     setIsSubmitting(false);
   //   }
   // }, [otpValues, isSubmitting, setStep]);
 
   const handleOtpSubmit = useCallback(async () => {
-  // Prevent multiple submissions
-  if (isSubmitting) return;
-
-  // Validate OTP length
-  const otpValue = otpValues.join("");
-  if (otpValue.length !== 6) {
-    setError("Please enter all digits.");
-    return;
-  }
-
-  setIsSubmitting(true);
-  setHasSubmitted(true);
-
-  try {
-    const response = await verifyOTP({ otp: otpValue });
-    const { data } = response;
-
-    // Check if verification was successful
-    if (!data) {
-      toast("Invalid OTP code. Please try again.");
+    if (isSubmitting || otpValues.join("").length !== 6) {
+      setError("Please enter all digits.");
       return;
     }
 
-    // Only proceed to next step if verification was successful
-    console.log(data, "verification successful");
-    setStep(3);
-  } catch (error) {
-    toast("Failed to verify OTP. Please try again.");
-    // Don't proceed to next step on error
-  } finally {
-    setIsSubmitting(false);
-  }
-}, [otpValues, isSubmitting, setStep]);
+    setIsSubmitting(true);
+    setHasSubmitted(true);
 
-const handleResendOtp = async () => {
-  if (isResending || sec > 0) return;
-
-  setIsResending(true);
-  try {
-    const res = await getOTP({});
-    if (res) {
-      console.log(res, "response");
-      toast("OTP resent successfully");
-      setSec(60);
-      setTimerKey((prev) => prev + 1); // Increment timer key to force reset
-      // Clear previous OTP
-      setOtpValues(Array(6).fill(""));
-      setHasSubmitted(false);
+    try {
+      const response = await verifyOTP({ otp: otpValues.join("") });
+      // @ts-ignore
+      if (!response?.message) {
+        toast.error("Invalid OTP code. Please try again.");
+        return;
+      }
+      // @ts-ignore
+      toast.success(response.message);
+      setStep(3); // This will trigger navigation with verify-complete flag
+    } catch (error) {
+      toast.error("Failed to verify OTP. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
-  } catch (error) {
-    toast("Failed to resend OTP. Please try again.");
-  } finally {
-    setIsResending(false);
-  }
-};
+  }, [otpValues, isSubmitting, setStep]);
+
+  const handleResendOtp = async () => {
+    if (isResending || sec > 0) return;
+
+    setIsResending(true);
+    try {
+      const res = await getOTP({});
+      if (res) {
+        console.log(res, "response");
+        toast("OTP resent successfully");
+        setSec(60);
+        setTimerKey((prev) => prev + 1); // Increment timer key to force reset
+        // Clear previous OTP
+        setOtpValues(Array(6).fill(""));
+        setHasSubmitted(false);
+      }
+    } catch (error) {
+      toast("Failed to resend OTP. Please try again.");
+    } finally {
+      setIsResending(false);
+    }
+  };
+
+  // useEffect(() => {
+  //   const emailParam = searchParams.get("email");
+  //   if (emailParam) {
+  //     setEmail(decodeURIComponent(emailParam));
+  //   }
+  // }, [searchParams]);
+
+   useEffect(() => {
+     const emailParam = searchParams.get("email");
+     if (!emailParam) {
+       setStep(1);
+     } else {
+       setEmail(decodeURIComponent(emailParam));
+     }
+   }, [searchParams, setStep]);
 
   useEffect(() => {
-    const emailParam = searchParams.get("email");
-    if (emailParam) {
-      setEmail(decodeURIComponent(emailParam));
+    let interval: NodeJS.Timeout;
+    if (sec > 0) {
+      interval = setInterval(() => {
+        setSec((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
     }
-  }, [searchParams]);
-
- useEffect(() => {
-   let interval: NodeJS.Timeout;
-   if (sec > 0) {
-     interval = setInterval(() => {
-       setSec((prev) => {
-         if (prev <= 1) {
-           clearInterval(interval);
-           return 0;
-         }
-         return prev - 1;
-       });
-     }, 1000);
-   }
-   return () => {
-     if (interval) clearInterval(interval);
-   };
- }, [timerKey]);
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [timerKey]);
 
   // Only trigger submit once when OTP is complete
   useEffect(() => {

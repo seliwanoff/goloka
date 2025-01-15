@@ -1,3 +1,4 @@
+// SignUp.tsx
 "use client";
 import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -7,30 +8,57 @@ import SignUpForm from "@/components/auth-comps/SignUpForm";
 import UpdateLocationModal from "@/components/contributor/UpdateLocationModal";
 import { useShowOverlay } from "@/stores/overlay";
 
-type PageProps = {};
-
-const SignUpContent: React.FC<PageProps> = ({}) => {
+const SignUpContent: React.FC = () => {
   const [step, setStep] = useState(1);
   const { open, setOpen } = useShowOverlay();
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const handleStepChange = (newStep: number, email?: string) => {
-    if (newStep === 2 && email) {
-      router.push(`/signup?step=2&email=${encodeURIComponent(email)}`);
-    } else if (newStep === 3) {
-      router.push(`/signup?step=3&verify-complete=true`);
-    } else {
-      setStep(newStep);
+    switch (newStep) {
+      case 2:
+        if (email) {
+          // Preserve other query parameters if needed
+          const params = new URLSearchParams(searchParams.toString());
+          params.set("step", "2");
+          params.set("email", email);
+          router.push(`/signup?${params.toString()}`);
+        }
+        break;
+      case 3:
+        const params = new URLSearchParams(searchParams.toString());
+        params.set("step", "3");
+        params.set("verify-complete", "true");
+        router.push(`/signup?${params.toString()}`);
+        break;
+      default:
+        setStep(newStep);
     }
   };
 
+  // Sync URL state with component state
   useEffect(() => {
     const stepParam = searchParams.get("step");
     if (stepParam) {
-      setStep(parseInt(stepParam, 10));
+      const newStep = parseInt(stepParam, 10);
+      if (newStep >= 1 && newStep <= 3) {
+        // Validate step range
+        setStep(newStep);
+      }
     }
   }, [searchParams]);
+
+  // Prevent unauthorized access to later steps
+  useEffect(() => {
+    const verifyComplete = searchParams.get("verify-complete");
+    const email = searchParams.get("email");
+
+    if (step === 2 && !email) {
+      router.replace("/signup?step=1");
+    } else if (step === 3 && !verifyComplete) {
+      router.replace("/signup?step=1");
+    }
+  }, [step, searchParams, router]);
 
   return (
     <>
@@ -44,7 +72,7 @@ const SignUpContent: React.FC<PageProps> = ({}) => {
   );
 };
 
-const SignUp: React.FC<PageProps> = ({}) => {
+const SignUp: React.FC = () => {
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <SignUpContent />
