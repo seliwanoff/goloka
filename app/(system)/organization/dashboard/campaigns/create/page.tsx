@@ -272,7 +272,7 @@ const CreateNewCampaign = () => {
             className="container-xxl mt-4 flex w-full flex-col gap-8 rounded-[18px] bg-[#ffffff] p-8"
             onSubmit={handleCreateCampaign}
           >
-            <div className="flex w-full flex-col gap-6">
+            <div className="flex w-full flex-col gap-8">
               <Label htmlFor="questionType" className="w-full">
                 <div className="flex items-center justify-between">
                   <span className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
@@ -301,7 +301,7 @@ const CreateNewCampaign = () => {
                 >
                   <SelectTrigger className="h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0">
                     <SelectValue
-                      placeholder="Campaign group"
+                      placeholder="Select campaign group"
                       className="text-neutral-40 placeholder:text-neutral-40 text-sm font-light"
                     >
                       {selectedCampaignGroup}
@@ -346,7 +346,7 @@ const CreateNewCampaign = () => {
                 >
                   <SelectTrigger className="h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0">
                     <SelectValue
-                      placeholder="Campaign type"
+                      placeholder="Select campaign type"
                       className="text-neutral-40 placeholder:text-neutral-40 text-sm font-light"
                     >
                       {selectedCampaignType || ""}
