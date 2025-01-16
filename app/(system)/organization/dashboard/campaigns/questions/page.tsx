@@ -20,7 +20,18 @@ import dropdownData from "@/utils/question";
 import Add from "@/components/ui/add";
 import MultipleChoices from "@/components/ui/multiple-choices";
 import FileUpload from "@/components/task-stepper/fileUpload";
-import AudioRecorder from "@/components/task-stepper/customAudioRecorder";
+import Boolean from "@/components/question/boolean";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@radix-ui/react-popover";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { Calendar as CalenderDate } from "@/components/ui/calendar";
+import { Calendar, Timer } from "lucide-react";
+import { TimePicker } from "@/components/ui/time";
+import AudioUpload from "@/components/task-stepper/inputs/audioUpload";
 
 const Create = () => {
   const [questions, setQuestions] = useState([
@@ -29,6 +40,9 @@ const Create = () => {
   const [file, setFile] = useState<File | null>(null);
 
   const [options, setOptions] = useState([]);
+
+  const [date, setDate] = useState<Date | null>(null);
+  const [time, setTime] = useState<string | null>(null);
 
   const handleOptionsChange = (updatedOptions: any) => {
     setOptions(updatedOptions);
@@ -98,19 +112,7 @@ const Create = () => {
             }}
           />
         );
-      case "audio":
-        return (
-          <AudioRecorder
-            quesId={""}
-            handleInputChange={function (
-              value: string | boolean | File | string[],
-              quesId: string | number,
-              type?: string,
-            ): void {
-              throw new Error("Function not implemented.");
-            }}
-          />
-        );
+
       case "file":
         return (
           <FileUpload
@@ -121,6 +123,97 @@ const Create = () => {
               // console.log(file);
             }}
           />
+        );
+      case "email":
+        return (
+          <Input
+            name={`email`}
+            id={`email`}
+            placeholder="Type your email"
+            className="h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
+          />
+        );
+      case "audio":
+        return <AudioUpload />;
+      case "boolean":
+        return <Boolean />;
+      case "time":
+        return (
+          <Label htmlFor="date" className="border-red relative w-1/2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-between gap-3 rounded-md bg-gray-200 px-3 pr-1 text-center font-poppins text-sm font-normal text-gray-600", // Adjust border color
+                  )}
+                >
+                  {time ? time : " Time"}
+                  <span className="flex h-8 w-8 items-center justify-center rounded-md bg-gray-200">
+                    <Timer size={20} color="#828282" />
+                  </span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-4">
+                <div className="flex w-full flex-col items-center gap-4 rounded-md border bg-[#fff] shadow-md">
+                  <TimePicker
+                    selected={time}
+                    onSelect={(selectedTime: any) =>
+                      setTime(selectedTime || null)
+                    }
+                  />
+                  <div className="flex w-auto items-center justify-between">
+                    <button
+                      className="rounded-full bg-[#F8F8F8] px-2 py-1 text-sm text-blue-500"
+                      onClick={() => setTime(null)}
+                    >
+                      Clear
+                    </button>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </Label>
+        );
+      case "date":
+        return (
+          <Label htmlFor="date" className="border-red w-1/2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-between gap-3 rounded-md bg-gray-200 px-3 pr-1 text-center text-sm font-normal",
+                    "border-neutral-300", // Adjust border color
+                  )}
+                >
+                  {date ? `${format(date, "PPP")}` : " Date"}
+                  <span className="flex h-8 w-8 items-center justify-center rounded-md bg-gray-200">
+                    <Calendar size={20} color="#828282" />
+                  </span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-4">
+                <div className="flex flex-col items-center gap-4 rounded-md border bg-[#fff] shadow-md">
+                  <CalenderDate
+                    mode="single"
+                    //@ts-ignore
+                    selected={date}
+                    onSelect={(date: any) => setDate(date || null)}
+                    initialFocus
+                  />
+                  <div className="flex w-auto items-center justify-between">
+                    <button
+                      className="rounded-full bg-[#F8F8F8] px-2 py-1 text-sm text-blue-500"
+                      onClick={() => setDate(null)}
+                    >
+                      Clear
+                    </button>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </Label>
         );
 
       default:

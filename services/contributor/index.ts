@@ -1,4 +1,5 @@
 import { queryClient } from "@/components/layout/tanstackProvider";
+import { organization_id } from "@/helper";
 import {
   useFetchQuery,
   postData,
@@ -342,7 +343,7 @@ export const addCampaignGroup = async (
     queryFn: async () => {
       try {
         return await postData(
-          `organizations/97731bff-9cad-4c47-bf9f-8867dec0da1a/campaign-groups/create`,
+          `organizations/${organization_id}/campaign-groups/create`,
           {
             name,
             description,
