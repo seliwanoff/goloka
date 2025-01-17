@@ -75,6 +75,8 @@ const Page = () => {
   const [campaignGroupList, setCampaignGroupList] = useState<[]>([]);
   const { show } = useAddcampaignGroupOverlay();
 
+  const { isShowEdit } = useEditCampaignOverlay();
+
   const getCampaignGroup = async () => {
     try {
       const response = await getOrganizationCampaign();
@@ -91,7 +93,7 @@ const Page = () => {
   const getCampaignMain = async () => {
     try {
       const response = await getCampaign();
-      console.log(response);
+      // console.log(response);
       if (response && response.data) {
         setCampaignList(response.data);
       } else {
@@ -104,7 +106,7 @@ const Page = () => {
   useEffect(() => {
     getCampaignGroup();
     getCampaignMain();
-  }, [show]);
+  }, [show, isShowEdit]);
 
   //console.log(show, "fetchData");
   useEffect(() => {
@@ -366,12 +368,12 @@ const CampaignTable = ({ tdata }: { tdata: any[] }) => {
         {tdata?.map((data, index) => (
           <TableRow key={index}>
             <TableCell>{data?.title}</TableCell>
-            <TableCell className="">{data?.group}</TableCell>
+            <TableCell className="">{data?.campaign_group}</TableCell>
             <TableCell className="table-cell">
-              {data?.locations?.join(", ")}
+              {data?.locations?.label}
             </TableCell>
             <TableCell className="">{data?.title}</TableCell>
-            <TableCell className=" ">{data?.lastUpdated}</TableCell>
+            <TableCell className=" ">{data?.created_at}</TableCell>
             <TableCell className="">
               <StatusPill status={data?.status} />
             </TableCell>
@@ -414,7 +416,9 @@ const CampaignGroupTable = ({ tdata }: { tdata: any[] }) => {
             **/}
             <TableCell className=" ">{data?.lastUpdated}</TableCell>
             <TableCell className="">
-              <Link href="/organization/dashboard/campaigns/profile">
+              <Link
+                href={`/organization/dashboard/campaigns/profile?campaignId=${data.id}`}
+              >
                 <span className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-main-100/5 p-2 px-2.5 text-sm text-main-100">
                   <Eye size={20} /> View
                 </span>

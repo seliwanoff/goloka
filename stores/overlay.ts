@@ -49,6 +49,8 @@ interface EditCampaignState {
   description: string;
   setDescription: (value: string) => void;
   setId: (value: number) => void;
+  isShowEdit: boolean;
+  setIsShowEdit: (value: boolean) => void;
 }
 
 const useShowOverlay = create<StoreState>((set) => ({
@@ -107,6 +109,8 @@ const useEditCampaignOverlay = create<EditCampaignState>((set) => ({
   id: 0,
   setDescription: (value) => set({ description: value }),
   setId: (value) => set({ id: value }),
+  isShowEdit: false,
+  setIsShowEdit: (value) => set({ isShowEdit: value }),
 }));
 export {
   useShowOverlay,

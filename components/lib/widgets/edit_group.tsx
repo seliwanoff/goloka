@@ -18,7 +18,8 @@ const schema = yup.object().shape({
 });
 
 const EditCampaignGroup = () => {
-  const { title, description, id, setShow } = useEditCampaignOverlay(); // Initial values from overlay
+  const { title, description, id, setShow, setIsShowEdit } =
+    useEditCampaignOverlay(); // Initial values from overlay
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -48,6 +49,7 @@ const EditCampaignGroup = () => {
       await updateCampaignGroupById(id, data.title, data.description);
       toast.success("Campaign group updated!");
       setShow(false);
+      setIsShowEdit(true);
       reset();
     } catch (error) {
       toast.error("Failed to save changes. Please try again.");
