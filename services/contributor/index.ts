@@ -78,7 +78,7 @@ interface TaskResponse {
 // ~ ======= Create a user  -->
 // ~ =============================================>
 export const createContributor = async (
-  data: any,
+  data: FormData,
 ): Promise<UseQueryResult<ServerResponse<any>>> => {
   return queryClient.fetchQuery({
     queryKey: ["create contributor"],
