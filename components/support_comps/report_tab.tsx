@@ -11,6 +11,7 @@ import { Button } from "../ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { makeReport } from "@/services/misc";
 
 const schema = yup.object().shape({
   title: yup.string().required("Title is required"),
@@ -37,10 +38,17 @@ const ReportTab = () => {
     },
   });
 
-  const onReport = (data: any) => {
-    console.log("Form submission:", data);
-    toast("description Report submitted");
-    reset();
+  const onReport = async (data: any) => {
+    const res = await makeReport(data);
+    console.log("Form submission:", res);
+    //@ts-ignore
+    if (res.message) {
+      //@ts-ignore
+      toast(res.message);
+      reset();
+    } else {
+      // conso
+    }
   };
 
   return (
