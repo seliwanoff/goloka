@@ -37,14 +37,21 @@ import {
 import { BsThreeDots } from "react-icons/bs";
 import Pagination from "@/components/lib/navigation/Pagination";
 import { getStatusText } from "@/helper";
-import router from "next/router";
+import router, { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   useAddcampaignGroupOverlay,
   useEditCampaignOverlay,
 } from "@/stores/overlay";
 import EditCampaign from "@/components/lib/modals/edit_campaign";
+import { deleteCampaign, getCampaignById } from "@/services/campaign";
+import { useSearchParams } from "next/navigation";
+import { Skeleton } from "@/components/task-stepper/skeleton";
+import { toast } from "sonner";
 
+type ProfileProps = {
+  campaignData: any;
+};
 const renderTable = (tab: string, tdata: any[]) => {
   switch (tab.toLowerCase()) {
     case "campaigns":
@@ -58,7 +65,7 @@ const renderTable = (tab: string, tdata: any[]) => {
   }
 };
 
-const ProfilePage = () => {
+const ProfilePage: React.FC = () => {
   const [openFilter, setOpenFilter] = useState<boolean>(false);
   const [filteredData, setFilteredData] = useState<any[]>(campaignList);
   const [activeTab, setActiveTab] = useState("campaigns");
@@ -70,6 +77,12 @@ const ProfilePage = () => {
   const [activeStatus, setActiveStatus] = useState<string>("all");
   const { setShow } = useEditCampaignOverlay();
   const [open, setOpen] = useState(false);
+  const [campaign, setCampaign] = useState([]);
+  const [isLoading, setisloading] = useState(false);
+
+  const searchParams = useSearchParams();
+
+  const campaignId = searchParams.get("campaignId") || 0;
 
   useEffect(() => {
     function filter(status: string) {
@@ -95,6 +108,27 @@ const ProfilePage = () => {
         setFilteredData(campaignList);
     }
   }, [activeStatus]);
+  const getCampaign = async () => {
+    setisloading(true);
+    try {
+      const response = await getCampaignById(campaignId);
+      console.log(response);
+      if (response && response.data) {
+        setCampaign(response.data);
+        //   setCampaignList(response.data);
+      } else {
+        console.warn("Response is null or does not contain data");
+      }
+    } catch (error) {
+      console.error("Error fetching campaign groups:", error);
+    } finally {
+      setisloading(false);
+    }
+  };
+  useEffect(() => {
+    getCampaign();
+  }, []);
+  const router = useRouter();
 
   useEffect(() => {
     if (activeTab === "campaigns") {
@@ -104,7 +138,16 @@ const ProfilePage = () => {
     }
   }, [activeTab]);
 
-  const deleteGroup = () => {
+  const deleteGroup = async () => {
+    try {
+      const response = await deleteCampaign(campaignId);
+      toast.success("Campagn group deleted succesfully");
+      router.push(`/organization/dashboard/campaigns`);
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message);
+      setShow(false);
+    }
+
     console.log("delete");
   };
 
@@ -133,14 +176,14 @@ const ProfilePage = () => {
           <div className="inline-flex items-center gap-2">
             <Button
               variant="outline"
-              className="font-Satoshi rounded-[50px] border-[#FF4C4C] font-medium leading-6 text-[#FF4C4C]"
+              className="rounded-[50px] border-[#FF4C4C] font-Satoshi font-medium leading-6 text-[#FF4C4C]"
               onClick={() => setOpen(true)}
             >
               Delete campaign
             </Button>
             <Button
               variant="outline"
-              className="font-Satoshi items-center gap-2 rounded-[50px] bg-main-100 text-white"
+              className="items-center gap-2 rounded-[50px] bg-main-100 font-Satoshi text-white"
               onClick={() => setShow(true)}
             >
               <span>
@@ -151,9 +194,11 @@ const ProfilePage = () => {
           </div>
         </div>
 
-        {/*** Campaign Group Details **/}
-
-        <CampaignDetailsCard />
+        {isLoading ? (
+          <Skeleton />
+        ) : (
+          <CampaignDetailsCard campaignData={campaign} />
+        )}
 
         {/* TABLE OPTIONS */}
         <div className="rounded-2xl bg-white p-[14px]">
@@ -341,21 +386,16 @@ const CampaignTable = ({ tdata }: { tdata: any[] }) => {
   );
 };
 
-const CampaignDetailsCard = ({}) => {
+const CampaignDetailsCard: React.FC<ProfileProps> = ({ campaignData }) => {
   return (
     <div className="mb-4 w-full rounded-[16px] bg-white p-[24px]">
       <div className="flex flex-col gap-[16px]">
         <h2 className="font-poppins text-[20px] font-bold text-[#101828]">
-          Dataphyte customer
+          {campaignData && campaignData.name}
         </h2>
 
         <span className="font-Satoshi text-[14px] font-medium text-[#4F4F4F]">
-          Agriculture is the cornerstone of food security, serving as the
-          primary means of sustenance and economic stability for nations
-          worldwide. It encompasses the cultivation of crops and livestock,
-          which are essential for providing the food supply that supports human
-          life. n addition to its role in feeding populations, agriculture also
-          drives economic development.{" "}
+          {campaignData && campaignData.description}
         </span>
       </div>
     </div>

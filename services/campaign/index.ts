@@ -127,3 +127,25 @@ export const updateCampaignGroupById = async (
     throw error;
   }
 };
+
+export const getCampaignById = async (id: any): Promise<AxiosResponse<any>> => {
+  try {
+    return await fetchData(
+      `/organizations/${organization_id}/campaign-groups/${id}`,
+    );
+  } catch (error) {
+    console.error("Error fetching campaign questions:", error);
+    throw error;
+  }
+};
+
+export const deleteCampaign = async (id: any): Promise<AxiosResponse<any>> => {
+  try {
+    return await deleteData(
+      `/organizations/${organization_id}/campaign-groups/${id}/delete`,
+    );
+  } catch (error) {
+    console.error("Error fetching campaign questions:", error);
+    throw error;
+  }
+};
