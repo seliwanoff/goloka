@@ -83,6 +83,11 @@ const dropdownData = [
     label: "Number",
     image: "/assets/images/questions/time.png",
   },
+  {
+    id: "url",
+    label: "URL",
+    image: "/assets/images/questions/time.png",
+  },
 ];
 
 export default dropdownData;

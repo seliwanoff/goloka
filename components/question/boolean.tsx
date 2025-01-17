@@ -33,7 +33,10 @@ const RadioButton: React.FC<RadioButtonProps> = ({
 type RadioGroupWrapperProps = {
   options: { label: string; value: string }[]; // Array of options (True/False)
   selectedValue: string; // Currently selected value
-  onChange: (value: string) => void; // Function to call when a value is selected
+  onChange: (
+    selectedValue: string,
+    options: { label: string; value: string }[],
+  ) => void; // Function to call when a value is selected
 };
 
 const RadioGroupWrapper: React.FC<RadioGroupWrapperProps> = ({
@@ -41,6 +44,10 @@ const RadioGroupWrapper: React.FC<RadioGroupWrapperProps> = ({
   selectedValue,
   onChange,
 }) => {
+  const handleChange = (value: string) => {
+    onChange(value, options);
+  };
+
   return (
     <div className="flex justify-start gap-3">
       {options.map((option) => (
@@ -49,14 +56,19 @@ const RadioGroupWrapper: React.FC<RadioGroupWrapperProps> = ({
           label={option.label}
           value={option.value}
           isSelected={selectedValue === option.value}
-          onChange={onChange}
+          onChange={handleChange}
         />
       ))}
     </div>
   );
 };
 
+export default RadioGroupWrapper;
+
 // Usage Example
+
+{
+  /***
 const Boolean: React.FC = () => {
   const [selectedValue, setSelectedValue] = React.useState<string>("");
 
@@ -77,3 +89,5 @@ const Boolean: React.FC = () => {
 };
 
 export default Boolean;
+*/
+}

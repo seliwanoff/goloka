@@ -20,7 +20,7 @@ import dropdownData from "@/utils/question";
 import Add from "@/components/ui/add";
 import MultipleChoices from "@/components/ui/multiple-choices";
 import FileUpload from "@/components/task-stepper/fileUpload";
-import Boolean from "@/components/question/boolean";
+//import Boolean from "@/components/question/boolean";
 import {
   Popover,
   PopoverContent,
@@ -41,6 +41,7 @@ import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { useAddQuestionSectionOverlay } from "@/stores/overlay";
 import SectionName from "@/components/lib/modals/section_name_modal";
+import RadioGroupWrapper from "@/components/question/boolean";
 type FormValues = {
   fullname: string;
   email: string;
@@ -112,7 +113,10 @@ const Create = () => {
           placeholder:
             question.type === "text" ||
             question.type === "textarea" ||
-            question.type === "email"
+            question.type === "email" ||
+            question.type === "password" ||
+            question.type === "tel" ||
+            question.type === "url"
               ? question.answer
               : "",
           required: true,
@@ -259,6 +263,17 @@ const Create = () => {
             className="h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
           />
         );
+      case "url":
+        return (
+          <Input
+            name={`url`}
+            type="url"
+            id={`url`}
+            placeholder="Type  URL"
+            onChange={(e) => handleAnswerChange(id, e.target.value)}
+            className="h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
+          />
+        );
       case "password":
         return (
           <Input
@@ -295,7 +310,16 @@ const Create = () => {
       case "audio":
         return <AudioUpload />;
       case "radio":
-        return <Boolean />;
+        return (
+          <RadioGroupWrapper
+            options={[
+              { label: "True", value: "true" },
+              { label: "False", value: "false" },
+            ]}
+            selectedValue={""}
+            onChange={(value) => handleAnswerChange(1, value)}
+          />
+        );
       case "time":
         return (
           <Label htmlFor="date" className="border-red relative w-1/2">
@@ -360,7 +384,9 @@ const Create = () => {
                     //@ts-ignore
                     selected={date}
                     onSelect={(date: any) => {
-                      setDate(date || null), handleAnswerChange(id, date);
+                      console.log(date);
+                      handleAnswerChange(id, date);
+                      setDate(date || null);
                     }}
                     initialFocus
                   />
