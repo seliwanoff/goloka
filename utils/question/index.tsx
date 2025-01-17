@@ -9,11 +9,13 @@ const dropdownData = [
     label: "Textarea",
     image: "/assets/images/questions/paragraph.png",
   },
+  /***
   {
     id: "multipleChoices",
     label: "Multiple Choices",
     image: "/assets/images/questions/multiple-choices.png",
   },
+  */
 
   {
     id: "checkbox",

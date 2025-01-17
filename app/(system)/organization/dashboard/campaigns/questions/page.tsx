@@ -106,15 +106,21 @@ const Create = () => {
         //  console.log(question.type);
         const payload = {
           label: question.content,
-          question_group_id: 1,
+          question_group_id: 6,
           type: question.type,
-          name: question.content.toLowerCase().replace(/\s+/g, "_"),
-          placeholder: "",
+          name: question.content.toLowerCase().replace(/\s+/g, " "),
+          placeholder:
+            question.type === "text" ||
+            question.type === "textarea" ||
+            question.type === "email"
+              ? question.answer
+              : "",
           required: true,
           options:
             question.type === "multipleChoices" ||
             question.type === "select" ||
-            question.type === "checkbox"
+            question.type === "checkbox" ||
+            question.type === "radio"
               ? JSON.stringify(
                   [...questions[0].answer].map((item: any) => item.label),
                 )
