@@ -1,12 +1,12 @@
 const dropdownData = [
   {
-    id: "shortAnswer",
-    label: "Short Answer",
+    id: "text",
+    label: "Text",
     image: "/assets/images/questions/shortanswer.png",
   },
   {
-    id: "paragraph",
-    label: "Paragraph",
+    id: "textarea",
+    label: "Textarea",
     image: "/assets/images/questions/paragraph.png",
   },
   {
@@ -14,19 +14,21 @@ const dropdownData = [
     label: "Multiple Choices",
     image: "/assets/images/questions/multiple-choices.png",
   },
+
   {
     id: "checkbox",
     label: "Checkbox",
     image: "/assets/images/questions/checkbox.png",
   },
   {
-    id: "dropdowns",
-    label: "Dropdowns",
+    id: "select",
+    label: "Select",
     image: "/assets/images/questions/dropdowns.png",
   },
+
   {
-    id: "boolean",
-    label: "Boolean",
+    id: "radio",
+    label: "Radio",
     image: "/assets/images/questions/boolean.png",
   },
   {
@@ -35,8 +37,8 @@ const dropdownData = [
     image: "/assets/images/questions/email.png",
   },
   {
-    id: "image",
-    label: "Image",
+    id: "photo",
+    label: "Photo",
     image: "/assets/images/questions/image.png",
   },
   {
@@ -62,6 +64,21 @@ const dropdownData = [
   {
     id: "time",
     label: "Time",
+    image: "/assets/images/questions/time.png",
+  },
+  {
+    id: "password",
+    label: "Password",
+    image: "/assets/images/questions/time.png",
+  },
+  {
+    id: "tel",
+    label: "tel",
+    image: "/assets/images/questions/time.png",
+  },
+  {
+    id: "number",
+    label: "Number",
     image: "/assets/images/questions/time.png",
   },
 ];

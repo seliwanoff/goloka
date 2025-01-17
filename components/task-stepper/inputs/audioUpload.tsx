@@ -127,7 +127,7 @@ const AudioUpload: React.FC<AudioUploadProps> = ({
             accept="audio/*"
             className="hidden"
             onChange={handleAudioUpload}
-            disabled={!selectedTime} // Disable upload if no time is selected
+            disabled={true} // Disable upload if no time is selected
           />
         </label>
 

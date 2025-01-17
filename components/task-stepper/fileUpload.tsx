@@ -21,12 +21,14 @@ interface FileUploadProps {
   value: any;
   ref: React.LegacyRef<HTMLInputElement> | undefined;
   onFileUpload?: (file: File | null, base64: string | null) => void;
+  disabled?: boolean;
 }
 
 const FileUpload: React.FC<FileUploadProps> = ({
   onFileUpload,
   value,
   ref,
+  disabled,
 }) => {
   const [file, setFile] = useState<File | null>(null);
   const [fileBase64, setFileBase64] = useState<string | null>(null);
@@ -116,7 +118,6 @@ const FileUpload: React.FC<FileUploadProps> = ({
     return extensionIcons[extension] || extensionIcons.file;
   };
 
-
   // const getFileIcon = (fileName: string) => {
   //   const extension = getFileExtension(fileName);
   //   return extensionIcons[extension] || extensionIcons.file;
@@ -148,6 +149,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
               accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.csv,.txt,.xls,.xlsx"
               className="hidden"
               onChange={handleFileUpload}
+              disabled={disabled}
             />
           </div>
         </label>

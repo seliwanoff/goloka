@@ -97,3 +97,31 @@ export const getGuestCampaign = async (): Promise<AxiosResponse<any>> => {
     throw error;
   }
 };
+
+export const getCampaign = async (): Promise<AxiosResponse<any>> => {
+  try {
+    return await fetchData(`/organizations/${organization_id}/campaigns`);
+  } catch (error) {
+    console.error("Error fetching campaign questions:", error);
+    throw error;
+  }
+};
+
+export const updateCampaignGroupById = async (
+  id: number,
+  title: string,
+  description: string,
+): Promise<AxiosResponse<any>> => {
+  try {
+    return await postData(
+      `/organizations/${organization_id}/campaign-groups/${id}/update`,
+      {
+        name: title,
+        description: description,
+      },
+    );
+  } catch (error) {
+    console.error("Error fetching campaign questions:", error);
+    throw error;
+  }
+};

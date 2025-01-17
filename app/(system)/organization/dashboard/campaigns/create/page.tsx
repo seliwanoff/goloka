@@ -72,6 +72,16 @@ const CreateNewCampaign = () => {
       name: "survey",
       description: "This is Dataphyte campaign group 1",
     },
+    {
+      id: 2,
+      name: "pinpoint",
+      description: "This is Dataphyte campaign group 1",
+    },
+    {
+      id: 3,
+      name: "navigate",
+      description: "This is Dataphyte campaign group 1",
+    },
   ]);
   const [countryId, setCountryId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -86,6 +96,7 @@ const CreateNewCampaign = () => {
   const [paymentRate, setPaymentRate] = useState("");
   const [responseNumber, setResponseNumber] = useState("");
   const [description, setDescription] = useState("");
+  const [campaignId, setCampaignId] = useState("");
 
   const router = useRouter();
 
@@ -235,7 +246,8 @@ const CreateNewCampaign = () => {
       );
 
       setOpen(true);
-      console.log("Created Campaign:", response);
+      //console.log(response);
+      setCampaignId(response.data.campaign.id);
     } catch (error) {
       console.error("Error creating campaign:", error);
       toast.error("Failed to add campaign. Please try again.");
@@ -245,7 +257,9 @@ const CreateNewCampaign = () => {
   };
 
   const createQuetion = () => {
-    router.push("/organization/dashboard/campaigns/questions");
+    router.push(
+      `/organization/dashboard/campaigns/questions?questionId=${campaignId}`,
+    );
   };
   return (
     <>

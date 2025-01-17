@@ -43,7 +43,7 @@ import {
   useEditCampaignOverlay,
 } from "@/stores/overlay";
 import EditCampaign from "@/components/lib/modals/edit_campaign";
-import { getOrganizationCampaign } from "@/services/campaign";
+import { getCampaign, getOrganizationCampaign } from "@/services/campaign";
 
 const renderTable = (tab: string, tdata: any[]) => {
   switch (tab.toLowerCase()) {
@@ -60,6 +60,8 @@ const renderTable = (tab: string, tdata: any[]) => {
 
 const Page = () => {
   const [openFilter, setOpenFilter] = useState<boolean>(false);
+  const [campaignList, setCampaignList] = useState<[]>([]);
+
   const [filteredData, setFilteredData] = useState<any[]>(campaignList);
   const [activeTab, setActiveTab] = useState("campaigns");
   const [date, setDate] = useState<Date>();
@@ -71,6 +73,7 @@ const Page = () => {
   const { setShowCreate } = useAddcampaignGroupOverlay();
 
   const [campaignGroupList, setCampaignGroupList] = useState<[]>([]);
+  const { show } = useAddcampaignGroupOverlay();
 
   const getCampaignGroup = async () => {
     try {
@@ -85,14 +88,29 @@ const Page = () => {
       console.error("Error fetching campaign groups:", error);
     }
   };
+  const getCampaignMain = async () => {
+    try {
+      const response = await getCampaign();
+      console.log(response);
+      if (response && response.data) {
+        setCampaignList(response.data);
+      } else {
+        console.warn("Response is null or does not contain data");
+      }
+    } catch (error) {
+      console.error("Error fetching campaign groups:", error);
+    }
+  };
   useEffect(() => {
     getCampaignGroup();
-  }, []);
+    getCampaignMain();
+  }, [show]);
 
+  //console.log(show, "fetchData");
   useEffect(() => {
     function filter(status: string) {
       return campaignList?.filter(
-        (item) => item?.status.toLowerCase() === status,
+        (item: any) => item?.status.toLowerCase() === status,
       );
     }
 
@@ -302,7 +320,7 @@ const Page = () => {
           <div className="mt-6">
             <Pagination
               // @ts-ignore
-              totalPages={pages?.length}
+              totalPages={currentPageData?.length}
               currentPage={currentPage}
               onPageChange={setCurrentPage}
               RowSize={pageSize}
@@ -370,7 +388,7 @@ const CampaignTable = ({ tdata }: { tdata: any[] }) => {
 };
 
 const CampaignGroupTable = ({ tdata }: { tdata: any[] }) => {
-  const { setShow, setTitle, setDescription } = useEditCampaignOverlay();
+  const { setShow, setTitle, setDescription, setId } = useEditCampaignOverlay();
 
   return (
     <Table>
@@ -408,7 +426,8 @@ const CampaignGroupTable = ({ tdata }: { tdata: any[] }) => {
                   size={20}
                   onClick={() => {
                     setShow(true);
-                    setTitle(data?.title);
+                    setTitle(data?.name);
+                    setId(data?.id);
                     setDescription(data?.description);
                   }}
                 />{" "}
@@ -452,6 +471,8 @@ const tabs = [
     value: "campaign-groups",
   },
 ];
+
+/***
 
 const campaignList = [
   {
@@ -656,6 +677,7 @@ const campaignList = [
     responses: "184",
   },
 ];
+**/
 {
   /**
 const campaignGroupList = [

@@ -3,29 +3,13 @@ import { Label } from "@/components/ui/label";
 import { Controller, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { Loader } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import { Input } from "@/components/ui/input";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import {
-  useAddBeneficiaryOverlay,
-  useAddcampaignGroupOverlay,
-} from "@/stores/overlay";
-import { bankList } from "@/utils";
-import {
-  addBeneficiary,
-  addCampaignGroup,
-  resolveAccountInfo,
-} from "@/services/contributor";
+import { useAddcampaignGroupOverlay } from "@/stores/overlay";
+import { addCampaignGroup } from "@/services/contributor";
 import { toast } from "sonner";
 import { BankAutocomplete } from "./bankAutoComplete";
 import { Textarea } from "@/components/ui/textarea";
@@ -36,7 +20,7 @@ const schema = yup.object().shape({
   description: yup.string().required(),
 });
 const AddNewCampaignGroup = () => {
-  const { setShowCreate } = useAddcampaignGroupOverlay();
+  const { setShowCreate, setFecthed } = useAddcampaignGroupOverlay();
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const {
@@ -64,8 +48,9 @@ const AddNewCampaignGroup = () => {
       const res = await addCampaignGroup(name, description);
       toast.success("Campaign group added successfully!");
       setIsSubmitting(false);
-
       setShowCreate(false);
+      setFecthed(true);
+
       reset();
     } catch (error) {
       toast.error("Failed to add campaign group. Please try again.");
@@ -73,6 +58,8 @@ const AddNewCampaignGroup = () => {
       //@ts-ignore
       console.error(error?.response?.data?.message);
       setShowCreate(true);
+    } finally {
+      // setFecthed(false);
     }
   };
 

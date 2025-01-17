@@ -7,19 +7,25 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { useEditCampaignOverlay } from "@/stores/overlay";
+import {
+  useAddQuestionSectionOverlay,
+  useEditCampaignOverlay,
+} from "@/stores/overlay";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { updateCampaignGroupById } from "@/services/campaign";
+
+import { createSection } from "@/services/campaign/question";
+import { useSearchParams } from "next/navigation";
 
 const schema = yup.object().shape({
   title: yup.string().required("Title is required"),
-  description: yup.string().required("Description is required"),
+  // description: yup.string().required("Description is required"),
 });
 
-const EditCampaignGroup = () => {
-  const { title, description, id, setShow } = useEditCampaignOverlay(); // Initial values from overlay
+const AddQuestionSection = () => {
+  const { title, id, setShow } = useEditCampaignOverlay(); // Initial values from overlay
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { setShowSection, setIsSectionAdded } = useAddQuestionSectionOverlay();
 
   const {
     register,
@@ -32,25 +38,28 @@ const EditCampaignGroup = () => {
     resolver: yupResolver(schema),
     defaultValues: {
       title: "",
-      description: "",
     },
   });
 
   // Populate form with initial values
   useEffect(() => {
     setValue("title", title || "");
-    setValue("description", description || "");
-  }, [title, description, setValue]);
+    //  setValue("description", description || "");
+  }, [title, setValue]);
+  const searchParams = useSearchParams();
 
-  const onUpdateCampaignGroup = async (data: any) => {
+  const questionId = searchParams.get("questionId") || 0;
+
+  const onCreateSection = async (data: any) => {
     setIsSubmitting(true);
     try {
-      await updateCampaignGroupById(id, data.title, data.description);
-      toast.success("Campaign group updated!");
-      setShow(false);
+      await createSection(questionId, data.title);
+      toast.success("Section created!");
+      setShowSection(false);
+      setIsSectionAdded(true);
       reset();
     } catch (error) {
-      toast.error("Failed to save changes. Please try again.");
+      toast.error("Failed to create section. Please try again.");
       console.error("Error updating campaign group:", error);
     } finally {
       setIsSubmitting(false);
@@ -61,7 +70,7 @@ const EditCampaignGroup = () => {
     <div>
       <form
         id="edit_campaign_group"
-        onSubmit={handleSubmit(onUpdateCampaignGroup)}
+        onSubmit={handleSubmit(onCreateSection)}
         className="space-y-6"
       >
         {/* Group Name */}
@@ -70,7 +79,7 @@ const EditCampaignGroup = () => {
             htmlFor="title"
             className="mb-2 inline-block font-light text-[#4F4F4F]"
           >
-            Group name
+            Section name
           </Label>
           <div className="relative">
             <Input
@@ -90,30 +99,6 @@ const EditCampaignGroup = () => {
           </div>
         </div>
 
-        {/* Description */}
-        <div>
-          <Label
-            htmlFor="description"
-            className="mb-2 inline-block font-light text-[#4F4F4F]"
-          >
-            Description
-          </Label>
-          <Textarea
-            {...register("description")}
-            id="description"
-            name="description"
-            placeholder="Describe the group here."
-            className={cn(
-              "form-input rounded-lg border border-[#D9DCE0] px-4 py-[18px] outline-0 placeholder:text-[#828282] focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0",
-              errors.description &&
-                "border-red-600 focus:border-red-600 focus-visible:ring-red-600",
-            )}
-          />
-          {errors.description && (
-            <p className="text-sm text-red-500">{errors.description.message}</p>
-          )}
-        </div>
-
         {/* Submit Button */}
         <div>
           <Button
@@ -124,7 +109,7 @@ const EditCampaignGroup = () => {
             {isSubmitting ? (
               <Loader className="animate-spin text-[#fff]" />
             ) : (
-              "Update campaign group"
+              "Add section name"
             )}
           </Button>
         </div>
@@ -133,4 +118,4 @@ const EditCampaignGroup = () => {
   );
 };
 
-export default EditCampaignGroup;
+export default AddQuestionSection;
