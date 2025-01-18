@@ -10,6 +10,7 @@ interface UserData {
   current_role: string | null;
   email_verified_at: string;
   pin_status: boolean;
+  profile_photo_url?: string;
 }
 
 interface UserStore {

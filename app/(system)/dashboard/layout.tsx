@@ -67,6 +67,7 @@ const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
   });
 
   console.log(remoteContributor, "fbfbbf");
+  console.log(currentUser, "currentUserxx");
 
   // Handle error and authentication
   useEffect(() => {

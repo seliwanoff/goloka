@@ -60,6 +60,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { getNotifications } from "@/services/response";
+import { useRemoteUserStore } from "@/stores/remoteUser";
 
 type ComponentProps = {};
 
@@ -71,6 +72,7 @@ const data = {
 };
 
 const DashTopNav: React.FC<ComponentProps> = ({}) => {
+   const { user } = useRemoteUserStore();
   const [open, setOpen] = useState(false);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const router = useRouter();
@@ -86,15 +88,43 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
     queryKey: ["Get notification list"],
     queryFn: () => getNotifications(params),
   });
-  const user = { data };
+  // const user = { data };
   const currentUser = useUserStore((state) => state.user);
   const logoutUser = useUserStore((state) => state.logoutUser);
+  console.log(currentUser, "currentUser");
   const Name = currentUser?.name;
   const FirstName = Name
     ? Name.charAt(0).toUpperCase() + Name.slice(1).toLowerCase()
     : "";
   const isMobile = useMediaQuery("(max-width: 640px)");
-  // const backgroundColor = useMemo(() => generateColor(FirstName), [FirstName]);
+  const avatarDisplay = useMemo(() => {
+    if (user?.profile_photo_url) {
+      return (
+        <div className="relative h-9 w-9 overflow-hidden rounded-full">
+          <Image
+            src={user?.profile_photo_url}
+            alt={`${FirstName}'s profile`}
+            fill
+            className="object-cover"
+          />
+        </div>
+      );
+    }
+
+    const backgroundColor = generateColor(FirstName.trim().toLowerCase());
+    const initials = getInitials(FirstName);
+
+    console.log(user, "this is a user");
+
+    return (
+      <div
+        className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-white"
+        style={{ backgroundColor }}
+      >
+        {initials}
+      </div>
+    );
+  }, [user?.profile_photo_url, FirstName]);
   const backgroundColor = useMemo(
     () => generateColor(FirstName.trim().toLowerCase()),
     [FirstName],
@@ -111,7 +141,6 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
       console.log(error, "error");
     }
   };
-
 
   const notificationData = formatNotifications(notification);
 
@@ -181,7 +210,7 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
           </Sheet>
 
           {/* user profile bubble */}
-          {user && user.data && (
+          {user  && (
             <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
               <PopoverTrigger className="transit shadow-1 cursor-pointer items-center justify-center gap-3 rounded-full hover:bg-gray-100 lg:flex lg:bg-[#F7F7F8] lg:px-5 lg:py-1.5">
                 {/* <div className="w-9">
@@ -198,25 +227,26 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                   className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-white`}
                   style={{ backgroundColor }}
                 >
-                  {initials}
+                  {avatarDisplay}
                 </div>
 
                 <div className="hidden flex-col items-start justify-center lg:flex">
                   <p className="text-base font-semibold">{FirstName}</p>
                   {
-                    // @ts-ignore
                     {
-                      INDIVIDUAL: (
+                      contributor: (
                         <p className="-mt-1 text-sm font-light">
-                          Individual Account
+                          Contributor Account
                         </p>
                       ),
-                      ORGANISATION: (
+                      organization: (
                         <p className="-mt-1 text-sm font-light">
-                          Organisation Account
+                          Organization Account
                         </p>
                       ),
-                    }[user.data.account_type || "INDIVIDUAL"]
+                    }[
+                      (currentUser?.current_role || "contributor").toLowerCase()
+                    ]
                   }
                 </div>
 
@@ -228,26 +258,29 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                     className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-white`}
                     style={{ backgroundColor }}
                   >
-                    {initials}
+                    {avatarDisplay}
                   </div>
                   <div className="flex flex-col justify-center">
                     <p className="text-base font-semibold">
                       <p className="text-base font-semibold">{FirstName}</p>
                     </p>
                     {
-                      // @ts-ignore
                       {
-                        INDIVIDUAL: (
+                        contributor: (
                           <p className="-mt-1 text-sm font-light">
-                            Individual Account
+                            Contributor Account
                           </p>
                         ),
-                        ORGANISATION: (
+                        organization: (
                           <p className="-mt-1 text-sm font-light">
-                            Organisation Account
+                            Organization Account
                           </p>
                         ),
-                      }[user.data.account_type || "INDIVIDUAL"]
+                      }[
+                        (
+                          currentUser?.current_role || "contributor"
+                        ).toLowerCase()
+                      ]
                     }
                   </div>
                 </div>
@@ -335,5 +368,3 @@ const UserBubbleLinks: { icon: LucideIcon; title: string; href: string }[] = [
     href: "/dashboard/settings",
   },
 ];
-
-
