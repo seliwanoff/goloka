@@ -398,9 +398,9 @@ const CampaignGroupTable = ({ tdata }: { tdata: any[] }) => {
         <TableRow>
           <TableHead>Group Title</TableHead>
           <TableHead className="">Description</TableHead>
-          {/**
+
           <TableHead className="table-cell">Total Campaign</TableHead>
-          **/}
+
           <TableHead className=" ">Last updated </TableHead>
           <TableHead className="">Action</TableHead>
           <TableHead className=""></TableHead>
@@ -411,10 +411,10 @@ const CampaignGroupTable = ({ tdata }: { tdata: any[] }) => {
           <TableRow key={index}>
             <TableCell>{data?.name}</TableCell>
             <TableCell className="">{data?.description}</TableCell>
-            {/**
-            <TableCell className="">{data?.totalCampaign}</TableCell>
-            **/}
-            <TableCell className=" ">{data?.lastUpdated}</TableCell>
+
+            <TableCell className="">{data?.campaign_count}</TableCell>
+
+            <TableCell className=" ">{data?.updated_at}</TableCell>
             <TableCell className="">
               <Link
                 href={`/organization/dashboard/campaigns/profile?campaignId=${data.id}`}

@@ -9,24 +9,24 @@ const dropdownData = [
     label: "Textarea",
     image: "/assets/images/questions/paragraph.png",
   },
-  /***
   {
-    id: "multipleChoices",
-    label: "Multiple Choices",
+    id: "select",
+    label: "Select",
     image: "/assets/images/questions/multiple-choices.png",
   },
-  */
 
   {
     id: "checkbox",
     label: "Checkbox",
     image: "/assets/images/questions/checkbox.png",
   },
+  /**
   {
     id: "select",
     label: "Select",
     image: "/assets/images/questions/dropdowns.png",
   },
+  */
 
   {
     id: "radio",
@@ -87,6 +87,21 @@ const dropdownData = [
     id: "url",
     label: "URL",
     image: "/assets/images/questions/time.png",
+  },
+  {
+    id: "location",
+    label: "Location",
+    image: "/assets/images/questions/dropdowns.png",
+  },
+  {
+    id: "line",
+    label: "Line",
+    image: "/assets/images/questions/dropdowns.png",
+  },
+  {
+    id: "area",
+    label: "Area",
+    image: "/assets/images/questions/dropdowns.png",
   },
 ];
 

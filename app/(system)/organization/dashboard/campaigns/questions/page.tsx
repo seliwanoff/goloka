@@ -36,12 +36,18 @@ import CheckboxList from "@/components/task-stepper/checkboxOption";
 import DynamicSelect from "@/components/task-stepper/dropdownOption";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { FaSpinner } from "react-icons/fa";
-import { createQuestion } from "@/services/campaign/question";
+import {
+  createQuestion,
+  getCampaignQuestion,
+  reOrdreQuestion,
+} from "@/services/campaign/question";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { useAddQuestionSectionOverlay } from "@/stores/overlay";
 import SectionName from "@/components/lib/modals/section_name_modal";
 import RadioGroupWrapper from "@/components/question/boolean";
+import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
+import DraggableComponent from "@/components/ui/drag-drop";
 type FormValues = {
   fullname: string;
   email: string;
@@ -52,7 +58,7 @@ type FormValues = {
 
 const Create = () => {
   const [questions, setQuestions] = useState([
-    { id: 1, type: "text", content: "", answer: "" },
+    { id: 1, type: "text", content: "", group: "", answer: "" },
   ]);
   const [file, setFile] = useState<File | null>(null);
 
@@ -62,6 +68,9 @@ const Create = () => {
   const [time, setTime] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isQuestionSaved, setIsQuestionSaved] = useState(false);
+  const [selectedQuestionGroup, setSelectedQuestionGroup] = useState("");
+  const [selectedQuestionGroupId, setSelectedQuestionGroupId] =
+    useState<any>("");
 
   const {
     register,
@@ -70,7 +79,6 @@ const Create = () => {
     formState: { errors },
     watch,
   } = useForm<FormValues>();
-  //const router = useRouter();
   const searchParams = useSearchParams();
 
   const questionId = searchParams.get("questionId") || 0;
@@ -78,17 +86,21 @@ const Create = () => {
   const { showSection, setShowSection, isSectionAdded } =
     useAddQuestionSectionOverlay();
 
-  //console.log(showSection);
   const handleOptionsChange = (updatedOptions: any) => {
+    handleAnswerChange(0, updatedOptions);
     setOptions(updatedOptions);
-    handleAnswerChange(1, updatedOptions);
-
-    console.log("Updated Options:", updatedOptions);
+    // handleAnswerChange(1, updatedOptions);
   };
   const handleAddQuestion = () => {
     setQuestions((prevQuestions) => [
       ...prevQuestions,
-      { id: prevQuestions.length + 1, type: "", content: "", answer: "" },
+      {
+        id: prevQuestions.length + 1,
+        type: "",
+        group: "",
+        content: "",
+        answer: "",
+      },
     ]);
   };
   const handleAnswerChange = (id: number, answer: string) => {
@@ -96,8 +108,7 @@ const Create = () => {
       prevQuestions.map((q) => (q.id === id ? { ...q, answer } : q)),
     );
   };
-  console.log(questions);
-
+  /***
   const saveQuestion = async () => {
     setIsSubmitting(true);
     let allQuestionsSaved = true;
@@ -107,7 +118,7 @@ const Create = () => {
         //  console.log(question.type);
         const payload = {
           label: question.content,
-          question_group_id: 6,
+          //   question_group_id: parseFloat(question.group),
           type: question.type,
           name: question.content.toLowerCase().replace(/\s+/g, " "),
           placeholder:
@@ -128,7 +139,13 @@ const Create = () => {
               ? JSON.stringify(
                   [...questions[0].answer].map((item: any) => item.label),
                 )
-              : null,
+              : question.type === "area"
+                ? JSON.stringify([...area.map((item: any) => item)])
+                : question.type === "line"
+                  ? JSON.stringify([...line.map((item: any) => item)])
+                  : question.type === "location"
+                    ? JSON.stringify([...location.map((item: any) => item)])
+                    : null,
 
           attributes: null,
         };
@@ -138,6 +155,71 @@ const Create = () => {
       }
 
       toast.success(" Questions added successfully!");
+    } catch (error) {
+      allQuestionsSaved = false;
+      console.error("Error saving questions:", error);
+      toast.error("Failed to save some or all questions.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+*/
+
+  const saveQuestion = async () => {
+    setIsSubmitting(true);
+    let allQuestionsSaved = true;
+
+    try {
+      for (const question of questions) {
+        const placeholderTypes = [
+          "text",
+          "textarea",
+          "email",
+          "password",
+          "tel",
+          "url",
+        ];
+
+        const optionTypes = ["select", "checkbox", "radio"];
+
+        const options = (() => {
+          if (
+            optionTypes.includes(question.type) &&
+            Array.isArray(question.answer)
+          ) {
+            return JSON.stringify(
+              question.answer.map((item: any) => item.label),
+            );
+          }
+          switch (question.type) {
+            case "area":
+              return Array.isArray(area) ? JSON.stringify(area) : null;
+            case "line":
+              return Array.isArray(line) ? JSON.stringify(line) : null;
+            case "location":
+              return Array.isArray(location) ? JSON.stringify(location) : null;
+            default:
+              return null;
+          }
+        })();
+
+        const payload = {
+          label: question.content,
+          type: question.type,
+          name: question.content.toLowerCase().replace(/\s+/g, " "),
+          placeholder: placeholderTypes.includes(question.type)
+            ? question.answer
+            : "",
+          required: true,
+          options,
+          attributes: null,
+        };
+
+        await createQuestion(questionId, payload);
+        setIsQuestionSaved(true);
+      }
+
+      toast.success("Questions added successfully!");
     } catch (error) {
       allQuestionsSaved = false;
       console.error("Error saving questions:", error);
@@ -159,12 +241,62 @@ const Create = () => {
       prevQuestions.map((q) => (q.id === id ? { ...q, content } : q)),
     );
   };
+  const handleGroupChange = (id: number, group: string) => {
+    setQuestions((prevQuestions) =>
+      prevQuestions.map((q) => (q.id === id ? { ...q, group } : q)),
+    );
+  };
 
   useEffect(() => {
     if (isSectionAdded && isQuestionSaved) {
       [{ id: 1, type: "text", content: "", answer: "" }];
     }
   }, [isSectionAdded, isQuestionSaved]);
+
+  const [area, setArea] = useState(["", "", ""]);
+  const [location, setLocation] = useState([""]);
+  const [line, setLine] = useState(["", ""]);
+
+  const getAllQuestion = async () => {
+    const response = await getCampaignQuestion(questionId);
+
+    console.log(response);
+  };
+  const handleAnswerChangeLocation = (
+    type: string,
+    index: number,
+    value: string,
+  ) => {
+    switch (type) {
+      case "area":
+        setArea((prev) => {
+          const updated = [...prev];
+          updated[index] = value;
+          return updated;
+        });
+        break;
+      case "location":
+        setLocation((prev) => {
+          const updated = [...prev];
+          updated[index] = value;
+          return updated;
+        });
+        break;
+      case "line":
+        setLine((prev) => {
+          const updated = [...prev];
+          updated[index] = value;
+          return updated;
+        });
+        break;
+      default:
+        console.warn("Unsupported type");
+    }
+  };
+
+  useEffect(() => {
+    getAllQuestion();
+  }, []);
   const renderQuestionInput = (type: string, id: number) => {
     switch (type) {
       case "text":
@@ -174,6 +306,56 @@ const Create = () => {
             onChange={(e) => handleAnswerChange(id, e.target.value)}
           />
         );
+      case "line":
+        return (
+          <div className="flex w-full max-w-[1/2] basis-[1/2] gap-4">
+            {line.map((value, index) => (
+              <Input
+                key={`line-${index}`}
+                name={`line-${index}`}
+                type="text"
+                placeholder={`Enter value for line ${index + 1}`}
+                value={value}
+                onChange={(e) =>
+                  handleAnswerChangeLocation("line", index, e.target.value)
+                }
+                className="mb-2 h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
+              />
+            ))}
+          </div>
+        );
+      case "location":
+        return location.map((value, index) => (
+          <Input
+            key={`location-${index}`}
+            name={`location-${index}`}
+            type="text"
+            placeholder={`Enter value for location ${index + 1}`}
+            value={value}
+            onChange={(e) =>
+              handleAnswerChangeLocation("location", index, e.target.value)
+            }
+            className="mb-2 h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
+          />
+        ));
+      case "area":
+        return (
+          <div className="flex w-full max-w-[1/2] flex-1 flex-grow basis-[1/2] gap-4">
+            {area.map((value, index) => (
+              <Input
+                key={`area-${index}`}
+                name={`area-${index}`}
+                type="text"
+                placeholder={`Enter value for area ${index + 1}`}
+                value={value}
+                onChange={(e) =>
+                  handleAnswerChangeLocation("area", index, e.target.value)
+                }
+                className="mb-2 h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
+              />
+            ))}
+          </div>
+        );
       case "textarea":
         return (
           <textarea
@@ -182,10 +364,10 @@ const Create = () => {
             onChange={(e) => handleAnswerChange(id, e.target.value)}
           />
         );
-      case "multipleChoices":
+      case "select":
         return (
           <MultipleChoices
-            label="Advanced Options List"
+            label="Select option"
             placeholder="Type something..."
             initialOptions={[{ id: 1, value: "Option 1" }]}
             onOptionsChange={handleOptionsChange}
@@ -198,7 +380,7 @@ const Create = () => {
             onOptionsChange={handleOptionsChange}
           />
         );
-      case "select":
+      case "MultipleDrop":
         return (
           <DynamicSelect
             label=" "
@@ -408,7 +590,50 @@ const Create = () => {
         return null;
     }
   };
+  const [items, setItems] = useState([
+    {
+      id: "1",
+      title: "What skill are you presently learning?",
+      type: "text",
+      order: "1",
+    },
+    {
+      id: "2",
+      title: "Describe your recent project.",
+      type: "textarea",
+      order: "2",
+    },
+  ]);
 
+  const handleDragEnd = async (result: DropResult) => {
+    const { source, destination } = result;
+
+    if (!destination) return;
+
+    const updatedItems = Array.from(items);
+    const [movedItem] = updatedItems.splice(source.index, 1);
+    updatedItems.splice(destination.index, 0, movedItem);
+
+    const reorderedQuestions = updatedItems.map((item, index) => ({
+      id: parseInt(item.id),
+      order: index + 1,
+    }));
+
+    setItems(updatedItems);
+
+    console.log({
+      questions: reorderedQuestions,
+    });
+
+    try {
+      const response = await reOrdreQuestion(questionId, reorderedQuestions);
+      getAllQuestion();
+
+      toast.success("Question reorder succesfully!");
+    } catch (e) {
+      toast.error("Failed to reorder question. try again later");
+    }
+  };
   return (
     <>
       <section className="mx-auto mt-5 w-full max-w-[896px]">
@@ -446,18 +671,31 @@ const Create = () => {
           </div>
 
           {/*** SECTION  */}
-          {isSectionAdded && (
-            <div className="mt-4 flex flex-col gap-8 rounded-lg bg-white p-8">
-              <div className="flex items-center justify-between">
-                <h3>What skill are you presently learning </h3>
-                <span className="inline-flex cursor-pointer items-center gap-2 rounded-md bg-gray-200 px-4 py-2 text-gray-600">
-                  <Edit size={18} />
-                  Edit
-                </span>
-              </div>
-              {renderQuestionInput("text", 0)}
-            </div>
-          )}
+
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <Droppable droppableId="droppable">
+              {(provided) => (
+                <div
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                  className="space-y-4"
+                >
+                  {items.map((item, index) => (
+                    <DraggableComponent
+                      key={item.id}
+                      id={item.id}
+                      index={index}
+                      title={item.title}
+                    >
+                      {renderQuestionInput(item.type, index)}
+                    </DraggableComponent>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+
           <div className="container-xxl mt-4 flex w-full flex-col gap-8 rounded-[18px] bg-[#ffffff] p-8">
             {/*** QUESTION SECTION */}
             {questions.map((question) => (
@@ -517,6 +755,53 @@ const Create = () => {
                     </Select>
                   </Label>
                 </div>
+                {/***
+                <Label htmlFor="questionType" className="w-full">
+                  <div className="flex items-center justify-between">
+                    <span className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
+                      Question group
+                    </span>
+                  </div>
+
+                  <Select
+                    value={selectedQuestionGroupId}
+                    onValueChange={(value: any) => {
+                      handleGroupChange(question.id, value);
+
+                      const selected = questtonGroup.find(
+                        (item: any) => item.id === parseInt(value),
+                      ) as { id: number; name: string } | undefined;
+
+                      setSelectedQuestionGroup(selected?.name || "");
+                      setSelectedQuestionGroupId(selected?.id);
+                    }}
+                  >
+                    <SelectTrigger className="h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0">
+                      <SelectValue
+                        placeholder="Select question group"
+                        className="text-neutral-40 placeholder:text-neutral-40 text-sm font-light"
+                      >
+                        {selectedQuestionGroup}
+                      </SelectValue>
+                    </SelectTrigger>
+
+                    <SelectContent className="max-w-full">
+                      <SelectGroup>
+                        <SelectLabel>Question group</SelectLabel>
+                        {questtonGroup.map((item: any) => (
+                          <SelectItem
+                            key={item.id}
+                            value={item.id.toString()}
+                            className="flex items-center gap-2"
+                          >
+                            {item.name}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </Label>
+                */}
                 {renderQuestionInput(question.type, question.id)}
               </div>
             ))}
