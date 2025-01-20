@@ -48,6 +48,7 @@ import SectionName from "@/components/lib/modals/section_name_modal";
 import RadioGroupWrapper from "@/components/question/boolean";
 import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import DraggableComponent from "@/components/ui/drag-drop";
+import { AxiosResponse } from "axios";
 type FormValues = {
   fullname: string;
   email: string;
@@ -55,6 +56,10 @@ type FormValues = {
   password: string;
   password2: string;
 };
+
+interface CampaignQuestionResponse {
+  ungrouped_questions: any[];
+}
 
 const Create = () => {
   const [questions, setQuestions] = useState([
@@ -102,13 +107,130 @@ const Create = () => {
         answer: "",
       },
     ]);
+
+    saveQuestion();
   };
   const handleAnswerChange = (id: number, answer: string) => {
     setQuestions((prevQuestions) =>
       prevQuestions.map((q) => (q.id === id ? { ...q, answer } : q)),
     );
   };
-  /***
+
+  const DraggableList = ({
+    ungroupedQuestions,
+    groupedQuestions,
+    handleDragEnd,
+  }: {
+    ungroupedQuestions: any[];
+    groupedQuestions: any[];
+    handleDragEnd: (result: any) => void;
+  }) => {
+    const totalSections = groupedQuestions.length;
+
+    return (
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <Droppable droppableId="droppable">
+          {(provided) => (
+            <div
+              ref={provided.innerRef}
+              {...provided.droppableProps}
+              className="space-y-4"
+            >
+              {/* Render Ungrouped Questions */}
+              <UngroupedQuestionsList questions={ungroupedQuestions} />
+
+              {/* Render Grouped Questions */}
+              {groupedQuestions.map((group: any, index: number) => (
+                <GroupedQuestions
+                  key={group.id}
+                  group={group}
+                  groupIndex={index}
+                  totalSections={totalSections}
+                />
+              ))}
+
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
+    );
+  };
+
+  const UngroupedQuestionsList = ({ questions }: { questions: any[] }) => (
+    <>
+      {questions.map((item: any, index: number) => (
+        <DraggableComponent
+          key={item.id}
+          id={item.id}
+          index={index}
+          title={item.label}
+          className="font-semibold text-[#071E3B]"
+        >
+          {renderQuestionInput(item.type, index)}
+        </DraggableComponent>
+      ))}
+    </>
+  );
+
+  const GroupedQuestions = ({
+    group,
+    groupIndex,
+    totalSections,
+  }: {
+    group: any;
+    groupIndex: number;
+    totalSections: number;
+  }) => (
+    <DraggableComponent
+      key={group.id}
+      id={group.id}
+      index={groupIndex}
+      title={group.name}
+      className="mt-10 font-semibold text-[#071E3B]"
+    >
+      <GroupHeader
+        group={group}
+        groupIndex={groupIndex}
+        totalSections={totalSections}
+      />
+
+      {/* Render Questions within the Group */}
+      {group.questions?.length > 0
+        ? group.questions.map((item: any, index: number) => (
+            <DraggableComponent
+              key={item.id}
+              id={item.id}
+              index={index}
+              title={item.label}
+              type="s"
+              className="p-0 font-semibold text-[#071E3B]"
+            >
+              {renderQuestionInput(item.type, index)}
+            </DraggableComponent>
+          ))
+        : ""}
+    </DraggableComponent>
+  );
+
+  const GroupHeader = ({
+    group,
+    groupIndex,
+    totalSections,
+  }: {
+    group: any;
+    groupIndex: number;
+    totalSections: number;
+  }) => (
+    <div className="rounded-[18px] bg-white">
+      <div className="flex items-center justify-between">
+        <div className="absolute left-0 top-0 rounded-br-[59px] rounded-tl-lg bg-main-100 px-8 py-2 font-poppins text-[18px] font-medium text-white">
+          section {groupIndex + 1} of {totalSections}
+        </div>
+      </div>
+    </div>
+  );
+
   const saveQuestion = async () => {
     setIsSubmitting(true);
     let allQuestionsSaved = true;
@@ -118,7 +240,9 @@ const Create = () => {
         //  console.log(question.type);
         const payload = {
           label: question.content,
-          //   question_group_id: parseFloat(question.group),
+          question_group_id: parseFloat(
+            groupedQuestions[groupedQuestions.length - 1]?.id,
+          ),
           type: question.type,
           name: question.content.toLowerCase().replace(/\s+/g, " "),
           placeholder:
@@ -151,6 +275,9 @@ const Create = () => {
         };
 
         await createQuestion(questionId, payload);
+        setQuestions([
+          { id: 1, type: "text", content: "", group: "", answer: "" },
+        ]);
         setIsQuestionSaved(true);
       }
 
@@ -163,7 +290,7 @@ const Create = () => {
       setIsSubmitting(false);
     }
   };
-*/
+  /***
 
   const saveQuestion = async () => {
     setIsSubmitting(true);
@@ -216,6 +343,7 @@ const Create = () => {
         };
 
         await createQuestion(questionId, payload);
+
         setIsQuestionSaved(true);
       }
 
@@ -228,6 +356,7 @@ const Create = () => {
       setIsSubmitting(false);
     }
   };
+  */
 
   const handleQuestionTypeChange = (id: number, type: string) => {
     // console.log(type);
@@ -253,14 +382,21 @@ const Create = () => {
     }
   }, [isSectionAdded, isQuestionSaved]);
 
-  const [area, setArea] = useState(["", "", ""]);
+  const [area, setArea] = useState(["4"]);
   const [location, setLocation] = useState([""]);
-  const [line, setLine] = useState(["", ""]);
+  const [line, setLine] = useState(["2"]);
 
   const getAllQuestion = async () => {
-    const response = await getCampaignQuestion(questionId);
+    try {
+      const response: AxiosResponse<CampaignQuestionResponse> =
+        await getCampaignQuestion(questionId);
+      setUngroupedQuestions(response.ungrouped_questions);
+      setGroupedQuestions(response.grouped_questions);
 
-    console.log(response);
+      console.log(response.grouped_questions);
+    } catch (error) {
+      console.error("Error fetching campaign questions:", error);
+    }
   };
   const handleAnswerChangeLocation = (
     type: string,
@@ -296,7 +432,7 @@ const Create = () => {
 
   useEffect(() => {
     getAllQuestion();
-  }, []);
+  }, [isQuestionSaved, showSection]);
   const renderQuestionInput = (type: string, id: number) => {
     switch (type) {
       case "text":
@@ -314,8 +450,9 @@ const Create = () => {
                 key={`line-${index}`}
                 name={`line-${index}`}
                 type="text"
-                placeholder={`Enter value for line ${index + 1}`}
-                value={value}
+                disabled={true}
+                placeholder={`2 points`}
+                value={2}
                 onChange={(e) =>
                   handleAnswerChangeLocation("line", index, e.target.value)
                 }
@@ -330,8 +467,9 @@ const Create = () => {
             key={`location-${index}`}
             name={`location-${index}`}
             type="text"
-            placeholder={`Enter value for location ${index + 1}`}
+            placeholder={`Search address`}
             value={value}
+            disabled={true}
             onChange={(e) =>
               handleAnswerChangeLocation("location", index, e.target.value)
             }
@@ -346,7 +484,8 @@ const Create = () => {
                 key={`area-${index}`}
                 name={`area-${index}`}
                 type="text"
-                placeholder={`Enter value for area ${index + 1}`}
+                min={4}
+                placeholder={`Enter number of point`}
                 value={value}
                 onChange={(e) =>
                   handleAnswerChangeLocation("area", index, e.target.value)
@@ -590,22 +729,11 @@ const Create = () => {
         return null;
     }
   };
-  const [items, setItems] = useState([
-    {
-      id: "1",
-      title: "What skill are you presently learning?",
-      type: "text",
-      order: "1",
-    },
-    {
-      id: "2",
-      title: "Describe your recent project.",
-      type: "textarea",
-      order: "2",
-    },
-  ]);
+  const [items, setItems] = useState([]);
+  const [groupedQuestions, setGroupedQuestions] = useState<any>([]);
+  const [ungroupedQuestions, setUngroupedQuestions] = useState<any>([]);
 
-  const handleDragEnd = async (result: DropResult) => {
+  const handleDragEnds = async (result: DropResult) => {
     const { source, destination } = result;
 
     if (!destination) return;
@@ -614,7 +742,7 @@ const Create = () => {
     const [movedItem] = updatedItems.splice(source.index, 1);
     updatedItems.splice(destination.index, 0, movedItem);
 
-    const reorderedQuestions = updatedItems.map((item, index) => ({
+    const reorderedQuestions = updatedItems.map((item: any, index) => ({
       id: parseInt(item.id),
       order: index + 1,
     }));
@@ -634,6 +762,40 @@ const Create = () => {
       toast.error("Failed to reorder question. try again later");
     }
   };
+
+  const handleDragEnd = (result: any) => {
+    const { source, destination } = result;
+
+    // If there's no destination, return early
+
+    console.log(source.droppableId);
+    if (!destination) return;
+
+    // Handle cross-section dragging
+    if (source.droppableId !== destination.droppableId) {
+      const sourceGroup = groupedQuestions.find(
+        (group: any) => group.id === source.droppableId,
+      );
+      const destinationGroup = groupedQuestions.find(
+        (group: any) => group.id === destination.droppableId,
+      );
+
+      const [movedItem] = sourceGroup.questions.splice(source.index, 1);
+      destinationGroup.questions.splice(destination.index, 0, movedItem);
+
+      setGroupedQuestions([...groupedQuestions]);
+    } else {
+      // Handle reordering within the same group
+      const group = groupedQuestions.find(
+        (group: any) => group.id === source.droppableId,
+      );
+      const [movedItem] = group.questions.splice(source.index, 1);
+      group.questions.splice(destination.index, 0, movedItem);
+
+      setGroupedQuestions([...groupedQuestions]);
+    }
+  };
+
   return (
     <>
       <section className="mx-auto mt-5 w-full max-w-[896px]">
@@ -672,29 +834,11 @@ const Create = () => {
 
           {/*** SECTION  */}
 
-          <DragDropContext onDragEnd={handleDragEnd}>
-            <Droppable droppableId="droppable">
-              {(provided) => (
-                <div
-                  ref={provided.innerRef}
-                  {...provided.droppableProps}
-                  className="space-y-4"
-                >
-                  {items.map((item, index) => (
-                    <DraggableComponent
-                      key={item.id}
-                      id={item.id}
-                      index={index}
-                      title={item.title}
-                    >
-                      {renderQuestionInput(item.type, index)}
-                    </DraggableComponent>
-                  ))}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
+          <DraggableList
+            ungroupedQuestions={ungroupedQuestions}
+            groupedQuestions={groupedQuestions}
+            handleDragEnd={handleDragEnd}
+          />
 
           <div className="container-xxl mt-4 flex w-full flex-col gap-8 rounded-[18px] bg-[#ffffff] p-8">
             {/*** QUESTION SECTION */}
@@ -817,13 +961,7 @@ const Create = () => {
                 <Add
                   imageSrc="/assets/images/questions/section.png"
                   onClick={() => {
-                    if (isQuestionSaved) {
-                      setShowSection(true);
-                    } else {
-                      toast.error(
-                        "Please save the questions before adding a section",
-                      );
-                    }
+                    setShowSection(true);
                   }}
                 >
                   Add section

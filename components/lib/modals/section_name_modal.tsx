@@ -19,8 +19,6 @@ import AddQuestionSection from "../widgets/add_question_section";
 const SectionName = () => {
   const { showSection, setShowSection } = useAddQuestionSectionOverlay();
 
-  console.log(showSection);
-
   return (
     <>
       {/* ADD SECTION QUESTION */}
