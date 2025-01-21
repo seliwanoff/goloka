@@ -2,18 +2,18 @@ import { useState } from "react";
 
 interface Option {
   id: number;
-  label: string;
+  value: string;
   checked: boolean;
 }
 
 interface CheckboxListProps {
-  label?: string;
+  value?: string;
   initialOptions?: Option[];
   onOptionsChange?: (options: Option[]) => void;
 }
 
 const CheckboxList: React.FC<CheckboxListProps> = ({
-  label = "Options",
+  value = "Options",
   initialOptions = [],
   onOptionsChange,
 }) => {
@@ -32,7 +32,7 @@ const CheckboxList: React.FC<CheckboxListProps> = ({
     if (newOptionLabel.trim() === "") return;
     const newOption: Option = {
       id: Date.now(),
-      label: newOptionLabel,
+      value: newOptionLabel,
       checked: false,
     };
     const updatedOptions = [...options, newOption];
@@ -63,7 +63,7 @@ const CheckboxList: React.FC<CheckboxListProps> = ({
               htmlFor={`checkbox-${option.id}`}
               className="flex-grow cursor-pointer text-gray-800"
             >
-              {option.label}
+              {option.value}
             </label>
             <button
               onClick={() => handleRemoveOption(option.id)}

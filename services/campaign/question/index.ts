@@ -58,9 +58,43 @@ export const reOrdreQuestion = async (
   try {
     return await postData(
       `/organizations/${organization_id}/campaigns/${id}/questions/reorder`,
-      {
-        question: payload,
-      },
+
+      payload,
+    );
+  } catch (error) {
+    console.error("Error fetching campaign questions:", error);
+    throw error;
+  }
+};
+
+export const updateQuestion = async (
+  id: any,
+  payload: any,
+  question: any,
+): Promise<AxiosResponse<any>> => {
+  console.log(payload);
+  try {
+    return await postData(
+      `/organizations/${organization_id}/campaigns/${id}/questions/${question}/update`,
+
+      payload,
+    );
+  } catch (error) {
+    console.error("Error fetching campaign questions:", error);
+    throw error;
+  }
+};
+
+export const updateQuestion2 = async (
+  id: any,
+  payload: any,
+): Promise<AxiosResponse<any>> => {
+  console.log(payload);
+  try {
+    return await postData(
+      `/organizations/${organization_id}/campaigns/${id}/questions/reorde`,
+
+      payload,
     );
   } catch (error) {
     console.error("Error fetching campaign questions:", error);

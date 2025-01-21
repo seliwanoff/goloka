@@ -40,6 +40,8 @@ import {
   createQuestion,
   getCampaignQuestion,
   reOrdreQuestion,
+  updateQuestion,
+  updateQuestion2,
 } from "@/services/campaign/question";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
@@ -92,9 +94,9 @@ const Create = () => {
     useAddQuestionSectionOverlay();
 
   const handleOptionsChange = (updatedOptions: any) => {
-    handleAnswerChange(0, updatedOptions);
     setOptions(updatedOptions);
-    // handleAnswerChange(1, updatedOptions);
+    console.log(updatedOptions);
+    handleAnswerChange(1, updatedOptions);
   };
   const handleAddQuestion = () => {
     setQuestions((prevQuestions) => [
@@ -129,47 +131,58 @@ const Create = () => {
 
     return (
       <DragDropContext onDragEnd={handleDragEnd}>
-        <Droppable droppableId="droppable">
+        {/* Ungrouped Questions Droppable */}
+        <Droppable droppableId="ungroupedQuestions">
           {(provided) => (
             <div
               ref={provided.innerRef}
               {...provided.droppableProps}
               className="space-y-4"
             >
-              {/* Render Ungrouped Questions */}
               <UngroupedQuestionsList questions={ungroupedQuestions} />
-
-              {/* Render Grouped Questions */}
-              {groupedQuestions.map((group: any, index: number) => (
-                <GroupedQuestions
-                  key={group.id}
-                  group={group}
-                  groupIndex={index}
-                  totalSections={totalSections}
-                />
-              ))}
-
               {provided.placeholder}
             </div>
           )}
         </Droppable>
+
+        {/* Grouped Questions Droppables */}
+        {groupedQuestions.map((group, index) => (
+          <Droppable droppableId={group.id} key={group.id}>
+            {(provided) => (
+              <div
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+                className="mt-6"
+              >
+                <GroupedQuestions
+                  group={group}
+                  groupIndex={index}
+                  totalSections={totalSections}
+                />
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        ))}
       </DragDropContext>
     );
   };
 
   const UngroupedQuestionsList = ({ questions }: { questions: any[] }) => (
     <>
-      {questions.map((item: any, index: number) => (
-        <DraggableComponent
-          key={item.id}
-          id={item.id}
-          index={index}
-          title={item.label}
-          className="font-semibold text-[#071E3B]"
-        >
-          {renderQuestionInput(item.type, index)}
-        </DraggableComponent>
-      ))}
+      {questions
+        .sort((a, b) => a.order - b.order) // Sort by order
+        .map((item, index) => (
+          <DraggableComponent
+            key={item?.id}
+            id={item?.id.toString()}
+            index={index}
+            title={`No ${item.order}: ${item?.label}`} // Display order and label
+            className="font-semibold text-[#071E3B]"
+          >
+            {renderQuestionInput(item?.type, index, item.options)}
+          </DraggableComponent>
+        ))}
     </>
   );
 
@@ -182,13 +195,7 @@ const Create = () => {
     groupIndex: number;
     totalSections: number;
   }) => (
-    <DraggableComponent
-      key={group.id}
-      id={group.id}
-      index={groupIndex}
-      title={group.name}
-      className="mt-10 font-semibold text-[#071E3B]"
-    >
+    <div className="rounded-lg">
       <GroupHeader
         group={group}
         groupIndex={groupIndex}
@@ -197,20 +204,21 @@ const Create = () => {
 
       {/* Render Questions within the Group */}
       {group.questions?.length > 0
-        ? group.questions.map((item: any, index: number) => (
-            <DraggableComponent
-              key={item.id}
-              id={item.id}
-              index={index}
-              title={item.label}
-              type="s"
-              className="p-0 font-semibold text-[#071E3B]"
-            >
-              {renderQuestionInput(item.type, index)}
-            </DraggableComponent>
-          ))
+        ? group.questions
+            .sort((a: any, b: any) => a.order - b.order)
+            .map((item: any, index: number) => (
+              <DraggableComponent
+                key={item.id}
+                id={item.id.toString()}
+                index={index}
+                title={`No ${item.order}: ${item.label}`}
+                className="p-2 font-semibold text-[#071E3B]"
+              >
+                {renderQuestionInput(item.type, index, item.options)}
+              </DraggableComponent>
+            ))
         : ""}
-    </DraggableComponent>
+    </div>
   );
 
   const GroupHeader = ({
@@ -223,10 +231,12 @@ const Create = () => {
     totalSections: number;
   }) => (
     <div className="rounded-[18px] bg-white">
-      <div className="flex items-center justify-between">
-        <div className="absolute left-0 top-0 rounded-br-[59px] rounded-tl-lg bg-main-100 px-8 py-2 font-poppins text-[18px] font-medium text-white">
-          section {groupIndex + 1} of {totalSections}
+      <div className="flex flex-col">
+        <div className="w-fit rounded-br-[59px] rounded-tl-lg bg-main-100 px-8 py-2 font-poppins text-[18px] font-medium text-white">
+          Section {groupIndex + 1} of {totalSections}
         </div>
+
+        <div className="px-4 py-6">{group.name}</div>
       </div>
     </div>
   );
@@ -256,12 +266,11 @@ const Create = () => {
               : "",
           required: true,
           options:
-            question.type === "multipleChoices" ||
             question.type === "select" ||
             question.type === "checkbox" ||
             question.type === "radio"
               ? JSON.stringify(
-                  [...questions[0].answer].map((item: any) => item.label),
+                  [...questions[0].answer].map((item: any) => item.value),
                 )
               : question.type === "area"
                 ? JSON.stringify([...area.map((item: any) => item)])
@@ -393,7 +402,7 @@ const Create = () => {
       setUngroupedQuestions(response.ungrouped_questions);
       setGroupedQuestions(response.grouped_questions);
 
-      console.log(response.grouped_questions);
+      //  console.log(response.grouped_questions);
     } catch (error) {
       console.error("Error fetching campaign questions:", error);
     }
@@ -433,7 +442,7 @@ const Create = () => {
   useEffect(() => {
     getAllQuestion();
   }, [isQuestionSaved, showSection]);
-  const renderQuestionInput = (type: string, id: number) => {
+  const renderQuestionInput = (type: string, id: number, options?: any) => {
     switch (type) {
       case "text":
         return (
@@ -508,14 +517,28 @@ const Create = () => {
           <MultipleChoices
             label="Select option"
             placeholder="Type something..."
-            initialOptions={[{ id: 1, value: "Option 1" }]}
+            initialOptions={(() => {
+              try {
+                return options ? options : [];
+              } catch (error) {
+                console.error("Error parsing options:", error);
+                return [];
+              }
+            })()}
             onOptionsChange={handleOptionsChange}
           />
         );
       case "checkbox":
         return (
           <CheckboxList
-            initialOptions={[]}
+            initialOptions={(() => {
+              try {
+                return options ? options : [];
+              } catch (error) {
+                console.error("Error parsing options:", error);
+                return [];
+              }
+            })()}
             onOptionsChange={handleOptionsChange}
           />
         );
@@ -525,7 +548,14 @@ const Create = () => {
             label=" "
             name="country"
             control={control}
-            initialOptions={[]}
+            initialOptions={(() => {
+              try {
+                return options ? options : [];
+              } catch (error) {
+                console.error("Error parsing options:", error);
+                return [];
+              }
+            })()}
             placeholder="Enter option"
             onChange={(value: any) => {
               console.log(value);
@@ -733,66 +763,447 @@ const Create = () => {
   const [groupedQuestions, setGroupedQuestions] = useState<any>([]);
   const [ungroupedQuestions, setUngroupedQuestions] = useState<any>([]);
 
-  const handleDragEnds = async (result: DropResult) => {
+  const handleDragEnd = async (result: DropResult) => {
     const { source, destination } = result;
 
     if (!destination) return;
 
-    const updatedItems = Array.from(items);
-    const [movedItem] = updatedItems.splice(source.index, 1);
-    updatedItems.splice(destination.index, 0, movedItem);
-
-    const reorderedQuestions = updatedItems.map((item: any, index) => ({
-      id: parseInt(item.id),
-      order: index + 1,
-    }));
-
-    setItems(updatedItems);
-
-    console.log({
-      questions: reorderedQuestions,
-    });
-
     try {
-      const response = await reOrdreQuestion(questionId, reorderedQuestions);
-      getAllQuestion();
+      let sourceGroupId: string | null = null;
+      let destinationGroupId: string | null = null;
 
-      toast.success("Question reorder succesfully!");
-    } catch (e) {
-      toast.error("Failed to reorder question. try again later");
+      if (source.droppableId === destination.droppableId) {
+        // Reordering within the same list
+        if (source.droppableId === "ungroupedQuestions") {
+          const updatedItems = Array.from(ungroupedQuestions);
+          const [movedItem] = updatedItems.splice(source.index, 1);
+          updatedItems.splice(
+            destination.index,
+            0,
+            movedItem as (typeof ungroupedQuestions)[number],
+          ); // Ensure TypeScript knows the type
+          setUngroupedQuestions(updatedItems);
+        } else {
+          const group = groupedQuestions.find(
+            (g: any) => g.id === source.droppableId,
+          );
+          if (group) {
+            const updatedQuestions = Array.from(group.questions);
+            const [movedItem] = updatedQuestions.splice(source.index, 1);
+            updatedQuestions.splice(destination.index, 0, movedItem);
+
+            setGroupedQuestions((prev: any) =>
+              prev.map((g: any) =>
+                g.id === group.id ? { ...g, questions: updatedQuestions } : g,
+              ),
+            );
+
+            const payload = {
+              questions: updatedQuestions.map((q: any, index: number) => ({
+                id: q.id,
+                order: index + 1,
+              })),
+              question_group_id: group.id,
+            };
+
+            try {
+              await reOrdreQuestion(questionId, payload);
+              toast.success("Question reordered within the same section.");
+              getAllQuestion();
+            } catch (e) {
+              toast.error("Failed to reorder question, try again later.");
+            }
+          }
+        }
+      } else {
+        // Moving between different lists
+        let sourceList: typeof ungroupedQuestions = [];
+        let destinationList: typeof ungroupedQuestions = [];
+
+        if (source.droppableId === "ungroupedQuestions") {
+          sourceList = Array.from(ungroupedQuestions);
+          destinationGroupId = destination.droppableId;
+          destinationList = Array.from(
+            groupedQuestions.find((g: any) => g.id === destinationGroupId)
+              ?.questions || [],
+          );
+        } else if (destination.droppableId === "ungroupedQuestions") {
+          sourceGroupId = source.droppableId;
+          sourceList = Array.from(
+            groupedQuestions.find((g: any) => g.id === sourceGroupId)
+              ?.questions || [],
+          );
+          destinationList = Array.from(ungroupedQuestions);
+        } else {
+          sourceGroupId = source.droppableId;
+          destinationGroupId = destination.droppableId;
+          sourceList = Array.from(
+            groupedQuestions.find((g: any) => g.id === sourceGroupId)
+              ?.questions || [],
+          );
+          destinationList = Array.from(
+            groupedQuestions.find((g: any) => g.id === destinationGroupId)
+              ?.questions || [],
+          );
+        }
+
+        const [movedItem] = sourceList.splice(source.index, 1) as [
+          (typeof sourceList)[number],
+        ];
+        destinationList.splice(destination.index, 0, movedItem);
+
+        if (source.droppableId === "ungroupedQuestions") {
+          setUngroupedQuestions(sourceList);
+          setGroupedQuestions((prev: any) =>
+            prev.map((g: any) =>
+              g.id === destinationGroupId
+                ? { ...g, questions: destinationList }
+                : g,
+            ),
+          );
+
+          try {
+            await updateQuestion(
+              questionId,
+              {
+                question_group_id: destinationGroupId,
+                label: movedItem.label,
+                type: movedItem.type,
+                name: movedItem.name,
+                placeholder: movedItem.placeholder,
+                required: movedItem.required,
+                options: movedItem.options,
+                attributes: movedItem.attributes,
+              },
+              movedItem.id,
+            );
+            toast.success("Question moved to grouped section.");
+            getAllQuestion();
+          } catch (e) {
+            toast.error("Failed to move question, try again later.");
+          }
+        } else if (destination.droppableId === "ungroupedQuestions") {
+          setGroupedQuestions((prev: any) =>
+            prev.map((g: any) =>
+              g.id === sourceGroupId ? { ...g, questions: sourceList } : g,
+            ),
+          );
+          setUngroupedQuestions(destinationList);
+
+          try {
+            await updateQuestion(
+              questionId,
+              {
+                question_group_id: "",
+                label: movedItem.label,
+                type: movedItem.type,
+                name: movedItem.name,
+                placeholder: movedItem.placeholder,
+                required: movedItem.required,
+                options: movedItem.options,
+                attributes: movedItem.attributes,
+              },
+              movedItem.id,
+            );
+            toast.success("Question moved to ungrouped section.");
+            getAllQuestion();
+          } catch (e) {
+            toast.error("Failed to move question, try again later.");
+          }
+        } else {
+          setGroupedQuestions((prev: any) =>
+            prev.map((g: any) => {
+              if (g.id === sourceGroupId) {
+                return { ...g, questions: sourceList };
+              }
+              if (g.id === destinationGroupId) {
+                return { ...g, questions: destinationList };
+              }
+              return g;
+            }),
+          );
+
+          try {
+            await updateQuestion(
+              questionId,
+              {
+                question_group_id: destinationGroupId,
+                label: movedItem.label,
+                type: movedItem.type,
+                name: movedItem.name,
+                placeholder: movedItem.placeholder,
+                required: movedItem.required,
+                options: movedItem.options,
+                attributes: movedItem.attributes,
+              },
+              movedItem.id,
+            );
+            /***
+            await updateQuestion2(movedItem.id, {
+              source_group_id: sourceGroupId,
+              destination_group_id: destinationGroupId,
+              order: destination.index + 1,
+            });
+            */
+            toast.success("Question moved between sections.");
+            getAllQuestion();
+          } catch (e) {
+            toast.error("Failed to move question, try again later.");
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error handling drag and drop:", error);
     }
   };
 
-  const handleDragEnd = (result: any) => {
+  const handleDragEndvv = async (result: DropResult) => {
     const { source, destination } = result;
 
-    // If there's no destination, return early
-
-    console.log(source.droppableId);
+    // If there's no destination, exit early
     if (!destination) return;
 
-    // Handle cross-section dragging
-    if (source.droppableId !== destination.droppableId) {
-      const sourceGroup = groupedQuestions.find(
-        (group: any) => group.id === source.droppableId,
-      );
-      const destinationGroup = groupedQuestions.find(
-        (group: any) => group.id === destination.droppableId,
-      );
+    try {
+      let sourceGroupId: string | null = null;
+      let destinationGroupId: string | null = null;
 
-      const [movedItem] = sourceGroup.questions.splice(source.index, 1);
-      destinationGroup.questions.splice(destination.index, 0, movedItem);
+      if (source.droppableId === destination.droppableId) {
+        if (source.droppableId === "ungroupedQuestions") {
+          const updatedItems = Array.from(ungroupedQuestions);
+          const [movedItem] = updatedItems.splice(source.index, 1);
+          updatedItems.splice(destination.index, 0, movedItem);
+          setUngroupedQuestions(updatedItems);
+        } else {
+          const group = groupedQuestions.find(
+            (g: any) => g.id === source.droppableId,
+          );
+          if (group) {
+            const updatedQuestions = Array.from(group.questions);
+            const [movedItem] = updatedQuestions.splice(source.index, 1);
+            updatedQuestions.splice(destination.index, 0, movedItem);
 
-      setGroupedQuestions([...groupedQuestions]);
-    } else {
-      // Handle reordering within the same group
-      const group = groupedQuestions.find(
-        (group: any) => group.id === source.droppableId,
-      );
-      const [movedItem] = group.questions.splice(source.index, 1);
-      group.questions.splice(destination.index, 0, movedItem);
+            setGroupedQuestions((prev: any) =>
+              prev.map((g: any) =>
+                g.id === group.id ? { ...g, questions: updatedQuestions } : g,
+              ),
+            );
 
-      setGroupedQuestions([...groupedQuestions]);
+            const payload = {
+              questions: updatedQuestions.map((q: any, index: number) => ({
+                id: q.id,
+                order: index + 1,
+              })),
+              question_group_id: group.id,
+            };
+
+            try {
+              await reOrdreQuestion(questionId, payload);
+
+              //  console.log(questionId);
+              toast.success("Question reordered");
+              getAllQuestion();
+            } catch (e) {
+              toast.error("Fail to reorder question, try again later.");
+            }
+          }
+        }
+      } else {
+        let sourceList = [];
+        let destinationList = [];
+
+        if (source.droppableId === "ungroupedQuestions") {
+          sourceList = Array.from(ungroupedQuestions);
+          destinationGroupId = destination.droppableId;
+          destinationList = Array.from(
+            groupedQuestions.find((g: any) => g.id === destinationGroupId)
+              ?.questions || [],
+          );
+        } else if (destination.droppableId === "ungroupedQuestions") {
+          sourceGroupId = source.droppableId;
+          sourceList = Array.from(
+            groupedQuestions.find((g: any) => g.id === sourceGroupId)
+              ?.questions || [],
+          );
+          destinationList = Array.from(ungroupedQuestions);
+        } else {
+          sourceGroupId = source.droppableId;
+          destinationGroupId = destination.droppableId;
+          sourceList = Array.from(
+            groupedQuestions.find((g: any) => g.id === sourceGroupId)
+              ?.questions || [],
+          );
+          destinationList = Array.from(
+            groupedQuestions.find((g: any) => g.id === destinationGroupId)
+              ?.questions || [],
+          );
+        }
+
+        const [movedItem] = sourceList.splice(source.index, 1);
+        destinationList.splice(destination.index, 0, movedItem);
+
+        if (source.droppableId === "ungroupedQuestions") {
+          setUngroupedQuestions(sourceList);
+          setGroupedQuestions((prev: any) =>
+            prev.map((g: any) =>
+              g.id === destinationGroupId
+                ? { ...g, questions: destinationList }
+                : g,
+            ),
+          );
+        } else if (destination.droppableId === "ungroupedQuestions") {
+          setGroupedQuestions((prev: any) =>
+            prev.map((g: any) =>
+              g.id === sourceGroupId ? { ...g, questions: sourceList } : g,
+            ),
+          );
+          setUngroupedQuestions(destinationList);
+        } else {
+          setGroupedQuestions((prev: any) =>
+            prev.map((g: any) => {
+              if (g.id === sourceGroupId) {
+                return { ...g, questions: sourceList };
+              }
+              if (g.id === destinationGroupId) {
+                return { ...g, questions: destinationList };
+              }
+              return g;
+            }),
+          );
+        }
+
+        if (destinationGroupId) {
+          const payload = {
+            questions: destinationList.map((q: any, index: number) => ({
+              id: q.id,
+              order: index + 1,
+            })),
+            question_group_id: destinationGroupId,
+          };
+
+          //console.log("Payload for reordering:", payload);
+
+          try {
+            await reOrdreQuestion(questionId, payload);
+
+            console.log(questionId);
+            toast.success("Question reordered");
+            getAllQuestion();
+          } catch (e) {
+            toast.error("Fail to reorder question, try again later.");
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error handling drag and drop:", error);
+    }
+  };
+
+  const handleDragEndp = async (result: DropResult) => {
+    const { source, destination } = result;
+
+    // If there's no destination, exit early
+    if (!destination) return;
+
+    try {
+      if (source.droppableId === destination.droppableId) {
+        // Reordering within the same list
+        if (source.droppableId === "ungroupedQuestions") {
+          const updatedItems = Array.from(ungroupedQuestions);
+          const [movedItem] = updatedItems.splice(source.index, 1);
+          updatedItems.splice(destination.index, 0, movedItem);
+          setUngroupedQuestions(updatedItems);
+        } else {
+          const group = groupedQuestions.find(
+            (g: any) => g.id === source.droppableId,
+          );
+          if (group) {
+            const updatedQuestions = Array.from(group.questions);
+            const [movedItem] = updatedQuestions.splice(source.index, 1);
+            updatedQuestions.splice(destination.index, 0, movedItem);
+
+            setGroupedQuestions((prev: any) =>
+              prev.map((g: any) =>
+                g.id === group.id ? { ...g, questions: updatedQuestions } : g,
+              ),
+            );
+          }
+        }
+      } else {
+        // Moving between different lists
+        let sourceList = [];
+        let destinationList = [];
+
+        if (source.droppableId === "ungroupedQuestions") {
+          sourceList = Array.from(ungroupedQuestions);
+          destinationList = Array.from(
+            groupedQuestions.find((g: any) => g.id === destination.droppableId)
+              ?.questions || [],
+          );
+        } else if (destination.droppableId === "ungroupedQuestions") {
+          sourceList = Array.from(
+            groupedQuestions.find((g: any) => g.id === source.droppableId)
+              ?.questions || [],
+          );
+          destinationList = Array.from(ungroupedQuestions);
+        } else {
+          sourceList = Array.from(
+            groupedQuestions.find((g: any) => g.id === source.droppableId)
+              ?.questions || [],
+          );
+          destinationList = Array.from(
+            groupedQuestions.find((g: any) => g.id === destination.droppableId)
+              ?.questions || [],
+          );
+        }
+
+        const [movedItem] = sourceList.splice(source.index, 1);
+        destinationList.splice(destination.index, 0, movedItem);
+
+        if (source.droppableId === "ungroupedQuestions") {
+          setUngroupedQuestions(sourceList);
+          setGroupedQuestions((prev: any) =>
+            prev.map((g: any) =>
+              g.id === destination.droppableId
+                ? { ...g, questions: destinationList }
+                : g,
+            ),
+          );
+        } else if (destination.droppableId === "ungroupedQuestions") {
+          setGroupedQuestions((prev: any) =>
+            prev.map((g: any) =>
+              g.id === source.droppableId ? { ...g, questions: sourceList } : g,
+            ),
+          );
+          setUngroupedQuestions(destinationList);
+        } else {
+          setGroupedQuestions((prev: any) =>
+            prev.map((g: any) => {
+              if (g.id === source.droppableId) {
+                return { ...g, questions: sourceList };
+              }
+              if (g.id === destination.droppableId) {
+                return { ...g, questions: destinationList };
+              }
+              return g;
+            }),
+          );
+        }
+      }
+
+      // Log the updated lists for debugging
+      console.log("Updated ungroupedQuestions:", ungroupedQuestions);
+      console.log("Updated groupedQuestions:", groupedQuestions);
+
+      // Optionally, make an API call to persist the changes
+      const reorderedData = {
+        ungroupedQuestions,
+        groupedQuestions,
+      };
+      // console.log(reorderedData);
+      await reOrdreQuestion(questionId, reorderedData);
+      console.log("Reordering saved successfully.");
+    } catch (error) {
+      console.error("Error handling drag and drop:", error);
     }
   };
 

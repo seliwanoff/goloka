@@ -21,7 +21,7 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
   type,
 }) => {
   return (
-    <Draggable draggableId={id.toString()} index={index}>
+    <Draggable draggableId={id?.toString()} index={index}>
       {(provided) => (
         <div
           ref={provided.innerRef}
