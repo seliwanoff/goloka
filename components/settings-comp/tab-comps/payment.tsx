@@ -166,23 +166,23 @@ const Payment: React.FC<any> = () => {
     }
   }, [accountNumber, bankCode, setValue]);
 
-  const onAddBeneficiary = async (data: any) => {
-    const { accountNumber, bankName } = data;
-    try {
-      console.log(data, "New Beneficiary");
-      const res = await addBeneficiary(accountNumber, bankName);
-      refetch();
-      toast.success("Beneficiary added successfully!");
-      console.log(res, "Account Added Successfully");
-      // setShow(false);
-      reset();
-    } catch (error) {
-      toast.error("Failed to add beneficiary. Please try again.");
-      //@ts-ignore
-      console.error(error?.response?.data?.message);
-      // setShow(true);
-    }
-  };
+  // const onAddBeneficiary = async (data: any) => {
+  //   const { accountNumber, bankName } = data;
+  //   try {
+  //     console.log(data, "New Beneficiary");
+  //     const res = await addBeneficiary(accountNumber, bankName);
+  //     refetch();
+  //     toast.success("Beneficiary added successfully!");
+  //     console.log(res, "Account Added Successfully");
+  //     // setShow(false);
+  //     reset();
+  //   } catch (error) {
+  //     toast.error("Failed to add beneficiary. Please try again.");
+  //     //@ts-ignore
+  //     console.error(error?.response?.data?.message);
+  //     // setShow(true);
+  //   }
+  // };
 
   const handleDeleteConfirmation = (beneficiary: Beneficiary) => {
     console.log("clickk");
@@ -214,10 +214,13 @@ const Payment: React.FC<any> = () => {
       setBeneficiaryToDelete(null);
     }
   };
+
+  console.log(beneficiaries, "beneficiaries");
+  console.log(transaction, "beneficiaries");
   return (
     <>
-      <form
-        onSubmit={handleSubmit(onAddBeneficiary)}
+      <div
+        // onSubmit={handleSubmit(onAddBeneficiary)}
         className="block max-w-4xl"
         id="payment"
       >
@@ -293,48 +296,35 @@ const Payment: React.FC<any> = () => {
                       {beneficiaries?.map((item: any, i: number) => {
                         if (i > 1) return;
                         return (
-                          <div className="flex w-full items-center" key={i}>
-                            <RadioGroupItem
-                              value={item.value}
-                              id={item.value}
-                              className="peer sr-only"
-                            />
-                            <Label
-                              htmlFor={item.value}
-                              className={cn(
-                                "grid w-full grid-cols-[1.5fr_1fr] gap-y-1 rounded-lg border border-[#14342C0F] bg-[#FDFDFD] p-3.5",
-                                selectedValue === item?.value &&
-                                  "border-main-100 bg-main-100 bg-opacity-5 ring-1 ring-main-100",
-                              )}
+                          <div
+                            key={item.id}
+                            className="group relative rounded-lg border border-[#4f4f4f4a] bg-white p-3 shadow-sm"
+                          >
+                            <div className="space-y-1">
+                              <h3 className="text-base font-medium text-[#4F4F4F]">
+                                {item.account_name}
+                              </h3>
+                              <div className="flex text-gray-600">
+                                <div className="flex items-center space-x-2">
+                                  {/* <span className="inline-block h-1.5 w-1.5 rounded-full bg-gray-300" /> */}
+                                  <span className="text-sm text-[#4F4F4F]">
+                                    {item.bank_name}
+                                  </span>
+                                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#4F4F4F]" />
+                                </div>
+                                <div className="ml-3 text-sm text-[#4F4F4F]">
+                                  {item.account_number}
+                                </div>
+                              </div>
+                            </div>
+
+                            <button
+                              onClick={() => handleDeleteConfirmation(item)}
+                              className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full p-2 text-gray-400 transition-all duration-200 hover:bg-red-50 hover:text-red-500"
+                              aria-label="Delete account"
                             >
-                              <h4
-                                className={cn(
-                                  "text-sm font-medium text-[#4F4F4F]",
-                                  selectedValue === item?.value &&
-                                    "text-main-100",
-                                )}
-                              >
-                                {item?.name}
-                              </h4>
-                              <p
-                                className={cn(
-                                  "justify-self-end text-right text-sm font-semibold text-[#333]",
-                                  selectedValue === item?.value &&
-                                    "text-main-100",
-                                )}
-                              >
-                                {item.accountNumber}
-                              </p>
-                              <p
-                                className={cn(
-                                  "text-xs text-[#4F4F4F]",
-                                  selectedValue === item?.value &&
-                                    "text-main-100",
-                                )}
-                              >
-                                {item.bank}
-                              </p>
-                            </Label>
+                              <Trash2 className="h-5 w-5" />
+                            </button>
                           </div>
                         );
                       })}
@@ -347,11 +337,12 @@ const Payment: React.FC<any> = () => {
             {pathname.startsWith("/organization") ? (
               <AddNewCard />
             ) : (
-              <AddNewBeneficiary />
+              //@ts-ignore
+              <AddNewBeneficiary refetch={refetch} />
             )}
           </div>
         </div>
-      </form>
+      </div>
 
       {/* Delete Confirmation Modal */}
       <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
