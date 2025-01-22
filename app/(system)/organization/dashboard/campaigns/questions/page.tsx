@@ -75,6 +75,8 @@ const Create = () => {
   const [time, setTime] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isQuestionSaved, setIsQuestionSaved] = useState(false);
+  const [isAddQuestion, setIsAddQuestion] = useState(false);
+
   const [selectedQuestionGroup, setSelectedQuestionGroup] = useState("");
   const [selectedQuestionGroupId, setSelectedQuestionGroupId] =
     useState<any>("");
@@ -99,6 +101,8 @@ const Create = () => {
     handleAnswerChange(1, updatedOptions);
   };
   const handleAddQuestion = () => {
+    setIsAddQuestion(true);
+
     setQuestions((prevQuestions) => [
       ...prevQuestions,
       {
@@ -109,7 +113,6 @@ const Create = () => {
         answer: "",
       },
     ]);
-
     saveQuestion();
   };
   const handleAnswerChange = (id: number, answer: string) => {
@@ -289,83 +292,19 @@ const Create = () => {
         ]);
         setIsQuestionSaved(true);
       }
-
-      toast.success(" Questions added successfully!");
-    } catch (error) {
-      allQuestionsSaved = false;
-      console.error("Error saving questions:", error);
-      toast.error("Failed to save some or all questions.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-  /***
-
-  const saveQuestion = async () => {
-    setIsSubmitting(true);
-    let allQuestionsSaved = true;
-
-    try {
-      for (const question of questions) {
-        const placeholderTypes = [
-          "text",
-          "textarea",
-          "email",
-          "password",
-          "tel",
-          "url",
-        ];
-
-        const optionTypes = ["select", "checkbox", "radio"];
-
-        const options = (() => {
-          if (
-            optionTypes.includes(question.type) &&
-            Array.isArray(question.answer)
-          ) {
-            return JSON.stringify(
-              question.answer.map((item: any) => item.label),
-            );
-          }
-          switch (question.type) {
-            case "area":
-              return Array.isArray(area) ? JSON.stringify(area) : null;
-            case "line":
-              return Array.isArray(line) ? JSON.stringify(line) : null;
-            case "location":
-              return Array.isArray(location) ? JSON.stringify(location) : null;
-            default:
-              return null;
-          }
-        })();
-
-        const payload = {
-          label: question.content,
-          type: question.type,
-          name: question.content.toLowerCase().replace(/\s+/g, " "),
-          placeholder: placeholderTypes.includes(question.type)
-            ? question.answer
-            : "",
-          required: true,
-          options,
-          attributes: null,
-        };
-
-        await createQuestion(questionId, payload);
-
-        setIsQuestionSaved(true);
+      if (isAddQuestion === false) {
+        toast.success(" Questions added successfully!");
       }
-
-      toast.success("Questions added successfully!");
     } catch (error) {
       allQuestionsSaved = false;
       console.error("Error saving questions:", error);
       toast.error("Failed to save some or all questions.");
     } finally {
       setIsSubmitting(false);
+      setIsAddQuestion(false);
     }
   };
-  */
+  //console.log(questions);
 
   const handleQuestionTypeChange = (id: number, type: string) => {
     // console.log(type);
@@ -872,12 +811,18 @@ const Create = () => {
                 name: movedItem.name,
                 placeholder: movedItem.placeholder,
                 required: movedItem.required,
-                options: movedItem.options,
+
+                options: movedItem.options
+                  ? JSON.stringify(
+                      movedItem.options.map((item: any) => item.value),
+                    )
+                  : null,
+
                 attributes: movedItem.attributes,
               },
               movedItem.id,
             );
-            toast.success("Question moved to grouped section.");
+            // toast.success("Question moved to grouped section.");
             getAllQuestion();
           } catch (e) {
             toast.error("Failed to move question, try again later.");
@@ -900,12 +845,17 @@ const Create = () => {
                 name: movedItem.name,
                 placeholder: movedItem.placeholder,
                 required: movedItem.required,
-                options: movedItem.options,
+                options: movedItem.options
+                  ? JSON.stringify(
+                      movedItem.options.map((item: any) => item.value),
+                    )
+                  : null,
+
                 attributes: movedItem.attributes,
               },
               movedItem.id,
             );
-            toast.success("Question moved to ungrouped section.");
+            //  toast.success("Question moved to ungrouped section.");
             getAllQuestion();
           } catch (e) {
             toast.error("Failed to move question, try again later.");
@@ -933,19 +883,18 @@ const Create = () => {
                 name: movedItem.name,
                 placeholder: movedItem.placeholder,
                 required: movedItem.required,
-                options: movedItem.options,
+                options: movedItem.options
+                  ? JSON.stringify(
+                      movedItem.options.map((item: any) => item.value),
+                    )
+                  : null,
+
                 attributes: movedItem.attributes,
               },
               movedItem.id,
             );
-            /***
-            await updateQuestion2(movedItem.id, {
-              source_group_id: sourceGroupId,
-              destination_group_id: destinationGroupId,
-              order: destination.index + 1,
-            });
-            */
-            toast.success("Question moved between sections.");
+
+            // toast.success("Question moved between sections.");
             getAllQuestion();
           } catch (e) {
             toast.error("Failed to move question, try again later.");

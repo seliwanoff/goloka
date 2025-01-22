@@ -100,9 +100,7 @@ export const getGuestCampaign = async (): Promise<AxiosResponse<any>> => {
 
 export const getCampaign = async (): Promise<AxiosResponse<any>> => {
   try {
-    return await fetchData(
-      `/organizations/${organization_id}/campaigns?per_page=5`,
-    );
+    return await fetchData(`/organizations/${organization_id}/campaigns`);
   } catch (error) {
     console.error("Error fetching campaign questions:", error);
     throw error;

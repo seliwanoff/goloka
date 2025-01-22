@@ -62,17 +62,20 @@ const Page = () => {
   const [openFilter, setOpenFilter] = useState<boolean>(false);
   const [campaignList, setCampaignList] = useState<[]>([]);
 
-  const [filteredData, setFilteredData] = useState<any[]>(campaignList);
   const [activeTab, setActiveTab] = useState("campaigns");
   const [date, setDate] = useState<Date>();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState<number>(10);
+  const [campaignGroupList, setCampaignGroupList] = useState<[]>([]);
+
+  const [filteredData, setFilteredData] = useState<any[]>(
+    activeTab === "campaigns" ? campaignList : campaignGroupList,
+  );
   const pages = chunkArray(filteredData, pageSize);
   const currentPageData = pages[currentPage - 1] || [];
   const [activeStatus, setActiveStatus] = useState<string>("all");
   const { setShowCreate } = useAddcampaignGroupOverlay();
 
-  const [campaignGroupList, setCampaignGroupList] = useState<[]>([]);
   const { show } = useAddcampaignGroupOverlay();
 
   const { isShowEdit } = useEditCampaignOverlay();
@@ -80,7 +83,6 @@ const Page = () => {
   const getCampaignGroup = async () => {
     try {
       const response = await getOrganizationCampaign();
-      //  console.log(response);
       if (response && response.data) {
         setCampaignGroupList(response.data);
       } else {
@@ -93,7 +95,6 @@ const Page = () => {
   const getCampaignMain = async () => {
     try {
       const response = await getCampaign();
-      // console.log(response);
       if (response && response.data) {
         setCampaignList(response.data);
       } else {
@@ -108,7 +109,6 @@ const Page = () => {
     getCampaignMain();
   }, [show, isShowEdit]);
 
-  //console.log(show, "fetchData");
   useEffect(() => {
     function filter(status: string) {
       return campaignList?.filter(
@@ -140,9 +140,8 @@ const Page = () => {
     } else if (activeTab === "campaign-groups") {
       setFilteredData(campaignGroupList);
     }
-  }, [activeTab]);
+  }, [activeTab, campaignList, campaignGroupList]);
 
-  //console.log(activeTab, "Tabs");
   return (
     <>
       {/*** Edit Campaign */}
