@@ -86,7 +86,7 @@ const UpdateLocationModal = () => {
     }
   };
 
-  console.log(error, "error");
+  // console.log(error, "error");
 
   return (
     <div
