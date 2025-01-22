@@ -180,7 +180,7 @@ const Create = () => {
             key={item?.id}
             id={item?.id.toString()}
             index={index}
-            title={`No ${item.order}: ${item?.label}`} // Display order and label
+            title={` ${item?.label}`} // Display order and label
             className="font-semibold text-[#071E3B]"
           >
             {renderQuestionInput(item?.type, index, item.options)}
@@ -214,7 +214,7 @@ const Create = () => {
                 key={item.id}
                 id={item.id.toString()}
                 index={index}
-                title={`No ${item.order}: ${item.label}`}
+                title={`${item.label}`}
                 className="p-2 font-semibold text-[#071E3B]"
               >
                 {renderQuestionInput(item.type, index, item.options)}
