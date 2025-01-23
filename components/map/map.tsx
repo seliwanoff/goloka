@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Loader } from "@googlemaps/js-api-loader";
 
 // Define interfaces for the location data
@@ -6,6 +6,7 @@ interface LGA {
   label: string;
   lat: string;
   lng: string;
+  running_campaigns_count?: number;
 }
 
 interface State {
@@ -37,9 +38,9 @@ const Map: React.FC<MapProps> = ({ location }) => {
         libraries: ["places"],
       });
 
-      const { Map } = await loader.importLibrary("maps");
+      const { Map, InfoWindow } = await loader.importLibrary("maps");
       const { Marker } = await loader.importLibrary("marker");
-
+//  const {  InfoWindow } = await loader.importLibrary("marker");
       const centerLat =
         location.states.length > 0
           ? parseFloat(location.states[0].lat)
@@ -137,6 +138,39 @@ const Map: React.FC<MapProps> = ({ location }) => {
             }),
         ),
       ]);
+      // Create markers with campaign information tooltips
+      location.states.forEach((state) => {
+        state.lgas.forEach((lga) => {
+          const marker = new Marker({
+            position: {
+              lat: parseFloat(lga.lat),
+              lng: parseFloat(lga.lng),
+            },
+            map: map,
+            title: `${state.label} - ${lga.label}`,
+            icon: markerIcon,
+          });
+
+          // Create tooltip with campaign information
+          const infoWindow = new InfoWindow({
+            content: `
+              <div class="p-2">
+                <h3 class="font-bold">${state.label} - ${lga.label}</h3>
+                <p>Running Campaigns: ${lga.running_campaigns_count || 0}</p>
+              </div>
+            `,
+          });
+
+          // Add hover interaction
+          marker.addListener("mouseover", () => {
+            infoWindow.open(map, marker);
+          });
+
+          marker.addListener("mouseout", () => {
+            infoWindow.close();
+          });
+        });
+      });
     };
 
     initMap();

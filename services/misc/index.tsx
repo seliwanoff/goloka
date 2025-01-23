@@ -93,3 +93,15 @@ export const notificationPreferences = async (
     },
   });
 };
+
+
+export const getNotificationsPreference = async (): Promise<ServerResponseOrNull<any>> => {
+  try {
+    return await fetchData<ServerResponse<any>>(
+      "/notifications/preferences/get",
+    );
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
