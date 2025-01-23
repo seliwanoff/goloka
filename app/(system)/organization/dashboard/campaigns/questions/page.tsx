@@ -43,7 +43,7 @@ import {
   updateQuestion,
   updateQuestion2,
 } from "@/services/campaign/question";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { useAddQuestionSectionOverlay } from "@/stores/overlay";
 import SectionName from "@/components/lib/modals/section_name_modal";
@@ -51,6 +51,8 @@ import RadioGroupWrapper from "@/components/question/boolean";
 import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import DraggableComponent from "@/components/ui/drag-drop";
 import { AxiosResponse } from "axios";
+import { getCampaignById, getCampaignByIdDetails } from "@/services/campaign";
+import RadioSelection from "@/components/ui/radio-select";
 type FormValues = {
   fullname: string;
   email: string;
@@ -76,11 +78,8 @@ const Create = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isQuestionSaved, setIsQuestionSaved] = useState(false);
   const [isAddQuestion, setIsAddQuestion] = useState(false);
-
-  const [selectedQuestionGroup, setSelectedQuestionGroup] = useState("");
-  const [selectedQuestionGroupId, setSelectedQuestionGroupId] =
-    useState<any>("");
-
+  const [campaigns, setCampaigns] = useState<any>([]);
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -100,20 +99,24 @@ const Create = () => {
     console.log(updatedOptions);
     handleAnswerChange(1, updatedOptions);
   };
-  const handleAddQuestion = () => {
+  const handleAddQuestion = async () => {
     setIsAddQuestion(true);
-
-    setQuestions((prevQuestions) => [
-      ...prevQuestions,
-      {
-        id: prevQuestions.length + 1,
-        type: "",
-        group: "",
-        content: "",
-        answer: "",
-      },
-    ]);
-    saveQuestion();
+    try {
+      await saveQuestion();
+      setQuestions((prevQuestions) => [
+        ...prevQuestions,
+        {
+          id: prevQuestions.length + 1,
+          type: "",
+          group: "",
+          content: "",
+          answer: "",
+        },
+      ]);
+    } catch (e) {
+      console.log(e);
+      toast.error("Error adding question");
+    }
   };
   const handleAnswerChange = (id: number, answer: string) => {
     setQuestions((prevQuestions) =>
@@ -265,7 +268,7 @@ const Create = () => {
             question.type === "password" ||
             question.type === "tel" ||
             question.type === "url"
-              ? question.answer
+              ? "Enter your input"
               : "",
           required: true,
           options:
@@ -288,13 +291,15 @@ const Create = () => {
 
         await createQuestion(questionId, payload);
         setQuestions([
-          { id: 1, type: "text", content: "", group: "", answer: "" },
+          { id: 1, type: "text", content: " ", group: " ", answer: " " },
         ]);
+
         setIsQuestionSaved(true);
-      }
+      } /***
       if (isAddQuestion === false) {
         toast.success(" Questions added successfully!");
       }
+        */
     } catch (error) {
       allQuestionsSaved = false;
       console.error("Error saving questions:", error);
@@ -302,8 +307,83 @@ const Create = () => {
     } finally {
       setIsSubmitting(false);
       setIsAddQuestion(false);
+      //setQuestions([{ id: 1, type: "text", content: "", group: "", answer: "" }]);
     }
   };
+
+  const saveQuestionBySave = async () => {
+    setIsSubmitting(true);
+
+    let allQuestionsSaved = true;
+
+    const isAnyQuestionAvailable = questions.some(
+      (question) =>
+        question.content &&
+        question.type &&
+        (question.type !== "select" ||
+          (question.answer && question.answer.length > 0)),
+    );
+
+    if (!isAnyQuestionAvailable) {
+      router.push("/organization/dashboard/campaigns");
+      return;
+    }
+
+    try {
+      for (const question of questions) {
+        const payload = {
+          label: question.content,
+          question_group_id: parseFloat(
+            groupedQuestions[groupedQuestions.length - 1]?.id,
+          ),
+          type: question.type,
+          name: question.content.toLowerCase().replace(/\s+/g, " "),
+          placeholder: [
+            "text",
+            "textarea",
+            "email",
+            "password",
+            "tel",
+            "url",
+          ].includes(question.type)
+            ? "Enter your input"
+            : "",
+          required: true,
+          options: ["select", "checkbox", "radio"].includes(question.type)
+            ? JSON.stringify(
+                [...questions[0].answer].map((item: any) => item.value),
+              )
+            : question.type === "area"
+              ? JSON.stringify([...area.map((item: any) => item)])
+              : question.type === "line"
+                ? JSON.stringify([...line.map((item: any) => item)])
+                : question.type === "location"
+                  ? JSON.stringify([...location.map((item: any) => item)])
+                  : null,
+          attributes: null,
+        };
+
+        await createQuestion(questionId, payload); // Save the question
+        setQuestions([
+          { id: 1, type: "text", content: "", group: "", answer: "" },
+        ]);
+        setIsQuestionSaved(true);
+      }
+      // Navigate to campaigns after saving all questions
+      router.push("organization/dashboard/campaigns");
+    } catch (error) {
+      allQuestionsSaved = false;
+      console.error("Error saving questions:", error);
+      toast.error("Failed to save some or all questions.");
+    } finally {
+      setIsSubmitting(false);
+      setIsAddQuestion(false);
+      setQuestions([
+        { id: 1, type: "text", content: "", group: "", answer: "" },
+      ]);
+    }
+  };
+
   //console.log(questions);
 
   const handleQuestionTypeChange = (id: number, type: string) => {
@@ -467,6 +547,20 @@ const Create = () => {
             onOptionsChange={handleOptionsChange}
           />
         );
+      case "radio":
+        return (
+          <RadioSelection
+            initialOptions={(() => {
+              try {
+                return options ? options : [];
+              } catch (error) {
+                console.error("Error parsing options:", error);
+                return [];
+              }
+            })()}
+            onOptionsChange={handleOptionsChange}
+          />
+        );
       case "checkbox":
         return (
           <CheckboxList
@@ -599,7 +693,7 @@ const Create = () => {
         );
       case "audio":
         return <AudioUpload />;
-      case "radio":
+      case "boolean":
         return (
           <RadioGroupWrapper
             options={[
@@ -1155,7 +1249,19 @@ const Create = () => {
       console.error("Error handling drag and drop:", error);
     }
   };
+  const getCampaign = async () => {
+    try {
+      const response = await getCampaignByIdDetails(questionId);
+      console.log(response);
+      setCampaigns(response.data);
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
+  useEffect(() => {
+    getCampaign();
+  }, []);
   return (
     <>
       <section className="mx-auto mt-5 w-full max-w-[896px]">
@@ -1172,7 +1278,7 @@ const Create = () => {
               <Button
                 variant="outline"
                 className="items-center gap-2 rounded-[50px] bg-main-100 font-bold text-white"
-                onClick={saveQuestion}
+                onClick={saveQuestionBySave}
               >
                 {isSubmitting ? (
                   <FaSpinner className="animate-spin" />
@@ -1184,11 +1290,10 @@ const Create = () => {
           </div>
           <div>
             <h1 className="mb-1 font-poppins text-xl font-semibold leading-[30px] text-[#333]">
-              Agriculture and Economy Survey
+              {campaigns.title}
             </h1>
             <span className="font-poppins text-[16px] font-medium text-[#4f4f4f]">
-              Lorem ipsum dolor sit amet consectetur. Viverra ultrices
-              condimentum nulla mauris id ut non tortor.
+              {campaigns.description}
             </span>
           </div>
 

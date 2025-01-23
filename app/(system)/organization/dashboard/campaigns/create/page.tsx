@@ -47,7 +47,7 @@ import {
   useOpenSuccessModalOverlay,
 } from "@/stores/overlay";
 import FileUpload from "@/components/task-stepper/fileUpload";
-import { organization_id } from "@/helper";
+import { organizationDetails } from "@/helper";
 
 interface StateItem {
   id: number;
@@ -236,7 +236,7 @@ const CreateNewCampaign = () => {
 
     try {
       const response = await axiosInstance.post(
-        `/organizations/${organization_id}/campaigns/create`,
+        `/organizations/${organizationDetails.domain}/campaigns/create`,
         formData,
         {
           headers: {

@@ -29,6 +29,11 @@ interface TransferState {
   setOpenTransfer: (value: boolean) => void;
 }
 
+interface OpenOrganizationState {
+  openOrganization: boolean;
+  setOpenOrganization: (value: boolean) => void;
+}
+
 interface CampaignGroupState {
   fetchData: boolean;
   show: boolean;
@@ -83,6 +88,11 @@ const useTransferOverlay = create<TransferState>((set) => ({
   setOpenTransfer: (value) => set({ openTransfer: value }),
 }));
 
+const useCreateOrganizationOverlay = create<OpenOrganizationState>((set) => ({
+  openOrganization: false,
+  setOpenOrganization: (value) => set({ openOrganization: value }),
+}));
+
 const useAddBeneficiaryOverlay = create<AddBeneState>((set) => ({
   show: false,
   setShow: (value) => set({ show: value }),
@@ -123,4 +133,5 @@ export {
   useEditCampaignOverlay,
   useOpenSuccessModalOverlay,
   useAddQuestionSectionOverlay,
+  useCreateOrganizationOverlay,
 };

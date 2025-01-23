@@ -44,6 +44,7 @@ import {
 } from "@/stores/overlay";
 import EditCampaign from "@/components/lib/modals/edit_campaign";
 import { getCampaign, getOrganizationCampaign } from "@/services/campaign";
+import { useRouter } from "next/navigation";
 
 const renderTable = (tab: string, tdata: any[]) => {
   switch (tab.toLowerCase()) {
@@ -350,6 +351,7 @@ const getStatusColor = (status: string) => {
 };
 
 const CampaignTable = ({ tdata }: { tdata: any[] }) => {
+  const router = useRouter();
   return (
     <Table>
       <TableHeader>
@@ -365,13 +367,19 @@ const CampaignTable = ({ tdata }: { tdata: any[] }) => {
       </TableHeader>
       <TableBody>
         {tdata?.map((data, index) => (
-          <TableRow key={index}>
+          <TableRow
+            key={index}
+            className="cursor-pointer"
+            onClick={() =>
+              router.push(`campaigns/questions?questionId=${data.id}`)
+            }
+          >
             <TableCell>{data?.title}</TableCell>
             <TableCell className="">{data?.campaign_group}</TableCell>
             <TableCell className="table-cell">
               {data?.locations?.label}
             </TableCell>
-            <TableCell className="">{data?.title}</TableCell>
+            <TableCell className="">{data?.number_of_responses}</TableCell>
             <TableCell className=" ">{data?.created_at}</TableCell>
             <TableCell className="">
               <StatusPill status={data?.status} />
