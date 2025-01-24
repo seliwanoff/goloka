@@ -603,6 +603,11 @@ export const pushNotifications = [
     isActive: true,
   },
   {
+    label: "Task recommendations",
+    value: "push_task_recommendations",
+    isActive: true,
+  },
+  {
     label: "Payments",
     value: "push_payments",
     isActive: true,

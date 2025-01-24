@@ -3,46 +3,94 @@ import {
   getNotificationsPreference,
   notificationPreferences,
 } from "@/services/misc";
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
+export type NotificationItem = {
+  label: string;
+  value: string;
+  isActive: boolean;
+};
+
+export const NotificationTypeSkeleton = () => (
+  <div className="space-y-4">
+    {[1, 2, 3, 4, 5].map((item) => (
+      <div
+        key={item}
+        className="flex w-full items-center justify-between rounded-full bg-gray-100 px-3 py-4"
+      >
+        <div className="h-6 w-1/2 animate-pulse rounded bg-gray-200" />
+        <div className="h-6 w-12 animate-pulse rounded-full bg-gray-200" />
+      </div>
+    ))}
+  </div>
+);
+
 const NotificationType: React.FC<{
-  data: any;
+  data: NotificationItem;
   type: "push" | "email";
-}> = ({ data, type }) => {
-  const [active, setActive] = useState(data?.isActive);
+  initialActiveState: boolean;
+  refetchPreferences: () => void;
+}> = ({ data, type, initialActiveState, refetchPreferences }) => {
+  const [active, setActive] = useState(initialActiveState);
   const [loading, setLoading] = useState(false);
-  // const { data: notificationsPref } = getNotificationsPreference();
 
-  const { data: notificationsPref, isLoading } = useQuery({
-    queryKey: ["Get notifications "],
-    queryFn: getNotificationsPreference,
-  });
+  // Update active state when initialActiveState changes
+  useEffect(() => {
+    setActive(initialActiveState);
+  }, [initialActiveState]);
 
-  console.log(notificationsPref, "notificationsPref");
+  // const handleChange = async (val: boolean) => {
+  //   setLoading(true);
+  //   const notifyData = {
+  //     notificationType: type,
+  //     notificationName: data?.value,
+  //     isActive: val,
+  //   };
 
+  //   try {
+  //     await notificationPreferences(notifyData);
+
+  //     // Refetch the preferences to get the latest state from backend
+  //     refetchPreferences();
+
+  //     // Optimistically update the state
+  //     setActive(val);
+  //   } catch (error) {
+  //     //@ts-ignore
+  //     toast.error(error?.response?.data?.message);
+  //     console.error("Error updating notification preferences:", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
   const handleChange = async (val: boolean) => {
-    setLoading(true); // Start loading
-    const notifyData = {
-      notificationType: type,
-      notificationName: data?.value,
-      isActive: val,
-    };
+    setLoading(true);
+
+    // Create FormData
+    const formData = new FormData();
+
+    // Add the current notification's value with its new state (1 or 0)
+    formData.append(data.value, val ? "1" : "0");
 
     try {
-      const res = await notificationPreferences(notifyData?.notificationName);
-      console.log(notifyData); // send to backend
+      const res = await notificationPreferences(formData);
+
+      // Refetch the preferences to get the latest state from backend
+      refetchPreferences();
+
+      // Optimistically update the state
       setActive(val);
+      //@ts-ignore
+      toast.success(res.message);
     } catch (error) {
       //@ts-ignore
       toast.error(error?.response?.data?.message);
       console.error("Error updating notification preferences:", error);
     } finally {
-      setLoading(false); // End loading
+      setLoading(false);
     }
   };
-
   return (
     <div className="flex w-full items-center justify-between rounded-full bg-gray-100 px-3 py-4">
       <span className="text-base font-medium text-gray-800">{data?.label}</span>
@@ -60,7 +108,7 @@ const NotificationType: React.FC<{
           }`}
           checked={active}
           onCheckedChange={handleChange}
-          disabled={loading} // Disable the switch while loading
+          disabled={loading}
         />
       </div>
     </div>
