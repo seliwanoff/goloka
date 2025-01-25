@@ -15,6 +15,7 @@ import { useUserStore } from "@/stores/currentUserStore";
 import { useRemoteUserStore } from "@/stores/remoteUser";
 import moment from "moment";
 import { useTopUpStores } from "@/stores/topUpstore";
+import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
 
 type ComponentProps = {};
 
@@ -25,9 +26,15 @@ const TopUpSuccessful: React.FC<ComponentProps> = ({}) => {
   const { setOpenTransfer } = useTransferOverlay();
   const { step, setStep, clearTransaction, transaction } = useTransferStepper();
   const { wallet_id, reference, date } = useTopUpStores();
-  const { amount } = useWithdrawStepperOrganization();
+  //const { amount } = useWithdrawStepperOrganization();
+  const amount = localStorage.getItem("amount");
+  const currentOrganization = useOrganizationStore(
+    (state) => state.organization,
+  );
+
   const { setOpen } = useWithdrawalfundsOverlay();
-  const USER_CURRENCY_SYMBOL = user?.country?.["currency-symbol"];
+  const USER_CURRENCY_SYMBOL =
+    currentOrganization && currentOrganization["symbol"];
   const handleComplete = () => {
     setOpen(false);
     const url = new URL(window.location.href);
@@ -44,7 +51,8 @@ const TopUpSuccessful: React.FC<ComponentProps> = ({}) => {
         Payment successful!
       </h3>
       <p className="text-center text-[#333333]">
-        You have successfully deposited {amount} to
+        You have successfully deposited {USER_CURRENCY_SYMBOL}
+        {amount} to
         <br />
         your wallet
       </p>
@@ -75,7 +83,7 @@ const TopUpSuccessful: React.FC<ComponentProps> = ({}) => {
             <div className="grid grid-cols-2">
               <span className="text-sm text-[#4F4F4F]">Amount Deposited</span>
               <span className="justify-self-end text-sm font-medium text-[#333]">
-                {amount}
+                {USER_CURRENCY_SYMBOL} {amount}
               </span>
             </div>
           </div>

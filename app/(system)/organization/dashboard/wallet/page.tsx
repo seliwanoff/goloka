@@ -30,7 +30,10 @@ import WalletFundungTable from "@/components/lib/widgets/walllet_funding_table";
 import WithdrawFund from "@/components/lib/modals/withdraw-fund";
 import WithdrawFunds from "@/components/lib/widgets/withdraw_fund";
 import { useSearchParams } from "next/navigation";
-import { validateTopUp } from "@/services/organization";
+import {
+  getOrganizationByDomain,
+  validateTopUp,
+} from "@/services/organization";
 import { toast } from "sonner";
 import TransferSuccessful from "@/components/wallet_comps/transfer_successful";
 import TopUpSuccessful from "@/components/wallet_comps/top_up_success";
@@ -55,13 +58,13 @@ const WalletPage = () => {
   const trxref = searchParams.get("trxref") || 0;
   const [validated, setValidated] = useState(false); // Tracks whether validation is successful
   const [isPolling, setIsPolling] = useState(false);
-
   const { setDate, setWallet_id, setAmount, setReference } = useTopUpStores();
   const [symbol, setSymbol] = useState("");
 
   const currentOrganization = useOrganizationStore(
     (state) => state.organization,
   );
+  const [data, setData] = useState<any>([]);
   // Tracks polling state
 
   // const fetchData = () => {
@@ -111,7 +114,7 @@ const WalletPage = () => {
   }, [user]);
   const validateTop = useCallback(async () => {
     try {
-      const response = await validateTopUp(20, trxref, ref);
+      const response = await validateTopUp(amount, trxref, ref);
 
       if (response) {
         setValidated(true);
@@ -131,13 +134,23 @@ const WalletPage = () => {
     if (trxref && ref && !validated) {
       setIsPolling(true);
 
-      const interval = setInterval(() => {
-        validateTop();
-      }, 10000);
-
-      return () => clearInterval(interval);
+      validateTop();
     }
   }, [trxref, ref, validateTop, validated]);
+
+  const getOrgaization = async () => {
+    try {
+      const response = await getOrganizationByDomain();
+      //  console.log(response);
+      setData(response.data);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  useEffect(() => {
+    getOrgaization();
+  }, []);
   return (
     <>
       <WithdrawFund />
@@ -152,7 +165,7 @@ const WalletPage = () => {
               <h1 className="text-[2rem] font-bold text-white">
                 {/* @ts-ignore */}
                 {USER_CURRENCY_SYMBOL || ""}{" "}
-                {numberWithCommas(user?.wallet_balance)}
+                {numberWithCommas(data?.wallet_balance || 0)}
               </h1>
               <p className="text-sm font-medium text-white">Wallet balance</p>
             </div>

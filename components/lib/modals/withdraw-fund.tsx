@@ -16,6 +16,7 @@ import WithdrawFunds from "../widgets/withdraw_fund";
 import ConfirmWithdrawalOrganization from "@/components/wallet_comps/confirm_organization_withdraw";
 import TopUpSuccessful from "@/components/wallet_comps/top_up_success";
 import { useWithdrawStepperOrganization } from "@/stores/misc";
+import ConfirmFunding from "@/components/wallet_comps/confirm_funding";
 
 const WithdrawFund = () => {
   const [isDesktop, setIsDesktop] = useState(false);
@@ -56,7 +57,8 @@ const WithdrawFund = () => {
             <div className="mt-16">
               {step === 0 && <WithdrawFunds />}
               {step === 1 && <ConfirmWithdrawalOrganization />}
-              {step === 2 && <TopUpSuccessful />}
+              {step === 2 && <ConfirmFunding />}
+              {step === 3 && <TopUpSuccessful />}
             </div>
           </DialogContent>
         </Dialog>
