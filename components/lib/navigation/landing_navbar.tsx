@@ -44,7 +44,7 @@ const LandingNavbar: React.FC<ComponentProps> = ({}) => {
     };
   });
 
-  const isHomePage = pathname === "/" || pathname === "/signin";
+  const isHomePage = pathname === "/" 
   return (
     <div
       style={{ zIndex: 100 }}

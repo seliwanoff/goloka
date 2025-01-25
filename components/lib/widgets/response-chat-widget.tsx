@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import { Send2 } from "iconsax-react";
+import { Danger, Send2 } from "iconsax-react";
 import profileImg from "@/public/assets/images/chat-user-profile.png";
 import { useChatMessages } from "@/stores/useChatMessage";
-import { Check, Loader2, Paperclip } from "lucide-react";
+import { Check, CheckCheck, Loader2, LoaderCircle, Paperclip } from "lucide-react";
 
 interface ChatWidgetProps {
   modelType: string;
@@ -77,16 +77,20 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
   const renderMessageStatus = (msg: any) => {
     switch (msg.__temp_status) {
       case "sending":
-        return <Loader2 className="h-3 w-3 animate-spin text-gray-400" />;
+        return <LoaderCircle className="h-3 w-3 animate-spin text-gray-400" />;
+        // return <Loader2 className="h-3 w-3 animate-spin text-gray-400" />;
       case "success":
         return (
           <div className="flex">
-            <Check className="h-3 w-3 text-blue-500" />
-            <Check className="-ml-1.5 h-3 w-3 text-blue-500" />
+            <CheckCheck />
           </div>
         );
       case "error":
-        return <span className="text-red-500">!</span>;
+        return (
+          <span className="">
+            <Danger size="20" color="#ff2a2a" />
+          </span>
+        );
       default:
         return null;
     }
