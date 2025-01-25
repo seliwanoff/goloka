@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { classMerge } from "@/lib/utils";
@@ -50,7 +50,7 @@ import { useMediaQuery } from "@react-hook/media-query";
 import { Close } from "@radix-ui/react-dialog";
 import { Toaster } from "sonner";
 import { userLogout } from "@/services/auth";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useUserStore } from "@/stores/currentUserStore";
 import { formatNotifications, generateColor, getInitials } from "@/helper";
 import {
@@ -60,6 +60,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { getNotifications } from "@/services/response";
+import { getUseServices } from "@/services/organization";
+import { ResponseCookies } from "next/dist/compiled/@edge-runtime/cookies";
+import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
+import { useCreateOrganizationOverlay } from "@/stores/overlay";
+import CreateOrganization from "../modals/create_orgnaization_modal";
 
 type ComponentProps = {};
 
@@ -73,8 +78,10 @@ const data = {
 const DashTopNav: React.FC<ComponentProps> = ({}) => {
   const [open, setOpen] = useState(false);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const [organizations, setOrganizations] = useState([]);
   const router = useRouter();
   const params = { per_page: 10, page: 1 };
+  const { setOpenOrganization } = useCreateOrganizationOverlay();
 
   const {
     data: notification,
@@ -99,7 +106,9 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
     () => generateColor(FirstName.trim().toLowerCase()),
     [FirstName],
   );
-  const initials = useMemo(() => getInitials(FirstName), [FirstName]);
+  const pathname = usePathname();
+  const firstSegment = pathname?.split("/")[1];
+
   const initiateLogout = () => {
     try {
       const res = userLogout();
@@ -112,11 +121,47 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
     }
   };
 
-
   const notificationData = formatNotifications(notification);
+
+  const getRegisteredUsersService = async () => {
+    const response = await getUseServices();
+
+    setOrganizations(response.services.organizations);
+  };
+
+  useEffect(() => {
+    getRegisteredUsersService();
+  }, []);
+  const handleCurrentOrgnization = (org: any) => {
+    useOrganizationStore.getState().setOrganization({
+      id: org.id,
+      name: org.name,
+      email: "",
+      country: org.country,
+      current_role: "",
+      email_verified_at: "",
+      pin_status: false,
+      domain: org.domain,
+      currency: org.country["currency-code"],
+      symbol: org.country["currency-symbol"],
+    });
+    window.location.reload();
+  };
+  const currentOrganization = useOrganizationStore(
+    (state) => state.organization,
+  );
+  const filteredOrganizations = organizations.filter(
+    (org: any) => org.id !== currentOrganization?.id,
+  );
+  const initials = useMemo(
+    () => getInitials(currentOrganization ? currentOrganization.name : ""),
+    [currentOrganization],
+  );
 
   return (
     <>
+      {/*** Organization creation */}
+      <CreateOrganization />
       <Toaster richColors position={"top-right"} />
       <div className="absolute left-0 top-0 z-[50] flex h-[72px] w-full items-center justify-between bg-white px-4 py-2 shadow-sm sm:z-0 lg:px-8">
         <div className="flex gap-4">
@@ -137,7 +182,6 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
         {/* -- activity section */}
         <div className="flex items-center justify-center gap-4">
           {/* notification icon */}
-
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <div className="transit relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-gray-50 text-gray-500 hover:bg-gray-100 hover:text-gray-800">
@@ -184,16 +228,6 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
           {user && user.data && (
             <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
               <PopoverTrigger className="transit shadow-1 cursor-pointer items-center justify-center gap-3 rounded-full hover:bg-gray-100 lg:flex lg:bg-[#F7F7F8] lg:px-5 lg:py-1.5">
-                {/* <div className="w-9">
-                  <AspectRatio ratio={1}>
-                    <Image
-                      src={user.data.profile_img || UserProfileImg}
-                      alt="user-profile-img"
-                      className="rounded-full"
-                      fill
-                    />
-                  </AspectRatio>
-                </div> */}
                 <div
                   className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-white`}
                   style={{ backgroundColor }}
@@ -208,49 +242,89 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                     {
                       INDIVIDUAL: (
                         <p className="-mt-1 text-sm font-light">
-                          Individual Account
+                          Individual Accounts
                         </p>
                       ),
                       ORGANISATION: (
                         <p className="-mt-1 text-sm font-light">
-                          Organisation Account
+                          {currentOrganization && currentOrganization.name}
                         </p>
                       ),
-                    }[user.data.account_type || "INDIVIDUAL"]
+                    }[
+                      firstSegment === "organization"
+                        ? "ORGANISATION"
+                        : "INDIVIDUAL"
+                    ]
                   }
                 </div>
 
                 <ChevronDown strokeWidth={1.5} className="hidden lg:flex" />
               </PopoverTrigger>
               <PopoverContent>
-                <div className="flex w-full items-center gap-5">
-                  <div
-                    className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-white`}
-                    style={{ backgroundColor }}
-                  >
-                    {initials}
-                  </div>
-                  <div className="flex flex-col justify-center">
-                    <p className="text-base font-semibold">
-                      <p className="text-base font-semibold">{FirstName}</p>
-                    </p>
-                    {
-                      // @ts-ignore
-                      {
-                        INDIVIDUAL: (
-                          <p className="-mt-1 text-sm font-light">
-                            Individual Account
+                <div
+                  className="flex h-[200px] w-full flex-col items-start gap-5 overflow-x-hidden"
+                  style={{
+                    scrollbarWidth: "none",
+                  }}
+                >
+                  {filteredOrganizations.length > 0 ? (
+                    filteredOrganizations.map((org: any, index) => (
+                      <div
+                        className="flex cursor-pointer items-center gap-5"
+                        onClick={() => handleCurrentOrgnization(org)}
+                        key={index}
+                      >
+                        <div
+                          className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-white`}
+                          style={{ backgroundColor }}
+                        >
+                          {getInitials(org.name)}
+                        </div>
+                        <div className="flex flex-col justify-center">
+                          <p className="text-base font-semibold">
+                            <p className="max-w-[200px] overflow-hidden text-ellipsis text-nowrap text-base font-semibold">
+                              {org.name}
+                            </p>
+
+                            <p className="mt-2 max-w-[200px] overflow-hidden text-ellipsis text-nowrap text-xs font-medium text-gray-600">
+                              {org.domain}
+                            </p>
                           </p>
-                        ),
-                        ORGANISATION: (
-                          <p className="-mt-1 text-sm font-light">
-                            Organisation Account
-                          </p>
-                        ),
-                      }[user.data.account_type || "INDIVIDUAL"]
-                    }
-                  </div>
+
+                          {/**
+                        {
+                          // @ts-ignore
+                          {
+                            INDIVIDUAL: (
+                              <p className="-mt-1 text-sm font-light">
+                                Individual Accounts
+                              </p>
+                            ),
+                            ORGANISATION: (
+                              <p className="-mt-1 text-sm font-light">
+                                Organisation Account
+                              </p>
+                            ),
+                          }[user.data.account_type || "INDIVIDUAL"]
+                        }
+                          */}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <span className="text-center font-poppins font-bold text-[#333]">
+                      No organization.
+                    </span>
+                  )}
                 </div>
+                {organizations.length > 0 && (
+                  <Button
+                    className="mt-8 w-full rounded-full bg-main-100 text-white hover:bg-blue-700"
+                    onClick={() => setOpenOrganization(true)}
+                  >
+                    Create account
+                  </Button>
+                )}
                 <Separator className="my-4" />
 
                 {/* links */}
@@ -266,16 +340,6 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                       <p>{bubbleData.title}</p>
                     </Link>
                   ))}
-
-                  {/* <Link
-                    href={"#"}
-                    onClick={initiateLogout}
-                    className="transit flex items-center gap-3 text-rose-400 hover:text-rose-500"
-                  >
-                    <LogOut size={20} strokeWidth={1.5} />
-                    <p>Logout</p>
-                  </Link> */}
-
                   <Dialog>
                     <DialogTrigger className="transit flex items-center gap-3 text-rose-400 hover:text-rose-500">
                       <LogOut size={20} strokeWidth={1.5} />
@@ -335,5 +399,3 @@ const UserBubbleLinks: { icon: LucideIcon; title: string; href: string }[] = [
     href: "/dashboard/settings",
   },
 ];
-
-

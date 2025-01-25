@@ -48,6 +48,7 @@ import {
 } from "@/stores/overlay";
 import FileUpload from "@/components/task-stepper/fileUpload";
 import { organizationDetails } from "@/helper";
+import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
 
 interface StateItem {
   id: number;
@@ -61,7 +62,7 @@ const CreateNewCampaign = () => {
   const [selectedCampaignTypeId, setSelectedCampaignTypeId] = useState<any>("");
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
-  const { setShowCreate } = useAddcampaignGroupOverlay();
+  const { show, setShowCreate } = useAddcampaignGroupOverlay();
   const [file, setFile] = useState<File | null>(null);
 
   const [organizationCampaign, setOrganizationCampaign] = useState([]);
@@ -99,6 +100,9 @@ const CreateNewCampaign = () => {
   const [campaignId, setCampaignId] = useState("");
 
   const router = useRouter();
+  const currentOrganization = useOrganizationStore(
+    (state) => state.organization,
+  );
 
   const { data: country, isLoading: countryLoading } = useQuery({
     queryKey: ["Get Country list"],
@@ -110,11 +114,10 @@ const CreateNewCampaign = () => {
 
   const { setOpen } = useOpenSuccessModalOverlay();
   const toggleStateSelection = (value: number) => {
-    setSelectedStates(
-      (prev) =>
-        prev.includes(value)
-          ? prev.filter((id) => id !== value) // Remove if already selected
-          : [...prev, value], // Add if not selected
+    setSelectedStates((prev) =>
+      prev.includes(value)
+        ? prev.filter((id) => id !== value)
+        : [...prev, value],
     );
   };
 
@@ -126,7 +129,6 @@ const CreateNewCampaign = () => {
   const getCampaignGroup = async () => {
     try {
       const response = await getOrganizationCampaign();
-      // console.log(response);
       if (response && response.data) {
         setOrganizationCampaign(response.data);
       } else {
@@ -187,7 +189,7 @@ const CreateNewCampaign = () => {
 
   useEffect(() => {
     getCampaignGroup();
-  }, []);
+  }, [show]);
   useEffect(() => {
     if (countryId) getCountryState();
   }, [countryId]);
@@ -216,7 +218,7 @@ const CreateNewCampaign = () => {
     formData.append("title", title);
     formData.append("description", description);
     formData.append("campaign_group_id", selectedCampaignGroupId);
-    formData.append("type", selectedCampaignType);
+    formData.append("type", "survey");
     formData.append("number_of_responses", responseNumber.toString());
     formData.append("payment_rate_for_response", paymentRate.toString());
     formData.append("starts_at", formattedStartsAt);
@@ -334,6 +336,8 @@ const CreateNewCampaign = () => {
                 </Select>
               </Label>
 
+              {/***
+
               <Label htmlFor="questionType" className="w-full">
                 <div className="flex items-center justify-between">
                   <span className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
@@ -361,7 +365,7 @@ const CreateNewCampaign = () => {
                     </SelectValue>
                   </SelectTrigger>
 
-                  {/* Dropdown Content */}
+
                   <SelectContent className="max-w-full">
                     <SelectGroup>
                       <SelectLabel>Campaign Type</SelectLabel>
@@ -378,6 +382,7 @@ const CreateNewCampaign = () => {
                   </SelectContent>
                 </Select>
               </Label>
+              */}
 
               <Label htmlFor="question" className="w-full">
                 <span className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
@@ -386,6 +391,7 @@ const CreateNewCampaign = () => {
                 <Input
                   name="tite"
                   id="title"
+                  autoComplete="off"
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Type your title"
                   className="h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
@@ -399,6 +405,7 @@ const CreateNewCampaign = () => {
                 <Input
                   name="question"
                   id="question"
+                  autoComplete="off"
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Type your description"
                   className="h-[100px] w-full rounded-md border bg-transparent align-text-top placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
@@ -546,11 +553,15 @@ const CreateNewCampaign = () => {
 
               <Label htmlFor="question" className="w-full">
                 <span className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
-                  Payment rate (USD $)
+                  Payment rate (
+                  {currentOrganization && currentOrganization.currency}{" "}
+                  {currentOrganization && currentOrganization?.symbol})
                 </span>
                 <Input
                   name="question"
                   id="question"
+                  type="number"
+                  autoComplete="off"
                   placeholder="Payment rate"
                   onChange={(e) => setPaymentRate(e.target.value)}
                   className="h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
@@ -566,6 +577,8 @@ const CreateNewCampaign = () => {
                 </span>
                 <Input
                   name="question"
+                  type="number"
+                  autoComplete="off"
                   id="question"
                   onChange={(e) => setResponseNumber(e.target.value)}
                   placeholder="input number of response"

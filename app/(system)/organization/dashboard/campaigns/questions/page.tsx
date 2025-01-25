@@ -99,10 +99,21 @@ const Create = () => {
     console.log(updatedOptions);
     handleAnswerChange(1, updatedOptions);
   };
+  const handleSection = async () => {
+    const hasData = questions.some((q) => q.content.trim() !== "");
+
+    if (hasData) {
+      await saveQuestion();
+    }
+
+    setShowSection(true);
+  };
+
   const handleAddQuestion = async () => {
     setIsAddQuestion(true);
     try {
       await saveQuestion();
+      /***
       setQuestions((prevQuestions) => [
         ...prevQuestions,
         {
@@ -113,6 +124,7 @@ const Create = () => {
           answer: "",
         },
       ]);
+      */
     } catch (e) {
       console.log(e);
       toast.error("Error adding question");
@@ -186,7 +198,7 @@ const Create = () => {
             title={` ${item?.label}`} // Display order and label
             className="font-semibold text-[#071E3B]"
           >
-            {renderQuestionInput(item?.type, index, item.options)}
+            {renderQuestionInput(item?.type, index, item.options, "preview")}
           </DraggableComponent>
         ))}
     </>
@@ -220,7 +232,7 @@ const Create = () => {
                 title={`${item.label}`}
                 className="p-2 font-semibold text-[#071E3B]"
               >
-                {renderQuestionInput(item.type, index, item.options)}
+                {renderQuestionInput(item.type, index, item.options, "preview")}
               </DraggableComponent>
             ))
         : ""}
@@ -279,11 +291,11 @@ const Create = () => {
                   [...questions[0].answer].map((item: any) => item.value),
                 )
               : question.type === "area"
-                ? JSON.stringify([...area.map((item: any) => item)])
+                ? null
                 : question.type === "line"
-                  ? JSON.stringify([...line.map((item: any) => item)])
+                  ? null
                   : question.type === "location"
-                    ? JSON.stringify([...location.map((item: any) => item)])
+                    ? null
                     : null,
 
           attributes: null,
@@ -293,7 +305,6 @@ const Create = () => {
         setQuestions([
           { id: 1, type: "text", content: " ", group: " ", answer: " " },
         ]);
-
         setIsQuestionSaved(true);
       } /***
       if (isAddQuestion === false) {
@@ -413,6 +424,9 @@ const Create = () => {
   const [area, setArea] = useState(["4"]);
   const [location, setLocation] = useState([""]);
   const [line, setLine] = useState(["2"]);
+  const [lines] = useState(["", ""]);
+  const [locations] = useState([""]);
+  const [areas] = useState(["", "", "", ""]);
 
   const getAllQuestion = async () => {
     try {
@@ -461,7 +475,13 @@ const Create = () => {
   useEffect(() => {
     getAllQuestion();
   }, [isQuestionSaved, showSection]);
-  const renderQuestionInput = (type: string, id: number, options?: any) => {
+  const renderQuestionInput = (
+    type: string,
+    id: number,
+    options?: any,
+    preview?: any,
+  ) => {
+    //  console.log(preview);
     switch (type) {
       case "text":
         return (
@@ -473,54 +493,97 @@ const Create = () => {
       case "line":
         return (
           <div className="flex w-full max-w-[1/2] basis-[1/2] gap-4">
-            {line.map((value, index) => (
-              <Input
-                key={`line-${index}`}
-                name={`line-${index}`}
-                type="text"
-                disabled={true}
-                placeholder={`2 points`}
-                value={2}
-                onChange={(e) =>
-                  handleAnswerChangeLocation("line", index, e.target.value)
-                }
-                className="mb-2 h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
-              />
-            ))}
+            {preview === "preview"
+              ? lines.map((value, index) => (
+                  <Input
+                    key={`line-${index}`}
+                    name={`line-${index}`}
+                    type="text"
+                    disabled={preview !== "preview" ? true : false}
+                    placeholder={`Enter points`}
+                    value={value}
+                    onChange={(e) =>
+                      handleAnswerChangeLocation("line", index, e.target.value)
+                    }
+                    className="mb-2 h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
+                  />
+                ))
+              : line.map((value, index) => (
+                  <Input
+                    key={`line-${index}`}
+                    name={`line-${index}`}
+                    type="text"
+                    disabled={true}
+                    placeholder={`2 points`}
+                    value={2}
+                    onChange={(e) =>
+                      handleAnswerChangeLocation("line", index, e.target.value)
+                    }
+                    className="mb-2 h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
+                  />
+                ))}
           </div>
         );
       case "location":
-        return location.map((value, index) => (
-          <Input
-            key={`location-${index}`}
-            name={`location-${index}`}
-            type="text"
-            placeholder={`Search address`}
-            value={value}
-            disabled={true}
-            onChange={(e) =>
-              handleAnswerChangeLocation("location", index, e.target.value)
-            }
-            className="mb-2 h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
-          />
-        ));
-      case "area":
-        return (
-          <div className="flex w-full max-w-[1/2] flex-1 flex-grow basis-[1/2] gap-4">
-            {area.map((value, index) => (
+        return preview === "preview"
+          ? locations.map((value, index) => (
               <Input
-                key={`area-${index}`}
-                name={`area-${index}`}
+                key={`location-${index}`}
+                name={`location-${index}`}
                 type="text"
-                min={4}
-                placeholder={`Enter number of point`}
+                placeholder={`Search address`}
                 value={value}
                 onChange={(e) =>
-                  handleAnswerChangeLocation("area", index, e.target.value)
+                  handleAnswerChangeLocation("location", index, e.target.value)
                 }
                 className="mb-2 h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
               />
-            ))}
+            ))
+          : location.map((value, index) => (
+              <Input
+                key={`location-${index}`}
+                name={`location-${index}`}
+                type="text"
+                placeholder={`Search address`}
+                value={value}
+                disabled={true}
+                onChange={(e) =>
+                  handleAnswerChangeLocation("location", index, e.target.value)
+                }
+                className="mb-2 h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
+              />
+            ));
+      case "area":
+        return (
+          <div className="flex w-full flex-wrap justify-between gap-4">
+            {preview === "preview"
+              ? areas.map((value, index) => (
+                  <Input
+                    key={`area-${index}`}
+                    name={`area-${index}`}
+                    type="text"
+                    placeholder={`Enter number of point`}
+                    value={value}
+                    onChange={(e) =>
+                      handleAnswerChangeLocation("area", index, e.target.value)
+                    }
+                    className="mb-2 h-12 w-full flex-grow basis-[300px] rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
+                  />
+                ))
+              : area.map((value, index) => (
+                  <Input
+                    key={`area-${index}`}
+                    name={`area-${index}`}
+                    type="text"
+                    min={4}
+                    placeholder={`Enter number of point`}
+                    value={value}
+                    onChange={(e) =>
+                      handleAnswerChangeLocation("area", index, e.target.value)
+                    }
+                    className="mb-2 h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
+                  />
+                ))}
           </div>
         );
       case "textarea":
@@ -1233,11 +1296,6 @@ const Create = () => {
         }
       }
 
-      // Log the updated lists for debugging
-      console.log("Updated ungroupedQuestions:", ungroupedQuestions);
-      console.log("Updated groupedQuestions:", groupedQuestions);
-
-      // Optionally, make an API call to persist the changes
       const reorderedData = {
         ungroupedQuestions,
         groupedQuestions,
@@ -1320,6 +1378,8 @@ const Create = () => {
                     <Input
                       name={`question-${question.id}`}
                       id={`question-${question.id}`}
+                      autoComplete="off"
+                      value={question.content}
                       onChange={(e) =>
                         handleContentChange(question.id, e.target.value)
                       }
@@ -1425,9 +1485,7 @@ const Create = () => {
                 </Add>
                 <Add
                   imageSrc="/assets/images/questions/section.png"
-                  onClick={() => {
-                    setShowSection(true);
-                  }}
+                  onClick={handleSection}
                 >
                   Add section
                 </Add>

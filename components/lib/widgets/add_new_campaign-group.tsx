@@ -93,6 +93,7 @@ const AddNewCampaignGroup = () => {
                   {...register("name")}
                   id="name"
                   name="name"
+                  autoComplete="off"
                   placeholder="Input name"
                   className={cn(
                     "form-input rounded-lg border border-[#D9DCE0] px-4 py-[18px] outline-0 placeholder:text-[#828282] focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0",
@@ -118,6 +119,7 @@ const AddNewCampaignGroup = () => {
                 {...register("description")}
                 id="description"
                 name="description"
+                autoComplete="off"
                 placeholder="describe the group here."
                 className={cn(
                   "form-input rounded-lg border border-[#D9DCE0] px-4 py-[18px] outline-0 placeholder:text-[#828282] focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0",

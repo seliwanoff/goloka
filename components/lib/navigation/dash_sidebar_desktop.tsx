@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { classMerge, cn } from "@/lib/utils";
@@ -42,6 +42,7 @@ import { SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { userLogout } from "@/services/auth";
 import { useCreateOrganizationOverlay } from "@/stores/overlay";
 import CreateOrganization from "../modals/create_orgnaization_modal";
+import { getUseServices } from "@/services/organization";
 
 type ComponentProps = {
   navMenuList: { icon: any; title: string; link: string }[];
@@ -51,6 +52,7 @@ const DashSideBarDesktop: React.FC<ComponentProps> = ({ navMenuList }) => {
   const pathname = usePathname();
   const router = useRouter();
   const { setOpenOrganization } = useCreateOrganizationOverlay();
+  const [organizations, setOrganizations] = useState([]);
 
   // userLogout;
 
@@ -64,7 +66,15 @@ const DashSideBarDesktop: React.FC<ComponentProps> = ({ navMenuList }) => {
       console.log(error, "error");
     }
   };
+  const getRegisteredUsersService = async () => {
+    const response = await getUseServices();
 
+    setOrganizations(response.services.organizations);
+  };
+
+  useEffect(() => {
+    getRegisteredUsersService();
+  }, []);
   return (
     <>
       {/*** Organization creation */}
@@ -138,24 +148,27 @@ const DashSideBarDesktop: React.FC<ComponentProps> = ({ navMenuList }) => {
           </Dialog>
 
           {/* CTA */}
-          <div className="mt-6 rounded-lg bg-[#F8F8F8] p-4">
-            <div className="mx-auto -mt-9 mb-5 flex h-12 w-12 items-center justify-center rounded-full border-4 border-white bg-main-100">
-              <People size="24" color="#FFF" />
-            </div>
-            <h3 className="text-center text-sm font-medium text-main-100">
-              Become an organization
-            </h3>
-            <p className="mt-4 text-center text-xs leading-5 text-[#4F4F4F]">
-              Generate organic data for your organisation on Golaka
-            </p>
 
-            <Button
-              className="mt-8 w-full rounded-full bg-main-100 text-white hover:bg-blue-700"
-              onClick={() => setOpenOrganization(true)}
-            >
-              Create account
-            </Button>
-          </div>
+          {organizations && organizations.length < 0 && (
+            <div className="mt-6 rounded-lg bg-[#F8F8F8] p-4">
+              <div className="mx-auto -mt-9 mb-5 flex h-12 w-12 items-center justify-center rounded-full border-4 border-white bg-main-100">
+                <People size="24" color="#FFF" />
+              </div>
+              <h3 className="text-center text-sm font-medium text-main-100">
+                Become an organization
+              </h3>
+              <p className="mt-4 text-center text-xs leading-5 text-[#4F4F4F]">
+                Generate organic data for your organisation on Golaka
+              </p>
+
+              <Button
+                className="mt-8 w-full rounded-full bg-main-100 text-white hover:bg-blue-700"
+                onClick={() => setOpenOrganization(true)}
+              >
+                Create account
+              </Button>
+            </div>
+          )}
         </nav>
       </aside>
     </>

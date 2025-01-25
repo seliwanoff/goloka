@@ -16,6 +16,10 @@ interface AddBeneState {
   show: boolean;
   setShow: (value: boolean) => void;
 }
+interface AddWithdrawSTat {
+  open: boolean;
+  setOpen: (value: boolean) => void;
+}
 
 interface AddSectionState {
   showSection: boolean;
@@ -97,6 +101,11 @@ const useAddBeneficiaryOverlay = create<AddBeneState>((set) => ({
   show: false,
   setShow: (value) => set({ show: value }),
 }));
+const useWithdrawalfundsOverlay = create<AddWithdrawSTat>((set) => ({
+  open: false,
+  setOpen: (value) => set({ open: value }),
+}));
+
 const useAddQuestionSectionOverlay = create<AddSectionState>((set) => ({
   showSection: false,
   setShowSection: (value) => set({ showSection: value }),
@@ -134,4 +143,5 @@ export {
   useOpenSuccessModalOverlay,
   useAddQuestionSectionOverlay,
   useCreateOrganizationOverlay,
+  useWithdrawalfundsOverlay,
 };

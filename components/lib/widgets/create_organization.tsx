@@ -65,7 +65,7 @@ const CreateNewOrganization = () => {
 
       toast.success("Organization created successfully!");
       setOpenOrganization(false);
-      window.location.href = `/organization/dashboard/campaigns`;
+      window.location.href = `/organization/dashboard/root`;
 
       reset();
     } catch (error) {
