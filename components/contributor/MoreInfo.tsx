@@ -305,14 +305,14 @@ const MoreInfo: React.FC<PageProps> = ({ step, setStep }) => {
                   "Proceed"
                 )}
               </Button>
-              <Button
+              {/* <Button
                 type="button"
                 onClick={handleSkip}
                 className="w-full bg-transparent text-base text-main-100 hover:bg-transparent disabled:opacity-50"
                 disabled={isSubmitting}
               >
                 Skip
-              </Button>
+              </Button> */}
             </div>
           </form>
         </div>

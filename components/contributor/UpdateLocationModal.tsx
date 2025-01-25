@@ -133,12 +133,12 @@ const UpdateLocationModal = () => {
               "Update location"
             )}
           </Button>
-          <Button
+          {/* <Button
             className="hover:bg-white-700 mt-5 h-12 w-full rounded-full bg-white text-base font-light text-blue-500"
             onClick={() => router.push("/dashboard/root")}
           >
             { "Skip"}
-          </Button>
+          </Button> */}
           {error && <p className="mt-4 text-red-500">{error}</p>}
         </div>
       </div>

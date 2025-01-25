@@ -31,42 +31,7 @@ const Verify: React.FC<PageProps> = ({ setStep }) => {
 
 
 
-  // const handleOtpSubmit = useCallback(async () => {
-  //   // Prevent multiple submissions
-  //   if (isSubmitting) return;
-
-  //   // Validate OTP length
-  //   const otpValue = otpValues.join("");
-  //   if (otpValue.length !== 6) {
-  //     setError("Please enter all digits.");
-  //     return;
-  //   }
-
-  //   setIsSubmitting(true);
-  //   setHasSubmitted(true);
-
-  //   try {
-  //     const response = await verifyOTP({ otp: otpValue });
-
-  //     console.log(response);
-  //     const { data } = response;
-
-  //     // @ts-ignore
-  //     if (!response?.message) {
-  //       toast("Invalid OTP code. Please try again.");
-  //       return;
-  //     }
-
-  //     // @ts-ignore
-  //     toast.success(response?.message);
-  //     setStep(3);
-  //   } catch (error) {
-  //     toast("Failed to verify OTP. Please try again.");
-  //     // Don't proceed to next step on error
-  //   } finally {
-  //     setIsSubmitting(false);
-  //   }
-  // }, [otpValues, isSubmitting, setStep]);
+ 
 
   const handleOtpSubmit = useCallback(async () => {
     if (isSubmitting || otpValues.join("").length !== 6) {
@@ -78,6 +43,7 @@ const Verify: React.FC<PageProps> = ({ setStep }) => {
     setHasSubmitted(true);
 
     try {
+      // @ts-ignore
       const response = await verifyOTP({ otp: otpValues.join("") });
       // @ts-ignore
       if (!response?.message) {
@@ -86,7 +52,7 @@ const Verify: React.FC<PageProps> = ({ setStep }) => {
       }
       // @ts-ignore
       toast.success(response.message);
-      setStep(3); // This will trigger navigation with verify-complete flag
+      setStep(3);
     } catch (error) {
       toast.error("Failed to verify OTP. Please try again.");
     } finally {
@@ -104,8 +70,7 @@ const Verify: React.FC<PageProps> = ({ setStep }) => {
         console.log(res, "response");
         toast("OTP resent successfully");
         setSec(60);
-        setTimerKey((prev) => prev + 1); // Increment timer key to force reset
-        // Clear previous OTP
+        setTimerKey((prev) => prev + 1);
         setOtpValues(Array(6).fill(""));
         setHasSubmitted(false);
       }
@@ -116,12 +81,7 @@ const Verify: React.FC<PageProps> = ({ setStep }) => {
     }
   };
 
-  // useEffect(() => {
-  //   const emailParam = searchParams.get("email");
-  //   if (emailParam) {
-  //     setEmail(decodeURIComponent(emailParam));
-  //   }
-  // }, [searchParams]);
+
 
    useEffect(() => {
      const emailParam = searchParams.get("email");

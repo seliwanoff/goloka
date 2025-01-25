@@ -70,41 +70,7 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
     setEye2((prev: boolean) => !prev);
   };
 
-  // const onSubmit: SubmitHandler<FormValues> = async (data) => {
-  //   setIsLoading(true);
-  //   console.log(data);
-  //   const userData = {
-  //     name: data.fullname,
-  //     email: data.email,
-  //     country_id: countryId,
-  //     password: data.password,
-  //     password_confirmation: data.password2,
-  //     platform: "web",
-  //   };
-  //   //@ts-ignore
-  //   const response = await createUser(userData);
-  //   console.log(response, "response");
-  //   //@ts-ignore
-  //   const { access_token, token_type, refresh_token } = response?.tokens;
-  //   localStorage.setItem("access_token", JSON.stringify(access_token));
-  //   localStorage.setItem("refresh_token", JSON.stringify(refresh_token));
-  //   localStorage.setItem("token_type", JSON.stringify(token_type));
-  //   if (response) {
-  //     const res = await getOTP({});
 
-  //     if (res) {
-  //       console.log(res, "response");
-  //       setIsLoading(false);
-  //       //@ts-ignore
-  //       toast.success(response?.message);
-  //       setStep(2, data.email);
-  //     }
-  //   } else {
-  //     setIsLoading(false);
-  //     toast.error("Error creating user, Please try again");
-  //   }
-  //   setIsLoading(false);
-  // };
 const onSubmit: SubmitHandler<FormValues> = async (data) => {
   // Prevent duplicate submissions
   if (isSubmitting || isLoading) return;
@@ -157,11 +123,6 @@ const onSubmit: SubmitHandler<FormValues> = async (data) => {
           });
         }
 
-        // Set field errors in the form
-        // setError(field as keyof FormValues, {
-        //   type: "server",
-        //   message: Array.isArray(messages) ? messages[0] : messages,
-        // });
       });
     } else {
       // Handle other types of errors

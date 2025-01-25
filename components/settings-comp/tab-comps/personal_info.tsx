@@ -198,88 +198,12 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
     }
   };
 
-  //-----------------------------------------------------------------------------------------------/////\\\\\\\///////\\\\\\\
 
-  // const mergedUserData = useMemo(() => {
-  //   const safeGet = (obj: any, key: string) => {
-  //     return obj && obj[key] !== undefined ? obj[key] : "";
-  //   };
-
-  //   const keyMapping: Record<string, string> = {
-  //     name: "firstName",
-  //     birth_date: "dateOfBirth",
-  //     email: "email",
-  //     gender: "gender",
-  //     primary_language: "primaryLanguage",
-  //     religion: "religion",
-  //     ethnicity: "ethnicity",
-  //     spoken_languages: "spokenLanguage",
-  //     tel: "phoneNo",
-  //   };
-
-  //   const merged: Record<string, any> = {};
-
-  //   Object.keys(keyMapping).forEach((sourceKey) => {
-  //     const targetKey = keyMapping[sourceKey];
-  //     let value =
-  //       safeGet(remoteUser, sourceKey) || safeGet(currentUser, sourceKey);
-
-  //     if (value !== undefined && value !== null) {
-  //       if (sourceKey === "birth_date") {
-  //         merged[targetKey] = value.split(" ")[0];
-  //       } else if (sourceKey === "spoken_languages") {
-  //         merged[targetKey] = normalizeSpokenLanguages(value);
-  //       } else {
-  //         merged[targetKey] =
-  //           typeof value === "string" ? value.toLowerCase() : value;
-  //       }
-  //     }
-  //   });
-
-  //   return merged;
-  // }, [currentUser, remoteUser]);
-
-  // const initialAvatar = useMemo(() => {
-  //   const fullName = `${mergedUserData.firstName || ""}`.trim();
-  //   return (
-  //     mergedUserData?.profile_photo_url ||
-  //     generateAvatarFromInitials(fullName) ||
-  //     Avatar.src
-  //   );
-  // }, [mergedUserData]);
 
   const [imgUrl, setImgUrl] = useState<string>(initialAvatar);
   const [image, setImage] = useState<File | null>(null);
 
-  // const {
-  //   handleSubmit,
-  //   register,
-  //   control,
-  //   formState: { errors, isDirty },
-  //   reset,
-  //   watch,
-  //   setValue,
-  // } = useForm<FormValues>({
-  //   //@ts-ignore
-  //   resolver: yupResolver(schema),
-  //   defaultValues: mergedUserData,
-  // });
 
-  // const {
-  //   handleSubmit,
-  //   register,
-  //   control,
-  //   formState: { errors, isDirty },
-  //   reset,
-  //   watch,
-  //   setValue,
-  // } = useForm<FormValues>({
-  //   //@ts-ignore
-  //   resolver: yupResolver(schema),
-  //   defaultValues: mergedUserData,
-  //   // Prevent form from being uncontrolled on first render
-  //   mode: "onChange",
-  // });
 
   // Watch all form fields
   const formValues = watch();
@@ -328,55 +252,7 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
       });
     }
   }, [mergedUserData, setValue]);
-  // const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = e.target.files && e.target.files[0];
-  //   if (file) {
-  //     const url = URL.createObjectURL(file);
-  //     setImgUrl(url);
-  //     setImage(file);
-  //   }
-  // };
 
-  // const onSubmit = async (data: FormValues) => {
-  //   try {
-  //     setIsLoading(true);
-
-  //     const formattedData = {
-  //       name: data.firstName,
-  //       birth_date: data.dateOfBirth,
-  //       tel: data.phoneNo,
-  //       gender: data.gender,
-  //       religion: data.religion,
-  //       ethnicity: data.ethnicity,
-  //       primary_language: data.primaryLanguage,
-  //       profile_photo: image
-  //         ? URL.createObjectURL(image)
-  //         : mergedUserData.profile_photo_url,
-  //       ...data.spokenLanguage.reduce(
-  //         (acc, lang, index) => ({
-  //           ...acc,
-  //           [`spoken_languages[${index}]`]: lang,
-  //         }),
-  //         {},
-  //       ),
-  //     };
-
-  //     const response = await createContributor(formattedData);
-
-  //     if (!response) {
-  //       throw new Error("Failed to submit the form. Please try again.");
-  //     }
-  //     //@ts-ignore
-  //     toast.success(response?.message);
-  //     setInitialValues(data);
-  //     setIsFormDirty(false);
-  //   } catch (error) {
-  //     console.error("Form submission error:", error);
-  //     toast.error("An unexpected error occurred. Please try again.");
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
 
   const handleChange = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -407,64 +283,7 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
     [],
   );
 
-  // const onSubmit = async (data: FormValues) => {
-  //   try {
-  //     setIsLoading(true);
-
-  //     // Create FormData instance
-  //     const formData = new FormData();
-
-  //     // Add all form fields
-  //     formData.append("name", data.firstName);
-  //     formData.append("birth_date", data.dateOfBirth);
-  //     formData.append("tel", data.phoneNo || "");
-  //     formData.append("gender", data.gender);
-  //     formData.append("religion", data.religion);
-  //     formData.append("ethnicity", data.ethnicity);
-  //     formData.append("primary_language", data.primaryLanguage);
-
-  //     // Add spoken languages
-  //     data.spokenLanguage.forEach((lang, index) => {
-  //       formData.append(`spoken_languages[${index}]`, lang);
-  //     });
-
-  //     // Only append image if there's a new one
-  //     if (image) {
-  //       formData.append("profile_photo", image);
-  //     }
-
-  //     // Add existing profile photo URL if no new image
-  //     if (!image && mergedUserData.profile_photo_url) {
-  //       formData.append("profile_photo_url", mergedUserData.profile_photo_url);
-  //     }
-
-  //     const response = await createContributor(formData);
-
-  //     if (!response) {
-  //       throw new Error("Failed to submit the form. Please try again.");
-  //     }
-  //     //@ts-ignore
-  //     toast.success(response?.message);
-
-  //     // Update initial values and reset form state
-  //     setInitialValues(data);
-  //     setIsFormDirty(false);
-
-  //     // Cleanup old image URL if exists
-  //     if (imgUrl.startsWith("blob:")) {
-  //       URL.revokeObjectURL(imgUrl);
-  //     }
-  //   } catch (error) {
-  //     console.error("Form submission error:", error);
-  //     toast.error(
-  //       error instanceof Error
-  //         ? error.message
-  //         : "An unexpected error occurred. Please try again.",
-  //     );
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
+ 
 
   React.useEffect(() => {
     return () => {
