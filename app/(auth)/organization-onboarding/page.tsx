@@ -6,11 +6,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, User, X } from "lucide-react";
+import { Loader2, ImagePlus, Trash2 } from "lucide-react";
 import Image from "next/image";
+import { createOrganization } from "@/services/organization";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const formSchema = z.object({
-  profile_photo: z.instanceof(File).optional(),
+  logo: z.instanceof(File).optional(),
   name: z.string().min(2, "Organization name must be at least 2 characters"),
   phone: z.string().regex(/^[0-9]{11}$/, "Phone number must be 11 digits"),
   description: z.string().min(10, "Description must be at least 10 characters"),
@@ -19,8 +22,9 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 const DataphyteOrgForm: React.FC = () => {
+  const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
   const {
     control,
@@ -40,85 +44,96 @@ const DataphyteOrgForm: React.FC = () => {
       formData.append("phone", data.phone);
       formData.append("description", data.description);
 
-      // Only append profile photo if it exists
-      if (photoPreview && data.profile_photo) {
-        formData.append("profile_photo", data.profile_photo);
+      if (logoPreview && data.logo) {
+        formData.append("logo", data.logo);
+      }
+      const res = await createOrganization(formData);
+      console.log(res, "res");
+      if (res) {
+        setIsSubmitting(false);
+         //@ts-ignore
+        toast.success(res.message || "Successful");
+        router.push("/organization/dashboard/root");
       }
 
-      // Simulate API call with FormData
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      //   await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // Log FormData contents (for demonstration)
       for (let [key, value] of formData.entries()) {
         console.log(`${key}:`, value);
       }
 
-      setIsSubmitting(false);
+      //   setIsSubmitting(false);
     } catch (error) {
-      console.error("Error submitting form:", error);
+        // console.error("Error submitting form:", error?.response?.data?.message);
+     
+        //@ts-ignore
+        toast.error(error?.response?.data?.message);
       setIsSubmitting(false);
     }
   };
 
-  const handleRemovePhoto = () => {
-    setPhotoPreview(null);
-    setValue("profile_photo", undefined);
+  const handleRemoveLogo = () => {
+    setLogoPreview(null);
+    setValue("logo", undefined);
   };
 
   return (
-    <div className="mx-auto max-w-md p-6">
-      <h2 className="mb-6 text-center text-2xl font-bold">
-        Dataphyte Organization Registration
+    <div className="mx- max-w-xl rounded-xl bg-white p-6">
+      <h2 className="mb-6 text-center text-2xl font-bold text-gray-800">
+        Organization Registration
       </h2>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {/* Profile Photo */}
-        <div className="relative mb-4 flex justify-center">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        {/* Logo Upload */}
+        <div className="mb-4 flex justify-center">
           <Controller
-            name="profile_photo"
+            name="logo"
             control={control}
-            render={({ field: { onChange, value, ...field } }) => (
+            render={({ field: { onChange } }) => (
               <div>
                 <input
                   type="file"
                   accept="image/*"
                   className="hidden"
-                  id="profile_photo"
+                  id="org_logo"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) {
                       onChange(file);
                       const reader = new FileReader();
                       reader.onloadend = () => {
-                        setPhotoPreview(reader.result as string);
+                        setLogoPreview(reader.result as string);
                       };
                       reader.readAsDataURL(file);
                     }
                   }}
-                  {...field}
                 />
-                <label htmlFor="profile_photo" className="cursor-pointer">
-                  <div className="relative flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-2 border-gray-100 bg-[#fff] shadow-lg">
-                    {photoPreview ? (
+                <label htmlFor="org_logo" className="group cursor-pointer">
+                  <div className="relative flex h-40 w-40 items-center justify-center rounded-xl border-2 border-dashed border-gray-300 transition-all hover:border-main-100">
+                    {logoPreview ? (
                       <>
                         <Image
-                          src={photoPreview}
-                          alt="Profile"
-                          className="h-full w-full object-cover"
+                          src={logoPreview}
+                          alt="Organization Logo"
+                          fill
+                          className="rounded-xl object-contain p-4"
                         />
                         <button
                           type="button"
                           onClick={(e) => {
                             e.preventDefault();
-                            handleRemovePhoto();
+                            handleRemoveLogo();
                           }}
-                          className="absolute right-0 top-0 rounded-full bg-red-500 p-1 text-white"
+                          className="absolute right-2 top-2 rounded-full bg-red-500 p-1 text-white transition-all hover:bg-red-600"
                         >
-                          <X className="h-4 w-4" />
+                          <Trash2 className="h-4 w-4" />
                         </button>
                       </>
                     ) : (
-                      <User className="h-16 w-16 text-gray-400" />
+                      <div className="text-center text-gray-500 transition-all group-hover:text-main-100">
+                        <ImagePlus className="mx-auto mb-2 h-12 w-12" />
+                        <p className="text-sm">Upload Logo</p>
+                      </div>
                     )}
                   </div>
                 </label>
@@ -129,7 +144,7 @@ const DataphyteOrgForm: React.FC = () => {
 
         {/* Organization Name */}
         <div>
-          <label htmlFor="name" className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
+          <label className="mb-2 block font-medium text-gray-700">
             Organization Name
           </label>
           <Controller
@@ -139,7 +154,9 @@ const DataphyteOrgForm: React.FC = () => {
               <Input
                 {...field}
                 placeholder="Enter organization name"
-                className={`${errors.name ? "border-red-500" : ""} h-12 rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0`}
+                className={`${
+                  errors.name ? "border-red-500" : "border-gray-300"
+                } h-12 rounded-md focus:border-main-100 focus:ring-main-100`}
               />
             )}
           />
@@ -150,7 +167,7 @@ const DataphyteOrgForm: React.FC = () => {
 
         {/* Phone Number */}
         <div>
-          <label htmlFor="phone" className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
+          <label className="mb-2 block font-medium text-gray-700">
             Phone Number
           </label>
           <Controller
@@ -160,7 +177,9 @@ const DataphyteOrgForm: React.FC = () => {
               <Input
                 {...field}
                 placeholder="Enter 11-digit phone number"
-                className={errors.phone ? "border-red-500" : ""}
+                className={`${
+                  errors.phone ? "border-red-500" : "border-gray-300"
+                } h-12 rounded-md focus:border-main-100 focus:ring-main-100`}
               />
             )}
           />
@@ -171,7 +190,7 @@ const DataphyteOrgForm: React.FC = () => {
 
         {/* Description */}
         <div>
-          <label htmlFor="description" className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
+          <label className="mb-2 block font-medium text-gray-700">
             Description
           </label>
           <Controller
@@ -181,7 +200,9 @@ const DataphyteOrgForm: React.FC = () => {
               <Textarea
                 {...field}
                 placeholder="Enter organization description"
-                className={errors.description ? "border-red-500" : ""}
+                className={`${
+                  errors.description ? "border-red-500" : "border-gray-300"
+                } min-h-[100px] rounded-md focus:border-main-100 focus:ring-main-100`}
               />
             )}
           />
@@ -193,15 +214,10 @@ const DataphyteOrgForm: React.FC = () => {
         </div>
 
         {/* Submit Button */}
-        {/* <Button
-          type="submit"
-          disabled={!isValid || isSubmitting}
-          className="mt-4 w-full"
-        > */}
         <Button
           type="submit"
           disabled={!isValid || isSubmitting}
-          className="h-12 w-full rounded-full bg-main-100 text-base font-light text-white hover:bg-blue-700 disabled:bg-blue-500"
+          className="h-12 w-full rounded-full bg-main-100 text-white hover:bg-main-200 disabled:bg-gray-400"
         >
           {isSubmitting ? (
             <>
