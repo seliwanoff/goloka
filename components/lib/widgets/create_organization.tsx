@@ -19,6 +19,8 @@ import { Textarea } from "@/components/ui/textarea";
 import FileUpload from "@/components/task-stepper/fileUpload";
 import { createOrganization } from "@/services/organization";
 import { useRouter } from "next/navigation";
+import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
+import { getCurrentOrganization } from "@/services/auth";
 
 const schema = yup.object().shape({
   phone: yup.string().required(),
@@ -42,8 +44,23 @@ const CreateNewOrganization = () => {
   } = useForm({
     resolver: yupResolver(schema),
   });
-  // console.log(profile_photo.name);
-
+  const handleCurrentOrgnization = (org: any) => {
+    getCurrentOrganization(org);
+    /***
+    useOrganizationStore.getState().setOrganization({
+      id: org.id,
+      name: org.name,
+      email: "",
+      country: org.country,
+      current_role: "",
+      email_verified_at: "",
+      pin_status: false,
+      domain: org.domain,
+      currency: org.country["currency-code"],
+      symbol: org.country["currency-symbol"],
+    });
+    ***/
+  };
   const onCreateOrganization = async (data: any) => {
     setIsSubmitting(true);
     const { name, description, phone } = data;
@@ -62,6 +79,8 @@ const CreateNewOrganization = () => {
         description: description,
       };
       const res = await createOrganization({ ...datas, formData });
+
+      handleCurrentOrgnization(res.data);
 
       toast.success("Organization created successfully!");
       setOpenOrganization(false);

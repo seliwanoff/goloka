@@ -50,7 +50,6 @@ export const getUseServices = async (): Promise<AxiosResponse<any>> => {
   }
 };
 export const validateTopUp = async (
-  payload: any,
   trxref: any,
   ref: any,
 ): Promise<AxiosResponse<any>> => {
@@ -58,7 +57,7 @@ export const validateTopUp = async (
   try {
     const response: unknown = await postData(
       `/wallet/top-up/callback?trxref=${trxref}&reference=${ref}`,
-      payload,
+      "",
     );
 
     return response as AxiosResponse<any>;

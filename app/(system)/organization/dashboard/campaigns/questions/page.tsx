@@ -51,7 +51,11 @@ import RadioGroupWrapper from "@/components/question/boolean";
 import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import DraggableComponent from "@/components/ui/drag-drop";
 import { AxiosResponse } from "axios";
-import { getCampaignById, getCampaignByIdDetails } from "@/services/campaign";
+import {
+  getCampaignById,
+  getCampaignByIdDetails,
+  submitCampaign,
+} from "@/services/campaign";
 import RadioSelection from "@/components/ui/radio-select";
 type FormValues = {
   fullname: string;
@@ -314,7 +318,7 @@ const Create = () => {
     } catch (error) {
       allQuestionsSaved = false;
       console.error("Error saving questions:", error);
-      toast.error("Failed to save some or all questions.");
+      //  toast.error("Failed to save some or all questions.");
     } finally {
       setIsSubmitting(false);
       setIsAddQuestion(false);
@@ -328,15 +332,17 @@ const Create = () => {
     let allQuestionsSaved = true;
 
     const isAnyQuestionAvailable = questions.some(
-      (question) =>
-        question.content &&
-        question.type &&
-        (question.type !== "select" ||
-          (question.answer && question.answer.length > 0)),
+      (question) => question.content !== "",
     );
 
     if (!isAnyQuestionAvailable) {
-      router.push("/organization/dashboard/campaigns");
+      try {
+        await submitCampaign(questionId);
+        router.push("/organization/dashboard/campaigns");
+      } catch (e: any) {
+        toast.error(e.mesage);
+        setIsSubmitting(false);
+      }
       return;
     }
 
@@ -374,7 +380,16 @@ const Create = () => {
           attributes: null,
         };
 
-        await createQuestion(questionId, payload); // Save the question
+        await createQuestion(questionId, payload);
+        try {
+          await submitCampaign(questionId);
+          toast.success("Question saved successfully.");
+        } catch (e) {
+          toast.error("Failed to save some or all questions.");
+          setIsSubmitting(false);
+        }
+
+        // Save the question
         setQuestions([
           { id: 1, type: "text", content: "", group: "", answer: "" },
         ]);

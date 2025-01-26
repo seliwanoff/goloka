@@ -1,7 +1,10 @@
 import { Import } from "iconsax-react";
 import React, { useState } from "react";
 import { Button } from "../ui/button";
-import { useWithdrawOverlay } from "@/stores/overlay";
+import {
+  useWithdrawalfundsOverlay,
+  useWithdrawOverlay,
+} from "@/stores/overlay";
 import {
   useWithdrawStepper,
   useWithdrawStepperOrganization,
@@ -14,7 +17,7 @@ import { useTopUpStores } from "@/stores/topUpstore";
 import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
 
 const ConfirmWithdrawalOrganization = () => {
-  const { setOpen } = useWithdrawOverlay();
+  const { setOpen } = useWithdrawalfundsOverlay();
   const { step, setStep, amount } = useWithdrawStepperOrganization();
   const isMobile = useMediaQuery("(max-width: 640px)");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -34,10 +37,10 @@ const ConfirmWithdrawalOrganization = () => {
       toast.success("Payment link generated");
       setIsSubmitting(false);
 
-      setOpen(res.payment_url);
       setOpen(false);
-      setStep((prev: number) => prev + 1);
+      //  setStep((prev: number) => prev + 1);
       window.open(res.payment_url, "_blank");
+      setStep(0);
     } catch (error) {
       toast.error("Failed to initialize payment. Please try again.");
       setIsSubmitting(false);

@@ -163,3 +163,13 @@ export const deleteCampaign = async (id: any): Promise<AxiosResponse<any>> => {
     throw error;
   }
 };
+export const submitCampaign = async (id: any): Promise<AxiosResponse<any>> => {
+  try {
+    return await postData(
+      `/organizations/${organizationDetails.domain}/campaigns/${id}/submit`,
+    );
+  } catch (error) {
+    console.error("Error fetching campaign questions:", error);
+    throw error;
+  }
+};

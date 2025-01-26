@@ -49,7 +49,7 @@ import { ArrowLeft } from "iconsax-react";
 import { useMediaQuery } from "@react-hook/media-query";
 import { Close } from "@radix-ui/react-dialog";
 import { Toaster } from "sonner";
-import { userLogout } from "@/services/auth";
+import { getCurrentOrganization, userLogout } from "@/services/auth";
 import { usePathname, useRouter } from "next/navigation";
 import { useUserStore } from "@/stores/currentUserStore";
 import { formatNotifications, generateColor, getInitials } from "@/helper";
@@ -73,6 +73,7 @@ const data = {
   first_name: "",
   last_name: "",
   account_type: "",
+  name: "",
 };
 
 const DashTopNav: React.FC<ComponentProps> = ({}) => {
@@ -93,10 +94,19 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
     queryKey: ["Get notification list"],
     queryFn: () => getNotifications(params),
   });
+
+  const pathname = usePathname();
+  const firstSegment = pathname?.split("/")[1];
   const user = { data };
   const currentUser = useUserStore((state) => state.user);
+  const currentOrganization = useOrganizationStore(
+    (state) => state.organization,
+  );
   const logoutUser = useUserStore((state) => state.logoutUser);
-  const Name = currentUser?.name;
+  const Name =
+    firstSegment === "organization"
+      ? currentOrganization?.name
+      : currentUser?.name;
   const FirstName = Name
     ? Name.charAt(0).toUpperCase() + Name.slice(1).toLowerCase()
     : "";
@@ -106,14 +116,15 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
     () => generateColor(FirstName.trim().toLowerCase()),
     [FirstName],
   );
-  const pathname = usePathname();
-  const firstSegment = pathname?.split("/")[1];
 
   const initiateLogout = () => {
     try {
       const res = userLogout();
       console.log(res, "res");
       localStorage.removeItem("whoami");
+      localStorage.removeItem("organization_domain");
+      localStorage.removeItem("organization_currency");
+
       router.replace("/signin");
       logoutUser();
     } catch (error) {
@@ -125,14 +136,20 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
 
   const getRegisteredUsersService = async () => {
     const response = await getUseServices();
-
+    console.log(response);
     setOrganizations(response.services.organizations);
+    if (currentOrganization && currentOrganization?.name === null) {
+      getCurrentOrganization(response?.services?.organizations[0]);
+    }
   };
 
   useEffect(() => {
     getRegisteredUsersService();
   }, []);
   const handleCurrentOrgnization = (org: any) => {
+    getCurrentOrganization(org);
+
+    /***
     useOrganizationStore.getState().setOrganization({
       id: org.id,
       name: org.name,
@@ -145,12 +162,12 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
       currency: org.country["currency-code"],
       symbol: org.country["currency-symbol"],
     });
-    window.location.reload();
+    */
+    window.location.href = "/organization/dashboard/root";
   };
-  const currentOrganization = useOrganizationStore(
-    (state) => state.organization,
-  );
-  const filteredOrganizations = organizations.filter(
+
+  //console.log(currentOrganization);
+  const filteredOrganizations = organizations?.filter(
     (org: any) => org.id !== currentOrganization?.id,
   );
   const initials = useMemo(
@@ -247,7 +264,7 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                       ),
                       ORGANISATION: (
                         <p className="-mt-1 text-sm font-light">
-                          {currentOrganization && currentOrganization.name}
+                          Organisation accounts
                         </p>
                       ),
                     }[
@@ -262,13 +279,13 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
               </PopoverTrigger>
               <PopoverContent>
                 <div
-                  className="flex h-[200px] w-full flex-col items-start gap-5 overflow-x-hidden"
+                  className="flex max-h-[200px] w-full flex-col items-start gap-5 overflow-x-hidden"
                   style={{
                     scrollbarWidth: "none",
                   }}
                 >
-                  {filteredOrganizations.length > 0 ? (
-                    filteredOrganizations.map((org: any, index) => (
+                  {filteredOrganizations?.length > 0 ? (
+                    filteredOrganizations?.map((org: any, index) => (
                       <div
                         className="flex cursor-pointer items-center gap-5"
                         onClick={() => handleCurrentOrgnization(org)}
@@ -287,7 +304,7 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                             </p>
 
                             <p className="mt-2 max-w-[200px] overflow-hidden text-ellipsis text-nowrap text-xs font-medium text-gray-600">
-                              {org.domain}
+                              {org.campaigner}
                             </p>
                           </p>
 
@@ -312,19 +329,48 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                       </div>
                     ))
                   ) : (
-                    <span className="text-center font-poppins font-bold text-[#333]">
-                      No organization.
-                    </span>
+                    <div className="flex items-center gap-4">
+                      <div
+                        className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-white`}
+                        style={{ backgroundColor }}
+                      >
+                        {getInitials(user.data.name)}
+                      </div>
+
+                      <div className="hidden flex-col items-start justify-center lg:flex">
+                        <p className="text-base font-semibold">{FirstName}</p>
+                        {
+                          // @ts-ignore
+                          {
+                            INDIVIDUAL: (
+                              <p className="-mt-1 text-sm font-light">
+                                Individual Accounts
+                              </p>
+                            ),
+                            ORGANISATION: (
+                              <p className="-mt-1 text-sm font-light">
+                                Organisation accounts
+                              </p>
+                            ),
+                          }[
+                            firstSegment === "organization"
+                              ? "ORGANISATION"
+                              : "INDIVIDUAL"
+                          ]
+                        }
+                      </div>
+                    </div>
                   )}
                 </div>
-                {organizations.length > 0 && (
-                  <Button
-                    className="mt-8 w-full rounded-full bg-main-100 text-white hover:bg-blue-700"
-                    onClick={() => setOpenOrganization(true)}
-                  >
-                    Create account
-                  </Button>
-                )}
+                {organizations?.length > 0 &&
+                  firstSegment !== "organization" && (
+                    <Button
+                      className="mt-8 w-full rounded-full bg-main-100 text-white hover:bg-blue-700"
+                      onClick={() => setOpenOrganization(true)}
+                    >
+                      Create account
+                    </Button>
+                  )}
                 <Separator className="my-4" />
 
                 {/* links */}

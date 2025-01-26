@@ -23,8 +23,7 @@ const TopUpSuccessful: React.FC<ComponentProps> = ({}) => {
   const { user: currentUser } = useUserStore();
 
   const { user, isAuthenticated } = useRemoteUserStore();
-  const { setOpenTransfer } = useTransferOverlay();
-  const { step, setStep, clearTransaction, transaction } = useTransferStepper();
+  const { step, setStep } = useWithdrawStepperOrganization();
   const { wallet_id, reference, date } = useTopUpStores();
   //const { amount } = useWithdrawStepperOrganization();
   const amount = localStorage.getItem("amount");
@@ -37,6 +36,7 @@ const TopUpSuccessful: React.FC<ComponentProps> = ({}) => {
     currentOrganization && currentOrganization["symbol"];
   const handleComplete = () => {
     setOpen(false);
+    setStep(0);
     const url = new URL(window.location.href);
     url.search = ""; // Clear the query string
     window.history.replaceState({}, "", url.toString());

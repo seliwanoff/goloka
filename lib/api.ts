@@ -18,7 +18,7 @@ const fetchData = async <T>(url: string, options = {}): Promise<T> => {
 
 const postData = async <T>(
   url: string,
-  data: any,
+  data?: any,
   options = {},
 ): Promise<T> => {
   const response = await axiosInstance.post<T>(url, data, options);

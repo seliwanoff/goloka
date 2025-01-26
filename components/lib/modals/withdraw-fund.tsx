@@ -57,8 +57,7 @@ const WithdrawFund = () => {
             <div className="mt-16">
               {step === 0 && <WithdrawFunds />}
               {step === 1 && <ConfirmWithdrawalOrganization />}
-              {step === 2 && <ConfirmFunding />}
-              {step === 3 && <TopUpSuccessful />}
+              {step === 2 && <TopUpSuccessful />}
             </div>
           </DialogContent>
         </Dialog>

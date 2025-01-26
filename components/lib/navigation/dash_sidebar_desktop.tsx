@@ -77,8 +77,9 @@ const DashSideBarDesktop: React.FC<ComponentProps> = ({ navMenuList }) => {
   }, []);
   return (
     <>
-      {/*** Organization creation */}
+      {/***
       <CreateOrganization />
+      */}
 
       <aside className="col-span-1 hidden h-full w-full flex-col bg-white px-4 py-3 shadow-md xl:flex">
         {/* -- logo section */}
@@ -149,7 +150,7 @@ const DashSideBarDesktop: React.FC<ComponentProps> = ({ navMenuList }) => {
 
           {/* CTA */}
 
-          {organizations && organizations.length < 0 && (
+          {organizations === undefined && (
             <div className="mt-6 rounded-lg bg-[#F8F8F8] p-4">
               <div className="mx-auto -mt-9 mb-5 flex h-12 w-12 items-center justify-center rounded-full border-4 border-white bg-main-100">
                 <People size="24" color="#FFF" />

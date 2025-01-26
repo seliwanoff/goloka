@@ -35,7 +35,7 @@ const ConfirmFunding = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await validateTopUp(amount, trxref, ref);
+      const response = await validateTopUp(trxref, ref);
 
       if (response) {
         setStep((prev: number) => prev + 1);

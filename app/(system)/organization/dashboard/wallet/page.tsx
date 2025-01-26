@@ -48,8 +48,7 @@ const WalletPage = () => {
   const [expenses, setExpenses] = useState<any[]>([]);
   const { filterType } = useWalletFilter();
   const { setOpen } = useWithdrawalfundsOverlay();
-  const { setOpenTransfer } = useTransferOverlay();
-  const [currentPage, setCurrentPage] = useState(1);
+
   const [pageSize, setPageSize] = useState<number>(10);
   const pages = chunkArray(expenses, pageSize);
   const searchParams = useSearchParams();
@@ -59,11 +58,11 @@ const WalletPage = () => {
   const [validated, setValidated] = useState(false); // Tracks whether validation is successful
   const [isPolling, setIsPolling] = useState(false);
   const { setDate, setWallet_id, setAmount, setReference } = useTopUpStores();
-  const [symbol, setSymbol] = useState("");
 
   const currentOrganization = useOrganizationStore(
     (state) => state.organization,
   );
+  // console.log(step);
   const [data, setData] = useState<any>([]);
   // Tracks polling state
 
@@ -107,18 +106,16 @@ const WalletPage = () => {
       refetchUser();
     }
   }, [response, refetchUser]);
-  useEffect(() => {
-    if (user?.country?.["currency-symbol"]) {
-      setSymbol(user.country["currency-symbol"]);
-    }
-  }, [user]);
+  // console.log(step);
+
   const validateTop = useCallback(async () => {
     try {
-      const response = await validateTopUp(amount, trxref, ref);
+      const response = await validateTopUp(trxref, ref);
 
       if (response) {
         setValidated(true);
         setIsPolling(false);
+        setOpen(true);
         setStep((prev: number) => prev + 1);
         setAmount(amount);
         setReference(ref || "");

@@ -18,7 +18,6 @@ import { getContributorsProfile } from "@/services/contributor";
 import { useQuery } from "@tanstack/react-query";
 import { useRemoteUserStore } from "@/stores/remoteUser";
 
-
 type PageProps = {};
 
 type FormValues = {
@@ -26,8 +25,7 @@ type FormValues = {
   password: string;
 };
 
-const SignIn: React.FC<PageProps> = ({ }) => {
-
+const SignIn: React.FC<PageProps> = ({}) => {
   const [eye1, setEye1] = useState(false);
   const router = useRouter();
   const {
@@ -35,7 +33,6 @@ const SignIn: React.FC<PageProps> = ({ }) => {
     handleSubmit,
     formState: { errors },
   } = useForm<FormValues>();
-
 
   const handleToggle1 = () => {
     setEye1((prev: boolean) => !prev);
@@ -47,7 +44,7 @@ const SignIn: React.FC<PageProps> = ({ }) => {
 
     try {
       const { email, password } = data;
-      console.log(data);
+      // console.log(data);
 
       const response = await userSignIn(email, password);
 
@@ -58,20 +55,27 @@ const SignIn: React.FC<PageProps> = ({ }) => {
       }
       //@ts-ignore
       // setUser(remoteUser.data);
-      console.log(response, "response.data");
-      //@ts-ignore
-      const { access_token, token_type, refresh_token } = response;
 
-     const storeTokens = () => {
-       localStorage.setItem("access_token", JSON.stringify(access_token));
-       localStorage.setItem("refresh_token", JSON.stringify(refresh_token));
-       localStorage.setItem("token_type", JSON.stringify(token_type));
-     };
+      //@ts-ignore
+      const { access_token, token_type, refresh_token } = response.tokens;
+
+      //const {}
+
+      const storeTokens = () => {
+        localStorage.setItem("access_token", JSON.stringify(access_token));
+        localStorage.setItem("refresh_token", JSON.stringify(refresh_token));
+        localStorage.setItem("token_type", JSON.stringify(token_type));
+      };
 
       // Redirect to the dashboard
-    storeTokens();
-    toast.success("Sign in successful");
-    router.replace("/dashboard/root");
+      storeTokens();
+      //  console.log(response);
+      toast.success("Sign in successful");
+      if (response.user.current_role === "campaigner") {
+        router.replace("/organization/dashboard/root");
+      } else {
+        router.replace("/dashboard/root");
+      }
     } catch (error: any) {
       console.error("Sign-in error:", error);
       toast.error(
@@ -85,7 +89,7 @@ const SignIn: React.FC<PageProps> = ({ }) => {
 
   return (
     <div className="mx-auto w-full max-w-lg px-4 sm:px-6 lg:px-8">
-      <div className="w-full rounded-lg bg-white p-8 ">
+      <div className="w-full rounded-lg bg-white p-8">
         {/* HEADING */}
         <div className="mb-8 text-center">
           <Image src={Logo} alt="goloka logo" className="mx-auto mb-4" />

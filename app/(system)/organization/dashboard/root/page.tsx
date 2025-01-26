@@ -48,6 +48,7 @@ import {
   formatResponseTime,
   // getStatusColor,
   getStatusText,
+  numberWithCommas,
   Status,
 } from "@/helper";
 import CampaignChart from "@/components/organization-comps/campaign_chart";
@@ -99,9 +100,7 @@ const Dashboard = () => {
             Welcome to Goloka for Organization &nbsp;
             <span className="text-main-100">{data?.name || ""}</span>
           </h1>
-          <p className="text-gray-600">
-            Lorem ipsum dolor sit amet consectetur. Ultrices turpis amet et id.
-          </p>
+          <p className="text-gray-600">{data?.description || ""}</p>
         </div>
         <Button
           className="h-auto rounded-full bg-main-100 px-8 py-3 text-white hover:bg-blue-700"
@@ -125,7 +124,7 @@ const Dashboard = () => {
               containerBg="bg-gradient-to-tr from-[#3365E3] to-[#1C387D]"
               textColor="text-white"
               icon={Wallet3}
-              value={`${(currentOrganization && currentOrganization.symbol) || "₦"}${data.wallet_balance || 0}`}
+              value={`${(currentOrganization && currentOrganization.symbol) || "₦"}${numberWithCommas(data.wallet_balance) || 0}`}
               footer={
                 <span className="font-medium">₦5,250 Pending balance</span>
               }

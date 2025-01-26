@@ -3,6 +3,7 @@ import { serverRoute } from "@/lib/utils";
 import { queryClient } from "@/components/layout/tanstackProvider";
 import { postData, ServerResponse } from "@/lib/api";
 import { UseQueryResult } from "@tanstack/react-query";
+import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
 
 // =============================================
 // ======= user sign in  -->
@@ -28,8 +29,8 @@ export const userSignIn = async (email: string, password: string) => {
             },
           },
         );
-        console.log(response, "enduee");
-        return response?.data?.tokens;
+        //console.log(response, "enduee");
+        return response?.data;
       } catch (error) {
         if (axios.isAxiosError(error)) {
           console.error("Axios error during sign in:", error.message);
@@ -72,17 +73,31 @@ export const resetPassword = async (
     },
   });
 
-
 export const userLogout = async () => {
   await queryClient.fetchQuery({
-      queryKey: ["user logout"],
-      queryFn: async () => {
-        try {
-          await postData<ServerResponse<any>>("/logout", { platform: "web" });
-        } catch (error) {
-          console.error("Error logging out:", error);
-          throw error;
-        }
-      },
-    })
-  }
+    queryKey: ["user logout"],
+    queryFn: async () => {
+      try {
+        await postData<ServerResponse<any>>("/logout", { platform: "web" });
+      } catch (error) {
+        console.error("Error logging out:", error);
+        throw error;
+      }
+    },
+  });
+};
+
+export const getCurrentOrganization = (org: any) => {
+  useOrganizationStore.getState().setOrganization({
+    id: org.id,
+    name: org.name,
+    email: "",
+    country: org.country,
+    current_role: "",
+    email_verified_at: "",
+    pin_status: false,
+    domain: org.domain,
+    currency: org.country["currency-code"],
+    symbol: org.country["currency-symbol"],
+  });
+};
