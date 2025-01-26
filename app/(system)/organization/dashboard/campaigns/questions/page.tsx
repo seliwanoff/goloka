@@ -614,6 +614,7 @@ const Create = () => {
           <MultipleChoices
             label="Select option"
             placeholder="Type something..."
+            preview={preview}
             initialOptions={(() => {
               try {
                 return options ? options : [];
@@ -636,6 +637,7 @@ const Create = () => {
                 return [];
               }
             })()}
+            preview={preview}
             onOptionsChange={handleOptionsChange}
           />
         );
@@ -650,6 +652,7 @@ const Create = () => {
                 return [];
               }
             })()}
+            preview={preview}
             onOptionsChange={handleOptionsChange}
           />
         );

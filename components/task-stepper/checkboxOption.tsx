@@ -10,12 +10,14 @@ interface CheckboxListProps {
   value?: string;
   initialOptions?: Option[];
   onOptionsChange?: (options: Option[]) => void;
+  preview?: any;
 }
 
 const CheckboxList: React.FC<CheckboxListProps> = ({
   value = "Options",
   initialOptions = [],
   onOptionsChange,
+  preview,
 }) => {
   const [options, setOptions] = useState<Option[]>(initialOptions);
   const [newOptionLabel, setNewOptionLabel] = useState<string>("");
@@ -65,31 +67,34 @@ const CheckboxList: React.FC<CheckboxListProps> = ({
             >
               {option.value}
             </label>
-            <button
-              onClick={() => handleRemoveOption(option.id)}
-              className="text-red-500 hover:text-red-700"
-            >
-              ✕
-            </button>
+            {preview !== "preview" && (
+              <button
+                onClick={() => handleRemoveOption(option.id)}
+                className="text-red-500 hover:text-red-700"
+              >
+                ✕
+              </button>
+            )}
           </div>
         ))}
       </div>
-
-      <div className="flex items-center gap-3">
-        <input
-          type="text"
-          value={newOptionLabel}
-          onChange={(e) => setNewOptionLabel(e.target.value)}
-          placeholder="Enter new option"
-          className="flex-grow rounded-md border-gray-300 px-2 py-2 text-gray-800 focus:border-blue-500 focus:outline-none"
-        />
-        <button
-          onClick={handleAddOption}
-          className="rounded bg-blue-500 px-3 py-2 text-white hover:bg-blue-600"
-        >
-          Add
-        </button>
-      </div>
+      {preview !== "preview" && (
+        <div className="flex items-center gap-3">
+          <input
+            type="text"
+            value={newOptionLabel}
+            onChange={(e) => setNewOptionLabel(e.target.value)}
+            placeholder="Enter new option"
+            className="flex-grow rounded-md border-gray-300 px-2 py-2 text-gray-800 focus:border-blue-500 focus:outline-none"
+          />
+          <button
+            onClick={handleAddOption}
+            className="rounded bg-blue-500 px-3 py-2 text-white hover:bg-blue-600"
+          >
+            Add
+          </button>
+        </div>
+      )}
     </div>
   );
 };

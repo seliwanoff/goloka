@@ -312,7 +312,7 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
       }),
   });
 
-  console.log(user, "user");
+  // console.log(user, "user");
 
   // Safely handle tasks data
   const tasksList = tasks?.data || [];

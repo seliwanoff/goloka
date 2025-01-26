@@ -53,9 +53,13 @@ import {
 } from "@/helper";
 import CampaignChart from "@/components/organization-comps/campaign_chart";
 import CampaignSummary from "@/components/organization-comps/campaign_summary";
-import { getOrganizationByDomain } from "@/services/organization";
+import {
+  getOrganizationByDomain,
+  getUseServices,
+} from "@/services/organization";
 import { getCurrentUser } from "@/services/user";
 import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
+import { getCurrentOrganization } from "@/services/auth";
 
 const Dashboard = () => {
   // const [filteredData, setFilteredData] = useState<Response[]>(
@@ -63,6 +67,7 @@ const Dashboard = () => {
   //     (item: { status: string }) => item?.status === activeTab,
   //   ),
   // );
+  const [organizations, setOrganizations] = useState([]);
 
   const [filteredData, setFilteredData] = useState<any[]>(responsesTableData);
   const [openFilter, setOpenFilter] = useState<boolean>(false);
@@ -79,11 +84,47 @@ const Dashboard = () => {
   const getOrgaization = async () => {
     try {
       const response = await getOrganizationByDomain();
-      //  console.log(response);
+      console.log(response);
       setData(response.data);
+      getRegisteredUsersService(response.data);
+      //  getCurrentOrganization(response.data);
     } catch (e) {
       console.log(e);
+      getRegisteredUsersService(null);
     }
+  };
+
+  const getRegisteredUsersService = async (orgData: any) => {
+    console.log(orgData);
+    const response = await getUseServices();
+    // console.log(getCurrentUser());
+    const currentUsers = await getCurrentUser();
+    const contributor = response.services.contributor
+      ? {
+          ...response.services.contributor,
+          account_type: "contributor",
+          name: currentUsers && currentUsers.data.name,
+        }
+      : null;
+
+    const organizations = response.services.organizations.map((org: any) => ({
+      ...org,
+      account_type: "organization",
+    }));
+
+    const mergedData = contributor
+      ? [contributor, ...organizations]
+      : organizations;
+
+    setOrganizations(mergedData);
+    // console.log(currentOrganization);
+    //console.log(data.id);
+    if (orgData?.id === undefined && document.readyState === "complete") {
+      getCurrentOrganization(mergedData[1]);
+      window.location.reload();
+    }
+
+    console.log(document.readyState);
   };
 
   useEffect(() => {
@@ -98,7 +139,9 @@ const Dashboard = () => {
         <div>
           <h1 className="text-2xl font-semibold">
             Welcome to Goloka for Organization &nbsp;
-            <span className="text-main-100">{data?.name || ""}</span>
+            <span className="text-main-100">
+              {currentOrganization?.name || ""}
+            </span>
           </h1>
           <p className="text-gray-600">{data?.description || ""}</p>
         </div>

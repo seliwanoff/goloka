@@ -31,7 +31,7 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
         >
           <div className="flex items-center justify-between">
             <h3 className={`${className}`}>{title}</h3>
-
+            {/***
             <div className="flex items-center gap-2">
               <span className="inline-flex cursor-pointer items-center gap-2 rounded-md bg-gray-200 px-4 py-2 text-gray-600">
                 <Edit size={18} />
@@ -39,6 +39,7 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
               </span>
               <BsThreeDots style={{ transform: "rotate(90deg)" }} />
             </div>
+            */}
           </div>
           <div>{children}</div>
         </div>

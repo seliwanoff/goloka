@@ -136,7 +136,7 @@ export const generateColor = (name: string) => {
 
 export const getInitials = (name: string) => {
   return name
-    .split(" ")
+    ?.split(" ")
     .map((word) => word.charAt(0).toUpperCase())
     .slice(0, 2)
     .join("");

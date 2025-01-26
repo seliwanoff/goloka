@@ -62,6 +62,7 @@ const DashSideBarDesktop: React.FC<ComponentProps> = ({ navMenuList }) => {
       console.log(res, "res");
       localStorage.removeItem("whoami");
       router.replace("/signin");
+      localStorage.clear();
     } catch (error) {
       console.log(error, "error");
     }

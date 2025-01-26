@@ -10,6 +10,7 @@ interface DynamicListInputProps {
   placeholder?: string;
   initialOptions?: Option[];
   onOptionsChange?: (options: Option[]) => void;
+  preview?: any;
 }
 
 const MultipleChoices: React.FC<DynamicListInputProps> = ({
@@ -17,6 +18,7 @@ const MultipleChoices: React.FC<DynamicListInputProps> = ({
   placeholder = "Enter an option",
   initialOptions = [],
   onOptionsChange,
+  preview,
 }) => {
   const [options, setOptions] = useState<Option[]>(initialOptions);
 
@@ -66,20 +68,24 @@ const MultipleChoices: React.FC<DynamicListInputProps> = ({
             placeholder={placeholder}
             className="flex-grow rounded-md border-none text-gray-800 focus:border-blue-500 focus:outline-none"
           />
-          <button
-            onClick={() => handleRemoveOption(option.id)}
-            className="h-8 w-8 rounded-full bg-[#F8F8F8] text-[12px] text-[#828282] transition hover:text-[#828282]"
-          >
-            ✕
-          </button>
+          {preview !== "preview" && (
+            <button
+              onClick={() => handleRemoveOption(option.id)}
+              className="h-8 w-8 rounded-full bg-[#F8F8F8] text-[12px] text-[#828282] transition hover:text-[#828282]"
+            >
+              ✕
+            </button>
+          )}
         </div>
       ))}
-      <button
-        onClick={handleAddOption}
-        className="flex items-center gap-2 text-gray-600 transition hover:text-gray-600"
-      >
-        <span className="text-xl">+</span> Add another option
-      </button>
+      {preview !== "preview" && (
+        <button
+          onClick={handleAddOption}
+          className="flex items-center gap-2 text-gray-600 transition hover:text-gray-600"
+        >
+          <span className="text-xl">+</span> Add another option
+        </button>
+      )}
     </div>
   );
 };

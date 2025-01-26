@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { getContributorsProfile } from "@/services/contributor";
 import { useQuery } from "@tanstack/react-query";
 import { useRemoteUserStore } from "@/stores/remoteUser";
+import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
 
 type PageProps = {};
 
@@ -38,6 +39,10 @@ const SignIn: React.FC<PageProps> = ({}) => {
     setEye1((prev: boolean) => !prev);
   };
   const [isLoading, setIsLoading] = useState(false);
+  const currentOrganization = useOrganizationStore(
+    (state) => state.organization,
+  );
+  console.log(currentOrganization);
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     setIsLoading(true);

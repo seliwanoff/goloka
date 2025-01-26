@@ -5,20 +5,22 @@ interface OrganizationData {
   id: number;
   name: string;
   email: string;
-  country: any;
+  country: {
+    "currency-symbol"?: string;
+    "currency-code"?: string;
+  };
   current_role: string | null;
   email_verified_at: string;
   pin_status: boolean;
-  domain?: string; // Added domain
+  domain?: string;
   currency?: string;
-
-  symbol?: string; // Added currency
+  symbol?: string;
 }
 
 interface OrganizationStore {
   organization: OrganizationData | null;
   setOrganization: (userData: OrganizationData | null) => void;
-  setRefetchUser: (refetchFn: () => Promise<any>) => void; // Store refetch function
+  setRefetchUser: (refetchFn: () => Promise<any>) => void;
   refetchUser: () => Promise<any>;
 }
 
@@ -29,41 +31,47 @@ export const useOrganizationStore = create<OrganizationStore>()(
       refetchUser: async () => Promise.resolve(),
 
       setOrganization: (userData) => {
-        set(() => ({
-          organization: userData,
-        }));
+        set({ organization: userData });
 
         if (userData) {
-          console.log("Country Data:", userData.country);
+          const { domain, country } = userData;
 
-          localStorage.setItem("organization_domain", userData.domain || "");
+          console.log("Country Data:", country);
 
-          localStorage.setItem(
-            "symbol",
-            userData.country["currency-symbol"] || "",
-          );
+          localStorage.setItem("organization_domain", domain || "");
+          localStorage.setItem("symbol", country?.["currency-symbol"] || "");
           localStorage.setItem(
             "organization_currency",
-            userData.country["currency-code"] || "",
+            country?.["currency-code"] || "",
           );
+        } else {
+          // Clear localStorage when organization is null
+          localStorage.removeItem("organization_domain");
+          localStorage.removeItem("symbol");
+          localStorage.removeItem("organization_currency");
         }
       },
 
-      setRefetchUser: (refetchFn) => set(() => ({ refetchUser: refetchFn })),
+      setRefetchUser: (refetchFn) => set({ refetchUser: refetchFn }),
     }),
     {
       name: "organization-storage",
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({
-        organization: state.organization
-          ? {
-              ...state.organization,
-              domain: state.organization.domain,
-              symbol: state.organization.symbol,
-              currency: state.organization.country["currency-code"],
-            }
-          : null,
-      }),
+      partialize: (state) => {
+        const { organization } = state;
+        return {
+          organization: organization
+            ? {
+                id: organization.id,
+                name: organization.name,
+                email: organization.email,
+                domain: organization.domain || "",
+                symbol: organization.symbol || "",
+                currency: organization.country?.["currency-code"] || "",
+              }
+            : null,
+        };
+      },
     },
   ),
 );

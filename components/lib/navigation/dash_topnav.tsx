@@ -65,6 +65,7 @@ import { ResponseCookies } from "next/dist/compiled/@edge-runtime/cookies";
 import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
 import { useCreateOrganizationOverlay } from "@/stores/overlay";
 import CreateOrganization from "../modals/create_orgnaization_modal";
+import { getCurrentUser } from "@/services/user";
 
 type ComponentProps = {};
 
@@ -99,6 +100,8 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
   const firstSegment = pathname?.split("/")[1];
   const user = { data };
   const currentUser = useUserStore((state) => state.user);
+  const [isPageLoaded, setIsPageLoaded] = useState(false);
+
   const currentOrganization = useOrganizationStore(
     (state) => state.organization,
   );
@@ -124,30 +127,64 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
       localStorage.removeItem("whoami");
       localStorage.removeItem("organization_domain");
       localStorage.removeItem("organization_currency");
-
+      getCurrentOrganization(null);
+      localStorage.clear();
       router.replace("/signin");
+
       logoutUser();
     } catch (error) {
       console.log(error, "error");
     }
   };
+  // console.log(document.readyState);
+
+  // console.log(currentUser);
 
   const notificationData = formatNotifications(notification);
 
   const getRegisteredUsersService = async () => {
     const response = await getUseServices();
-    console.log(response);
-    setOrganizations(response.services.organizations);
-    if (currentOrganization && currentOrganization?.name === null) {
-      getCurrentOrganization(response?.services?.organizations[0]);
+    // console.log(getCurrentUser());
+    const currentUsers = await getCurrentUser();
+    const contributor = response.services.contributor
+      ? {
+          ...response.services.contributor,
+          account_type: "contributor",
+          name: currentUsers && currentUsers.data.name,
+        }
+      : null;
+
+    const organizations = response.services.organizations.map((org: any) => ({
+      ...org,
+      account_type: "organization",
+    }));
+
+    const mergedData = contributor
+      ? [contributor, ...organizations]
+      : organizations;
+
+    setOrganizations(mergedData);
+    // console.log(currentOrganization);
+    /***
+    if (currentOrganization == null && document.readyState === "complete") {
+      getCurrentOrganization(mergedData[1]);
     }
+    **/
+
+    console.log(document.readyState);
   };
 
   useEffect(() => {
     getRegisteredUsersService();
   }, []);
   const handleCurrentOrgnization = (org: any) => {
-    getCurrentOrganization(org);
+    if (org.account_type === "contributor") {
+      getCurrentUser();
+      window.location.href = "/dashboard/root";
+    } else {
+      getCurrentOrganization(org);
+      window.location.href = "/organization/dashboard/root";
+    }
 
     /***
     useOrganizationStore.getState().setOrganization({
@@ -163,7 +200,6 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
       symbol: org.country["currency-symbol"],
     });
     */
-    window.location.href = "/organization/dashboard/root";
   };
 
   //console.log(currentOrganization);
@@ -171,8 +207,13 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
     (org: any) => org.id !== currentOrganization?.id,
   );
   const initials = useMemo(
-    () => getInitials(currentOrganization ? currentOrganization.name : ""),
-    [currentOrganization],
+    () =>
+      getInitials(
+        currentOrganization && firstSegment === "organization"
+          ? currentOrganization.name
+          : currentUser?.name || "",
+      ),
+    [currentOrganization, currentUser],
   );
 
   return (
@@ -303,8 +344,10 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                               {org.name}
                             </p>
 
-                            <p className="mt-2 max-w-[200px] overflow-hidden text-ellipsis text-nowrap text-xs font-medium text-gray-600">
-                              {org.campaigner}
+                            <p className="mt-1 max-w-[200px] overflow-hidden text-ellipsis text-nowrap text-xs font-medium text-gray-600">
+                              {org.account_type === "contributor"
+                                ? "Individual accounts"
+                                : "Organisation accounts"}
                             </p>
                           </p>
 

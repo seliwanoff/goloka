@@ -26,13 +26,14 @@ const dropdownData = [
     label: "Select",
     image: "/assets/images/questions/dropdowns.png",
   },
-  */
+
 
   {
     id: "boolean",
     label: "Boolean",
     image: "/assets/images/questions/boolean.png",
   },
+  */
   {
     id: "radio",
     label: "Radio",
