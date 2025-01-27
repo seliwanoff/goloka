@@ -55,7 +55,7 @@ const TaskCardWidget: React.FC<TaskCardProps> = ({
 
   const handleBookmark = async (e: React.MouseEvent) => {
     e.stopPropagation();
-
+   e.preventDefault();
     setIsBookmarkLoading(true);
     try {
       if (is_bookmarked) {

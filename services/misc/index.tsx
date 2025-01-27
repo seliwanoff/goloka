@@ -89,6 +89,19 @@ export const updatePin = async (
     },
   });
 };
+// ~ =============================================>
+// ~ ======= pIN  -->
+// ~ =============================================>
+export const makeReport = async (
+  data: any,
+): Promise<UseQueryResult<ServerResponse<any>>> => {
+  return queryClient.fetchQuery({
+    queryKey: ["report"],
+    queryFn: async () => {
+      return await postData<ServerResponse<any>>("/reports/create", data);
+    },
+  });
+};
 
 export const notificationPreferences = async (
   data: any,
@@ -102,4 +115,16 @@ export const notificationPreferences = async (
       );
     },
   });
+};
+
+
+export const getNotificationsPreference = async (): Promise<ServerResponseOrNull<any>> => {
+  try {
+    return await fetchData<ServerResponse<any>>(
+      "/notifications/preferences/get",
+    );
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
 };

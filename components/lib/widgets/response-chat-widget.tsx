@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import { Send2 } from "iconsax-react";
+import { Danger, Send2 } from "iconsax-react";
 import profileImg from "@/public/assets/images/chat-user-profile.png";
 import { useChatMessages } from "@/stores/useChatMessage";
-import { Check, Loader2, Paperclip } from "lucide-react";
+import { Check, CheckCheck, Loader2, LoaderCircle, Paperclip } from "lucide-react";
 
 interface ChatWidgetProps {
   modelType: string;
@@ -34,7 +34,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
     e.preventDefault();
 
     if (message.trim() || imageFiles.length > 0) {
-      sendMessage(message.trim() || undefined, imageFiles);
+      sendMessage(message.trim() || undefined, imageFiles, currentUserId);
       setMessage("");
       setImageFiles([]);
     }
@@ -47,16 +47,38 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
     }
   };
 
+  // const renderMessageStatus = (msg: any) => {
+  //   switch (msg.status) {
+  //     case "sending":
+  //       return <Loader2 className="h-3 w-3 animate-spin text-gray-400" />;
+  //     case "sent":
+  //       return (
+  //         <div className="flex">
+  //           <Check className="h-3 w-3 text-blue-500" />
+  //           <Check className="-ml-1.5 h-3 w-3 text-blue-500" />
+  //         </div>
+  //       );
+  //     default:
+  //       return null;
+  //   }
+  // };
+
   const renderMessageStatus = (msg: any) => {
-    switch (msg.status) {
+    switch (msg.__temp_status) {
       case "sending":
-        return <Loader2 className="h-3 w-3 animate-spin text-gray-400" />;
-      case "sent":
+        return <LoaderCircle className="h-3 w-3 animate-spin text-gray-400" />;
+        // return <Loader2 className="h-3 w-3 animate-spin text-gray-400" />;
+      case "success":
         return (
           <div className="flex">
-            <Check className="h-3 w-3 text-blue-500" />
-            <Check className="-ml-1.5 h-3 w-3 text-blue-500" />
+            <CheckCheck />
           </div>
+        );
+      case "error":
+        return (
+          <span className="">
+            <Danger size="20" color="#ff2a2a" />
+          </span>
         );
       default:
         return null;
@@ -102,11 +124,11 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
             <div
               className={`max-w-xs rounded-2xl p-4 ${
                 msg.sender_id === currentUserId
-                  ? "bg-gray-200 text-[#100C2A]"
-                  : "bg-blue-500 text-white"
+                  ? "bg-[#005eb5]" // Changed to blue for sent messages
+                  : "bg-[#3e84fc]" // Changed to gray for received messages
               }`}
             >
-              {msg.message && <p>{msg.message}</p>}
+              {msg.message && <p className="text-white">{msg.message}</p>}
 
               {/* Attached files section */}
               {msg.image_paths && msg.image_paths.length > 0 && (
@@ -152,8 +174,8 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
               <div
                 className={`mt-1 flex items-center ${
                   msg.sender_id === currentUserId
-                    ? "justify-between text-[#9A96A4]"
-                    : "justify-between text-[#EBF0FC]"
+                    ? "justify-between text-[#fff]"
+                    : "justify-between text-[#ffff]"
                 }`}
               >
                 <span className="text-xs">
@@ -162,9 +184,12 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
                     minute: "2-digit",
                   })}
                 </span>
-                {msg.sender_id === currentUserId && renderMessageStatus(msg)}
               </div>
             </div>
+            <span>
+              {" "}
+              {msg.sender_id === currentUserId && renderMessageStatus(msg)}
+            </span>
           </div>
         ))}
         {/* Ref to scroll to the bottom of messages */}
@@ -200,7 +225,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
           />
           <button
             type="submit"
-            className="h-[50px] items-center gap-2 rounded-full bg-main-100 px-5 font-medium text-white"
+            className="flex h-[50px] items-center gap-2 rounded-full bg-main-100 px-5 font-medium text-white"
           >
             <Send2 size="24" />
             Send

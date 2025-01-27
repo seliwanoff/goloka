@@ -1,6 +1,6 @@
 // types/chat.ts
 // services/chat/types.ts
-export type MessageStatus = 'sending' | 'sent' | 'failed';
+export type MessageStatus = "sending" | "sent" | "failed";
 
 export interface Chat {
   id?: number;
@@ -22,6 +22,7 @@ export interface CreateChatParams {
   model_id: number;
   image_paths?: File[];
   local_id?: string;
+  sender_id?: number;
 }
 
 export interface ChatParams {

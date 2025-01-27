@@ -603,13 +603,16 @@ export const pushNotifications = [
     isActive: true,
   },
   {
+    label: "Task recommendations",
+    value: "push_task_recommendations",
+    isActive: true,
+  },
+  {
     label: "Payments",
     value: "push_payments",
     isActive: true,
   },
 ];
-
-
 
 export const emailNotifications = [
   {
@@ -734,24 +737,18 @@ export const passwordFormData = [
     placeholder: "Input password",
   },
 ];
-
-export const personalInfo = [
+export const personalFirstName = [
   {
     name: "firstName",
-    label: "First name",
+    label: "Full Name",
     type: "text",
     required: true,
-    err_message: "Input your first name",
-    placeholder: "Input first name",
+    err_message: "Input your full name",
+    placeholder: "Input full name",
   },
-  {
-    label: "Last name",
-    type: "text",
-    required: true,
-    err_message: "Input your first name",
-    name: "lastName",
-    placeholder: "Input first name",
-  },
+];
+
+export const personalInfo = [
   {
     label: "Email address",
     type: "email",
@@ -759,13 +756,14 @@ export const personalInfo = [
     err_message: "Input your email address",
     name: "email",
     placeholder: "Input email address",
+    disabled: true
   },
   {
     label: "Phone number",
     type: "phone",
     required: true,
     err_message: "Input your phone number",
-    name: "firstName",
+    name: "phoneNo",
     placeholder: "Input phone number",
   },
   {
@@ -787,22 +785,7 @@ export const personalInfo = [
 ];
 
 export const otherInfo = [
-  // {
-  //   label: "Date of birth",
-  //   type: "date",
-  //   required: true,
-  //   err_message: "Select your date of birth",
-  //   name: "dateOfBirth1",
-  //   placeholder: "Select date",
-  // },
-  // {
-  //   label: "Gender",
-  //   type: "select",
-  //   required: true,
-  //   err_message: "Select your gender",
-  //   name: "gender1",
-  //   placeholder: "Select your gender",
-  // },
+
 
   {
     label: "Religion",
@@ -1686,8 +1669,3 @@ export const projects = [
     image: Img3,
   },
 ];
-
-
-
-
-

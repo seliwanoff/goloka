@@ -224,7 +224,7 @@ const postDataWithFormData = async <T>(
   formData: FormData,
   options: {
     onUploadProgress?: (progressEvent: AxiosProgressEvent) => void;
-  } = {},
+  } = {}
 ): Promise<T> => {
   let toastId: string | number | undefined;
 
@@ -241,7 +241,7 @@ const postDataWithFormData = async <T>(
       onUploadProgress: (progressEvent: AxiosProgressEvent) => {
         if (progressEvent.total) {
           const percentCompleted = Math.round(
-            (progressEvent.loaded * 100) / progressEvent.total,
+            (progressEvent.loaded * 100) / progressEvent.total
           );
 
           // Use custom progress callback if provided, otherwise use default toast
@@ -269,8 +269,9 @@ const postDataWithFormData = async <T>(
     // Dismiss loading toast and show error
     if (toastId) {
       toast.error(
-        error.response?.data?.message || "Upload failed. Please try again.",
-        { id: toastId },
+        error.response?.data?.message ||
+        "Upload failed. Please try again.",
+        { id: toastId }
       );
     }
 

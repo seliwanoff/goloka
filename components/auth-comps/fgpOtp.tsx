@@ -25,6 +25,7 @@ type PageProps = {};
 const FGPOTP: React.FC<PageProps> = () => {
   const open = useShowPasswordOtp((state) => state.showOTP);
   const setOpen = useShowPasswordOtp((state) => state.setShowOTP);
+  const [isLoading, setIsLoading] = useState(false);
   const [sec, setSec] = useState(60);
   const [otpValues, setOtpValues] = useState("");
   const [error, setError] = useState("");
@@ -39,13 +40,24 @@ const FGPOTP: React.FC<PageProps> = () => {
     setError("");
   };
   const email = currentUser?.email;
-  // console.log(formValues, "formValues");
-  //   useEffect(() => {
-  //     const emailParam = searchParams.get("email");
-  //     if (emailParam) {
-  //       setEmail(decodeURIComponent(emailParam));
-  //     }
-  //   }, [searchParams]);
+  const onResend = async () => {
+    setIsLoading(true);
+    try {
+      const res = await passwordOTP({ email });
+      //@ts-ignore
+      if (res?.message) {
+        console.log(res, "response");
+        //@ts-ignore
+        toast.success(`${res.message} to ${email}`);
+      }
+    } catch (error) {
+      console.error(error);
+      //@ts-ignore
+      toast.error("An error occurred while changing the password");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleOtpSubmit = async () => {
     if (otpValues.length !== 6) {
@@ -63,12 +75,14 @@ const FGPOTP: React.FC<PageProps> = () => {
       const payloadWithOtp = {
         ...payload,
         otp: otpValues,
+        email,
       };
 
-      //   const response = await ResetUserPassword(payloadWithOtp);
-      //   const { data, status } = response;
+      const response = await ResetUserPassword(payloadWithOtp);
+      // const { data, status } = response;
 
       console.log(payloadWithOtp, "response data");
+      console.log(response, "response data");
       setIsSubmitting(false);
     } catch (error) {
       toast("Failed to verify OTP. Please try again.");
@@ -80,8 +94,9 @@ const FGPOTP: React.FC<PageProps> = () => {
 
   const handleResendOtp = async () => {
     try {
-      handleOtpSubmit();
+      onResend();
       setSec(60);
+      // handleOtpSubmit();
     } catch (error) {
       toast("Failed to resend OTP. Please try again.");
     }
@@ -167,7 +182,7 @@ const FGPOTP: React.FC<PageProps> = () => {
               )}
               onClick={handleResendOtp}
             >
-              Resend
+              {isLoading ? "Resending..." : "Resend"}
             </span>{" "}
             <br />
             <span className="mt-4 inline-block text-main-100">{sec} secs</span>

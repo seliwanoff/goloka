@@ -12,9 +12,17 @@ export const BookmarkButton: React.FC<BookmarkButtonProps> = ({
   handleBookmark,
   loading,
 }) => {
+  const handleClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+     e.stopPropagation(); // Prevent event from bubbling up to the parent link
+     if (!loading) {
+       handleBookmark(e);
+     }
+   };
+
   return (
     <span
-      onClick={!loading ? handleBookmark : undefined}
+      onClick={!loading ? handleClick : undefined}
       className={`inline-flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border text-main-100 ${isBookmarked ? "border-[#3365E3]" : "border-[#7697ec84]"} active:scale-75 ${
         loading ? "cursor-not-allowed opacity-50" : ""
       }`}

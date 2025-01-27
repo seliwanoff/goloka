@@ -24,7 +24,7 @@ type PageProps = {
   step: number;
 };
 
-const languages = [
+export const languages = [
   { label: "Arabic", value: "arabic" },
   { label: "Bachama", value: "bachama" },
   { label: "Bengali", value: "bengali" },
@@ -233,14 +233,14 @@ const Language: React.FC<PageProps> = ({ setStep, step }) => {
                 )}
               </Button>
 
-              <Button
+              {/* <Button
                 type="button"
                 onClick={handleSkip}
                 disabled={isSubmitting}
                 className="w-full bg-transparent text-base text-main-100 hover:bg-transparent disabled:opacity-50"
               >
                 Skip
-              </Button>
+              </Button> */}
             </div>
           </form>
         </div>

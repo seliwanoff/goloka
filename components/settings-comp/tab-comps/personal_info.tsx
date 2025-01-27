@@ -1,6 +1,7 @@
+import React from "react";
 import CustomInput from "@/components/lib/widgets/custom_inputs";
 import OtherPersonalInfo from "./other_personal_info";
-import { genderOptions, personalInfo } from "@/utils";
+import { genderOptions, personalFirstName, personalInfo } from "@/utils";
 import CustomSelectField from "../select_field";
 import { Camera } from "iconsax-react";
 import Image from "next/image";
@@ -10,39 +11,40 @@ import * as yup from "yup";
 import { useState, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import Avatar from "@/public/assets/images/avatar.png";
-
 import { useUserStore } from "@/stores/currentUserStore";
 import { useRemoteUserStore } from "@/stores/remoteUser";
+import { normalizeSpokenLanguages } from "../multiSelect";
+import { createContributor } from "@/services/contributor";
+import { toast } from "sonner";
 
 type ComponentProps = {};
-
-const schema = yup.object().shape({
-  firstName: yup.string().required(),
-  lastName: yup.string().required(),
-  dateOfBirth: yup.string().required(),
-  // dateOfBirth1: yup.string().required(),
-  phoneNo: yup.string().required(),
-  gender: yup.string().required(),
-  // gender1: yup.string().required(),
-  email: yup.string().email().required(),
-  primaryLanguage: yup.string().required(),
-  religion: yup.string().required(),
-  ethnicity: yup.string().required(),
-  spokenLanguage: yup.string().required(),
-});
 
 type FormValues = {
   email: string;
   firstName: string;
-  lastName: string;
   dateOfBirth: string;
   phoneNo: string;
   gender: string;
   primaryLanguage: string;
   religion: string;
   ethnicity: string;
-  spokenLanguage: string;
+  spokenLanguage: string[];
+  profile_photo_url?: string; // Add this field
 };
+
+// Update the schema to include profile_photo_url
+const schema = yup.object().shape({
+  firstName: yup.string().required(),
+  dateOfBirth: yup.string().required(),
+  phoneNo: yup.string(),
+  gender: yup.string().required(),
+  email: yup.string().email().required(),
+  primaryLanguage: yup.string().required(),
+  religion: yup.string().required(),
+  ethnicity: yup.string().required(),
+  spokenLanguage: yup.array().of(yup.string()).required(),
+  profile_photo_url: yup.string(), // Add this field
+});
 
 const generateAvatarFromInitials = (name: string) => {
   if (!name) return null;
@@ -71,56 +73,54 @@ const generateAvatarFromInitials = (name: string) => {
 const PersonalInfo: React.FC<ComponentProps> = ({}) => {
   const { user: remoteUser } = useRemoteUserStore();
   const currentUser = useUserStore((state) => state.user);
+  const [isFormDirty, setIsFormDirty] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [initialValues, setInitialValues] = useState<FormValues | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Merge user data, prioritizing remoteUser and handling duplicates
-const mergedUserData = useMemo(() => {
-  // Safely get values or return empty string
-  const safeGet = (obj: any, key: string) => {
-    return obj && obj[key] !== undefined ? obj[key] : "";
-  };
+  const mergedUserData = useMemo(() => {
+    const safeGet = (obj: any, key: string) => {
+      return obj && obj[key] !== undefined ? obj[key] : "";
+    };
 
-  // Mapping of incoming keys to form field keys
-  const keyMapping: Record<string, string> = {
-    name: "firstName",
-    lastName: "lastName",
-    birth_date: "dateOfBirth",
-    email: "email",
-    gender: "gender",
-    primary_language: "primaryLanguage",
-    religion: "religion",
-    ethnicity: "ethnicity",
-    spoken_languages: "spokenLanguage",
-    phone_code: "phoneNo",
-  };
+    const keyMapping: Record<string, string> = {
+      name: "firstName",
+      birth_date: "dateOfBirth",
+      email: "email",
+      gender: "gender",
+      primary_language: "primaryLanguage",
+      religion: "religion",
+      ethnicity: "ethnicity",
+      spoken_languages: "spokenLanguage",
+      tel: "phoneNo",
+      profile_photo_url: "profile_photo_url", // Add this mapping
+    };
 
-  // Merge and transform data
-  const merged: Record<string, string> = {};
+    const merged: Record<string, any> = {};
 
-  Object.keys(keyMapping).forEach((sourceKey) => {
-    const targetKey = keyMapping[sourceKey];
+    Object.keys(keyMapping).forEach((sourceKey) => {
+      const targetKey = keyMapping[sourceKey];
+      let value =
+        safeGet(remoteUser, sourceKey) || safeGet(currentUser, sourceKey);
 
-    // Prioritize remoteUser, then currentUser
-    let value =
-      safeGet(remoteUser, sourceKey) || safeGet(currentUser, sourceKey);
-
-    if (value !== undefined && value !== null) {
-      // Special handling for some fields
-      if (sourceKey === "birth_date") {
-        merged[targetKey] = value.split(" ")[0]; // Extract date part
-      } else if (sourceKey === "spoken_languages") {
-        merged[targetKey] = Array.isArray(value) ? value.join(", ") : value;
-      } else {
-        merged[targetKey] = value;
+      if (value !== undefined && value !== null) {
+        if (sourceKey === "birth_date") {
+          merged[targetKey] = value.split(" ")[0];
+        } else if (sourceKey === "spoken_languages") {
+          merged[targetKey] = normalizeSpokenLanguages(value);
+        } else {
+          merged[targetKey] =
+            typeof value === "string" ? value.toLowerCase() : value;
+        }
       }
-    }
-  });
+    });
 
-  return merged;
-}, [currentUser, remoteUser]);
+    return merged;
+  }, [currentUser, remoteUser]);
 
-  // Generate initial avatar if no image is provided
+  // Update the initialAvatar logic to use profile_photo_url from form values
   const initialAvatar = useMemo(() => {
-    const fullName = `${mergedUserData.name || ""}`.trim();
+    const fullName = `${mergedUserData.firstName || ""}`.trim();
     return (
       mergedUserData?.profile_photo_url ||
       generateAvatarFromInitials(fullName) ||
@@ -128,44 +128,170 @@ const mergedUserData = useMemo(() => {
     );
   }, [mergedUserData]);
 
-  const [imgUrl, setImgUrl] = useState<string>(initialAvatar);
-  const [image, setImage] = useState<File | null>(null);
+  // Update useForm initialization
+  const {
+    handleSubmit,
+    register,
+    control,
+    formState: { errors, isDirty },
+    reset,
+    watch,
+    setValue,
+  } = useForm<FormValues>({
+    //@ts-ignore
+    resolver: yupResolver(schema),
+    defaultValues: mergedUserData,
+    mode: "onChange",
+  });
 
-  console.log(mergedUserData, "mergedUserData");
+  // Update form submission to include profile_photo_url
+  const onSubmit = async (data: FormValues) => {
+    try {
+      setIsLoading(true);
+      const formData = new FormData();
 
-const {
-  handleSubmit,
-  register,
-  control,
-  formState: { errors },
-  reset,
-} = useForm<FormValues>({
-  resolver: yupResolver(schema),
-  defaultValues: mergedUserData,
-});
+      // Add all form fields
+      formData.append("name", data.firstName);
+      formData.append("birth_date", data.dateOfBirth);
+      formData.append("tel", data.phoneNo || "");
+      formData.append("gender", data.gender);
+      formData.append("religion", data.religion);
+      formData.append("ethnicity", data.ethnicity);
+      formData.append("primary_language", data.primaryLanguage);
+      formData.append("email", data.email);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files && e.target.files[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setImgUrl(url);
-      setImage(file);
+      // Add spoken languages
+      data.spokenLanguage.forEach((lang, index) => {
+        formData.append(`spoken_languages[${index}]`, lang);
+      });
+
+      // Handle profile photo
+      if (image) {
+        formData.append("profile_photo", image);
+      } else if (data.profile_photo_url) {
+        formData.append("profile_photo_url", data.profile_photo_url);
+      }
+
+      const response = await createContributor(formData);
+
+      if (!response) {
+        throw new Error("Failed to submit the form. Please try again.");
+      }
+      //@ts-ignore
+      toast.success(response?.message);
+      setInitialValues(data);
+      setIsFormDirty(false);
+
+      // Cleanup old image URL
+      if (imgUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(imgUrl);
+      }
+    } catch (error) {
+      console.error("Form submission error:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred. Please try again.",
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const onSubmit = (data: any) => {
-    // Merge original data with newly submitted data
-    const submittedData = {
-      ...mergedUserData,
-      ...data,
-      profileImage: image
-        ? URL.createObjectURL(image)
-        : mergedUserData.profile_photo_url,
-    };
 
-    console.log("Submitted Data:", submittedData);
-    console.log("Uploaded Image:", image);
-  };
+
+  const [imgUrl, setImgUrl] = useState<string>(initialAvatar);
+  const [image, setImage] = useState<File | null>(null);
+
+
+
+  // Watch all form fields
+  const formValues = watch();
+
+  // Initialize form with merged data
+  useEffect(() => {
+    if (mergedUserData && !isInitialized) {
+      Object.entries(mergedUserData).forEach(([key, value]) => {
+        setValue(key as keyof FormValues, value);
+      });
+      //@ts-ignore
+      setInitialValues(mergedUserData);
+      setIsInitialized(true);
+    }
+  }, [mergedUserData, setValue, isInitialized]);
+
+  // Check if any values have changed from initial values
+  useEffect(() => {
+    if (initialValues) {
+      const hasChanges = Object.keys(formValues).some((key) => {
+        if (key === "spokenLanguage") {
+          const initial = normalizeSpokenLanguages(initialValues[key]);
+          const current = normalizeSpokenLanguages(formValues[key]);
+          return JSON.stringify(initial) !== JSON.stringify(current);
+        }
+        return (
+          initialValues[key as keyof FormValues] !==
+          formValues[key as keyof FormValues]
+        );
+      });
+
+      const hasImageChange = image !== null;
+      setIsFormDirty(hasChanges || hasImageChange);
+    }
+  }, [formValues, initialValues, image]);
+  // Ensure form values are set when user data is available
+  useEffect(() => {
+    if (mergedUserData) {
+      Object.entries(mergedUserData).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          setValue(key as keyof FormValues, value, {
+            shouldDirty: false,
+            shouldTouch: false,
+          });
+        }
+      });
+    }
+  }, [mergedUserData, setValue]);
+
+
+  const handleChange = React.useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        // Validate file size and type
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+
+        if (file.size > maxSize) {
+          toast.error("Image size should be less than 5MB");
+          return;
+        }
+
+        if (!allowedTypes.includes(file.type)) {
+          toast.error("Please upload a valid image file (JPEG, PNG, or WebP)");
+          return;
+        }
+
+        const url = URL.createObjectURL(file);
+        setImgUrl(url);
+        setImage(file);
+
+        // Cleanup previous object URL to prevent memory leaks
+        return () => URL.revokeObjectURL(url);
+      }
+    },
+    [],
+  );
+
+
+
+  React.useEffect(() => {
+    return () => {
+      if (imgUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(imgUrl);
+      }
+    };
+  }, [imgUrl]);
   return (
     <form
       className="block max-w-4xl"
@@ -187,19 +313,33 @@ const {
               type="button"
               variant="outline"
               className="rounded-full px-6"
+              onClick={() => {
+                reset(initialValues || {});
+                setImage(null);
+                setImgUrl(initialAvatar);
+              }}
+              disabled={isLoading}
             >
               Cancel
             </Button>
             <Button
               type="submit"
               className="rounded-full bg-main-100 text-white"
+              disabled={!isFormDirty || isLoading}
             >
-              Save Changes
+              {isLoading ? "Saving..." : "Save Changes"}
             </Button>
           </div>
         </div>
 
-        {/* PROFILE IMAGE */}
+        {isLoading && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="rounded-lg bg-white p-4">
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-main-100 border-t-transparent"></div>
+            </div>
+          </div>
+        )}
+
         <div className="my-8 flex items-center justify-center">
           <div className="relative sm:inline-block">
             <Image
@@ -223,42 +363,60 @@ const {
               className="hidden"
               accept="image/png, image/jpeg, image/webp"
               onChange={handleChange}
+              disabled={isLoading}
             />
           </div>
         </div>
 
-        <div className="space-y-4 md:grid md:grid-cols-2 md:gap-x-[18px] md:gap-y-6 md:space-y-0">
-          {personalInfo.map((data: any, index: number) => {
-            if (data.type === "select") {
-              return (
-                <CustomSelectField
-                  data={data}
-                  errors={errors}
-                  register={register}
-                  control={control}
-                  key={data?.name + index}
-                  options={genderOptions}
-                />
-              );
-            }
-            return (
+        <div>
+          <div>
+            {personalFirstName.map((data: any, index: number) => (
               <CustomInput
                 data={data}
                 errors={errors}
                 register={register}
                 control={control}
                 key={data?.name + index}
+                // disabled={isLoading}
               />
-            );
-          })}
+            ))}
+          </div>
+          <div className="space-y-4 md:grid md:grid-cols-2 md:gap-x-[18px] md:gap-y-6 md:space-y-0">
+            {personalInfo.map((data: any, index: number) => {
+              if (data.type === "select") {
+                return (
+                  <CustomSelectField
+                    data={data}
+                    errors={errors}
+                    register={register}
+                    control={control}
+                    key={data?.name + index}
+                    options={genderOptions}
+                    disabled={isLoading}
+                  />
+                );
+              }
+              return (
+                <CustomInput
+                  data={data}
+                  errors={errors}
+                  register={register}
+                  control={control}
+                  key={data?.name + index}
+                  // disabled={isLoading}
+                />
+              );
+            })}
+          </div>
         </div>
       </div>
 
-      {/* OTHER PERSONAL INFO */}
       <OtherPersonalInfo
         errors={errors}
         register={register}
         control={control}
+        defaultValues={mergedUserData}
+        disabled={isLoading}
       />
     </form>
   );

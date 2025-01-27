@@ -27,6 +27,18 @@ export const getDashboardStats = async (): Promise<
     return null;
   }
 };
+export const getPlacesWithHighestTask = async (): Promise<
+  ServerResponseOrNull<any>
+> => {
+  try {
+    return await fetchData<ServerResponse<any>>(
+      "contributor/analytics/stat-three",
+    );
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
 export const getResponseStats = async (): Promise<
   ServerResponseOrNull<any>
 > => {

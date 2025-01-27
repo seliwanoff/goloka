@@ -44,6 +44,7 @@ const LandingNavbar: React.FC<ComponentProps> = ({}) => {
     };
   });
 
+  const isHomePage = pathname === "/"
   return (
     <div
       style={{ zIndex: 100 }}
@@ -71,33 +72,37 @@ const LandingNavbar: React.FC<ComponentProps> = ({}) => {
       </div>
 
       {/* -- desktop links */}
-      <nav className="hidden items-center gap-6 md:flex">
-        {navLinks.map((link) => (
-          <Link
-            href={link.href}
-            key={link.href}
-            className={classMerge(
-              "transit text-base font-medium text-[#4F4F4F] hover:text-main-100",
-              pathname.includes(link.href)
-                ? "hover:text-primary-400 text-primary"
-                : "",
-            )}
-          >
-            {link.text}
-          </Link>
-        ))}
-      </nav>
+      {isHomePage && (
+        <>
+          <nav className="hidden items-center gap-6 md:flex">
+            {navLinks.map((link) => (
+              <Link
+                href={link.href}
+                key={link.href}
+                className={classMerge(
+                  "transit text-base font-medium text-[#4F4F4F] hover:text-main-100",
+                  pathname.includes(link.href)
+                    ? "hover:text-primary-400 text-primary"
+                    : "",
+                )}
+              >
+                {link.text}
+              </Link>
+            ))}
+          </nav>
 
-      <Button
-        variant={scrollValue > 0 ? "default" : "secondary"}
-        className="mr-16 hidden rounded-full bg-main-100 px-6 text-white hover:bg-blue-700 md:block"
-        onClick={() => router.push("/signin")}
-      >
-        Get Started
-      </Button>
+          <Button
+            variant={scrollValue > 0 ? "default" : "secondary"}
+            className="mr-16 hidden rounded-full bg-main-100 px-6 text-white hover:bg-blue-700 md:block"
+            onClick={() => router.push("/signin")}
+          >
+            Get Started
+          </Button>
+        </>
+      )}
 
       {/* -- mobile links */}
-      <Popover>
+      {/* <Popover>
         <PopoverTrigger className="md:hidden">
           <Image src={Menu} alt="Menu" />
         </PopoverTrigger>
@@ -120,7 +125,33 @@ const LandingNavbar: React.FC<ComponentProps> = ({}) => {
             Get Started
           </Button>
         </PopoverContent>
-      </Popover>
+      </Popover> */}
+      {isHomePage && (
+        <Popover>
+          <PopoverTrigger className="md:hidden">
+            <Image src={Menu} alt="Menu" />
+          </PopoverTrigger>
+          <PopoverContent className="flex flex-col gap-4">
+            {navLinks.map((link) => (
+              <Link
+                href={link.href}
+                key={link.text}
+                className={classMerge(
+                  "transit text-sm font-normal",
+                  pathname.includes(link.href)
+                    ? "hover:text-primary-400 text-primary"
+                    : "text-gray-600 hover:text-black",
+                )}
+              >
+                {link.text}
+              </Link>
+            ))}
+            <Button className="mt-3" onClick={() => router.push("/signin")}>
+              Get Started
+            </Button>
+          </PopoverContent>
+        </Popover>
+      )}
     </div>
   );
 };

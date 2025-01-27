@@ -66,19 +66,21 @@ import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
 import { useCreateOrganizationOverlay } from "@/stores/overlay";
 import CreateOrganization from "../modals/create_orgnaization_modal";
 import { getCurrentUser } from "@/services/user";
+import { useRemoteUserStore } from "@/stores/remoteUser";
 
 type ComponentProps = {};
 
-const data = {
-  profile_img: "",
-  first_name: "",
-  last_name: "",
-  account_type: "",
-  name: "",
-};
+// const data = {
+//   profile_img: "",
+//   first_name: "",
+//   last_name: "",
+//   account_type: "",
+//   name: "",
+// };
 
 const DashTopNav: React.FC<ComponentProps> = ({}) => {
   const [open, setOpen] = useState(false);
+  const { user } = useRemoteUserStore();
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [organizations, setOrganizations] = useState([]);
   const router = useRouter();
@@ -98,7 +100,7 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
 
   const pathname = usePathname();
   const firstSegment = pathname?.split("/")[1];
-  const user = { data };
+  // const user = { data };
   const currentUser = useUserStore((state) => state.user);
   const [isPageLoaded, setIsPageLoaded] = useState(false);
 
@@ -114,12 +116,39 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
     ? Name.charAt(0).toUpperCase() + Name.slice(1).toLowerCase()
     : "";
   const isMobile = useMediaQuery("(max-width: 640px)");
-  // const backgroundColor = useMemo(() => generateColor(FirstName), [FirstName]);
+  const avatarDisplay = useMemo(() => {
+    if (user?.profile_photo_url) {
+      return (
+        <div className="relative h-9 w-9 overflow-hidden rounded-full">
+          <Image
+            src={user?.profile_photo_url}
+            alt={`${FirstName}'s profile`}
+            fill
+            className="object-cover"
+          />
+        </div>
+      );
+    }
+
+    const backgroundColor = generateColor(FirstName.trim().toLowerCase());
+    const initials = getInitials(FirstName);
+
+    console.log(user, "this is a user");
+
+    return (
+      <div
+        className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-white"
+        style={{ backgroundColor }}
+      >
+        {initials}
+      </div>
+    );
+  }, [user?.profile_photo_url, FirstName]);
   const backgroundColor = useMemo(
     () => generateColor(FirstName.trim().toLowerCase()),
     [FirstName],
   );
-
+  // const initials = useMemo(() => getInitials(FirstName), [FirstName]);
   const initiateLogout = () => {
     try {
       const res = userLogout();
@@ -146,14 +175,16 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
     const response = await getUseServices();
     // console.log(getCurrentUser());
     const currentUsers = await getCurrentUser();
+    //@ts-ignore
     const contributor = response.services.contributor
       ? {
+          //@ts-ignore
           ...response.services.contributor,
           account_type: "contributor",
           name: currentUsers && currentUsers.data.name,
         }
       : null;
-
+    //@ts-ignore
     const organizations = response.services.organizations.map((org: any) => ({
       ...org,
       account_type: "organization",
@@ -164,12 +195,6 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
       : organizations;
 
     setOrganizations(mergedData);
-    // console.log(currentOrganization);
-    /***
-    if (currentOrganization == null && document.readyState === "complete") {
-      getCurrentOrganization(mergedData[1]);
-    }
-    **/
 
     console.log(document.readyState);
   };
@@ -283,35 +308,42 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
           </Sheet>
 
           {/* user profile bubble */}
-          {user && user.data && (
+          {user && (
             <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
               <PopoverTrigger className="transit shadow-1 cursor-pointer items-center justify-center gap-3 rounded-full hover:bg-gray-100 lg:flex lg:bg-[#F7F7F8] lg:px-5 lg:py-1.5">
+                {/* <div className="w-9">
+                  <AspectRatio ratio={1}>
+                    <Image
+                      src={user.data.profile_img || UserProfileImg}
+                      alt="user-profile-img"
+                      className="rounded-full"
+                      fill
+                    />
+                  </AspectRatio>
+                </div> */}
                 <div
                   className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-white`}
                   style={{ backgroundColor }}
                 >
-                  {initials}
+                  {avatarDisplay}
                 </div>
 
                 <div className="hidden flex-col items-start justify-center lg:flex">
                   <p className="text-base font-semibold">{FirstName}</p>
                   {
-                    // @ts-ignore
                     {
-                      INDIVIDUAL: (
+                      contributor: (
                         <p className="-mt-1 text-sm font-light">
-                          Individual Accounts
+                          Contributor Account
                         </p>
                       ),
-                      ORGANISATION: (
+                      organization: (
                         <p className="-mt-1 text-sm font-light">
-                          Organisation accounts
+                          Organization Account
                         </p>
                       ),
                     }[
-                      firstSegment === "organization"
-                        ? "ORGANISATION"
-                        : "INDIVIDUAL"
+                      (currentUser?.current_role || "contributor").toLowerCase()
                     ]
                   }
                 </div>
@@ -319,101 +351,37 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                 <ChevronDown strokeWidth={1.5} className="hidden lg:flex" />
               </PopoverTrigger>
               <PopoverContent>
-                <div
-                  className="flex max-h-[200px] w-full flex-col items-start gap-5 overflow-x-hidden"
-                  style={{
-                    scrollbarWidth: "thin",
-                  }}
-                >
-                  {filteredOrganizations?.length > 0 ? (
-                    filteredOrganizations?.map((org: any, index) => (
-                      <div
-                        className="flex cursor-pointer items-center gap-5"
-                        onClick={() => handleCurrentOrgnization(org)}
-                        key={index}
-                      >
-                        <div
-                          className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-white`}
-                          style={{ backgroundColor }}
-                        >
-                          {getInitials(org.name)}
-                        </div>
-                        <div className="flex flex-col justify-center">
-                          <p className="text-base font-semibold">
-                            <p className="max-w-[200px] overflow-hidden text-ellipsis text-nowrap text-base font-semibold">
-                              {org.name}
-                            </p>
-
-                            <p className="mt-1 max-w-[200px] overflow-hidden text-ellipsis text-nowrap text-xs font-medium text-gray-600">
-                              {org.account_type === "contributor"
-                                ? "Individual accounts"
-                                : "Organisation accounts"}
-                            </p>
+                <div className="flex w-full items-center gap-5">
+                  <div
+                    className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-white`}
+                    style={{ backgroundColor }}
+                  >
+                    {avatarDisplay}
+                  </div>
+                  <div className="flex flex-col justify-center">
+                    <p className="text-base font-semibold">
+                      <p className="text-base font-semibold">{FirstName}</p>
+                    </p>
+                    {
+                      {
+                        contributor: (
+                          <p className="-mt-1 text-sm font-light">
+                            Contributor Account
                           </p>
-
-                          {/**
-                        {
-                          // @ts-ignore
-                          {
-                            INDIVIDUAL: (
-                              <p className="-mt-1 text-sm font-light">
-                                Individual Accounts
-                              </p>
-                            ),
-                            ORGANISATION: (
-                              <p className="-mt-1 text-sm font-light">
-                                Organisation Account
-                              </p>
-                            ),
-                          }[user.data.account_type || "INDIVIDUAL"]
-                        }
-                          */}
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="flex items-center gap-4">
-                      <div
-                        className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-white`}
-                        style={{ backgroundColor }}
-                      >
-                        {getInitials(user.data.name)}
-                      </div>
-
-                      <div className="hidden flex-col items-start justify-center lg:flex">
-                        <p className="text-base font-semibold">{FirstName}</p>
-                        {
-                          // @ts-ignore
-                          {
-                            INDIVIDUAL: (
-                              <p className="-mt-1 text-sm font-light">
-                                Individual Accounts
-                              </p>
-                            ),
-                            ORGANISATION: (
-                              <p className="-mt-1 text-sm font-light">
-                                Organisation accounts
-                              </p>
-                            ),
-                          }[
-                            firstSegment === "organization"
-                              ? "ORGANISATION"
-                              : "INDIVIDUAL"
-                          ]
-                        }
-                      </div>
-                    </div>
-                  )}
+                        ),
+                        organization: (
+                          <p className="-mt-1 text-sm font-light">
+                            Organization Account
+                          </p>
+                        ),
+                      }[
+                        (
+                          currentUser?.current_role || "contributor"
+                        ).toLowerCase()
+                      ]
+                    }
+                  </div>
                 </div>
-                {organizations?.length > 0 &&
-                  firstSegment !== "organization" && (
-                    <Button
-                      className="mt-8 w-full rounded-full bg-main-100 text-white hover:bg-blue-700"
-                      onClick={() => setOpenOrganization(true)}
-                    >
-                      Create account
-                    </Button>
-                  )}
                 <Separator className="my-4" />
 
                 {/* links */}
