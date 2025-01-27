@@ -124,7 +124,7 @@ const Dashboard = () => {
       window.location.reload();
     }
 
-    console.log(document.readyState);
+    //console.log(document.readyState);
   };
 
   useEffect(() => {

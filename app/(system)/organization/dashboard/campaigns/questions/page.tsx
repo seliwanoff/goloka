@@ -266,63 +266,68 @@ const Create = () => {
   const saveQuestion = async () => {
     setIsSubmitting(true);
     let allQuestionsSaved = true;
-
-    try {
-      for (const question of questions) {
-        //  console.log(question.type);
-        const payload = {
-          label: question.content,
-          question_group_id: parseFloat(
-            groupedQuestions[groupedQuestions.length - 1]?.id,
-          ),
-          type: question.type,
-          name: question.content.toLowerCase().replace(/\s+/g, " "),
-          placeholder:
-            question.type === "text" ||
-            question.type === "textarea" ||
-            question.type === "email" ||
-            question.type === "password" ||
-            question.type === "tel" ||
-            question.type === "url"
-              ? "Enter your input"
-              : "",
-          required: true,
-          options:
-            question.type === "select" ||
-            question.type === "checkbox" ||
-            question.type === "radio"
-              ? JSON.stringify(
-                  [...questions[0].answer].map((item: any) => item.value),
-                )
-              : question.type === "area"
-                ? null
-                : question.type === "line"
+    const hasData = questions.some((q) => q.content.trim() !== "");
+    if (hasData) {
+      try {
+        for (const question of questions) {
+          //  console.log(question.type);
+          const payload = {
+            label: question.content,
+            question_group_id: parseFloat(
+              groupedQuestions[groupedQuestions.length - 1]?.id,
+            ),
+            type: question.type === "boolean" ? "radio" : question.type,
+            name: question.content.toLowerCase().replace(/\s+/g, " "),
+            placeholder:
+              question.type === "text" ||
+              question.type === "textarea" ||
+              question.type === "email" ||
+              question.type === "password" ||
+              question.type === "tel" ||
+              question.type === "url"
+                ? "Enter your input"
+                : "",
+            required: true,
+            options:
+              question.type === "select" ||
+              question.type === "checkbox" ||
+              question.type === "radio"
+                ? JSON.stringify(
+                    [...questions[0].answer].map((item: any) => item.value),
+                  )
+                : question.type === "area"
                   ? null
-                  : question.type === "location"
+                  : question.type === "line"
                     ? null
-                    : null,
+                    : question.type === "location"
+                      ? null
+                      : question.type === "boolean"
+                        ? JSON.stringify(
+                            [
+                              { label: "True", value: "true" },
+                              { label: "False", value: "false" },
+                            ].map((item) => item.value),
+                          )
+                        : null,
 
-          attributes: null,
-        };
+            attributes: null,
+          };
 
-        await createQuestion(questionId, payload);
-        setQuestions([
-          { id: 1, type: "text", content: " ", group: " ", answer: " " },
-        ]);
-        setIsQuestionSaved(true);
-      } /***
-      if (isAddQuestion === false) {
-        toast.success(" Questions added successfully!");
+          await createQuestion(questionId, payload);
+          setQuestions([
+            { id: 1, type: "text", content: " ", group: " ", answer: " " },
+          ]);
+          setIsQuestionSaved(true);
+        }
+      } catch (error) {
+        allQuestionsSaved = false;
+        console.error("Error saving questions:", error);
+      } finally {
+        setIsSubmitting(false);
+        setIsAddQuestion(false);
       }
-        */
-    } catch (error) {
-      allQuestionsSaved = false;
-      console.error("Error saving questions:", error);
-      //  toast.error("Failed to save some or all questions.");
-    } finally {
-      setIsSubmitting(false);
-      setIsAddQuestion(false);
-      //setQuestions([{ id: 1, type: "text", content: "", group: "", answer: "" }]);
+    } else {
+      toast.error("Please add question");
     }
   };
 
@@ -340,7 +345,8 @@ const Create = () => {
         await submitCampaign(questionId);
         router.push("/organization/dashboard/campaigns");
       } catch (e: any) {
-        toast.error(e.mesage);
+        //console.log(e?.response?.data?.message);
+        toast.error(e?.response?.data?.message);
         setIsSubmitting(false);
       }
       return;
@@ -385,18 +391,17 @@ const Create = () => {
           await submitCampaign(questionId);
           toast.success("Question saved successfully.");
         } catch (e) {
+          console.log(e);
           toast.error("Failed to save some or all questions.");
           setIsSubmitting(false);
         }
 
-        // Save the question
         setQuestions([
           { id: 1, type: "text", content: "", group: "", answer: "" },
         ]);
         setIsQuestionSaved(true);
       }
-      // Navigate to campaigns after saving all questions
-      router.push("organization/dashboard/campaigns");
+      router.push("/organization/dashboard/campaigns");
     } catch (error) {
       allQuestionsSaved = false;
       console.error("Error saving questions:", error);
@@ -409,8 +414,6 @@ const Create = () => {
       ]);
     }
   };
-
-  //console.log(questions);
 
   const handleQuestionTypeChange = (id: number, type: string) => {
     // console.log(type);

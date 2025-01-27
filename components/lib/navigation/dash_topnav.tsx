@@ -322,7 +322,7 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                 <div
                   className="flex max-h-[200px] w-full flex-col items-start gap-5 overflow-x-hidden"
                   style={{
-                    scrollbarWidth: "none",
+                    scrollbarWidth: "thin",
                   }}
                 >
                   {filteredOrganizations?.length > 0 ? (
