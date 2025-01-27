@@ -1,4 +1,4 @@
-import create, { StateCreator } from "zustand";
+import { create, StateCreator } from "zustand";
 
 interface PasswordFormField {
   label: string;
@@ -11,7 +11,7 @@ interface PasswordFormField {
 
 interface PasswordFormState {
   formData: PasswordFormField[];
-  formValues: { [key: string]: string }; 
+  formValues: { [key: string]: string };
   errors: { [key: string]: { message: string } };
   setFormData: (formData: PasswordFormField[]) => void;
   setFormValues: (formValues: { [key: string]: string }) => void; // New setter
@@ -63,8 +63,8 @@ const passwordFormStoreSlice: StateCreator<
     const password = formValues["password"];
     const passwordAgain = formValues["password_confirmation"];
 
-      const errors: { [key: string]: { message: string } } = {
-        //@ts-ignore
+    const errors: { [key: string]: { message: string } } = {
+      //@ts-ignore
       password:
         password !== passwordAgain
           ? { message: "Passwords do not match" }
