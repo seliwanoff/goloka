@@ -359,7 +359,7 @@ const Create = () => {
           question_group_id: parseFloat(
             groupedQuestions[groupedQuestions.length - 1]?.id,
           ),
-          type: question.type,
+          type: question.type === "boolean" ? "radio" : question.type,
           name: question.content.toLowerCase().replace(/\s+/g, " "),
           placeholder: [
             "text",
@@ -382,7 +382,14 @@ const Create = () => {
                 ? JSON.stringify([...line.map((item: any) => item)])
                 : question.type === "location"
                   ? JSON.stringify([...location.map((item: any) => item)])
-                  : null,
+                  : question.type === "boolean"
+                    ? JSON.stringify(
+                        [
+                          { label: "True", value: "true" },
+                          { label: "False", value: "false" },
+                        ].map((item) => item.value),
+                      )
+                    : null,
           attributes: null,
         };
 
