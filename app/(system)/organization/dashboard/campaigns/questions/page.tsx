@@ -315,9 +315,10 @@ const Create = () => {
 
           await createQuestion(questionId, payload);
           setQuestions([
-            { id: 1, type: "text", content: " ", group: " ", answer: " " },
+            { id: 1, type: "text", content: "", group: " ", answer: " " },
           ]);
-          setIsQuestionSaved(true);
+          //setIsQuestionSaved(true);
+          getAllQuestion();
         }
       } catch (error) {
         allQuestionsSaved = false;
@@ -339,6 +340,7 @@ const Create = () => {
     const isAnyQuestionAvailable = questions.some(
       (question) => question.content !== "",
     );
+    console.log(isAnyQuestionAvailable);
 
     if (!isAnyQuestionAvailable) {
       try {
