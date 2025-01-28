@@ -76,6 +76,7 @@ const SignIn: React.FC<PageProps> = ({}) => {
       storeTokens();
       //  console.log(response);
       toast.success("Sign in successful");
+      //@ts-ignore
       if (response.user.current_role === "campaigner") {
         router.replace("/organization/dashboard/root");
       } else {

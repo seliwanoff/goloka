@@ -459,7 +459,9 @@ const Create = () => {
     try {
       const response: AxiosResponse<CampaignQuestionResponse> =
         await getCampaignQuestion(questionId);
+      //@ts-ignore
       setUngroupedQuestions(response.ungrouped_questions);
+      //@ts-ignore
       setGroupedQuestions(response.grouped_questions);
 
       //  console.log(response.grouped_questions);
