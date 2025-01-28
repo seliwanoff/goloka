@@ -146,14 +146,16 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
     const response = await getUseServices();
     // console.log(getCurrentUser());
     const currentUsers = await getCurrentUser();
+    //@ts-ignore
     const contributor = response.services.contributor
       ? {
+          //@ts-ignore
           ...response.services.contributor,
           account_type: "contributor",
           name: currentUsers && currentUsers.data.name,
         }
       : null;
-
+    //@ts-ignore
     const organizations = response.services.organizations.map((org: any) => ({
       ...org,
       account_type: "organization",

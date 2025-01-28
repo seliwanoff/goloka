@@ -39,6 +39,7 @@ const ConfirmWithdrawalOrganization = () => {
 
       setOpen(false);
       //  setStep((prev: number) => prev + 1);
+      //@ts-ignore
       window.open(res.payment_url, "_blank");
       setStep(0);
     } catch (error) {

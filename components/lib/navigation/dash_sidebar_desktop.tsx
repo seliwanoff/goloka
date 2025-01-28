@@ -69,7 +69,7 @@ const DashSideBarDesktop: React.FC<ComponentProps> = ({ navMenuList }) => {
   };
   const getRegisteredUsersService = async () => {
     const response = await getUseServices();
-
+    //@ts-ignore
     setOrganizations(response.services.organizations);
   };
 
