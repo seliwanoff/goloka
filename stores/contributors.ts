@@ -76,7 +76,7 @@ export const useContributorStore = create<UserState>()(
           //@ts-ignore
           toast(response?.message);
         } catch (error) {
-          alert("Failed to submit user info:");
+          // alert("Failed to submit user info:");
         } finally {
           setLoading(false);
         }
