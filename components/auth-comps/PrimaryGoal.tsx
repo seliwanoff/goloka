@@ -15,8 +15,8 @@ const goals = [
     icon: BenchMark,
     title: "Generate data for my organization",
     content: "Lorem ipsum dolor sit amet consectetur. Pulvinar.",
-    path: "/organization-data",
-    enable: false,
+    path: "/organization-onboarding",
+    enable: true,
   },
   {
     icon: Income,

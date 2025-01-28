@@ -1,4 +1,5 @@
 import { queryClient } from "@/components/layout/tanstackProvider";
+import { organizationDetails } from "@/helper";
 import {
   useFetchQuery,
   postData,
@@ -326,6 +327,28 @@ export const addBeneficiary = async (
           account_number,
           bank_code,
         });
+      } catch (error) {
+        console.error("Failed:", error);
+        return null;
+      }
+    },
+  });
+
+export const addCampaignGroup = async (
+  name: string,
+  description: string,
+): Promise<UseQueryResult<AxiosResponse<TaskResponse>>> =>
+  await queryClient.fetchQuery({
+    queryKey: ["contributors bank"],
+    queryFn: async () => {
+      try {
+        return await postData(
+          `organizations/${organizationDetails.domain}/campaign-groups/create`,
+          {
+            name,
+            description,
+          },
+        );
       } catch (error) {
         console.error("Failed:", error);
         return null;

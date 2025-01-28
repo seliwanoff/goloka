@@ -1,4 +1,3 @@
-
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
@@ -38,6 +37,9 @@ export type ITransaction = {
   amount_ngn: string;
 };
 
+export type ITwithdraw = {
+  amount?: string;
+};
 export type ITransfer = {
   walletID: string;
   organisation: string;
@@ -52,6 +54,13 @@ interface FundState {
     value: ITransaction | ((prev: ITransaction) => ITransaction),
   ) => void;
   clearTransaction: () => void;
+}
+
+interface TopFundState {
+  step: number;
+  setStep: (value: number | ((prev: number) => number)) => void;
+  amount: number;
+  setAmount: (value: number) => void;
 }
 
 interface TransferState {
@@ -132,6 +141,15 @@ const useWithdrawStepper = create<FundState>((set) => ({
     })),
 }));
 
+const useWithdrawStepperOrganization = create<TopFundState>((set) => ({
+  step: 0,
+  amount: 0,
+  setAmount: (value) => set({ amount: value }),
+  setStep: (value) =>
+    set((state) => ({
+      step: typeof value === "function" ? value(state.step!) : value,
+    })),
+}));
 const useTransferStepper = create<TransferState>((set) => ({
   step: 0,
   setStep: (value) =>
@@ -165,4 +183,5 @@ export {
   useTransferStepper,
   useShowPin,
   useShowPasswordOtp,
+  useWithdrawStepperOrganization,
 };

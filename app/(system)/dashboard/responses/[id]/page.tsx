@@ -240,11 +240,11 @@ const ResponseDetails = () => {
                           >
                             <MoveLeft />
                           </div>
-                          <Image
+                          {/* <Image
                             src={profileImg}
                             alt="chat-user"
                             className="h-12 w-12 rounded-full object-cover object-center"
-                          />
+                          /> */}
                           <SheetTitle className="font-normal text-white">
                             Messages
                           </SheetTitle>

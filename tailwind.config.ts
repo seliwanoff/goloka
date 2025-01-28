@@ -20,6 +20,7 @@ const config = {
     extend: {
       fontFamily: {
         poppins: '"Poppins", sans-serif',
+        Satoshi: '"Satoshi", sans-serif',
       },
       colors: {
         // emerald: require("tailwindcss/colors").emerald,

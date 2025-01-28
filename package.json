@@ -11,6 +11,7 @@
   "dependencies": {
     "@googlemaps/js-api-loader": "^1.16.8",
     "@headlessui/react": "^2.1.2",
+    "@hello-pangea/dnd": "^17.0.0",
     "@hookform/resolvers": "^3.9.0",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-aspect-ratio": "^1.1.0",
@@ -48,6 +49,7 @@
     "next": "14.2.5",
     "next-themes": "^0.3.0",
     "react": "^18",
+    "react-beautiful-dnd": "^13.1.1",
     "react-day-picker": "8.10.1",
     "react-dom": "^18",
     "react-google-autocomplete": "^2.7.3",
@@ -70,7 +72,7 @@
     "vaul": "^0.9.1",
     "yup": "^1.4.0",
     "zod": "^3.23.8",
-    "zustand": "^4.5.4"
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.9",
@@ -81,8 +83,9 @@
     "@types/html2canvas": "^1.0.0",
     "@types/jspdf": "^2.0.0",
     "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
+    "@types/react": "^18.3.14",
+    "@types/react-beautiful-dnd": "^13.1.8",
+    "@types/react-dom": "^18.3.2",
     "@types/recordrtc": "^5.6.14",
     "eslint": "^8",
     "eslint-config-next": "13.5.6",

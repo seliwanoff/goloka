@@ -65,7 +65,7 @@ export function BankAutocomplete({
               >
                 {field.value
                   ? bankList.find((bank) => bank.value === field.value)?.label
-                  : "Select bank"}
+                  : `Select ${label.toLowerCase()}`}
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>

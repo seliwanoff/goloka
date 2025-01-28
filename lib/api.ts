@@ -18,7 +18,7 @@ const fetchData = async <T>(url: string, options = {}): Promise<T> => {
 
 const postData = async <T>(
   url: string,
-  data: any,
+  data?: any,
   options = {},
 ): Promise<T> => {
   const response = await axiosInstance.post<T>(url, data, options);
@@ -137,6 +137,84 @@ const uploadQuestionFile = async (
       success: false,
       message: error instanceof Error ? error.message : "File upload failed",
     };
+  }
+};
+interface StateItem {
+  id: number;
+  name: string;
+  // other properties
+}
+// Function to format date as YYYY-MM-DD
+const formatDate = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, "0"); // Get month (1-based, so we add 1)
+  const day = date.getDate().toString().padStart(2, "0"); // Get day
+
+  return `${year}-${month}-${day}`;
+};
+
+export const createCampaign = async ({
+  title,
+  description,
+  selectedLgs,
+  selectedStates,
+  number_of_responses,
+  payment_rate_for_response,
+  starts_at,
+  ends_at,
+  allows_multiple_responses,
+  images,
+}: {
+  title: string;
+  description: string;
+  selectedStates: StateItem[]; // array of StateItem
+  selectedLgs: StateItem[]; // array of StateItem
+  number_of_responses: any;
+  payment_rate_for_response: any;
+  starts_at: any;
+  ends_at: any;
+  allows_multiple_responses: number;
+  images: string[];
+}) => {
+  const formattedStartsAt = formatDate(starts_at);
+  const formattedEndsAt = formatDate(ends_at);
+
+  // Extracting ids from StateItem objects
+  const stateIds = selectedStates.map((state) => state.id); // Extract 'id' from each StateItem
+  const lgaIds = selectedLgs.map((lga) => lga.id); // Extract 'id' from each StateItem
+
+  // Define the type for the accumulator
+  const payload: { [key: string]: string | number | string[] } = {
+    title,
+    type: "survey",
+    description,
+    number_of_responses,
+    payment_rate_for_response,
+    starts_at: formattedStartsAt,
+    ends_at: formattedEndsAt,
+    allows_multiple_responses,
+    images,
+  };
+
+  // Add state_ids and lga_ids in the correct form
+  stateIds.forEach((id, index) => {
+    payload[`state_ids[${index}]`] = id;
+  });
+
+  lgaIds.forEach((id, index) => {
+    payload[`lga_ids[${index}]`] = id;
+  });
+
+  try {
+    const response = await axiosInstance.post(
+      "/organizations/campaigns/create",
+      payload,
+    );
+    console.log("Campaign created successfully:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating campaign:", error);
+    throw error;
   }
 };
 

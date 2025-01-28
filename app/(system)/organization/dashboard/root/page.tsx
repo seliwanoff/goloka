@@ -1,6 +1,6 @@
 "use client";
 import DashboardWidget from "@/components/lib/widgets/dashboard_card";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Calendar,
   DocumentUpload,
@@ -48,10 +48,18 @@ import {
   formatResponseTime,
   // getStatusColor,
   getStatusText,
+  numberWithCommas,
   Status,
 } from "@/helper";
 import CampaignChart from "@/components/organization-comps/campaign_chart";
 import CampaignSummary from "@/components/organization-comps/campaign_summary";
+import {
+  getOrganizationByDomain,
+  getUseServices,
+} from "@/services/organization";
+import { getCurrentUser } from "@/services/user";
+import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
+import { getCurrentOrganization } from "@/services/auth";
 
 const Dashboard = () => {
   // const [filteredData, setFilteredData] = useState<Response[]>(
@@ -59,6 +67,7 @@ const Dashboard = () => {
   //     (item: { status: string }) => item?.status === activeTab,
   //   ),
   // );
+  const [organizations, setOrganizations] = useState([]);
 
   const [filteredData, setFilteredData] = useState<any[]>(responsesTableData);
   const [openFilter, setOpenFilter] = useState<boolean>(false);
@@ -67,6 +76,60 @@ const Dashboard = () => {
   const [pageSize, setPageSize] = useState<number>(10);
   const pages = chunkArray(filteredData, pageSize);
   const currentPageData = pages[currentPage - 1] || [];
+  const currentOrganization = useOrganizationStore(
+    (state) => state.organization,
+  );
+  const [data, setData] = useState<any>([]);
+
+  const getOrgaization = async () => {
+    try {
+      const response = await getOrganizationByDomain();
+      console.log(response);
+      setData(response.data);
+      getRegisteredUsersService(response.data);
+      //  getCurrentOrganization(response.data);
+    } catch (e) {
+      console.log(e);
+      getRegisteredUsersService(null);
+    }
+  };
+
+  const getRegisteredUsersService = async (orgData: any) => {
+    console.log(orgData);
+    const response = await getUseServices();
+    // console.log(getCurrentUser());
+    const currentUsers = await getCurrentUser();
+    const contributor = response.services.contributor
+      ? {
+          ...response.services.contributor,
+          account_type: "contributor",
+          name: currentUsers && currentUsers.data.name,
+        }
+      : null;
+
+    const organizations = response.services.organizations.map((org: any) => ({
+      ...org,
+      account_type: "organization",
+    }));
+
+    const mergedData = contributor
+      ? [contributor, ...organizations]
+      : organizations;
+
+    setOrganizations(mergedData);
+    // console.log(currentOrganization);
+    //console.log(data.id);
+    if (orgData?.id === undefined && document.readyState === "complete") {
+      getCurrentOrganization(mergedData[1]);
+      window.location.reload();
+    }
+
+    //console.log(document.readyState);
+  };
+
+  useEffect(() => {
+    getOrgaization();
+  }, []);
   const router = useRouter();
 
   return (
@@ -76,13 +139,16 @@ const Dashboard = () => {
         <div>
           <h1 className="text-2xl font-semibold">
             Welcome to Goloka for Organization &nbsp;
-            <span className="text-main-100">Jamiu</span>
+            <span className="text-main-100">
+              {currentOrganization?.name || ""}
+            </span>
           </h1>
-          <p className="text-gray-600">
-            Lorem ipsum dolor sit amet consectetur. Ultrices turpis amet et id.
-          </p>
+          <p className="text-gray-600">{data?.description || ""}</p>
         </div>
-        <Button className="h-auto rounded-full bg-main-100 px-8 py-3 text-white hover:bg-blue-700">
+        <Button
+          className="h-auto rounded-full bg-main-100 px-8 py-3 text-white hover:bg-blue-700"
+          onClick={() => router.push("campaigns/create")}
+        >
           <span>
             <Note />
           </span>
@@ -101,7 +167,7 @@ const Dashboard = () => {
               containerBg="bg-gradient-to-tr from-[#3365E3] to-[#1C387D]"
               textColor="text-white"
               icon={Wallet3}
-              value={`₦200,500`}
+              value={`${(currentOrganization && currentOrganization.symbol) || "₦"}${numberWithCommas(data.wallet_balance) || 0}`}
               footer={
                 <span className="font-medium">₦5,250 Pending balance</span>
               }
@@ -115,7 +181,7 @@ const Dashboard = () => {
               bg="bg-[#FEC53D] bg-opacity-[12%]"
               fg="text-[#FEC53D]"
               icon={TrendUp}
-              value={127}
+              value={0}
               footer="126 ongoing"
               isAnalytics={false}
               increase={true}
@@ -127,7 +193,7 @@ const Dashboard = () => {
               bg="bg-main-100 bg-opacity-[12%]"
               fg="text-main-100"
               icon={Note}
-              value={64}
+              value={0}
               footer="vs last month"
               isAnalytics={true}
               increase={true}
@@ -139,7 +205,7 @@ const Dashboard = () => {
               bg="bg-[#EB5757] bg-opacity-[12%]"
               fg="text-[#EB5757]"
               icon={DocumentUpload}
-              value={36}
+              value={0}
               footer="Last export : 12/06/2024"
               isAnalytics={false}
               increase={false}

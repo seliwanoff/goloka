@@ -24,6 +24,8 @@ import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
 import { Calendar as CalenderDate } from "@/components/ui/calendar";
 import { Calendar, Setting4 } from "iconsax-react";
+import CreateCampaingGroup from "@/components/lib/modals/create_campaign_group";
+
 import {
   Table,
   TableBody,
@@ -35,6 +37,14 @@ import {
 import { BsThreeDots } from "react-icons/bs";
 import Pagination from "@/components/lib/navigation/Pagination";
 import { getStatusText } from "@/helper";
+import Link from "next/link";
+import {
+  useAddcampaignGroupOverlay,
+  useEditCampaignOverlay,
+} from "@/stores/overlay";
+import EditCampaign from "@/components/lib/modals/edit_campaign";
+import { getCampaign, getOrganizationCampaign } from "@/services/campaign";
+import { useRouter } from "next/navigation";
 
 const renderTable = (tab: string, tdata: any[]) => {
   switch (tab.toLowerCase()) {
@@ -51,19 +61,59 @@ const renderTable = (tab: string, tdata: any[]) => {
 
 const Page = () => {
   const [openFilter, setOpenFilter] = useState<boolean>(false);
-  const [filteredData, setFilteredData] = useState<any[]>(campaignList);
+  const [campaignList, setCampaignList] = useState<[]>([]);
+
   const [activeTab, setActiveTab] = useState("campaigns");
   const [date, setDate] = useState<Date>();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState<number>(10);
+  const [campaignGroupList, setCampaignGroupList] = useState<[]>([]);
+
+  const [filteredData, setFilteredData] = useState<any[]>(
+    activeTab === "campaigns" ? campaignList : campaignGroupList,
+  );
   const pages = chunkArray(filteredData, pageSize);
   const currentPageData = pages[currentPage - 1] || [];
   const [activeStatus, setActiveStatus] = useState<string>("all");
+  const { setShowCreate } = useAddcampaignGroupOverlay();
+
+  const { show } = useAddcampaignGroupOverlay();
+
+  const { isShowEdit } = useEditCampaignOverlay();
+
+  const getCampaignGroup = async () => {
+    try {
+      const response = await getOrganizationCampaign();
+      if (response && response.data) {
+        setCampaignGroupList(response.data);
+      } else {
+        console.warn("Response is null or does not contain data");
+      }
+    } catch (error) {
+      console.error("Error fetching campaign groups:", error);
+    }
+  };
+  const getCampaignMain = async () => {
+    try {
+      const response = await getCampaign();
+      if (response && response.data) {
+        setCampaignList(response.data);
+      } else {
+        console.warn("Response is null or does not contain data");
+      }
+    } catch (error) {
+      console.error("Error fetching campaign groups:", error);
+    }
+  };
+  useEffect(() => {
+    getCampaignGroup();
+    getCampaignMain();
+  }, [show, isShowEdit]);
 
   useEffect(() => {
     function filter(status: string) {
       return campaignList?.filter(
-        (item) => item?.status.toLowerCase() === status,
+        (item: any) => item?.status.toLowerCase() === status,
       );
     }
 
@@ -91,181 +141,197 @@ const Page = () => {
     } else if (activeTab === "campaign-groups") {
       setFilteredData(campaignGroupList);
     }
-  }, [activeTab]);
+  }, [activeTab, campaignList, campaignGroupList]);
 
-  console.log(activeTab, "Tabs");
   return (
-    <section className="mt-5">
-      {/* HEADING */}
-      <div className="mb-8 flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-main-100">Campaigns</h2>
+    <>
+      {/*** Edit Campaign */}
+      <EditCampaign />
 
-        <div className="inline-flex items-center gap-2">
-          <Button
-            variant="outline"
-            className="rounded-[50px] border-main-100 text-main-100"
-          >
-            Create campaign group
-          </Button>
-          <Button
-            variant="outline"
-            className="items-center gap-2 rounded-[50px] bg-main-100 text-white"
-          >
-            <span>
-              <Note />
-            </span>
-            Create new campaign
-          </Button>
-        </div>
-      </div>
+      {/*** CREATE CAMPAIGN GROUP */}
 
-      {/* TABLE OPTIONS */}
-      <div className="rounded-2xl bg-white p-[14px]">
-        {/* OPTIONS */}
-        <div className="mb-5">
-          <div className="flex items-center justify-between">
-            <div className="flex justify-between gap-4 lg:justify-start">
-              {/* -- search section */}
-              <div className="relative flex w-[250px] items-center justify-center md:w-[250px]">
-                <Search className="absolute left-3 text-gray-500" size={18} />
-                <Input
-                  placeholder="Search task, organization"
-                  type="text"
-                  className="w-full rounded-full bg-gray-50 pl-10"
-                />
-              </div>
+      <CreateCampaingGroup />
 
-              <div className="hidden lg:flex lg:gap-4">
-                {/* Status */}
+      {/*** DELETE MODAL */}
 
-                {activeTab !== "campaign-groups" ? (
-                  <Select value={activeStatus} onValueChange={setActiveStatus}>
-                    <SelectTrigger
-                      className={cn(
-                        "w-[110px] rounded-full focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0",
-                      )}
-                    >
-                      <SelectValue placeholder="Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="all">All</SelectItem>
-                        <SelectItem value="draft">Draft</SelectItem>
-                        <SelectItem value="running">Running</SelectItem>
-                        <SelectItem value="completed">Completed</SelectItem>
-                        <SelectItem value="archived">Archived</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <></>
-                )}
+      <section className="mt-5">
+        {/* HEADING */}
+        <div className="mb-8 flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-main-100">Campaigns</h2>
 
-                {/* NUMBER */}
-                <Popover>
-                  <PopoverTrigger className="rounded-full border px-3">
-                    <div className="inline-flex items-center gap-2">
-                      <span className="text-sm">No of question</span>{" "}
-                      <ChevronDown className="h-4 w-4 opacity-50" />
-                    </div>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[200px]">
-                    <Label htmlFor="number" className="mb-3 inline-block">
-                      Input number
-                    </Label>
-                    <Input
-                      name="number"
-                      id="number"
-                      type="tel"
-                      className="form-input w-full appearance-none rounded-lg border border-[#d9dec0] px-4 py-6 placeholder:text-[#828282] focus:border-0 focus:outline-none focus-visible:ring-0"
-                      placeholder="0"
-                    />
-                  </PopoverContent>
-                </Popover>
-
-                {/* DATE */}
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-min justify-start gap-3 rounded-full px-3 pr-1 text-center text-sm font-normal",
-                      )}
-                    >
-                      {date ? format(date, "PPP") : <span>Select date</span>}
-                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F8F8F8]">
-                        <Calendar size={20} color="#828282" className="m-0" />
-                      </span>{" "}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <CalenderDate
-                      mode="single"
-                      selected={date}
-                      onSelect={setDate}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              {/* -- filter icon */}
-              <div
-                onClick={() => setOpenFilter(true)}
-                className="inline-flex cursor-pointer items-center justify-center gap-3 rounded-full border bg-white p-1 pr-3 lg:hidden"
+          <div className="inline-flex items-center gap-2">
+            <Button
+              variant="outline"
+              className="rounded-[50px] border-main-100 font-Satoshi text-main-100"
+              onClick={() => setShowCreate(true)}
+            >
+              Create campaign group
+            </Button>
+            <Link href="/organization/dashboard/campaigns/create">
+              <Button
+                variant="outline"
+                className="items-center gap-2 rounded-[50px] bg-main-100 font-Satoshi text-white"
               >
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#F8F8F8]">
-                  <Setting4 size={20} />
+                <span>
+                  <Note />
                 </span>
-                <span>Filter</span>
-              </div>
-            </div>
-
-            {/* FILTER TABS */}
-            <div>
-              <Tabs
-                value={activeTab}
-                onValueChange={(val) => setActiveTab(val)}
-                className="w-full md:w-max"
-              >
-                <TabsList
-                  className={cn(
-                    "w-full justify-start rounded-full bg-[#F1F1F1] px-1 py-6 sm:w-auto md:justify-center",
-                  )}
-                >
-                  {tabs.map((tab: any, index: number) => (
-                    <TabsTrigger
-                      value={tab?.value}
-                      key={index}
-                      className={cn(
-                        "flex-grow rounded-full py-2.5 text-sm font-normal data-[state=active]:bg-blue-700 data-[state=active]:text-white sm:flex-grow-0",
-                      )}
-                    >
-                      {tab.label}
-                    </TabsTrigger>
-                  ))}{" "}
-                </TabsList>
-              </Tabs>
-            </div>
+                Create new campaign
+              </Button>
+            </Link>
           </div>
         </div>
 
-        {/* TABLE DATA */}
-        <div className="">{renderTable(activeTab, currentPageData)}</div>
+        {/* TABLE OPTIONS */}
+        <div className="rounded-2xl bg-white p-[14px]">
+          {/* OPTIONS */}
+          <div className="mb-5">
+            <div className="flex items-center justify-between">
+              <div className="flex justify-between gap-4 lg:justify-start">
+                {/* -- search section */}
+                <div className="relative flex w-[250px] items-center justify-center md:w-[250px]">
+                  <Search className="absolute left-3 text-gray-500" size={18} />
+                  <Input
+                    placeholder="Search task, organization"
+                    type="text"
+                    className="w-full rounded-full bg-gray-50 pl-10"
+                  />
+                </div>
 
-        {/* Pagination */}
-        <div className="mt-6">
-          <Pagination
-            // @ts-ignore
-            totalPages={pages?.length}
-            currentPage={currentPage}
-            onPageChange={setCurrentPage}
-            RowSize={pageSize}
-            onRowSizeChange={setPageSize}
-          />
+                <div className="hidden lg:flex lg:gap-4">
+                  {/* Status */}
+
+                  {activeTab !== "campaign-groups" ? (
+                    <Select
+                      value={activeStatus}
+                      onValueChange={setActiveStatus}
+                    >
+                      <SelectTrigger
+                        className={cn(
+                          "w-[110px] rounded-full focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0",
+                        )}
+                      >
+                        <SelectValue placeholder="Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value="all">All</SelectItem>
+                          <SelectItem value="draft">Draft</SelectItem>
+                          <SelectItem value="running">Running</SelectItem>
+                          <SelectItem value="completed">Completed</SelectItem>
+                          <SelectItem value="archived">Archived</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <></>
+                  )}
+
+                  {/* NUMBER */}
+                  <Popover>
+                    <PopoverTrigger className="rounded-full border px-3">
+                      <div className="inline-flex items-center gap-2">
+                        <span className="text-sm">No of question</span>{" "}
+                        <ChevronDown className="h-4 w-4 opacity-50" />
+                      </div>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[200px]">
+                      <Label htmlFor="number" className="mb-3 inline-block">
+                        Input number
+                      </Label>
+                      <Input
+                        name="number"
+                        id="number"
+                        type="tel"
+                        className="form-input w-full appearance-none rounded-lg border border-[#d9dec0] px-4 py-6 placeholder:text-[#828282] focus:border-0 focus:outline-none focus-visible:ring-0"
+                        placeholder="0"
+                      />
+                    </PopoverContent>
+                  </Popover>
+
+                  {/* DATE */}
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-min justify-start gap-3 rounded-full px-3 pr-1 text-center text-sm font-normal",
+                        )}
+                      >
+                        {date ? format(date, "PPP") : <span>Select date</span>}
+                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F8F8F8]">
+                          <Calendar size={20} color="#828282" className="m-0" />
+                        </span>{" "}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <CalenderDate
+                        mode="single"
+                        selected={date}
+                        onSelect={setDate}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                {/* -- filter icon */}
+                <div
+                  onClick={() => setOpenFilter(true)}
+                  className="inline-flex cursor-pointer items-center justify-center gap-3 rounded-full border bg-white p-1 pr-3 lg:hidden"
+                >
+                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#F8F8F8]">
+                    <Setting4 size={20} />
+                  </span>
+                  <span>Filter</span>
+                </div>
+              </div>
+
+              {/* FILTER TABS */}
+              <div>
+                <Tabs
+                  value={activeTab}
+                  onValueChange={(val) => setActiveTab(val)}
+                  className="w-full md:w-max"
+                >
+                  <TabsList
+                    className={cn(
+                      "w-full justify-start rounded-full bg-[#F1F1F1] px-1 py-6 sm:w-auto md:justify-center",
+                    )}
+                  >
+                    {tabs.map((tab: any, index: number) => (
+                      <TabsTrigger
+                        value={tab?.value}
+                        key={index}
+                        className={cn(
+                          "flex-grow rounded-full py-2.5 text-sm font-normal data-[state=active]:bg-blue-700 data-[state=active]:text-white sm:flex-grow-0",
+                        )}
+                      >
+                        {tab.label}
+                      </TabsTrigger>
+                    ))}{" "}
+                  </TabsList>
+                </Tabs>
+              </div>
+            </div>
+          </div>
+
+          {/* TABLE DATA */}
+          <div className="">{renderTable(activeTab, currentPageData)}</div>
+
+          {/* Pagination */}
+          <div className="mt-6">
+            <Pagination
+              // @ts-ignore
+              totalPages={currentPageData?.length}
+              currentPage={currentPage}
+              onPageChange={setCurrentPage}
+              RowSize={pageSize}
+              onRowSizeChange={setPageSize}
+            />
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 };
 
@@ -285,6 +351,7 @@ const getStatusColor = (status: string) => {
 };
 
 const CampaignTable = ({ tdata }: { tdata: any[] }) => {
+  const router = useRouter();
   return (
     <Table>
       <TableHeader>
@@ -300,14 +367,20 @@ const CampaignTable = ({ tdata }: { tdata: any[] }) => {
       </TableHeader>
       <TableBody>
         {tdata?.map((data, index) => (
-          <TableRow key={index}>
+          <TableRow
+            key={index}
+            className="cursor-pointer"
+            onClick={() =>
+              router.push(`campaigns/questions?questionId=${data.id}`)
+            }
+          >
             <TableCell>{data?.title}</TableCell>
-            <TableCell className="">{data?.group}</TableCell>
+            <TableCell className="">{data?.campaign_group}</TableCell>
             <TableCell className="table-cell">
-              {data?.locations?.join(", ")}
+              {data?.locations?.label}
             </TableCell>
-            <TableCell className="">{data?.title}</TableCell>
-            <TableCell className=" ">{data?.lastUpdated}</TableCell>
+            <TableCell className="">{data?.number_of_responses}</TableCell>
+            <TableCell className=" ">{data?.created_at}</TableCell>
             <TableCell className="">
               <StatusPill status={data?.status} />
             </TableCell>
@@ -324,13 +397,17 @@ const CampaignTable = ({ tdata }: { tdata: any[] }) => {
 };
 
 const CampaignGroupTable = ({ tdata }: { tdata: any[] }) => {
+  const { setShow, setTitle, setDescription, setId } = useEditCampaignOverlay();
+
   return (
     <Table>
       <TableHeader>
         <TableRow>
           <TableHead>Group Title</TableHead>
           <TableHead className="">Description</TableHead>
+
           <TableHead className="table-cell">Total Campaign</TableHead>
+
           <TableHead className=" ">Last updated </TableHead>
           <TableHead className="">Action</TableHead>
           <TableHead className=""></TableHead>
@@ -339,18 +416,33 @@ const CampaignGroupTable = ({ tdata }: { tdata: any[] }) => {
       <TableBody>
         {tdata?.map((data, index) => (
           <TableRow key={index}>
-            <TableCell>{data?.title}</TableCell>
+            <TableCell>{data?.name}</TableCell>
             <TableCell className="">{data?.description}</TableCell>
-            <TableCell className="">{data?.totalCampaign}</TableCell>
-            <TableCell className=" ">{data?.lastUpdated}</TableCell>
+
+            <TableCell className="">{data?.campaign_count}</TableCell>
+
+            <TableCell className=" ">{data?.updated_at}</TableCell>
             <TableCell className="">
-              <span className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-main-100/5 p-2 px-2.5 text-sm text-main-100">
-                <Eye size={20} /> View
-              </span>
+              <Link
+                href={`/organization/dashboard/campaigns/profile?campaignId=${data.id}`}
+              >
+                <span className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-main-100/5 p-2 px-2.5 text-sm text-main-100">
+                  <Eye size={20} /> View
+                </span>
+              </Link>
             </TableCell>
             <TableCell className="">
               <span className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#F8F8F8] p-2 px-2.5 text-sm text-[#4F4F4F]">
-                <Edit size={20} /> Edit
+                <Edit
+                  size={20}
+                  onClick={() => {
+                    setShow(true);
+                    setTitle(data?.name);
+                    setId(data?.id);
+                    setDescription(data?.description);
+                  }}
+                />{" "}
+                Edit
               </span>
             </TableCell>
           </TableRow>
@@ -390,6 +482,8 @@ const tabs = [
     value: "campaign-groups",
   },
 ];
+
+/***
 
 const campaignList = [
   {
@@ -594,7 +688,9 @@ const campaignList = [
     responses: "184",
   },
 ];
-
+**/
+{
+  /**
 const campaignGroupList = [
   {
     title: "Dataphyte customers",
@@ -603,3 +699,5 @@ const campaignGroupList = [
     lastUpdated: "Tue 28th June",
   },
 ];
+*/
+}

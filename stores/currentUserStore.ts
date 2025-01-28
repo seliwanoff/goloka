@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
-
 interface UserData {
   id: number;
   name: string;
@@ -10,6 +9,7 @@ interface UserData {
   current_role: string | null;
   email_verified_at: string;
   pin_status: boolean;
+  profile_photo_url?: string;
 }
 
 interface UserStore {
@@ -42,13 +42,12 @@ export const useUserStore = create<UserStore>()((set) => ({
   logoutUser: () =>
     set(() => ({
       user: null,
+      organization: null,
       isAuthenticated: false,
     })),
 
   setRefetchUser: (refetchFn) => set(() => ({ refetchUser: refetchFn })),
 }));
-
-
 
 export interface IBeneficiary {
   id: number;

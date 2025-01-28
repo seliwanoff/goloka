@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Loader } from "@googlemaps/js-api-loader";
 
 // Define interfaces for the location data
@@ -6,6 +6,7 @@ interface LGA {
   label: string;
   lat: string;
   lng: string;
+  running_campaigns_count?: number;
 }
 
 interface State {
@@ -37,9 +38,9 @@ const Map: React.FC<MapProps> = ({ location }) => {
         libraries: ["places"],
       });
 
-      const { Map } = await loader.importLibrary("maps");
+      const { Map, InfoWindow } = await loader.importLibrary("maps");
       const { Marker } = await loader.importLibrary("marker");
-
+      //  const {  InfoWindow } = await loader.importLibrary("marker");
       const centerLat =
         location.states.length > 0
           ? parseFloat(location.states[0].lat)
@@ -49,45 +50,37 @@ const Map: React.FC<MapProps> = ({ location }) => {
           ? parseFloat(location.states[0].lng)
           : parseFloat(location.lng);
 
-      // Comprehensive map styles to hide all labels
       const mapStyles = [
-        // Hide administrative area labels
         {
           featureType: "administrative",
           elementType: "labels",
           stylers: [{ visibility: "off" }],
         },
-        // Hide landscape labels
         {
           featureType: "landscape",
           elementType: "labels",
           stylers: [{ visibility: "off" }],
         },
-        // Hide point of interest labels
         {
           featureType: "poi",
           elementType: "labels",
           stylers: [{ visibility: "off" }],
         },
-        // Hide road labels
         {
           featureType: "road",
           elementType: "labels",
           stylers: [{ visibility: "off" }],
         },
-        // Hide transit labels
         {
           featureType: "transit",
           elementType: "labels",
           stylers: [{ visibility: "off" }],
         },
-        // Hide water area labels
         {
           featureType: "water",
           elementType: "labels",
           stylers: [{ visibility: "off" }],
         },
-        // Optional: If you want to make the map appear more minimal
         {
           featureType: "landscape.natural",
           elementType: "geometry",
@@ -100,43 +93,43 @@ const Map: React.FC<MapProps> = ({ location }) => {
         zoom: 7,
         mapId: "goloka",
         styles: mapStyles,
-        disableDefaultUI: false, // Optionally remove all default UI controls
+        disableDefaultUI: false,
       };
 
       const map = new Map(mapRef.current!, mapOptions);
 
-      // Custom marker icon
       const markerIcon = {
         url: "/assets/pin.png",
         scaledSize: new google.maps.Size(40, 40),
       };
 
-      // Add markers for each state and its LGAs
-      const markers: google.maps.Marker[] = location.states.flatMap((state) => [
-        // State marker
-        new Marker({
-          position: {
-            lat: parseFloat(state.lat),
-            lng: parseFloat(state.lng),
-          },
-          map: map,
-          title: state.label,
-          icon: markerIcon,
-        }),
-        // LGA markers
-        ...state.lgas.map(
-          (lga) =>
-            new Marker({
-              position: {
-                lat: parseFloat(lga.lat),
-                lng: parseFloat(lga.lng),
-              },
-              map: map,
-              title: `${state.label} - ${lga.label}`,
-              icon: markerIcon,
-            }),
-        ),
-      ]);
+      location.states.forEach((state) => {
+        state.lgas.forEach((lga) => {
+          const marker = new Marker({
+            position: {
+              lat: parseFloat(lga.lat),
+              lng: parseFloat(lga.lng),
+            },
+            map: map,
+            title: `${state.label} - ${lga.label}`,
+            icon: markerIcon,
+          });
+
+          const infoWindow = new InfoWindow({
+            content: `
+              <div class="p-2">
+                <h3 class="font-bold">${state.label} - ${lga.label}</h3>
+                <p>Running Campaigns: ${lga.running_campaigns_count || 0}</p>
+              </div>
+            `,
+          });
+
+          // Open info window on marker click
+          marker.addListener("click", () => {
+            infoWindow.open(map, marker);
+          });
+        });
+      });
     };
 
     initMap();

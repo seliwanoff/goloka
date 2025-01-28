@@ -41,7 +41,10 @@ import { useQuery } from "@tanstack/react-query";
 import { getAllTask, getContributorsProfile } from "@/services/contributor";
 import { SkeletonLoader } from "@/components/lib/loader";
 import { useRouter, useSearchParams } from "next/navigation";
-import { getDashboardStats } from "@/services/response";
+import {
+  getDashboardStats,
+  getPlacesWithHighestTask,
+} from "@/services/response";
 import { numberWithCommas } from "@/helper";
 import { SkeletonXLoader } from "@/helper/loader";
 import React from "react";
@@ -84,6 +87,27 @@ const locationData = {
 
 type PageProps = {};
 
+interface LGA {
+  label: string;
+  lat: string;
+  lng: string;
+  running_campaigns_count?: number;
+}
+
+interface State {
+  label: string;
+  lat: string;
+  lng: string;
+  lgas: LGA[];
+}
+
+interface ILocationData {
+  label: string;
+  lat: string;
+  lng: string;
+  states: State[];
+}
+
 interface DashboardData {
   wallet_balance: number;
   total_earnings: number;
@@ -94,6 +118,28 @@ interface DashboardData {
 type Stats = {
   data: DashboardData;
 };
+
+
+function transformLocationData(apiData: any): ILocationData {
+  return {
+    label: apiData?.data?.state || "Unknown",
+    lat: apiData?.data?.lat,
+    lng: apiData?.data?.lng,
+    states: [
+      {
+        label: apiData?.data?.state || "Unknown",
+        lat: apiData?.data?.lat,
+        lng: apiData?.data?.lng,
+        lgas: apiData?.data?.lgas.map((lga: any) => ({
+          label: lga?.label,
+          lat: lga?.lat,
+          lng: lga?.lng,
+          running_campaigns_count: lga?.running_campaigns_count || 0,
+        })),
+      },
+    ],
+  };
+}
 
 const DashboardRoot: React.FC<PageProps> = ({}) => {
   const { latitude, longitude, location, error, loading } =
@@ -111,6 +157,25 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
     setSearchTerm(value);
     updateQueryParams("search", value);
   };
+   // Query for dashboard stats
+  const {
+    data: stats,
+    error: statsError,
+    isError: isStatsError,
+  } = useQuery({
+    queryKey: ["Get dashboard stats"],
+    queryFn: getDashboardStats,
+    retry: 2, // Retry failed requests 2 times
+  });
+  const {
+    data: locationstat,
+    error: locationError,
+    isError: isLocationStatsError,
+  } = useQuery({
+    queryKey: ["Get dashboard location stats"],
+    queryFn: getPlacesWithHighestTask,
+    retry: 2, // Retry failed requests 2 times
+  });
 
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
@@ -120,7 +185,7 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
   const [max_question, setMax_question] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState("");
   const [responseType, setResponseType] = useState("");
-
+  const structuredLocationData = transformLocationData(locationstat);
   const generateFilteredSearchMessage = () => {
     const filters: string[] = [];
 
@@ -137,22 +202,22 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
 
     if (minPrice || maxPrice)
       filters.push(
-        `price range ${minPrice || "0"} - ${maxPrice || "unlimited"}`,
-      );
+    `price range ${minPrice || "0"} - ${maxPrice || "unlimited"}`,
+  );
 
-    if (minQuestion || maxQuestion)
-      filters.push(
-        `question count ${minQuestion || "0"} - ${maxQuestion || "unlimited"}`,
-      );
+  if (minQuestion || maxQuestion)
+    filters.push(
+  `question count ${minQuestion || "0"} - ${maxQuestion || "unlimited"}`,
+);
 
-    if (responseType) filters.push(`${responseType} response type`);
+if (responseType) filters.push(`${responseType} response type`);
 
-    if (startDateParam && endDateParam) {
-      try {
-        const startDate = new Date(startDateParam);
-        const endDate = new Date(endDateParam);
+if (startDateParam && endDateParam) {
+  try {
+    const startDate = new Date(startDateParam);
+    const endDate = new Date(endDateParam);
 
-        if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
+    if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
           filters.push(
             `between ${format(startDate, "PP")} and ${format(endDate, "PP")}`,
           );
@@ -220,16 +285,6 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
 
   const [data, setData] = useState<DashboardData | null>(null);
 
-  // Query for dashboard stats
-  const {
-    data: stats,
-    error: statsError,
-    isError: isStatsError,
-  } = useQuery({
-    queryKey: ["Get dashboard stats"],
-    queryFn: getDashboardStats,
-    retry: 2, // Retry failed requests 2 times
-  });
 
   useEffect(() => {
     if (stats?.data) {
@@ -312,7 +367,7 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
       }),
   });
 
-  console.log(user, "user");
+  // console.log(user, "user");
 
   // Safely handle tasks data
   const tasksList = tasks?.data || [];
@@ -464,7 +519,7 @@ const DashboardRoot: React.FC<PageProps> = ({}) => {
           </h3>
           <figure className="h-[200px] xl:h-[300px]">
             {/* <Image src={Map} alt="map" className="h-full w-full object-cover" /> */}
-            <Map location={locationData} />
+            <Map location={structuredLocationData} />
           </figure>
         </div>
 

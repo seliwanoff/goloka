@@ -15,6 +15,7 @@ import {
 import { UseQueryResult } from "@tanstack/react-query";
 import { AxiosResponse } from "axios";
 import { ServerResponseOrNull } from "../misc";
+import { organizationDetails } from "@/helper";
 
 // ~ =============================================>
 // ~ ======= Create a campaign response  -->
@@ -78,11 +79,95 @@ export const removeBookmark = async (
     return null;
   }
 };
-
-export const getGuestCampaign = async (
-): Promise<AxiosResponse<any>> => {
+export const getOrganizationCampaign = async (): Promise<
+  AxiosResponse<any>
+> => {
+  try {
+    return await fetchData(
+      `/organizations/${organizationDetails.domain}/campaign-groups`,
+    );
+  } catch (error) {
+    console.error("Error fetching campaign questions:", error);
+    throw error;
+  }
+};
+export const getGuestCampaign = async (): Promise<AxiosResponse<any>> => {
   try {
     return await fetchData(`/guests/campaigns`);
+  } catch (error) {
+    console.error("Error fetching campaign questions:", error);
+    throw error;
+  }
+};
+
+export const getCampaign = async (): Promise<AxiosResponse<any>> => {
+  try {
+    return await fetchData(
+      `/organizations/${organizationDetails.domain}/campaigns`,
+    );
+  } catch (error) {
+    console.error("Error fetching campaign questions:", error);
+    throw error;
+  }
+};
+
+export const updateCampaignGroupById = async (
+  id: number,
+  title: string,
+  description: string,
+): Promise<AxiosResponse<any>> => {
+  try {
+    return await postData(
+      `/organizations/${organizationDetails.domain}/campaign-groups/${id}/update`,
+      {
+        name: title,
+        description: description,
+      },
+    );
+  } catch (error) {
+    console.error("Error fetching campaign questions:", error);
+    throw error;
+  }
+};
+
+export const getCampaignById = async (id: any): Promise<AxiosResponse<any>> => {
+  try {
+    return await fetchData(
+      `/organizations/${organizationDetails.domain}/campaign-groups/${id}`,
+    );
+  } catch (error) {
+    console.error("Error fetching campaign questions:", error);
+    throw error;
+  }
+};
+export const getCampaignByIdDetails = async (
+  id: any,
+): Promise<AxiosResponse<any>> => {
+  try {
+    return await fetchData(
+      `/organizations/${organizationDetails.domain}/campaigns/${id}`,
+    );
+  } catch (error) {
+    console.error("Error fetching campaign questions:", error);
+    throw error;
+  }
+};
+
+export const deleteCampaign = async (id: any): Promise<AxiosResponse<any>> => {
+  try {
+    return await deleteData(
+      `/organizations/${organizationDetails.domain}/campaign-groups/${id}/delete`,
+    );
+  } catch (error) {
+    console.error("Error fetching campaign questions:", error);
+    throw error;
+  }
+};
+export const submitCampaign = async (id: any): Promise<AxiosResponse<any>> => {
+  try {
+    return await postData(
+      `/organizations/${organizationDetails.domain}/campaigns/${id}/submit`,
+    );
   } catch (error) {
     console.error("Error fetching campaign questions:", error);
     throw error;
