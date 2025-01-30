@@ -59,13 +59,20 @@ import { createContributorAnswers } from "@/services/contributor";
 import Image from "next/image";
 import LocationDropdown from "./inputs/customLocation";
 import LocationSelector from "./inputs/customLineLocation";
-import AudioRecorder from "./customAudioRecorder";
+// import AudioRecorder from "./customAudioRecorder";
 import FileUpload from "./fileUpload";
 import CustomAreaInput from "./inputs/customAreaInput";
 import SuccessModal from "./customSuccess";
 import { useSuccessModalStore } from "@/stores/misc";
 import { uploadQuestionFile } from "@/lib/api";
 import { submitResponseEndpoint } from "@/services/response";
+
+import dynamic from "next/dynamic";
+
+const AudioRecorder = dynamic(() => import("./customAudioRecorder"), {
+  ssr: false,
+  loading: () => <div>Loading audio recorder...</div>,
+});
 
 const DynamicQuestion = ({
   questions,
@@ -159,7 +166,7 @@ const DynamicQuestion = ({
   // };
 
   const handleInputChange = (
-    value: string | boolean | File | string[] | Location[],
+    value: string | boolean | File | string[] | Location[] | null,
     quesId: string | number,
     type?: string,
   ) => {
@@ -695,7 +702,6 @@ const DynamicQuestion = ({
   //   }
   // };
 
-
   const handleNext = async () => {
     // Check for unchanged answers (same logic as before)
     const allQuestionsUnchanged = questions.every((ques) => {
@@ -759,7 +765,7 @@ const DynamicQuestion = ({
       return;
     }
 
-    setIsLoading(true);
+    // setIsLoading(true);
 
     // Answers formatting (same as before)
     const formattedAnswers = {
@@ -783,6 +789,12 @@ const DynamicQuestion = ({
         })),
     };
 
+    // setLastStepLoading(true);
+    questions.forEach((question) =>
+      updateAnswer(question.id, selectedValues[question.id]),
+    );
+
+    setIsLoading(true);
     setLastStepLoading(true);
 
     try {
@@ -900,9 +912,9 @@ const DynamicQuestion = ({
       }
 
       // Update answers context
-      questions.forEach((question) =>
-        updateAnswer(question.id, selectedValues[question.id]),
-      );
+      // questions.forEach((question) =>
+      //   updateAnswer(question.id, selectedValues[question.id]),
+      // );
 
       if (!isLastStep) nextStep();
     } catch (error) {
@@ -1188,43 +1200,6 @@ const DynamicQuestion = ({
             />
           </div>
         );
-      // case "area":
-      //   return (
-      //     <div className="col-span-2">
-      //       <CustomAreaInput
-      //         apiKey={KEY as string}
-      //         questionId={ques.id}
-      //         onLocationSelect={(locations) =>
-      //           //@ts-ignore
-      //           handleInputChange(locations, ques.id, "location")
-      //         }
-      //         defaultLocations={
-      //           selectedValues[ques.id]
-      //             ? selectedValues[ques.id].map((loc: any) => ({
-      //                 latitude: loc.latitude,
-      //                 longitude: loc.longitude,
-      //               }))
-      //             : undefined
-      //         }
-      //       />
-      //     </div>
-      //   );
-
-      // case "area":
-      //   return (
-      //     <div className="col-span-2">
-      //       <CustomAreaInput
-      //         apiKey={KEY as string}
-      //         questionId={ques.id}
-      //         onLocationSelect={(locations) =>
-      //           //@ts-ignore
-      //           handleInputChange(locations, ques.id, "location")
-      //         }
-      //         defaultLocations={selectedValues[ques.id] || []}
-      //       />
-      //     </div>
-      //   );
-
       case "area":
         return (
           <div className="col-span-2">
@@ -1563,17 +1538,17 @@ const DynamicQuestion = ({
             </div>
           </div>
         );
-      // case "audio":
-      //   return (
-      //     <div className="col-span-2">
-      //       <AudioRecorder
-      //         // audioType="mp3"
-      //         quesId={ques.id}
-      //         handleInputChange={handleInputChange}
-      //         defaultAudio={selectedValues[ques.id]} // Pass the default audio
-      //       />
-      //     </div>
-      //   );
+      case "audio":
+        return (
+          <div className="col-span-2">
+            <AudioRecorder
+              // audioType="mp3"
+              quesId={ques.id}
+              handleInputChange={handleInputChange}
+              defaultAudio={selectedValues[ques.id]} // Pass the default audio
+            />
+          </div>
+        );
       case "tel":
         return (
           <div className="col-span-2">
