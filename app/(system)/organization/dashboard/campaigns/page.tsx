@@ -379,7 +379,17 @@ const CampaignTable = ({ tdata }: { tdata: any[] }) => {
             <TableCell className="table-cell">
               {data?.locations?.label}
             </TableCell>
-            <TableCell className="">{data?.number_of_responses}</TableCell>
+            <TableCell className="">
+              <div className="flex gap-1 items-center">
+              {data?.number_of_responses}
+{
+  data.number_of_pending_responses > 0 &&
+
+              <span className="w-4 h-4 bg-[red] text-[12px] font-poppins rounded-full text-center text-white inline-flex justify-center items-center"> {data?.number_of_pending_responses}</span>
+}
+              </div>
+
+              </TableCell>
             <TableCell className=" ">{data?.created_at}</TableCell>
             <TableCell className="">
               <StatusPill status={data?.status} />
