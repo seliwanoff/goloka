@@ -14,14 +14,14 @@ const goals = [
   {
     icon: BenchMark,
     title: "Generate data for my organization",
-    content: "Lorem ipsum dolor sit amet consectetur. Pulvinar.",
+    content: "Generate organic data for your campaigns",
     path: "/organization-onboarding",
     enable: true,
   },
   {
     icon: Income,
     title: "Earn by participating in survey",
-    content: "Lorem ipsum dolor sit amet consectetur. Pulvinar.",
+    content: "Earn by participating in campaigns",
     path: "/contributor-onboarding",
     enable: true,
   },
@@ -69,8 +69,8 @@ const PrimaryGoal: React.FC<PageProps> = ({ setStep }) => {
           </span>{" "}
         </h3>
         <p className="text-base text-[#4F4F4F]">
-          Lorem ipsum dolor sit amet consectetur. Blandit nibh convallis et
-          imperdiet lobortis et. Egestas vitae bibendum morbi.
+          Select the type of account you wan to create on Goloka in order to
+          proceed with your registration.
         </p>
       </div>
 

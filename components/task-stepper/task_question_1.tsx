@@ -466,6 +466,236 @@ const DynamicQuestion = ({
   //   }
   // };
 
+  // const handleNext = async () => {
+  //   // Check for unchanged answers (same logic as before)
+  //   const allQuestionsUnchanged = questions.every((ques) => {
+  //     const defaultValue = response?.answers?.find(
+  //       (ans) => ans.question.id === ques.id,
+  //     )?.value;
+
+  //     const currentValue = selectedValues[ques.id];
+
+  //     // Deep comparison using JSON.stringify
+  //     return JSON.stringify(currentValue) === JSON.stringify(defaultValue);
+  //   });
+
+  //   // If all questions are unchanged, just move to next step
+  //   if (allQuestionsUnchanged) {
+  //     nextStep();
+  //     return;
+  //   }
+
+  //   // Validation for required questions (same as before)
+  //   const requiredQuestions = questions.filter((q) => q.required === 1);
+  //   const missingRequiredQuestions = requiredQuestions.filter((q) => {
+  //     const value = selectedValues[q.id];
+
+  //     // Comprehensive emptiness check
+  //     if (value === undefined || value === null || value === "") return true;
+
+  //     // Special handling for array-based inputs
+  //     if (Array.isArray(value) && value.length === 0) return true;
+
+  //     // Special handling for file/media uploads
+  //     if (["file", "photo", "video", "audio"].includes(q.type)) {
+  //       // More robust file check
+  //       return !(
+  //         value &&
+  //         ((typeof value === "object" &&
+  //           "file" in value &&
+  //           value.file instanceof File) ||
+  //           value instanceof File ||
+  //           (typeof value === "string" && value.trim() !== ""))
+  //       );
+  //     }
+
+  //     return false;
+  //   });
+
+  //   // Validation error handling (same as before)
+  //   if (missingRequiredQuestions.length > 0) {
+  //     toast.warning(
+  //       `Please fill in all required questions: ${missingRequiredQuestions.map((q) => q.label).join(", ")}`,
+  //     );
+
+  //     if (missingRequiredQuestions[0]) {
+  //       const firstMissingQuestionRef =
+  //         inputRefs.current[missingRequiredQuestions[0].id];
+  //       if (firstMissingQuestionRef && firstMissingQuestionRef.focus) {
+  //         firstMissingQuestionRef.focus();
+  //       }
+  //     }
+
+  //     return;
+  //   }
+
+  //   setIsLoading(true);
+
+  //   // Answers formatting (same as before)
+  //   const formattedAnswers = {
+  //     answers: Object.entries(selectedValues)
+  //       .filter(([key, value]) => {
+  //         const question = questions.find((q) => q.id === Number(key));
+  //         const isRequired = question?.required === 1;
+  //         const hasValue =
+  //           value !== undefined && value !== null && value !== "";
+  //         const isFileType = ["file", "photo", "video", "audio"].includes(
+  //           question?.type ?? "",
+  //         );
+
+  //         return !isFileType && (isRequired || hasValue);
+  //       })
+  //       .map(([key, value]) => ({
+  //         question_id: Number(key),
+  //         value: Array.isArray(value)
+  //           ? value.map((item) => item?.value || item)
+  //           : value,
+  //       })),
+  //   };
+
+  //   setLastStepLoading(true);
+
+  //   try {
+  //     // Prepare answers submission
+  //     const answerPromise = createContributorAnswers(
+  //       responseId as string,
+  //       formattedAnswers,
+  //     );
+
+  //     // Enhanced file upload preparation
+  //     const formData = new FormData();
+  //     const fileQuestions = questions.filter((q) =>
+  //       ["file", "photo", "video", "audio"].includes(q.type),
+  //     );
+
+  //     let hasFileToUpload = false;
+
+  //     fileQuestions.forEach((question) => {
+  //       const value = selectedValues[question.id];
+  //       let fileToUpload: File | undefined;
+
+  //       // More comprehensive file detection
+  //       if (value) {
+  //         if (value instanceof File) {
+  //           fileToUpload = value;
+  //         } else if (
+  //           typeof value === "object" &&
+  //           "file" in value &&
+  //           value.file instanceof File
+  //         ) {
+  //           fileToUpload = value.file;
+  //         } else if (typeof value === "string" && value.startsWith("blob:")) {
+  //           // Handle blob URLs
+  //           fetch(value)
+  //             .then((r) => r.blob())
+  //             .then((blob) => {
+  //               const file = new File([blob], "captured-media", {
+  //                 type: blob.type,
+  //               });
+  //               return file;
+  //             });
+  //         }
+  //       }
+
+  //       // File size and type validation
+  //        if (fileToUpload) {
+  //          // Allowed file types for different question types
+  //          const allowedTypes = {
+  //            audio: ["audio/mpeg", "audio/wav", "audio/m4a", "audio/x-m4a"],
+  //            video: [
+  //              "video/mp4",
+  //              "video/mpeg",
+  //              "video/quicktime",
+  //              "video/webm",
+  //            ],
+  //            photo: ["image/jpeg", "image/png", "image/gif"],
+  //            file: [], // Add specific file types if needed
+  //          };
+
+  //          // Get allowed types for this question type
+  //          const typeAllowList =
+  //            allowedTypes[question.type as keyof typeof allowedTypes] || [];
+
+  //          // File size and type validation
+  //          const isValidFileType =
+  //            typeAllowList.length === 0 ||
+  //            //@ts-ignore
+  //            typeAllowList.includes(fileToUpload.type);
+  //          const isValidFileSize = fileToUpload.size <= 1 * 1024 * 1024; // 1MB limit
+
+  //          if (isValidFileType && isValidFileSize) {
+  //            const timestamp = Date.now();
+  //            const uniqueFileName = `${timestamp}_${question.id}_${fileToUpload.name}`;
+  //            const formKey = `${question.type}s[${question.id}]`;
+  //            formData.append(formKey, fileToUpload, uniqueFileName);
+  //            hasFileToUpload = true;
+  //          } else {
+  //            // Detailed error messaging
+  //            if (!isValidFileType) {
+  //              toast.error(
+  //                `Invalid file type for ${question.label}. Allowed types: ${typeAllowList.join(", ")}`,
+  //              );
+  //            }
+  //            if (!isValidFileSize) {
+  //              toast.error(`File for ${question.label} exceeds 1MB limit`);
+  //            }
+  //          }
+  //        }
+  //     });
+
+  //     // File upload and answers submission
+  //     const promises: Promise<any>[] = [answerPromise];
+
+  //     // Only add file upload promise if there are files
+  //     if (hasFileToUpload) {
+  //       promises.push(uploadQuestionFile(responseId as string, formData));
+  //     }
+
+  //     // Wait for both promises
+  //     const [answerResponse, fileResponse] = await Promise.all(promises);
+
+  //     // Verify file upload success if files were uploaded
+  //     if (hasFileToUpload && (!fileResponse || !fileResponse.success)) {
+  //       throw new Error(fileResponse?.message || "File upload failed");
+  //     }
+
+  //     // Last step submission logic (same as before)
+  //     if (isLastStep) {
+  //       const submitResponse = await submitResponseEndpoint(
+  //         responseId as string,
+  //       );
+
+  //       if (!submitResponse.data) {
+  //         throw new Error(
+  //           //@ts-ignore
+  //           submitResponse.message || "Response submission failed",
+  //         );
+  //       }
+
+  //       openModal();
+  //       toast.success("Response submitted successfully");
+  //     } else {
+  //       toast.success(
+  //         answerResponse?.message || "Answers submitted successfully",
+  //       );
+  //     }
+
+  //     // Update answers context
+  //     questions.forEach((question) =>
+  //       updateAnswer(question.id, selectedValues[question.id]),
+  //     );
+
+  //     if (!isLastStep) nextStep();
+  //   } catch (error) {
+  //     console.error("Submission error:", error);
+  //     toast.error(error instanceof Error ? error.message : "An error occurred");
+  //   } finally {
+  //     setIsLoading(false);
+  //     setLastStepLoading(false);
+  //   }
+  // };
+
+
   const handleNext = async () => {
     // Check for unchanged answers (same logic as before)
     const allQuestionsUnchanged = questions.every((ques) => {
@@ -597,50 +827,39 @@ const DynamicQuestion = ({
           }
         }
 
-        // File size and type validation
-         if (fileToUpload) {
-           // Allowed file types for different question types
-           const allowedTypes = {
-             audio: ["audio/mpeg", "audio/wav", "audio/m4a", "audio/x-m4a"],
-             video: [
-               "video/mp4",
-               "video/mpeg",
-               "video/quicktime",
-               "video/webm",
-             ],
-             photo: ["image/jpeg", "image/png", "image/gif"],
-             file: [], // Add specific file types if needed
-           };
+        // File type validation only
+        if (fileToUpload) {
+          // Allowed file types for different question types
+          const allowedTypes = {
+            audio: ["audio/mpeg", "audio/wav", "audio/m4a", "audio/x-m4a"],
+            video: ["video/mp4", "video/mpeg", "video/quicktime", "video/webm"],
+            photo: ["image/jpeg", "image/png", "image/gif"],
+            file: [], // Add specific file types if needed
+          };
 
-           // Get allowed types for this question type
-           const typeAllowList =
-             allowedTypes[question.type as keyof typeof allowedTypes] || [];
+          // Get allowed types for this question type
+          const typeAllowList =
+            allowedTypes[question.type as keyof typeof allowedTypes] || [];
 
-           // File size and type validation
-           const isValidFileType =
-             typeAllowList.length === 0 ||
-             //@ts-ignore
-             typeAllowList.includes(fileToUpload.type);
-           const isValidFileSize = fileToUpload.size <= 1 * 1024 * 1024; // 1MB limit
+          // Only validate file type
+          const isValidFileType =
+            typeAllowList.length === 0 ||
+            //@ts-ignore
+            typeAllowList.includes(fileToUpload.type);
 
-           if (isValidFileType && isValidFileSize) {
-             const timestamp = Date.now();
-             const uniqueFileName = `${timestamp}_${question.id}_${fileToUpload.name}`;
-             const formKey = `${question.type}s[${question.id}]`;
-             formData.append(formKey, fileToUpload, uniqueFileName);
-             hasFileToUpload = true;
-           } else {
-             // Detailed error messaging
-             if (!isValidFileType) {
-               toast.error(
-                 `Invalid file type for ${question.label}. Allowed types: ${typeAllowList.join(", ")}`,
-               );
-             }
-             if (!isValidFileSize) {
-               toast.error(`File for ${question.label} exceeds 1MB limit`);
-             }
-           }
-         }
+          if (isValidFileType) {
+            const timestamp = Date.now();
+            const uniqueFileName = `${timestamp}_${question.id}_${fileToUpload.name}`;
+            const formKey = `${question.type}s[${question.id}]`;
+            formData.append(formKey, fileToUpload, uniqueFileName);
+            hasFileToUpload = true;
+          } else {
+            // Error message for invalid file type only
+            toast.error(
+              `Invalid file type for ${question.label}. Allowed types: ${typeAllowList.join(", ")}`,
+            );
+          }
+        }
       });
 
       // File upload and answers submission
@@ -694,7 +913,6 @@ const DynamicQuestion = ({
       setLastStepLoading(false);
     }
   };
-
   const renderQuestionInput = (ques: any) => {
     switch (ques.type) {
       case "text":
