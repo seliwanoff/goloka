@@ -235,13 +235,12 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Group Title</TableHead>
-            <TableHead className="">Description</TableHead>
+            <TableHead>Contributor</TableHead>
+            <TableHead className="">Location</TableHead>
 
-            <TableHead className="table-cell">Total Campaign</TableHead>
+            <TableHead className="table-cell">Date submitted</TableHead>
 
-            <TableHead className=" ">Last updated </TableHead>
-            <TableHead className="">Action</TableHead>
+            <TableHead className="">Status</TableHead>
             <TableHead className=""></TableHead>
           </TableRow>
         </TableHeader>
@@ -251,22 +250,21 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
               <TableCell>{data?.name}</TableCell>
               <TableCell className="">{data?.description}</TableCell>
 
-              <TableCell className="">{data?.campaign_count}</TableCell>
+              <TableCell className="">
+                {moment(data?.created_at).format("DD MMMM YYYY hh:mm A")}
+              </TableCell>
 
-              <TableCell className=" ">{data?.updated_at}</TableCell>
+              <TableCell className=" ">
+                <StatusPill status={data.status} />
+              </TableCell>
               <TableCell className="">
                 <Link
                   href={`/organization/dashboard/campaigns/profile?campaignId=${data.id}`}
                 >
-                  <span className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-main-100/5 p-2 px-2.5 text-sm text-main-100">
-                    <Eye size={20} /> View
+                  <span className="inline-flex cursor-pointer items-center gap-2 rounded-full p-2 px-2.5 text-sm text-[#4F4F4F]">
+                    <Eye size={20} /> View response
                   </span>
                 </Link>
-              </TableCell>
-              <TableCell className="">
-                <span className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#F8F8F8] p-2 px-2.5 text-sm text-[#4F4F4F]">
-                  <Edit size={20} onClick={() => {}} /> Edit
-                </span>
               </TableCell>
             </TableRow>
           ))}
@@ -826,26 +824,35 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
             </div>
             <div className="flex flex-col gap-[10px] rounded-[16px] bg-white p-6">
               <div className="mb-2 mt-2 flex items-center justify-between">
-                <h3 className="font-Satoshi text-2xl font-bold text-[#101828]">
-                  {filteredData?.length} Questions
-                </h3>
-                <div className="flex items-center gap-[13px]">
-                  {QuestionBubbleButton.map((item, index) => (
-                    <Link
-                      key={item.title}
-                      href={item.href}
-                      className="transit flex items-center gap-3 text-gray-500 hover:text-gray-800"
-                    >
-                      <div
-                        className="flex cursor-pointer items-center justify-center gap-2 rounded-full bg-[#EBEBEB] px-3 py-2"
-                        key={index}
+                {activeTab === "campaigns" ? (
+                  <h3 className="font-Satoshi text-2xl font-bold text-[#101828]">
+                    {filteredData?.length} Questions
+                  </h3>
+                ) : (
+                  <h3 className="font-Satoshi text-2xl font-bold text-[#101828]">
+                    {filteredData?.length} Contributors
+                  </h3>
+                )}
+
+                {activeTab === "campaigns" && (
+                  <div className="flex items-center gap-[13px]">
+                    {QuestionBubbleButton.map((item, index) => (
+                      <Link
+                        key={item.title}
+                        href={item.href}
+                        className="transit flex items-center gap-3 text-gray-500 hover:text-gray-800"
                       >
-                        <item.icon size={20} strokeWidth={1.5} />
-                        {item.title}
-                      </div>
-                    </Link>
-                  ))}
-                </div>
+                        <div
+                          className="flex cursor-pointer items-center justify-center gap-2 rounded-full bg-[#EBEBEB] px-3 py-2"
+                          key={index}
+                        >
+                          <item.icon size={20} strokeWidth={1.5} />
+                          {item.title}
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
               </div>
               {renderTable(activeTab, currentPageData)}
 
