@@ -370,9 +370,7 @@ const CampaignTable = ({ tdata }: { tdata: any[] }) => {
           <TableRow
             key={index}
             className="cursor-pointer"
-            onClick={() =>
-              router.push(`campaigns/questions?questionId=${data.id}`)
-            }
+            onClick={() => router.push(`campaigns/${data.id}`)}
           >
             <TableCell>{data?.title}</TableCell>
             <TableCell className="">{data?.campaign_group}</TableCell>
@@ -380,16 +378,16 @@ const CampaignTable = ({ tdata }: { tdata: any[] }) => {
               {data?.locations?.label}
             </TableCell>
             <TableCell className="">
-              <div className="flex gap-1 items-center">
-              {data?.number_of_responses}
-{
-  data.number_of_pending_responses > 0 &&
-
-              <span className="w-4 h-4 bg-[red] text-[12px] font-poppins rounded-full text-center text-white inline-flex justify-center items-center"> {data?.number_of_pending_responses}</span>
-}
+              <div className="flex items-center gap-1">
+                {data?.number_of_responses}
+                {data.number_of_pending_responses > 0 && (
+                  <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[red] text-center font-poppins text-[12px] text-white">
+                    {" "}
+                    {data?.number_of_pending_responses}
+                  </span>
+                )}
               </div>
-
-              </TableCell>
+            </TableCell>
             <TableCell className=" ">{data?.created_at}</TableCell>
             <TableCell className="">
               <StatusPill status={data?.status} />
