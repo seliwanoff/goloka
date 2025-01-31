@@ -14,6 +14,7 @@ import {
 import { UseQueryResult } from "@tanstack/react-query";
 import { ServerResponseOrNull } from "../contributor";
 import { AxiosResponse } from "axios";
+import { organizationDetails } from "@/helper";
 
 export const getDashboardStats = async (): Promise<
   ServerResponseOrNull<any>
@@ -131,6 +132,37 @@ export const getAResponse = async (
     },
   });
 
+export const getCampaignQuestions = async (
+  Id: string,
+): Promise<UseQueryResult<AxiosResponse<any[]>>> =>
+  await queryClient.fetchQuery({
+    queryKey: ["get a campaign"],
+    queryFn: async () => {
+      try {
+        return await fetchData(
+          `/organizations/${organizationDetails.domain}/campaigns/${Id}/questions`,
+        );
+      } catch (error) {
+        return null;
+      }
+    },
+  });
+
+export const getAllResponse = async (): Promise<
+  UseQueryResult<AxiosResponse<any[]>>
+> =>
+  await queryClient.fetchQuery({
+    queryKey: ["get all response"],
+    queryFn: async () => {
+      try {
+        return await fetchData(
+          `/organizations/${organizationDetails.domain}/responses`,
+        );
+      } catch (error) {
+        return null;
+      }
+    },
+  });
 
 // ~ =============================================>
 // ~ ======= submitResponse  -->
@@ -170,5 +202,19 @@ export const getNotifications = async (params: NotificationParams) => {
   } catch (error) {
     console.error("Error fetching Notifications:", error);
     throw new Error("Failed to fetch Notificatios. Please try again later.");
+  }
+};
+
+export const deleteQuestionCampaign = async (
+  campaignId: string,
+  id: string,
+): Promise<ServerResponseOrNull<any>> => {
+  try {
+    return await deleteData<ServerResponse<any>>(
+      `/organizations/${organizationDetails.domain}/campaigns/${campaignId}/questions/${id}/delete`,
+    );
+  } catch (error) {
+    console.log(error);
+    return null;
   }
 };

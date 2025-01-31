@@ -12,9 +12,8 @@ import { useWithdrawalfundsOverlay } from "@/stores/overlay";
 import { toast } from "sonner";
 import { walletFunding } from "@/services/organization/withdraw";
 import { resolveAccountInfo } from "@/services/contributor";
-import { calculateTotalPrice } from "@/helper";
+import { calculateTotalPrice, numberWithCommas } from "@/helper";
 import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
-
 
 import {
   useWithdrawStepper,
@@ -26,11 +25,13 @@ const schema = yup.object().shape({
 });
 const WithdrawFunds = () => {
   const { setOpen } = useWithdrawalfundsOverlay();
-  const { setStep, setAmount } = useWithdrawStepperOrganization();
+  const { setStep, setAmount, actualAmount, setAcrtualAmount } =
+    useWithdrawStepperOrganization();
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [totalPayment, setTotalPayment] = useState(0)
-  const [difference, setDifference] = useState(0)
+  const [totalPayment, setTotalPayment] = useState(0);
+  const [difference, setDifference] = useState(0);
+  const [numericValue, setNumericValue] = useState(0);
   const {
     control,
     register,
@@ -75,6 +76,7 @@ const WithdrawFunds = () => {
   const onCreateWithdrawal = async (data: any) => {
     setStep((prev: number) => prev + 1);
     const { amount } = data;
+    setAcrtualAmount(numericValue);
     setAmount(totalPayment);
 
     /***
@@ -103,52 +105,43 @@ const WithdrawFunds = () => {
   };
 
   const USER_CURRENCY_SYMBOL =
-  currentOrganization && currentOrganization["symbol"];
-
+    currentOrganization && currentOrganization["symbol"];
 
   const formatNumberWithCommas = (value: string) => {
-    // Remove non-numeric characters except for decimals
     let numericValue = value.replace(/[^\d.]/g, "");
 
-    // Prevent multiple decimal points
     numericValue = numericValue.replace(/^(\d*\.)(.*)\./g, "$1$2");
 
-    // Format with commas
     const parts = numericValue.split(".");
     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ","); // Add commas
     return parts.join(".");
   };
   const calculateAmount = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let rawValue = e.target.value.replace(USER_CURRENCY_SYMBOL || "", "").trim(); // Remove currency symbol
+    let rawValue = e.target.value
+      .replace(USER_CURRENCY_SYMBOL || "", "")
+      .trim();
 
-    // Remove non-numeric characters except for decimals
     rawValue = rawValue.replace(/[^\d.]/g, "");
 
-    // Prevent multiple decimal points
     rawValue = rawValue.replace(/^(\d*\.)(.*)\./g, "$1$2");
 
     const formattedValue = formatNumberWithCommas(rawValue);
 
-    // Update the form state
     setValue("amount", formattedValue, { shouldValidate: true });
 
-    // Convert to a number for calculation
     const numericValue = parseFloat(rawValue) || 0; // Default to 0 if NaN
 
-    // Call calculateTotalPrice only if numericValue is valid
     if (!isNaN(numericValue)) {
       const totalPrice = calculateTotalPrice(numericValue);
-      console.log(totalPrice, "totalPrice");
+      // console.log(totalPrice, "totalPrice");
 
       setTotalPayment(totalPrice);
+      setNumericValue(numericValue);
 
-      // Calculate the difference
-      const difference = totalPrice -numericValue
-      setDifference(difference)
-     // console.log(difference, "difference");
+      const difference = totalPrice - numericValue;
+      setDifference(difference);
     }
   };
-
 
   return (
     <>
@@ -170,7 +163,7 @@ const WithdrawFunds = () => {
                   {...register("amount")}
                   id="amount"
                   name="amount"
-                  placeholder="Enter amount"
+                  placeholder={`${USER_CURRENCY_SYMBOL} ${watch("amount") || "0"}`}
                   autoComplete="off"
                   value={`${USER_CURRENCY_SYMBOL} ${watch("amount") || ""}`}
                   onChange={calculateAmount}
@@ -186,15 +179,25 @@ const WithdrawFunds = () => {
               </div>
             </div>
 
-            <div className="flex justify-between items-center">
-              <div className="flex  flex-col gap-2">
-                <span className="font-poppins font-medium text-[#09091A] text-left">{USER_CURRENCY_SYMBOL}{difference}</span>
-                <span className="text-gray-600 text-[12px] font-poppins text-left ">Transaction charges</span>
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-2">
+                <span className="text-left font-poppins font-medium text-[#09091A]">
+                  {USER_CURRENCY_SYMBOL}
+                  {numberWithCommas(difference)}
+                </span>
+                <span className="text-left font-poppins text-[12px] text-gray-600">
+                  Transaction charges
+                </span>
               </div>
 
-              <div className="flex  flex-col gap-2">
-                <span className="font-poppins font-medium text-[#09091A] text-right">{USER_CURRENCY_SYMBOL}{totalPayment}</span>
-                <span className="text-gray-600 text-[12px] font-poppins text-right ">Total payment</span>
+              <div className="flex flex-col gap-2">
+                <span className="text-right font-poppins font-medium text-[#09091A]">
+                  {USER_CURRENCY_SYMBOL}
+                  {numberWithCommas(totalPayment)}
+                </span>
+                <span className="text-right font-poppins text-[12px] text-gray-600">
+                  Total payment
+                </span>
               </div>
             </div>
 
