@@ -17,10 +17,10 @@ import { useTopUpStores } from "@/stores/topUpstore";
 import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
 import { numberWithCommas } from "@/helper";
 
-
 const ConfirmWithdrawalOrganization = () => {
   const { setOpen } = useWithdrawalfundsOverlay();
-  const { step, setStep, amount } = useWithdrawStepperOrganization();
+  const { step, setStep, amount, actualAmount } =
+    useWithdrawStepperOrganization();
   const isMobile = useMediaQuery("(max-width: 640px)");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const currentOrganization = useOrganizationStore(
@@ -35,7 +35,7 @@ const ConfirmWithdrawalOrganization = () => {
     localStorage.setItem("amount", amount.toString());
 
     try {
-      const res = await walletFunding(amount);
+      const res = await walletFunding(actualAmount);
       toast.success("Payment link generated");
       setIsSubmitting(false);
 
@@ -73,7 +73,7 @@ const ConfirmWithdrawalOrganization = () => {
           Are you sure you want to fund{" "}
           <strong>
             {USER_CURRENCY_SYMBOL}
-            { numberWithCommas(amount) }
+            {numberWithCommas(amount)}
           </strong>{" "}
           to your <br className="hidden sm:block" />
           wallet?

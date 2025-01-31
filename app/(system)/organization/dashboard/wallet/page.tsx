@@ -139,7 +139,7 @@ const WalletPage = () => {
     try {
       const response = await getOrganizationByDomain();
       //  console.log(response);
-      setData(response.data);
+      setData(response.data.reverse());
     } catch (e) {
       console.log(e);
     }
@@ -148,7 +148,6 @@ const WalletPage = () => {
   useEffect(() => {
     getOrgaization();
   }, []);
-
 
   return (
     <>

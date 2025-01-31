@@ -158,14 +158,16 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
   const [currentPage, setCurrentPage] = useState(1);
   const pages = chunkArray(filteredData, pageSize);
   const [isSubmitting, setisSubmititng] = useState(false);
+  const [clickedId, setClickedId] = useState<string | null>(null);
   const deletQuestion = async (id: any) => {
+    setClickedId(id);
     setisSubmititng(true);
     try {
       await deleteQuestionCampaign(campaignId as string, id);
       toast.success("Question deleted successfully");
       getQuestionByCampaignId();
     } catch (e) {
-      console.log(e);
+      toast.error("Error deleting question");
     } finally {
       setisSubmititng(false);
     }
@@ -213,7 +215,7 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
                     onClick={() => deletQuestion(data.id)}
                   >
                     <Trash size={18} />{" "}
-                    {isSubmitting ? (
+                    {isSubmitting && clickedId === data.id ? (
                       <FaSpinner className="animate-spin text-[#FF4C4C]" />
                     ) : (
                       "Delete"
@@ -597,7 +599,9 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
     <>
       <Toaster richColors position={"top-right"} />
       <section className="space-y-4 py-8 pt-[34px]">
-        <CustomBreadCrumbs />
+        <div className="flex items-center justify-between">
+          <CustomBreadCrumbs />
+        </div>
 
         {isStepper ? (
           <>
@@ -770,7 +774,7 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
                         {createdTime}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-400">Created at</p>
+                    <p className="text-sm text-gray-400">Created</p>
                   </div>
                 </div>
                 <div className="mt-8">
