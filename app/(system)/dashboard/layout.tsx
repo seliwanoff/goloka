@@ -33,6 +33,7 @@ import { useUserStore } from "@/stores/currentUserStore";
 import { getContributorsProfile } from "@/services/contributor";
 import { useRemoteUserStore } from "@/stores/remoteUser";
 import Image from "next/image";
+import { getAblyToken } from "@/services/misc";
 
 type LayoutProps = {
   children: React.ReactNode;
@@ -56,6 +57,12 @@ const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
     queryFn: getCurrentUser,
     retry: 1, // Only retry once before considering it a failure
   });
+  // Query for remote user data
+  const { data: token } = useQuery({
+    queryKey: ["getAblyToken"],
+    queryFn: getAblyToken,
+    retry: 1, // Only retry once before considering it a failure
+  });
 
   const {
     data: remoteContributor,
@@ -66,7 +73,7 @@ const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
     queryFn: getContributorsProfile,
   });
 
-  console.log(remoteContributor, "fbfbbf");
+  console.log(token, "token");
 
   // Handle error and authentication
   useEffect(() => {
@@ -171,18 +178,6 @@ const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
 };
 
 export default SystemLayout;
-
-// ~ =============================================>
-// ~ ======= Navigation data -->
-// ~ =============================================>
-// const NavData: { icon: any; title: string; link: string }[] = [
-//   { icon: LayoutGrid, title: "Dashboard", link: "/dashboard/root" },
-//   { icon: Note, title: "Tasks", link: "/dashboard/tasks" },
-//   { icon: DocumentCopy, title: "Responses", link: "/dashboard/responses" },
-//   { icon: Wallet3, title: "Wallet", link: "/dashboard/wallet" },
-//   { icon: MessageQuestion, title: "Support", link: "/dashboard/support" },
-//   { icon: Settings, title: "Settings", link: "/dashboard/settings" },
-// ];
 
 
 // ~ =============================================>

@@ -6,6 +6,8 @@ import PrimaryGoal from "@/components/auth-comps/PrimaryGoal";
 import SignUpForm from "@/components/auth-comps/SignUpForm";
 import UpdateLocationModal from "@/components/contributor/UpdateLocationModal";
 import { useShowOverlay } from "@/stores/overlay";
+import { toast } from "sonner";
+import { googleSignUp } from "@/services/misc";
 
 type PageProps = {};
 
@@ -14,6 +16,43 @@ const SignUpContent: React.FC<PageProps> = ({}) => {
   const { open, setOpen } = useShowOverlay();
   const router = useRouter();
   const searchParams = useSearchParams();
+
+    const handleGoogleSignUp = async (credentialResponse: any) => {
+      try {
+        // Call your backend Google sign-up endpoint
+        const response = await googleSignUp(credentialResponse.credential);
+
+        if (!response) {
+          throw new Error("Google sign-up failed");
+        }
+
+        // Store tokens
+
+        //@ts-ignore
+        const { access_token, token_type, refresh_token } = response.tokens;
+        localStorage.setItem("access_token", JSON.stringify(access_token));
+        localStorage.setItem("refresh_token", JSON.stringify(refresh_token));
+        localStorage.setItem("token_type", JSON.stringify(token_type));
+
+        toast.success("Sign up successful");
+
+        // Determine next steps based on user registration status
+        //@ts-ignore
+        if (response.isNewUser) {
+          // If new user, guide through additional setup steps
+          router.push("/signup?step=2");
+          setStep(2);
+        } else {
+          // If existing user, redirect to dashboard
+          router.replace("/dashboard/root");
+        }
+      } catch (error: any) {
+        console.error("Google sign-up error:", error);
+        toast.error(
+          error?.response?.data?.message || "Google sign-up failed. Try again.",
+        );
+      }
+    };
 
   const handleStepChange = (newStep: number, email?: string) => {
     if (newStep === 2 && email) {
