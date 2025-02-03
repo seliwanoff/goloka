@@ -148,15 +148,15 @@ export const getCampaignQuestions = async (
     },
   });
 
-export const getAllResponse = async (): Promise<
-  UseQueryResult<AxiosResponse<any[]>>
-> =>
+export const getAllResponseByCampaign = async (
+  id: any,
+): Promise<UseQueryResult<AxiosResponse<any[]>>> =>
   await queryClient.fetchQuery({
     queryKey: ["get all response"],
     queryFn: async () => {
       try {
         return await fetchData(
-          `/organizations/${organizationDetails.domain}/responses`,
+          `/organizations/${organizationDetails.domain}/campaigns/${id}`,
         );
       } catch (error) {
         return null;
@@ -208,13 +208,32 @@ export const getNotifications = async (params: NotificationParams) => {
 export const deleteQuestionCampaign = async (
   campaignId: string,
   id: string,
-): Promise<ServerResponseOrNull<any>> => {
+): Promise<AxiosResponse<any>> => {
   try {
-    return await deleteData<ServerResponse<any>>(
+    return await deleteData<AxiosResponse<any>>(
       `/organizations/${organizationDetails.domain}/campaigns/${campaignId}/questions/${id}/delete`,
     );
   } catch (error) {
-    console.log(error);
-    return null;
+    console.error("Error fetching campaign questions:", error);
+    throw error;
+  }
+};
+
+export const updateResponseStatus = async (
+  campaignId: string,
+  status: string,
+  message?: string,
+): Promise<AxiosResponse<any>> => {
+  try {
+    return await postData<AxiosResponse<any>>(
+      `/organizations/${organizationDetails.domain}/responses/${campaignId}/status-update`,
+      {
+        status: status,
+        message: message,
+      },
+    );
+  } catch (error) {
+    console.error("Error fetching campaign questions:", error);
+    throw error;
   }
 };

@@ -146,7 +146,7 @@ const SkeletonLoader: React.FC = () => {
 
 type PageProps = {};
 
-const CampaignDetails: React.FC<PageProps> = ({}) => {
+const ViewResponse: React.FC<PageProps> = ({}) => {
   const [isStepper, setIsStepper] = useState<boolean>(false);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -255,7 +255,7 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
                 <SwitchPrimitive.Root
                   id="switch"
                   checked={data.required}
-                  onCheckedChange={(checked) => handleToggle(data.id, checked)}
+                  onCheckedChange={onChange}
                   className="relative h-6 w-10 rounded-full bg-gray-300 transition"
                 >
                   <SwitchPrimitive.Thumb className="block h-4 w-4 translate-x-1 transform rounded-full shadow-md transition-transform data-[state=checked]:translate-x-5 data-[state=checked]:bg-blue-500" />
@@ -310,8 +310,8 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
           <TableBody>
             {tdata?.map((data, index) => (
               <TableRow key={index}>
-                <TableCell>{data?.contributor}</TableCell>
-                <TableCell className="">{data?.location}</TableCell>
+                <TableCell>{data?.organization}</TableCell>
+                <TableCell className="">{data?.campaign_title}</TableCell>
 
                 <TableCell className="">
                   {moment(data?.created_at).format("DD MMMM YYYY hh:mm A")}
@@ -321,7 +321,7 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
                   <StatusPill status={data.status} />
                 </TableCell>
                 <TableCell className="">
-                  <Link href={`response/${data.id}`}>
+                  <Link href={``}>
                     <span className="inline-flex cursor-pointer items-center gap-2 text-nowrap rounded-full p-2 px-2.5 text-sm text-[#4F4F4F]">
                       <Eye size={20} /> View response
                     </span>
@@ -451,22 +451,17 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
   };
 
   const updateCampaignStatus = async (status: string) => {
-    setisSubmititngCampaign(true);
     try {
       const response = await updateCampaignByStatus(
         campaignId as string,
         //@ts-ignore
         selectedStatus === "running" ? "start" : selectedStatus,
       );
-      toast.success(`Campaign status changed successfully`);
-      setOpen(false);
-      refetchResponse();
+      toast.success(`Campaign status changed to ${status}`);
     } catch (e) {
       console.log(e);
       toast.error("Error updating status");
       setOpen(false);
-    } finally {
-      setisSubmititngCampaign(false);
     }
   };
   const updateStepUrl = (newStep: number) => {
@@ -627,7 +622,9 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
     },
      */
   ];
-  const handleToggle = (id: any, checked: any) => {};
+  const onChange = (checked: boolean) => {
+    console.log(checked);
+  };
   return (
     <>
       <CampaignButton
@@ -635,7 +632,6 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
         setOpen={setOpen}
         status={selectedStatus}
         action={updateCampaignStatus}
-        isSubmitting={isSubmittingCampaign}
       />
 
       <UpdateCampaignDialog
@@ -645,7 +641,6 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
         open={openQuestion}
         setOpen={setOpenQuestion}
         status="delete"
-        isSubmitting={isSubmitting}
       />
 
       <UpdateCampaignDialog
@@ -654,7 +649,6 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
         action={handleSubmitCampaign}
         open={openSumit}
         setOpen={setOpenSubmit}
-        isSubmitting={isSubmittingCampaign}
         status="submit"
       />
 
@@ -765,9 +759,14 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
                     <h4 className="font-medium text-[#101828]">
                       {task?.data?.type}
                     </h4>
-                    <p className="text-sm text-gray-400">Campaign type </p>
+                    <p className="text-sm text-gray-400">Response type </p>
                   </div>
-
+                  <div>
+                    <h4 className="font-medium text-[#101828]">
+                      {task?.data?.type}
+                    </h4>
+                    <p className="text-sm text-gray-400">Response type </p>
+                  </div>
                   <div>
                     <h4 className="font-medium text-[#101828]">
                       {task?.data?.number_of_responses}
@@ -943,4 +942,4 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
   );
 };
 
-export default CampaignDetails;
+export default ViewResponse;

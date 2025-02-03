@@ -12,7 +12,8 @@ import { cn } from "@/lib/utils";
 import { ArrowLeft2, ArrowRight2 } from "iconsax-react";
 
 interface PaginationProps {
-  totalItems: number;
+  totalItems?: number;
+  totalPages: any;
   currentPage: number;
   pageSize: number;
   onPageChange: (page: number) => void;
@@ -20,23 +21,26 @@ interface PaginationProps {
 }
 
 const Pagination: React.FC<PaginationProps> = ({
-  totalItems,
+  // totalItems,
   currentPage,
   pageSize,
+  totalPages,
   onPageChange,
   onRowSizeChange,
 }) => {
   // Calculate total pages based on total items and page size
-  const totalPages = Math.ceil(totalItems / pageSize);
+
+  //  console.log("totalItems", totalItems);
+  const totalItems = Math.ceil(totalPages / pageSize);
 
   const getPageNumbers = () => {
     const pageGroupSize = 3;
     let startPage = Math.max(1, currentPage - Math.floor(pageGroupSize / 2));
-    let endPage = Math.min(totalPages, startPage + pageGroupSize - 1);
+    let endPage = Math.min(totalItems, startPage + pageGroupSize - 1);
 
     // Adjust start page if we're near the end
-    if (endPage === totalPages) {
-      startPage = Math.max(1, totalPages - pageGroupSize + 1);
+    if (endPage === totalItems) {
+      startPage = Math.max(1, totalItems - pageGroupSize + 1);
     }
 
     return Array.from(
@@ -72,7 +76,7 @@ const Pagination: React.FC<PaginationProps> = ({
           </Select>
         </div>
         <span>
-          {currentPage} of {totalPages}
+          {currentPage} of {totalItems}
         </span>
       </div>
       <div className="flex items-center justify-between gap-4">
@@ -108,7 +112,7 @@ const Pagination: React.FC<PaginationProps> = ({
           size="sm"
           className="border-0 bg-transparent p-0 hover:bg-transparent hover:text-main-100"
           onClick={() => onPageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
+          disabled={currentPage === totalItems}
         >
           Next{" "}
           <span>
