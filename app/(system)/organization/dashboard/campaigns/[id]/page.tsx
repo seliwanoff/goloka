@@ -223,9 +223,11 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
       }
     } catch (e) {
       console.log(e);
-      toast.error("Error submitting campaign");
+      /**@ts-ignore **/
+      toast.error(e?.response?.data.message || "Error submitting question");
     } finally {
       setisSubmititngCampaign(false);
+      setOpenSubmit(false);
     }
   };
   const CampaignTable = ({ tdata }: { tdata: any[] }) => {
@@ -456,7 +458,7 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
       const response = await updateCampaignByStatus(
         campaignId as string,
         //@ts-ignore
-        selectedStatus === "running" ? "start" : selectedStatus,
+        selectedStatus,
       );
       toast.success(`Campaign status changed successfully`);
       setOpen(false);
@@ -502,6 +504,7 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
   if (isLoading) {
     return <SkeletonLoader />;
   }
+  console.log(task?.data.states);
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
       case "running":
@@ -556,8 +559,20 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
             onClick={() => {
               setTitle(task?.data.title);
               setDescription(task?.data.description);
-              setStateIds(task?.data.state_ids);
-              setLgids(task?.data.lgids);
+              setStateIds(
+                task?.data.locations.states
+                  ? task.data.locations.states.map((state: any) => state.id)
+                  : [],
+              );
+              setLgids(
+                task?.data.locations.states
+                  ? task.data.locations.states.flatMap(
+                      (state: any) =>
+                        state.lgas?.map((lga: any) => lga.id) || [],
+                    )
+                  : [],
+              );
+
               setpayment_rate_for_response(
                 task?.data.payment_rate_for_response,
               );

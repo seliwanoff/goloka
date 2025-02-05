@@ -7,7 +7,24 @@ import React, { useState, useEffect, useMemo } from "react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Button } from "@/components/ui/button";
 import * as SwitchPrimitive from "@radix-ui/react-switch";
-
+import dropdownData from "@/utils/question";
+import Add from "@/components/ui/add";
+import MultipleChoices from "@/components/ui/multiple-choices";
+import FileUpload from "@/components/task-stepper/fileUpload";
+//import Boolean from "@/components/question/boolean";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@radix-ui/react-popover";
+//import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { Calendar as CalenderDate } from "@/components/ui/calendar";
+import { Calendar, Timer } from "lucide-react";
+import { TimePicker } from "@/components/ui/time";
+import AudioUpload from "@/components/task-stepper/inputs/audioUpload";
+import CheckboxList from "@/components/task-stepper/checkboxOption";
+import DynamicSelect from "@/components/task-stepper/dropdownOption";
 import {
   ArrowUpDown,
   Dot,
@@ -92,8 +109,23 @@ import CampaignButton from "@/components/organization-comps/campaign_status_butt
 import WalletTableOptions from "@/components/lib/widgets/WalletTableOptions";
 import ResponseOptions from "@/components/lib/widgets/ReponseOptions";
 import EditMainCampaign from "@/components/lib/modals/edit_man_campaign";
-import { useEditMainCampaignOverlay } from "@/stores/overlay";
+import {
+  useEditMainCampaignOverlay,
+  useGoogleMap,
+  useMediaViewer,
+} from "@/stores/overlay";
 import ResponseMessageModal from "@/components/lib/modals/message_repone_modal";
+import { Input } from "@/components/ui/input";
+import RadioSelection from "@/components/ui/radio-select";
+import RadioGroupWrapper from "@/components/question/boolean";
+import { Label } from "@radix-ui/react-label";
+import { SmallAnswer } from "@/components/ui/small-input-answer";
+import AudioRecorder from "@/components/task-stepper/customAudioRecorder";
+import AudioPlayer from "@/components/task-stepper/audioPlayer";
+import FileItem from "@/components/ui/FileItem";
+import LocationFile from "@/components/ui/location";
+import GoogleMapLocationModal from "@/components/lib/modals/google_map_response";
+import FileReaderModal from "@/components/lib/modals/fileReader";
 //import ConfirmFunding from "@/components/wallet_comps/confirm_funding";
 
 const SkeletonBox = ({ className }: { className?: string }) => (
@@ -191,22 +223,14 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
 
   const [selectedStatus, setSeletctedStatus] = useState("");
   const [step, setStep] = useState(1);
-  const {
-    show,
-    setShow,
-    setDescription,
-    setId,
-    setTitle,
-    setStateIds,
-    setpayment_rate_for_response,
-    setNumberOfresponse,
-    setEndDate,
-    setStartDate,
-    number_of_responses,
-    payment_rate_for_response,
+  const [area, setArea] = useState(["4"]);
+  const [location, setLocation] = useState([""]);
+  const [line, setLine] = useState(["2"]);
+  const [lines] = useState(["", ""]);
+  const [areas] = useState(["", "", "", ""]);
+  const { show, setShow, setCoordinates, setMethod } = useGoogleMap();
+  const { shows, setShows, setType, setUrl } = useMediaViewer();
 
-    setLgids,
-  } = useEditMainCampaignOverlay();
   const handleUpdateResponseStatus = async (status: string) => {
     //setClickedId(id);
     setisSubmititng(true);
@@ -315,7 +339,14 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
               // onClick={() => router.push(`campaigns/${data.id}`)}
             >
               <TableCell>{data?.question.label}</TableCell>
-              <TableCell className="">{"answer"}</TableCell>
+              <TableCell className="">
+                {data?.question?.type &&
+                  renderQuestionInput(
+                    data.question.type,
+                    JSON.stringify(data?.value),
+                    "preview",
+                  )}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -503,6 +534,8 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
 
   //@ts-ignore
   const locationData = task?.data?.locations;
+
+  console.log(task);
   const WrappedTaskStepper = () => (
     <TaskStepper
       response={getResponse}
@@ -621,6 +654,268 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
      */
   ];
 
+  const handleFileClick = (url: any, type: any) => {
+    //alert(`Clicked on`);
+    setType(type);
+    setUrl(url);
+    setShows(true);
+    // You can open a modal, preview the file, etc.
+  };
+  const renderQuestionInput = (
+    type: string,
+    value: any,
+    preview?: any,
+    id?: number,
+    options?: any,
+  ) => {
+    //  console.log(preview);
+    switch (type) {
+      case "text":
+        return (
+          <div className="text-[14px]]font-poppins text-[#333333]">
+            {JSON.parse(value)}
+          </div>
+        );
+      case "line":
+        return (
+          <LocationFile
+            imageUrl={JSON.parse(value)}
+            onClick={() => {
+              setMethod("line");
+              setCoordinates(JSON.parse(value));
+              setShow(true);
+            }}
+          />
+        );
+      case "location":
+        return (
+          <LocationFile
+            imageUrl={JSON.parse(value)}
+            onClick={() => {
+              setCoordinates(JSON.parse(value));
+              setShow(true);
+            }}
+          />
+        );
+      case "area":
+        return (
+          <LocationFile
+            imageUrl={JSON.parse(value)}
+            onClick={() => {
+              setMethod("polygon");
+              setCoordinates(JSON.parse(value));
+              setShow(true);
+            }}
+          />
+        );
+      case "textarea":
+        return (
+          <div className="text-[14px]] w-full font-poppins text-[#333333]">
+            {JSON.parse(value)}
+          </div>
+        );
+      case "select":
+        return (
+          <MultipleChoices
+            label="Select option"
+            placeholder="Type something..."
+            preview={preview}
+            initialOptions={(() => {
+              try {
+                const parsedValue = value ? JSON.parse(value) : [];
+
+                // Ensure parsedValue is always an array
+                const normalizedArray = Array.isArray(parsedValue)
+                  ? parsedValue
+                  : [parsedValue]; // Wrap single object in array
+
+                return normalizedArray.map((option) =>
+                  typeof option === "object" && option !== null
+                    ? { ...option, value: option.value }
+                    : { value: option },
+                );
+              } catch (error) {
+                console.error("Error parsing options:", error);
+                return [];
+              }
+            })()}
+          />
+        );
+      case "radio":
+        return (
+          <RadioSelection
+            initialOptions={(() => {
+              try {
+                const parsedValue = value ? JSON.parse(value) : [];
+
+                // Ensure parsedValue is always an array
+                const normalizedArray = Array.isArray(parsedValue)
+                  ? parsedValue
+                  : [parsedValue]; // Wrap single object in array
+
+                return normalizedArray.map((option) =>
+                  typeof option === "object" && option !== null
+                    ? { ...option, value: option.value }
+                    : { value: option },
+                );
+              } catch (error) {
+                console.error("Error parsing options:", error);
+                return [];
+              }
+            })()}
+            preview={preview}
+          />
+        );
+      case "checkbox":
+        return (
+          <CheckboxList
+            initialOptions={(() => {
+              try {
+                const parsedValue = value ? JSON.parse(value) : [];
+                return Array.isArray(parsedValue)
+                  ? parsedValue.map((option) =>
+                      typeof option === "object" && option !== null
+                        ? { ...option, value: option.value }
+                        : { value: option },
+                    )
+                  : [];
+              } catch (error) {
+                console.error("Error parsing options:", error);
+                return [];
+              }
+            })()}
+            preview={preview}
+          />
+        );
+      case "MultipleDrop":
+        return (
+          <DynamicSelect
+            label=" "
+            name="country"
+            control={""}
+            initialOptions={(() => {
+              try {
+                return options ? options : [];
+              } catch (error) {
+                console.error("Error parsing options:", error);
+                return [];
+              }
+            })()}
+            placeholder="Enter option"
+            onChange={(value: any) => {
+              console.log(value);
+
+              // handleAnswerChange(id, value);
+            }}
+            rules={{ required: "Country is required" }}
+            // errors={errors}
+          />
+        );
+      case "video":
+        return (
+          <FileItem
+            imageUrl=""
+            fileName="video"
+            fileSize="20"
+            onClick={() => handleFileClick(JSON.parse(value), "video")}
+          />
+        );
+      case "photo":
+        return (
+          <FileItem
+            imageUrl={JSON.parse(value)}
+            fileName="photo"
+            fileSize="20"
+            onClick={() => handleFileClick(JSON.parse(value), "image")}
+          />
+        );
+
+      case "file":
+        return (
+          <FileItem
+            imageUrl={JSON.parse(value)}
+            fileName="file"
+            fileSize="20"
+            onClick={() => handleFileClick(JSON.parse(value), "document")}
+          />
+        );
+      case "email":
+        return (
+          <div className="text-[14px]] font-poppins text-[#333333]">
+            {JSON.parse(value)}
+          </div>
+        );
+      case "url":
+        return <Link href={`${JSON.parse(value)}`}>{JSON.parse(value)}</Link>;
+      case "password":
+        return (
+          <div className="text-[14px]] font-poppins text-[#333333]">
+            {JSON.parse(value)}
+          </div>
+        );
+      case "tel":
+        return (
+          <div className="text-[14px]] font-poppins text-[#333333]">
+            {JSON.parse(value)}
+          </div>
+        );
+      case "number":
+        return (
+          <div className="text-[14px]] font-poppins text-[#333333]">
+            {JSON.parse(value)}
+          </div>
+        );
+      case "audio":
+        return <AudioPlayer src={JSON.parse(value)} />;
+      case "boolean":
+        return (
+          <RadioGroupWrapper
+            options={(() => {
+              try {
+                const parsedOptions = options ? JSON.parse(options) : [];
+                return Array.isArray(parsedOptions)
+                  ? parsedOptions.map((option) =>
+                      typeof option === "object" && option !== null
+                        ? {
+                            ...option,
+                            value: option.value ?? option.label ?? option,
+                          }
+                        : { label: option, value: option },
+                    )
+                  : [
+                      { label: "True", value: "true" },
+                      { label: "False", value: "false" },
+                    ];
+              } catch (error) {
+                console.error("Error parsing options:", error);
+                return [
+                  { label: "True", value: "true" },
+                  { label: "False", value: "false" },
+                ];
+              }
+            })()}
+            selectedValue={JSON.parse(value)}
+            onChange={() => alert()}
+          />
+        );
+      case "time":
+        return (
+          <div className="text-[14px]] w-full font-poppins text-[#333333]">
+            {JSON.parse(value)}
+          </div>
+        );
+      case "date":
+        return (
+          <div className="text-[14px]] w-full font-poppins text-[#333333]">
+            {JSON.parse(value)}
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
   return (
     <>
       <CampaignButton
@@ -678,6 +973,10 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
       />
 
       <EditMainCampaign />
+
+      <GoogleMapLocationModal />
+
+      <FileReaderModal />
 
       <Toaster richColors position={"top-right"} />
       <section className="space-y-4 py-8 pt-[34px]">

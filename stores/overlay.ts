@@ -64,6 +64,24 @@ interface EditCampaignState {
   stateIds: string[];
   lgaIds: string[];
 }
+
+interface GoogleMapState {
+  show: boolean;
+  setShow: (value: boolean) => void;
+  coordinates: any;
+  setCoordinates: (value: any) => void;
+  method: any;
+  setMethod: (value: any) => void;
+}
+
+interface mediaViewerState {
+  shows: boolean;
+  setShows: (value: boolean) => void;
+  type: any;
+  setType: (value: any) => void;
+  url: any;
+  setUrl: (value: any) => void;
+}
 interface EditCampaignMainState {
   show: boolean;
   setShow: (value: boolean) => void;
@@ -169,6 +187,23 @@ const useEditCampaignOverlay = create<EditCampaignState>((set) => ({
   lgaIds: [],
 }));
 
+const useGoogleMap = create<GoogleMapState>((set) => ({
+  show: false,
+  setShow: (value) => set({ show: value }),
+  method: "",
+  setMethod: (value) => set({ method: value }),
+  setCoordinates: (value) => set({ coordinates: value }),
+  coordinates: [],
+}));
+
+const useMediaViewer = create<mediaViewerState>((set) => ({
+  shows: false,
+  setShows: (value) => set({ shows: value }),
+  type: "",
+  setType: (value) => set({ type: value }),
+  setUrl: (value) => set({ url: value }),
+  url: "",
+}));
 const useEditMainCampaignOverlay = create<EditCampaignMainState>((set) => ({
   show: false,
   setShow: (value) => set({ show: value }),
@@ -216,4 +251,6 @@ export {
   useCreateOrganizationOverlay,
   useWithdrawalfundsOverlay,
   useEditMainCampaignOverlay,
+  useGoogleMap,
+  useMediaViewer,
 };

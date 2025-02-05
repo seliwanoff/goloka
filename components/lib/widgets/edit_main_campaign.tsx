@@ -24,6 +24,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  getCampaign,
   getOrganizationCampaign,
   updateCampaign,
   updateCampaignGroupById,
@@ -80,7 +81,7 @@ const EditMainCampaignWidget = () => {
   );
   const [selectedStateIds, setSelectedStateIds] = useState<number[]>(
     /* @ts-ignore */
-    [2, 5, 6, 7],
+    initialStateIds,
   );
   const [selectedCampaignGroupId, setSelectedCampaignGroupId] =
     useState<any>("");
@@ -88,7 +89,7 @@ const EditMainCampaignWidget = () => {
 
   const [selectedLgaIds, setSelectedLgaIds] = useState<number[]>(
     /* @ts-ignore */
-    [110, 220, 120, 118],
+    initialLgaIds,
   );
   const [file, setFile] = useState<File | null>(null);
 
@@ -121,6 +122,7 @@ const EditMainCampaignWidget = () => {
       ),
     enabled: selectedStateIds.length > 0,
   });
+  // console.log(initialStateIds);
 
   const {
     register,
@@ -156,9 +158,9 @@ const EditMainCampaignWidget = () => {
     setValue("countryId", "1" || "1");
     // setValue("allow_multiple_response", allow_ || "1");
     /* @ts-ignore */
-    setValue("stateIds", initialStateIds || [2, 4, 6, 8]);
+    setValue("stateIds", initialStateIds || []);
     /* @ts-ignore */
-    setValue("lgaIds", initialLgaIds || [110, 220, 120, 118]);
+    setValue("lgaIds", initialLgaIds || []);
 
     setValue(
       "rate",
@@ -176,8 +178,18 @@ const EditMainCampaignWidget = () => {
     initialCountryId,
     initialStateIds,
     initialLgaIds,
+    payment_rate_for_response,
+    number_of_responses,
+    initialStartDate,
+    initialEndDate,
     setValue,
   ]);
+  const formTitle = watch("title");
+  const formDescription = watch("description");
+  const formResponse = watch("response");
+  const formRate = watch("rate");
+
+  //console.log(formTitle);
   const formatDate = (date: any): string => {
     const year = date.getFullYear();
     const month = (date.getMonth() + 1).toString().padStart(2, "0");
@@ -195,11 +207,11 @@ const EditMainCampaignWidget = () => {
     const formData = new FormData();
 
     // Append campaign details
-    formData.append("title", title);
-    formData.append("description", description);
+    formData.append("title", formTitle);
+    formData.append("description", formDescription);
     formData.append("campaign_group_id", selectedCampaignGroupId);
     formData.append("type", "survey");
-    formData.append("number_of_responses", number_of_responses.toString());
+    formData.append("number_of_responses", formResponse.toString());
     formData.append(
       "payment_rate_for_response",
       payment_rate_for_response.toString(),
@@ -229,13 +241,16 @@ const EditMainCampaignWidget = () => {
       await updateCampaign(id, formData);
       toast.success("Campaign updated successfully");
       reset();
+      setShow(false);
       // Handle success (e.g., close modal, show success message)
     } catch (error) {
       console.error("Error updating campaign:", error);
       toast.error("An error occurred while updating campaign");
       // Handle error (e.g., show error message)
+      getCampaign();
     } finally {
       setIsLoading(false);
+      setShow(false);
     }
   };
 
@@ -351,6 +366,7 @@ const EditMainCampaignWidget = () => {
               id="title"
               name="title"
               placeholder="Input title"
+              onChange={(e) => setValue("title", e.target.value)}
               className={cn(
                 "form-input rounded-lg border border-[#D9DCE0] px-4 py-[18px] outline-0 placeholder:text-[#828282] focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0",
                 errors.title &&
@@ -376,6 +392,7 @@ const EditMainCampaignWidget = () => {
             id="description"
             name="description"
             placeholder="Describe the group here."
+            onChange={(e) => setValue("description", e.target.value)}
             className={cn(
               "form-input resize-none overflow-hidden rounded-lg border border-[#D9DCE0] px-4 py-[18px] text-left outline-0 placeholder:text-[#828282] focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0",
               errors.description &&
@@ -562,6 +579,7 @@ const EditMainCampaignWidget = () => {
                 {...register("rate")}
                 name="rate"
                 id="rate"
+                onChange={(e) => setValue("rate", e.target.value)}
                 type="number"
                 autoComplete="off"
                 placeholder="Payment rate"
@@ -583,6 +601,7 @@ const EditMainCampaignWidget = () => {
                 type="number"
                 autoComplete="off"
                 id="response"
+                onChange={(e) => setValue("response", e.target.value)}
                 //  onChange={(e) => setResponseNumber(e.target.value)}
                 placeholder="input number of response"
                 className="h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
