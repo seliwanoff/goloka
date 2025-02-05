@@ -130,6 +130,21 @@ export const updateCampaignGroupById = async (
   }
 };
 
+export const updateCampaign = async (
+  id: number,
+  payload: any,
+): Promise<AxiosResponse<any>> => {
+  try {
+    return await postData(
+      `/organizations/${organizationDetails.domain}/campaigns/${id}/update`,
+      payload,
+    );
+  } catch (error) {
+    console.error("Error fetching campaign questions:", error);
+    throw error;
+  }
+};
+
 export const getCampaignById = async (id: any): Promise<AxiosResponse<any>> => {
   try {
     return await fetchData(
@@ -152,7 +167,18 @@ export const getCampaignByIdDetails = async (
     throw error;
   }
 };
-
+export const getResponseDetails = async (
+  id: any,
+): Promise<AxiosResponse<any>> => {
+  try {
+    return await fetchData(
+      `/organizations/${organizationDetails.domain}/responses/${id}`,
+    );
+  } catch (error) {
+    console.error("Error fetching campaign questions:", error);
+    throw error;
+  }
+};
 export const deleteCampaign = async (id: any): Promise<AxiosResponse<any>> => {
   try {
     return await deleteData(
@@ -167,6 +193,23 @@ export const submitCampaign = async (id: any): Promise<AxiosResponse<any>> => {
   try {
     return await postData(
       `/organizations/${organizationDetails.domain}/campaigns/${id}/submit`,
+    );
+  } catch (error) {
+    console.error("Error fetching campaign questions:", error);
+    throw error;
+  }
+};
+
+export const updateCampaignByStatus = async (
+  id: any,
+  status: string,
+): Promise<AxiosResponse<any>> => {
+  try {
+    return await postData(
+      `/organizations/${organizationDetails.domain}/campaigns/${id}/status`,
+      {
+        status: status,
+      },
     );
   } catch (error) {
     console.error("Error fetching campaign questions:", error);

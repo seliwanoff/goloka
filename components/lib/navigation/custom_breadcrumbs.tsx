@@ -18,8 +18,8 @@ const CustomBreadCrumbs: React.FC<ComponentProps> = ({}) => {
   const [currentPath, setCurrentPath] = useState<string[]>([]);
 
   useEffect(() => {
-    // ~ ======= extract paths from pathname into array -->
-    setCurrentPath(() => pathname.split("/").filter(Boolean));
+    const paths = pathname.split("/").filter(Boolean);
+    setCurrentPath(paths.slice(-2));
   }, [pathname]);
 
   return (
@@ -39,7 +39,7 @@ const CustomBreadCrumbs: React.FC<ComponentProps> = ({}) => {
                     className={classMerge(
                       "cursor-pointer",
                       idx + 1 === currentPath.length &&
-                        "font-semibold text-primary",
+                        "font-semibold text-blue-600",
                     )}
                   >
                     {path}

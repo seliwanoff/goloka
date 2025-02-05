@@ -8,6 +8,8 @@ import Image from "next/image";
 import { createOrganization } from "@/services/organization";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { getCurrentOrganization } from "@/services/auth";
+
 
 interface FormValues {
   logo?: File;
@@ -63,6 +65,7 @@ const DataphyteOrgForm: React.FC = () => {
       }
 
       const res = await createOrganization(submitData);
+      getCurrentOrganization(res.data);
 
       setIsSubmitting(false);
       //@ts-ignore

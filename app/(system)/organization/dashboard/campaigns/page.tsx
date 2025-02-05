@@ -325,7 +325,7 @@ const Page = () => {
               totalPages={currentPageData?.length}
               currentPage={currentPage}
               onPageChange={setCurrentPage}
-              RowSize={pageSize}
+              pageSize={pageSize}
               onRowSizeChange={setPageSize}
             />
           </div>
@@ -370,16 +370,24 @@ const CampaignTable = ({ tdata }: { tdata: any[] }) => {
           <TableRow
             key={index}
             className="cursor-pointer"
-            onClick={() =>
-              router.push(`campaigns/questions?questionId=${data.id}`)
-            }
+            onClick={() => router.push(`campaigns/${data.id}`)}
           >
             <TableCell>{data?.title}</TableCell>
             <TableCell className="">{data?.campaign_group}</TableCell>
             <TableCell className="table-cell">
               {data?.locations?.label}
             </TableCell>
-            <TableCell className="">{data?.number_of_responses}</TableCell>
+            <TableCell className="">
+              <div className="flex items-center gap-1">
+                {data?.number_of_responses}
+                {data.number_of_pending_responses > 0 && (
+                  <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[red] text-center font-poppins text-[12px] text-white">
+                    {" "}
+                    {data?.number_of_pending_responses}
+                  </span>
+                )}
+              </div>
+            </TableCell>
             <TableCell className=" ">{data?.created_at}</TableCell>
             <TableCell className="">
               <StatusPill status={data?.status} />
