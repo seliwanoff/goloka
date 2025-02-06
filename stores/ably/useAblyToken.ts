@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getAblyToken } from "@/services/misc";
-import { getAblyClient } from "./ablyClient";
+// import { getAblyClient } from "./ablyClient";
 
 interface AblyToken {
   message: string;
@@ -68,7 +68,8 @@ export const useAblyToken = () => {
           ablyClient.close();
         }
         //@ts-ignore
-        const client = getAblyClient(tokenData.token);
+        const client = [];
+        // getAblyClient(tokenData.token);
         const handleConnectionStateChange = (
           //@ts-ignore
           stateChange: Ably.ConnectionStateChange,
@@ -82,7 +83,7 @@ export const useAblyToken = () => {
               break;
             case "disconnected":
               console.log("Attempting to reconnect...");
-              client.connection.connect();
+              // client.connection.connect();
               break;
             case "failed":
               setConnectionError(
@@ -92,16 +93,16 @@ export const useAblyToken = () => {
           }
         };
 
-        client.connection.on(handleConnectionStateChange);
+        // client.connection.on(handleConnectionStateChange);
 
         // Force initial connection
-        client.connection.connect();
+        // client.connection.connect();
 
-        setAblyClient(client);
+        // setAblyClient(client);
 
         return () => {
-          client.connection.off(handleConnectionStateChange);
-          client.close();
+          // client.connection.off(handleConnectionStateChange);
+          // client.close();
         };
       } catch (err) {
         console.error("Error initializing Ably client:", err);
