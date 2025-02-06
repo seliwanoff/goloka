@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { Loader } from "lucide-react";
 import { useTopUpStores } from "@/stores/topUpstore";
 import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
+import { numberWithCommas } from "@/helper";
 
 const ConfirmWithdrawalOrganization = () => {
   const { setOpen } = useWithdrawalfundsOverlay();
@@ -71,7 +72,7 @@ const ConfirmWithdrawalOrganization = () => {
           Are you sure you want to fund{" "}
           <strong>
             {USER_CURRENCY_SYMBOL}
-            {amount}
+            {numberWithCommas(amount)}
           </strong>{" "}
           to your <br className="hidden sm:block" />
           wallet?

@@ -58,6 +58,8 @@ interface FundState {
 
 interface TopFundState {
   step: number;
+  actualAmount: number;
+  setAcrtualAmount: (value: number) => void;
   setStep: (value: number | ((prev: number) => number)) => void;
   amount: number;
   setAmount: (value: number) => void;
@@ -144,6 +146,8 @@ const useWithdrawStepper = create<FundState>((set) => ({
 const useWithdrawStepperOrganization = create<TopFundState>((set) => ({
   step: 0,
   amount: 0,
+  actualAmount: 0,
+  setAcrtualAmount: (value) => set({ actualAmount: value }),
   setAmount: (value) => set({ amount: value }),
   setStep: (value) =>
     set((state) => ({

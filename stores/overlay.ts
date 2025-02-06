@@ -60,8 +60,59 @@ interface EditCampaignState {
   setId: (value: number) => void;
   isShowEdit: boolean;
   setIsShowEdit: (value: boolean) => void;
+  countryId: string[];
+  stateIds: string[];
+  lgaIds: string[];
 }
 
+interface GoogleMapState {
+  show: boolean;
+  setShow: (value: boolean) => void;
+  coordinates: any;
+  setCoordinates: (value: any) => void;
+  method: any;
+  setMethod: (value: any) => void;
+}
+
+interface mediaViewerState {
+  shows: boolean;
+  setShows: (value: boolean) => void;
+  type: any;
+  setType: (value: any) => void;
+  url: any;
+  setUrl: (value: any) => void;
+}
+interface EditCampaignMainState {
+  show: boolean;
+  setShow: (value: boolean) => void;
+  title: string;
+  id: number;
+  setTitle: (value: string) => void;
+  description: string;
+  setDescription: (value: string) => void;
+  setId: (value: number) => void;
+  isShowEdit: boolean;
+  setIsShowEdit: (value: boolean) => void;
+  countryId: any;
+  stateIds: any;
+  lgaIds: any;
+  setCountryIds: (value: string) => void;
+  setStateIds: (value: string) => void;
+  setLgids: (value: string) => void;
+  setpayment_rate_for_response: (value: number) => void;
+  setResponseRate: (value: number) => void;
+  number_of_responses: any;
+  setNumberOfresponse: (value: number) => void;
+  payment_rate_for_response: any;
+  startDate: any;
+  endDate: any;
+  setStartDate: (value: any) => void;
+  setEndDate: (value: any) => void;
+  allow_multiple_responses: boolean;
+  setAllowMultipleResponses: (value: boolean) => void;
+  type: string;
+  setType: (value: string) => void;
+}
 const useShowOverlay = create<StoreState>((set) => ({
   open: false,
   setOpen: (value) => set({ open: value }),
@@ -129,7 +180,62 @@ const useEditCampaignOverlay = create<EditCampaignState>((set) => ({
   setDescription: (value) => set({ description: value }),
   setId: (value) => set({ id: value }),
   isShowEdit: false,
+
   setIsShowEdit: (value) => set({ isShowEdit: value }),
+  countryId: [],
+  stateIds: [],
+  lgaIds: [],
+}));
+
+const useGoogleMap = create<GoogleMapState>((set) => ({
+  show: false,
+  setShow: (value) => set({ show: value }),
+  method: "",
+  setMethod: (value) => set({ method: value }),
+  setCoordinates: (value) => set({ coordinates: value }),
+  coordinates: [],
+}));
+
+const useMediaViewer = create<mediaViewerState>((set) => ({
+  shows: false,
+  setShows: (value) => set({ shows: value }),
+  type: "",
+  setType: (value) => set({ type: value }),
+  setUrl: (value) => set({ url: value }),
+  url: "",
+}));
+const useEditMainCampaignOverlay = create<EditCampaignMainState>((set) => ({
+  show: false,
+  setShow: (value) => set({ show: value }),
+  title: "",
+  setTitle: (value) => set({ title: value }),
+  description: "",
+  id: 0,
+  setDescription: (value) => set({ description: value }),
+  setId: (value) => set({ id: value }),
+  isShowEdit: false,
+  setIsShowEdit: (value) => set({ isShowEdit: value }),
+  countryId: [],
+  stateIds: [],
+  lgaIds: [],
+  setStateIds: (value) => set({ stateIds: value }),
+  setLgids: (value) => set({ lgaIds: value }),
+  setCountryIds: (value) => set({ countryId: value }),
+  number_of_responses: 0,
+  setNumberOfresponse: (value) => set({ number_of_responses: value }),
+  setResponseRate: (value) => set({ payment_rate_for_response: value }),
+  payment_rate_for_response: 0,
+  setpayment_rate_for_response: (value) =>
+    set({ payment_rate_for_response: value }),
+  startDate: null,
+  endDate: null,
+  setStartDate: (value) => set({ startDate: value }),
+  setEndDate: (value) => set({ endDate: value }),
+  allow_multiple_responses: false,
+  setAllowMultipleResponses: (value) =>
+    set({ allow_multiple_responses: value }),
+  type: "",
+  setType: (value) => set({ type: value }),
 }));
 export {
   useShowOverlay,
@@ -144,4 +250,7 @@ export {
   useAddQuestionSectionOverlay,
   useCreateOrganizationOverlay,
   useWithdrawalfundsOverlay,
+  useEditMainCampaignOverlay,
+  useGoogleMap,
+  useMediaViewer,
 };
