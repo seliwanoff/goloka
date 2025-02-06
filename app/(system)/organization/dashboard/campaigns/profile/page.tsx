@@ -322,8 +322,9 @@ const ProfilePage: React.FC = () => {
               totalPages={pages?.length}
               currentPage={currentPage}
               onPageChange={setCurrentPage}
-              RowSize={pageSize}
+              // RowSize={pageSize}
               onRowSizeChange={setPageSize}
+              pageSize={pageSize}
             />
           </div>
         </div>

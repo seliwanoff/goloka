@@ -6,7 +6,7 @@ interface CampaignButtonProps {
   setOpen: any;
   open: boolean;
   action: any;
-  isSubmitting: boolean;
+  isSubmitting?: boolean;
 }
 
 const CampaignButton: React.FC<CampaignButtonProps> = ({
@@ -57,7 +57,7 @@ const CampaignButton: React.FC<CampaignButtonProps> = ({
         content={content}
         action={action}
         open={open}
-        isSubmitting={isSubmitting}
+        isSubmitting={isSubmitting as boolean}
         status={status}
         setOpen={setOpen}
       />

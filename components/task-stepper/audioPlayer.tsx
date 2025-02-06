@@ -60,27 +60,30 @@ console.log(src)
   };
 
   return (
-    <div className="flex w-80 items-center gap-3  bg-[#F2F3F5] rounded-full p-3 text-white relative">
+    <div className="relative flex w-80 items-center gap-3 rounded-full bg-[#F2F3F5] p-3 text-white">
       <button
         onClick={togglePlay}
-        className="rounded-full bg-blue-600 p-2 hover:bg-gray-600 text-white"
+        className="rounded-full bg-blue-600 p-2 text-white hover:bg-gray-600"
       >
-        {isPlaying ? <Pause size={20}  className="text-white" variant='bold'/> : <Play size={20} variant='bold'/>}
+        {isPlaying ? (
+          <Pause size={20} className="text-white" strokeWidth={3} />
+        ) : (
+          <Play size={20} strokeWidth={3} />
+        )}
       </button>
 
-      <div className="flex flex-1 flex-col relative">
-
+      <div className="relative flex flex-1 flex-col">
         <input
           type="range"
           value={progress}
           onChange={handleSeek}
-          className="absolute w-full opacity-0 cursor-pointer bg-red-600"
+          className="absolute w-full cursor-pointer bg-red-600 opacity-0"
           min="0"
           max="100"
         />
-        <div className="w-full h-2 bg-gray-600 rounded-lg relative overflow-hidden">
+        <div className="relative h-2 w-full overflow-hidden rounded-lg bg-gray-600">
           <div
-            className="h-full bg-gradient-to-r from-purple-500 to-blue-500 animate-pulse"
+            className="h-full animate-pulse bg-gradient-to-r from-purple-500 to-blue-500"
             style={{
               width: `${progress}%`,
               clipPath:
@@ -89,13 +92,13 @@ console.log(src)
           ></div>
         </div>
 
-        <div className="flex justify-between text-xs text-gray-400 mt-1">
+        <div className="mt-1 flex justify-between text-xs text-gray-400">
           <span>{formatTime(currentTime)}</span>
           <span>{formatTime(duration)}</span>
         </div>
       </div>
 
-      <div className="flex items-center gap-2 opacity-50 pointer-events-none">
+      <div className="pointer-events-none flex items-center gap-2 opacity-50">
         <Volume2 size={16} />
       </div>
 

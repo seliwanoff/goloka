@@ -528,8 +528,7 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
                 currentPage={currentPage}
                 pageSize={pageSize}
                 onPageChange={setCurrentPage}
-                onRowSizeChange={setPageSize}
-              />
+                onRowSizeChange={setPageSize} totalPages={undefined}              />
             </div>
           </div>
         </div>

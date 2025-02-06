@@ -18,7 +18,7 @@ type ComponentProps = {
   status: string;
   open: boolean;
   action: () => void;
-  isSubmitting: boolean;
+  isSubmitting?: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 const UpdateCampaignDialog: React.FC<ComponentProps> = ({

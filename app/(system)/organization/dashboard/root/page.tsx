@@ -466,7 +466,7 @@ const Dashboard = () => {
               totalPages={pages?.length}
               currentPage={currentPage}
               onPageChange={setCurrentPage}
-              RowSize={pageSize}
+              pageSize={pageSize}
               onRowSizeChange={setPageSize}
             />
           </div>
