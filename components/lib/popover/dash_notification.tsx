@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image, { StaticImageData } from "next/image";
 import { Button } from "@/components/ui/button";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
@@ -22,6 +22,8 @@ import EmptyState from "../empty_states/empty_state";
 import Celebrate from "@/public/assets/images/svg/financial.png";
 import Org from "@/public/assets/images/svg/organisational.png";
 import { CloseSquare, Refresh } from "iconsax-react";
+import { useAblyToken } from "@/stores/ably/useAblyToken";
+// import { AblyRealtime } from "ably";
 
 type NotificationComponentProps = {
   notificationList: {
@@ -29,11 +31,15 @@ type NotificationComponentProps = {
     message: string;
     time: string;
   }[];
+  //@ts-ignore
+  ablyClient: Ably.Realtime | null;
 };
 
 const DashNotificationPopOver: React.FC<NotificationComponentProps> = ({
   notificationList,
+  ablyClient,
 }) => {
+
   // ~ ======= Empty state -->
   if (notificationList.length === 0)
     return (
