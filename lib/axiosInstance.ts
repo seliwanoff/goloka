@@ -88,30 +88,21 @@ axiosInstance.interceptors.response.use(
       error.message ||
       "An unexpected error occurred";
 
-    // Check both status codes and common auth error messages
-    const isAuthError =
+    // Only log out for authentication issues
+    const isAuthenticationError =
       status === 401 ||
-      status === 403 ||
+      errorMessage.toLowerCase().includes("unauthenticated") ||
       errorMessage.toLowerCase().includes("token expired") ||
       errorMessage.toLowerCase().includes("invalid token") ||
-      errorMessage.toLowerCase().includes("token is invalid") ||
-      errorMessage.toLowerCase().includes("not authenticated") ||
-      errorMessage.toLowerCase().includes("unauthorized") ||
-      errorMessage.toLowerCase().includes("not authorized");
+      errorMessage.toLowerCase().includes("token is invalid");
 
-    if (isAuthError) {
+    if (isAuthenticationError) {
       handleSignOut();
-      // Customize message based on the specific error
-      const displayMessage =
-        status === 403 || errorMessage.toLowerCase().includes("not authorized")
-          ? "You don't have permission to access this resource."
-          : "Your session has expired. Please sign in again.";
-
-      toast.error(displayMessage);
+      toast.error("Your session has expired. Please sign in again.");
       return Promise.reject(error);
     }
 
-    // Show error message for non-auth errors
+    // For all other errors (including 403/permission issues), just show the error message
     toast.error(errorMessage);
     return Promise.reject(error);
   },
