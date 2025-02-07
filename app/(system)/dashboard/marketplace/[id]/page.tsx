@@ -161,17 +161,20 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
   const isContributeDisabled = () => {
     const taskData = task?.data;
     if (!taskData) return false;
+
     //@ts-ignore
     const responses = taskData.responses || [];
-    const allowsMultiple =
-      //@ts-ignore
-      taskData.allows_multiple_responses === 0;
+    //@ts-ignore
+    const allowsMultiple = taskData.allows_multiple_responses === 0;
     //@ts-ignore
     const numResponses = Number(taskData.number_of_responses);
     //@ts-ignore
     const numReceived = Number(taskData.number_of_responses_received);
+    //@ts-ignore
+    const isInBound = taskData.in_bound;
 
     return (
+      !isInBound || // Add this condition to check if in_bound is false
       (responses.length > 0 &&
         allowsMultiple &&
         //@ts-ignore
