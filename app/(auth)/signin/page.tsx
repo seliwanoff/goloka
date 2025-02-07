@@ -18,6 +18,7 @@ import { getContributorsProfile } from "@/services/contributor";
 import { useQuery } from "@tanstack/react-query";
 import { useRemoteUserStore } from "@/stores/remoteUser";
 import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
+import { GoogleLogin } from "@react-oauth/google";
 
 type PageProps = {};
 
@@ -171,10 +172,19 @@ const SignIn: React.FC<PageProps> = ({}) => {
             >
               {isLoading ? <FaSpinner className="animate-spin" /> : "Login"}
             </Button>
-            <Button className="h-12 w-full gap-2 rounded-full border border-main-100 bg-main-100 bg-opacity-15 text-base font-light text-white hover:bg-current">
+            {/* <Button className="h-12 w-full gap-2 rounded-full border border-main-100 bg-main-100 bg-opacity-15 text-base font-light text-white hover:bg-current">
               <FcGoogle size={20} />{" "}
               <span className="text-neutral-600">Login with Google</span>
-            </Button>
+            </Button> */}
+
+            <GoogleLogin
+              onSuccess={(credentialResponse) => {
+                console.log(credentialResponse);
+              }}
+              onError={() => {
+                console.log("Login Failed");
+              }}
+            />
           </div>
 
           <p className="my-8 text-center">

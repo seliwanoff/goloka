@@ -52,29 +52,67 @@ axiosInstance.interceptors.request.use(
   (error: AxiosError) => Promise.reject(error),
 );
 
+// axiosInstance.interceptors.response.use(
+//   (response: AxiosResponse) => response,
+//   (error: AxiosError) => {
+//     const status = error.response?.status;
+
+//     if (status === 401 || status === 403) {
+//       handleSignOut();
+//       toast.error(
+//         status === 401
+//           ? "Your session has expired. Please sign in again."
+//           : "You don't have permission to access this resource.",
+//       );
+//       return Promise.reject(error);
+//     }
+//     const errorMessage =
+//     //@ts-ignore
+//       error.response?.data?.message ||
+//       error.message ||
+//       "An unexpected error occurred";
+//     if (status !== 401 && status !== 403) {
+//       toast.error(errorMessage);
+//     }
+
+//     return Promise.reject(error);
+//   },
+// );
+
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error: AxiosError) => {
     const status = error.response?.status;
-
-    if (status === 401 || status === 403) {
-      handleSignOut();
-      toast.error(
-        status === 401
-          ? "Your session has expired. Please sign in again."
-          : "You don't have permission to access this resource.",
-      );
-      return Promise.reject(error);
-    }
     const errorMessage =
-    //@ts-ignore
-      error.response?.data?.message ||
+      (error.response?.data as any)?.message ||
       error.message ||
       "An unexpected error occurred";
-    if (status !== 401 && status !== 403) {
-      toast.error(errorMessage);
+
+    // Check both status codes and common auth error messages
+    const isAuthError =
+      status === 401 ||
+      status === 403 ||
+      errorMessage.toLowerCase().includes("token expired") ||
+      errorMessage.toLowerCase().includes("invalid token") ||
+      errorMessage.toLowerCase().includes("token is invalid") ||
+      errorMessage.toLowerCase().includes("not authenticated") ||
+      errorMessage.toLowerCase().includes("unauthorized") ||
+      errorMessage.toLowerCase().includes("not authorized");
+
+    if (isAuthError) {
+      handleSignOut();
+      // Customize message based on the specific error
+      const displayMessage =
+        status === 403 || errorMessage.toLowerCase().includes("not authorized")
+          ? "You don't have permission to access this resource."
+          : "Your session has expired. Please sign in again.";
+
+      toast.error(displayMessage);
+      return Promise.reject(error);
     }
 
+    // Show error message for non-auth errors
+    toast.error(errorMessage);
     return Promise.reject(error);
   },
 );
