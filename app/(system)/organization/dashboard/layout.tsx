@@ -92,11 +92,13 @@ const NavData: { icon: any; title: string; link: string }[] = [
     link: "/organization/dashboard/root",
   },
   { icon: Note, title: "Campaigns", link: "/organization/dashboard/campaigns" },
+  /**
   {
     icon: DocumentCopy,
     title: "Responses",
     link: "/organization/dashboard/responses",
   },
+  */
   { icon: Wallet3, title: "Wallet", link: "/organization/dashboard/wallet" },
   {
     icon: MessageQuestion,

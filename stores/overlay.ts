@@ -45,6 +45,15 @@ interface CampaignGroupState {
   setFecthed: (value: boolean) => void;
 }
 
+interface RearrangeQuestion {
+  showQuestion: boolean;
+  setShowQuestion: (value: boolean) => void;
+}
+
+interface EditAquestionState {
+  showEditQuestion: boolean;
+  setShowQuestionEdit: (value: boolean) => void;
+}
 interface openSuccessModalState {
   open: boolean;
   setOpen: (value: boolean) => void;
@@ -170,6 +179,18 @@ const useAddcampaignGroupOverlay = create<CampaignGroupState>((set) => ({
   setShowCreate: (value) => set({ show: value }),
 }));
 
+const useRearrageQuestion = create<RearrangeQuestion>((set) => ({
+  showQuestion: false,
+
+  setShowQuestion: (value) => set({ showQuestion: value }),
+}));
+
+const useEditAQuestion = create<EditAquestionState>((set) => ({
+  showEditQuestion: false,
+
+  setShowQuestionEdit: (value) => set({ showEditQuestion: value }),
+}));
+
 const useEditCampaignOverlay = create<EditCampaignState>((set) => ({
   show: false,
   setShow: (value) => set({ show: value }),
@@ -253,4 +274,6 @@ export {
   useEditMainCampaignOverlay,
   useGoogleMap,
   useMediaViewer,
+  useRearrageQuestion,
+  useEditAQuestion,
 };

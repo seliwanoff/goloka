@@ -122,7 +122,7 @@ const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
   // Show loading state while fetching user data
   if (isLoading || isContributorLoading) {
     return (
-      <div className=" flex flex-col h-screen w-full items-center justify-center">
+      <div className="flex h-screen w-full flex-col items-center justify-center">
         <Image
           src={Logo}
           alt="goloka logo"
@@ -130,7 +130,9 @@ const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
           height={160}
           className="animate-pulse"
         />
-        <p className="text-main-100 font-bold text-lg animate-pulse font-serif">Loading...</p>
+        <p className="animate-pulse font-serif text-lg font-bold text-main-100">
+          Loading...
+        </p>
       </div>
     );
   }
@@ -184,13 +186,13 @@ export default SystemLayout;
 //   { icon: Settings, title: "Settings", link: "/dashboard/settings" },
 // ];
 
-
 // ~ =============================================>
 // ~ ======= Navigation data -->
 // ~ =============================================>
 const NavData: { icon: any; title: string; link: string }[] = [
   { icon: LayoutGrid, title: "Dashboard", link: "/dashboard/root" },
   { icon: Note, title: "Marketplace", link: "/dashboard/marketplace" },
+
   { icon: DocumentCopy, title: "Responses", link: "/dashboard/responses" },
   {
     icon: Import,
