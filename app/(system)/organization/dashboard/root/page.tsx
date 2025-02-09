@@ -55,6 +55,7 @@ import CampaignChart from "@/components/organization-comps/campaign_chart";
 import CampaignSummary from "@/components/organization-comps/campaign_summary";
 import {
   getOrganizationByDomain,
+  getOrganizationStat,
   getUseServices,
 } from "@/services/organization";
 import { getCurrentUser } from "@/services/user";
@@ -76,15 +77,28 @@ const Dashboard = () => {
   const [pageSize, setPageSize] = useState<number>(10);
   const pages = chunkArray(filteredData, pageSize);
   const currentPageData = pages[currentPage - 1] || [];
+
+  const [dashStat, setDashStat] = useState([]);
   const currentOrganization = useOrganizationStore(
     (state) => state.organization,
   );
   const [data, setData] = useState<any>([]);
 
+  const getCurrentOrganizationStat = async () => {
+    try {
+      const response = await getOrganizationStat();
+      console.log(response);
+      //@ts-ignore
+      setDashStat(response);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   const getOrgaization = async () => {
     try {
       const response = await getOrganizationByDomain();
-      console.log(response);
+      // console.log(response);
       setData(response.data);
       getRegisteredUsersService(response.data);
       //  getCurrentOrganization(response.data);
@@ -95,7 +109,7 @@ const Dashboard = () => {
   };
 
   const getRegisteredUsersService = async (orgData: any) => {
-    console.log(orgData);
+    //  console.log(orgData);
     const response = await getUseServices();
     // console.log(getCurrentUser());
     const currentUsers = await getCurrentUser();
@@ -131,6 +145,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     getOrgaization();
+    getCurrentOrganizationStat();
   }, []);
   const router = useRouter();
 
@@ -171,7 +186,7 @@ const Dashboard = () => {
               icon={Wallet3}
               value={`${(currentOrganization && currentOrganization.symbol) || "₦"}${numberWithCommas(data.wallet_balance) || 0}`}
               footer={
-                <span className="font-medium">₦5,250 Pending balance</span>
+                <span className="font-medium">₦0.00 Pending balance</span>
               }
               isAnalytics={false}
               increase={true}
@@ -183,8 +198,10 @@ const Dashboard = () => {
               bg="bg-[#FEC53D] bg-opacity-[12%]"
               fg="text-[#FEC53D]"
               icon={TrendUp}
-              value={0}
-              footer="126 ongoing"
+              //@ts-ignore
+              value={dashStat.campaign_stats.total_campaign_count || 0}
+              //@ts-ignore
+              footer={`${dashStat.campaign_stats.running_campaign_count || 0}`}
               isAnalytics={false}
               increase={true}
               percents={40}
@@ -195,11 +212,13 @@ const Dashboard = () => {
               bg="bg-main-100 bg-opacity-[12%]"
               fg="text-main-100"
               icon={Note}
-              value={0}
+              //@ts-ignore
+              value={dashStat.response_stats.count || 0}
               footer="vs last month"
               isAnalytics={true}
               increase={true}
-              percents={40}
+              //@ts-ignore
+              percents={dashStat.response_stats.percentage_increase || 0}
             />
 
             <DashboardWidget
@@ -466,7 +485,7 @@ const Dashboard = () => {
               totalPages={pages?.length}
               currentPage={currentPage}
               onPageChange={setCurrentPage}
-              RowSize={pageSize}
+              pageSize={pageSize}
               onRowSizeChange={setPageSize}
             />
           </div>

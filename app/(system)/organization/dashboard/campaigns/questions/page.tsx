@@ -45,7 +45,10 @@ import {
 } from "@/services/campaign/question";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
-import { useAddQuestionSectionOverlay } from "@/stores/overlay";
+import {
+  useAddQuestionSectionOverlay,
+  useEditAQuestion,
+} from "@/stores/overlay";
 import SectionName from "@/components/lib/modals/section_name_modal";
 import RadioGroupWrapper from "@/components/question/boolean";
 import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
@@ -59,6 +62,7 @@ import {
   submitCampaign,
 } from "@/services/campaign";
 import RadioSelection from "@/components/ui/radio-select";
+import EditQuestionModal from "@/components/lib/modals/Edit_question_modal";
 type FormValues = {
   fullname: string;
   email: string;
@@ -95,6 +99,9 @@ const Create = () => {
     watch,
   } = useForm<FormValues>();
   const searchParams = useSearchParams();
+
+  const { setShowQuestionEdit } = useEditAQuestion();
+  const [selectedQuestion, setSelectedQuestion] = useState([]);
 
   const questionId = searchParams.get("questionId") || 0;
 
@@ -200,8 +207,10 @@ const Create = () => {
         .map((item, index) => (
           <DraggableComponent
             key={item?.id}
+            data={item}
             id={item?.id.toString()}
             index={index}
+            setSelectedQuestion={setSelectedQuestion}
             title={` ${item?.label}`} // Display order and label
             className="font-semibold text-[#071E3B]"
           >
@@ -236,6 +245,8 @@ const Create = () => {
                 key={item.id}
                 id={item.id.toString()}
                 index={index}
+                data={item}
+                setSelectedQuestion={setSelectedQuestion}
                 title={`${item.label}`}
                 className="p-2 font-semibold text-[#071E3B]"
               >
@@ -313,7 +324,10 @@ const Create = () => {
                           )
                         : null,
 
-            attributes: null,
+            attributes:
+              question.type === "file"
+                ? JSON.stringify([".docx, .pdf, .doc, .xlsx"])
+                : null,
           };
 
           await createQuestion(questionId, payload);
@@ -1375,7 +1389,7 @@ const Create = () => {
   const getCampaign = async () => {
     try {
       const response = await getCampaignByIdDetails(questionId);
-      console.log(response);
+      //  console.log(response);
       setCampaigns(response.data);
     } catch (e) {
       console.log(e);
@@ -1387,6 +1401,14 @@ const Create = () => {
   }, []);
   return (
     <>
+      {/*** EDIT QUESTION */}
+
+      <EditQuestionModal
+        questions={selectedQuestion}
+        id={questionId}
+        action={getAllQuestion}
+      />
+
       <section className="mx-auto mt-5 w-full max-w-[896px]">
         <div className="flex flex-col gap-[12px]">
           <div className="flex items-center justify-between">

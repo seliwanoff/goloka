@@ -41,6 +41,11 @@ const CampaignButton: React.FC<CampaignButtonProps> = ({
         newContent = "This campaign has ended. Do you want to restart it?";
 
         break;
+      case "draft":
+        newTitle = "Change to draft";
+        newContent = "Do you want to change this campaign to draft?";
+
+        break;
       default:
         newTitle = "Unknown Status";
         newContent = "The campaign status is not recognized.";
