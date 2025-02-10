@@ -45,18 +45,24 @@ import {
 } from "@/services/campaign/question";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
-import { useAddQuestionSectionOverlay } from "@/stores/overlay";
+import {
+  useAddQuestionSectionOverlay,
+  useEditAQuestion,
+} from "@/stores/overlay";
 import SectionName from "@/components/lib/modals/section_name_modal";
 import RadioGroupWrapper from "@/components/question/boolean";
 import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import DraggableComponent from "@/components/ui/drag-drop";
 import { AxiosResponse } from "axios";
+import * as SwitchPrimitive from "@radix-ui/react-switch";
+
 import {
   getCampaignById,
   getCampaignByIdDetails,
   submitCampaign,
 } from "@/services/campaign";
 import RadioSelection from "@/components/ui/radio-select";
+import EditQuestionModal from "@/components/lib/modals/Edit_question_modal";
 type FormValues = {
   fullname: string;
   email: string;
@@ -83,6 +89,7 @@ const Create = () => {
   const [isQuestionSaved, setIsQuestionSaved] = useState(false);
   const [isAddQuestion, setIsAddQuestion] = useState(false);
   const [campaigns, setCampaigns] = useState<any>([]);
+  const [localChecked, setLocalChecked] = useState(false);
   const router = useRouter();
   const {
     register,
@@ -92,6 +99,9 @@ const Create = () => {
     watch,
   } = useForm<FormValues>();
   const searchParams = useSearchParams();
+
+  const { setShowQuestionEdit } = useEditAQuestion();
+  const [selectedQuestion, setSelectedQuestion] = useState([]);
 
   const questionId = searchParams.get("questionId") || 0;
 
@@ -197,8 +207,10 @@ const Create = () => {
         .map((item, index) => (
           <DraggableComponent
             key={item?.id}
+            data={item}
             id={item?.id.toString()}
             index={index}
+            setSelectedQuestion={setSelectedQuestion}
             title={` ${item?.label}`} // Display order and label
             className="font-semibold text-[#071E3B]"
           >
@@ -233,6 +245,8 @@ const Create = () => {
                 key={item.id}
                 id={item.id.toString()}
                 index={index}
+                data={item}
+                setSelectedQuestion={setSelectedQuestion}
                 title={`${item.label}`}
                 className="p-2 font-semibold text-[#071E3B]"
               >
@@ -287,7 +301,7 @@ const Create = () => {
               question.type === "url"
                 ? "Enter your input"
                 : "",
-            required: true,
+            required: localChecked,
             options:
               question.type === "select" ||
               question.type === "checkbox" ||
@@ -310,13 +324,17 @@ const Create = () => {
                           )
                         : null,
 
-            attributes: null,
+            attributes:
+              question.type === "file"
+                ? JSON.stringify([".docx, .pdf, .doc, .xlsx"])
+                : null,
           };
 
           await createQuestion(questionId, payload);
           setQuestions([
-            { id: 1, type: "text", content: "", group: " ", answer: " " },
+            { id: 1, type: "text", content: "", group: "", answer: "" },
           ]);
+          setLocalChecked(false);
           //setIsQuestionSaved(true);
           getAllQuestion();
         }
@@ -330,6 +348,12 @@ const Create = () => {
     } else {
       toast.error("Please add question");
     }
+  };
+
+  const handleUpdate = (id: number, required: boolean) => {
+    setQuestions((prevQuestions) =>
+      prevQuestions.map((q) => (q.id === id ? { ...q, required } : q)),
+    );
   };
 
   const saveQuestionBySave = async () => {
@@ -373,7 +397,7 @@ const Create = () => {
           ].includes(question.type)
             ? "Enter your input"
             : "",
-          required: true,
+          required: localChecked,
           options: ["select", "checkbox", "radio"].includes(question.type)
             ? JSON.stringify(
                 [...questions[0].answer].map((item: any) => item.value),
@@ -504,6 +528,29 @@ const Create = () => {
   useEffect(() => {
     getAllQuestion();
   }, [isQuestionSaved, showSection]);
+
+  const ToggleSwitch = ({
+    // data,
+    onUpdate,
+  }: {
+    // data: { id: string; required: boolean };
+    onUpdate: (id: number, required: boolean) => void;
+  }) => {
+    const handleToggle = async (checked: boolean) => {
+      setLocalChecked(checked); // Optimistically update UI
+    };
+
+    return (
+      <SwitchPrimitive.Root
+        id="switch"
+        checked={localChecked}
+        onCheckedChange={handleToggle}
+        className="relative h-6 w-10 rounded-full bg-gray-300 transition"
+      >
+        <SwitchPrimitive.Thumb className="block h-4 w-4 translate-x-1 transform rounded-full shadow-md transition-transform data-[state=checked]:translate-x-5 data-[state=checked]:bg-blue-500" />
+      </SwitchPrimitive.Root>
+    );
+  };
   const renderQuestionInput = (
     type: string,
     id: number,
@@ -1342,7 +1389,7 @@ const Create = () => {
   const getCampaign = async () => {
     try {
       const response = await getCampaignByIdDetails(questionId);
-      console.log(response);
+      //  console.log(response);
       setCampaigns(response.data);
     } catch (e) {
       console.log(e);
@@ -1354,6 +1401,14 @@ const Create = () => {
   }, []);
   return (
     <>
+      {/*** EDIT QUESTION */}
+
+      <EditQuestionModal
+        questions={selectedQuestion}
+        id={questionId}
+        action={getAllQuestion}
+      />
+
       <section className="mx-auto mt-5 w-full max-w-[896px]">
         <div className="flex flex-col gap-[12px]">
           <div className="flex items-center justify-between">
@@ -1456,54 +1511,15 @@ const Create = () => {
                     </Select>
                   </Label>
                 </div>
-                {/***
-                <Label htmlFor="questionType" className="w-full">
-                  <div className="flex items-center justify-between">
-                    <span className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
-                      Question group
-                    </span>
-                  </div>
 
-                  <Select
-                    value={selectedQuestionGroupId}
-                    onValueChange={(value: any) => {
-                      handleGroupChange(question.id, value);
-
-                      const selected = questtonGroup.find(
-                        (item: any) => item.id === parseInt(value),
-                      ) as { id: number; name: string } | undefined;
-
-                      setSelectedQuestionGroup(selected?.name || "");
-                      setSelectedQuestionGroupId(selected?.id);
-                    }}
-                  >
-                    <SelectTrigger className="h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0">
-                      <SelectValue
-                        placeholder="Select question group"
-                        className="text-neutral-40 placeholder:text-neutral-40 text-sm font-light"
-                      >
-                        {selectedQuestionGroup}
-                      </SelectValue>
-                    </SelectTrigger>
-
-                    <SelectContent className="max-w-full">
-                      <SelectGroup>
-                        <SelectLabel>Question group</SelectLabel>
-                        {questtonGroup.map((item: any) => (
-                          <SelectItem
-                            key={item.id}
-                            value={item.id.toString()}
-                            className="flex items-center gap-2"
-                          >
-                            {item.name}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </Label>
-                */}
                 {renderQuestionInput(question.type, question.id)}
+
+                <div className="flex items-center gap-2">
+                  <span className="text-base font-extralight text-[#4F4F4F]">
+                    Is question required?
+                  </span>
+                  <ToggleSwitch key={1} onUpdate={handleUpdate} />
+                </div>
               </div>
             ))}
 

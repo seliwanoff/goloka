@@ -55,6 +55,7 @@ import CampaignChart from "@/components/organization-comps/campaign_chart";
 import CampaignSummary from "@/components/organization-comps/campaign_summary";
 import {
   getOrganizationByDomain,
+  getOrganizationStat,
   getUseServices,
 } from "@/services/organization";
 import { getCurrentUser } from "@/services/user";
@@ -76,15 +77,28 @@ const Dashboard = () => {
   const [pageSize, setPageSize] = useState<number>(10);
   const pages = chunkArray(filteredData, pageSize);
   const currentPageData = pages[currentPage - 1] || [];
+
+  const [dashStat, setDashStat] = useState([]);
   const currentOrganization = useOrganizationStore(
     (state) => state.organization,
   );
   const [data, setData] = useState<any>([]);
 
+  const getCurrentOrganizationStat = async () => {
+    try {
+      const response = await getOrganizationStat();
+      console.log(response);
+      //@ts-ignore
+      setDashStat(response);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   const getOrgaization = async () => {
     try {
       const response = await getOrganizationByDomain();
-      console.log(response);
+      // console.log(response);
       setData(response.data);
       getRegisteredUsersService(response.data);
       //  getCurrentOrganization(response.data);
@@ -95,7 +109,7 @@ const Dashboard = () => {
   };
 
   const getRegisteredUsersService = async (orgData: any) => {
-    console.log(orgData);
+    //  console.log(orgData);
     const response = await getUseServices();
     // console.log(getCurrentUser());
     const currentUsers = await getCurrentUser();
@@ -131,6 +145,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     getOrgaization();
+    getCurrentOrganizationStat();
   }, []);
   const router = useRouter();
 
@@ -171,7 +186,7 @@ const Dashboard = () => {
               icon={Wallet3}
               value={`${(currentOrganization && currentOrganization.symbol) || "₦"}${numberWithCommas(data.wallet_balance) || 0}`}
               footer={
-                <span className="font-medium">₦5,250 Pending balance</span>
+                <span className="font-medium">₦0.00 Pending balance</span>
               }
               isAnalytics={false}
               increase={true}
@@ -183,8 +198,10 @@ const Dashboard = () => {
               bg="bg-[#FEC53D] bg-opacity-[12%]"
               fg="text-[#FEC53D]"
               icon={TrendUp}
-              value={0}
-              footer="126 ongoing"
+              //@ts-ignore
+              value={dashStat?.campaign_stats?.total_campaign_count || 0}
+              //@ts-ignore
+              footer={`${dashStat?.campaign_stats?.running_campaign_count || 0} running campaign`}
               isAnalytics={false}
               increase={true}
               percents={40}
@@ -195,11 +212,13 @@ const Dashboard = () => {
               bg="bg-main-100 bg-opacity-[12%]"
               fg="text-main-100"
               icon={Note}
-              value={0}
+              //@ts-ignore
+              value={dashStat?.response_stats?.count || 0}
               footer="vs last month"
               isAnalytics={true}
               increase={true}
-              percents={40}
+              //@ts-ignore
+              percents={dashStat?.response_stats?.percentage_increase || 0}
             />
 
             <DashboardWidget
@@ -263,10 +282,11 @@ const Dashboard = () => {
       {/* RECENT RESPONSES */}
 
       {/* TABLE */}
+
+      {/***
       <div className="col-span-5 w-full rounded-2xl bg-white p-[14px]">
-        {/* OPTIONS */}
+
         <div className="mb-5 flex justify-between gap-4 lg:justify-start">
-          {/* -- search section */}
           <div className="relative flex w-[250px] items-center justify-center md:w-[300px]">
             <Search className="absolute left-3 text-gray-500" size={18} />
             <Input
@@ -277,7 +297,6 @@ const Dashboard = () => {
           </div>
 
           <div className="hidden lg:flex lg:gap-4">
-            {/* PRICE */}
             <Select>
               <SelectTrigger className="w-min rounded-full focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0">
                 <SelectValue placeholder="Price" />
@@ -289,7 +308,6 @@ const Dashboard = () => {
               </SelectContent>
             </Select>
 
-            {/* NUMBER */}
             <Popover>
               <PopoverTrigger className="rounded-full border px-3">
                 <div className="inline-flex items-center gap-2">
@@ -311,7 +329,6 @@ const Dashboard = () => {
               </PopoverContent>
             </Popover>
 
-            {/* DATE */}
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -336,7 +353,6 @@ const Dashboard = () => {
               </PopoverContent>
             </Popover>
 
-            {/* RESPONSE */}
             <Select>
               <SelectTrigger className="w-max rounded-full focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0">
                 <SelectValue placeholder="Response type" />
@@ -351,7 +367,6 @@ const Dashboard = () => {
             </Select>
           </div>
 
-          {/* -- filter icon */}
           <div
             onClick={() => setOpenFilter(true)}
             className="inline-flex cursor-pointer items-center justify-center gap-3 rounded-full border bg-white p-1 pr-3 lg:hidden"
@@ -406,7 +421,7 @@ const Dashboard = () => {
                               <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#FF4C4C] text-xs text-white">
                                 {res?.unread_messages_count}
                               </span>
-                            )} */}
+                            )}
                           </div>
                         </div>
                       </TableCell>
@@ -419,7 +434,7 @@ const Dashboard = () => {
                             <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#FF4C4C] text-xs text-white">
                               {res?.unread_messages_count}
                             </span>
-                          )} */}
+                          )}
                         </div>{" "}
                       </TableCell>
 
@@ -473,8 +488,9 @@ const Dashboard = () => {
         </div>
         {/* <div className="mx-auto hidden py-10 lg:hidden">
             <DataTable columns={columns} data={responsesTableData} />
-          </div> */}
+          </div>
       </div>
+      */}
     </div>
   );
 };
