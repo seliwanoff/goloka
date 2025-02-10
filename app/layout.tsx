@@ -1,4 +1,3 @@
-
 import "./globals.css";
 import type { Metadata } from "next";
 import TanstackProvider from "@/components/layout/tanstackProvider";
@@ -16,7 +15,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
   return (
     <html lang="en">
       {/* className={poppins.className} */}
@@ -25,10 +23,10 @@ export default function RootLayout({
           clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
         >
           {/* <AblyProvider client={ably}> */}
-            <TanstackProvider>
-              <LandingNavbar />
-              <div className="-z-10">{children}</div>
-            </TanstackProvider>
+          <TanstackProvider>
+            <LandingNavbar />
+            <div className="-z-10">{children}</div>
+          </TanstackProvider>
           {/* </AblyProvider> */}
         </GoogleOAuthProvider>
       </body>
