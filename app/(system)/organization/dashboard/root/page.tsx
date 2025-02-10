@@ -201,7 +201,7 @@ const Dashboard = () => {
               //@ts-ignore
               value={dashStat?.campaign_stats?.total_campaign_count || 0}
               //@ts-ignore
-              footer={`${dashStat?.campaign_stats?.running_campaign_count || 0}`}
+              footer={`${dashStat?.campaign_stats?.running_campaign_count || 0} running campaign`}
               isAnalytics={false}
               increase={true}
               percents={40}
@@ -282,10 +282,11 @@ const Dashboard = () => {
       {/* RECENT RESPONSES */}
 
       {/* TABLE */}
+
+      {/***
       <div className="col-span-5 w-full rounded-2xl bg-white p-[14px]">
-        {/* OPTIONS */}
+
         <div className="mb-5 flex justify-between gap-4 lg:justify-start">
-          {/* -- search section */}
           <div className="relative flex w-[250px] items-center justify-center md:w-[300px]">
             <Search className="absolute left-3 text-gray-500" size={18} />
             <Input
@@ -296,7 +297,6 @@ const Dashboard = () => {
           </div>
 
           <div className="hidden lg:flex lg:gap-4">
-            {/* PRICE */}
             <Select>
               <SelectTrigger className="w-min rounded-full focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0">
                 <SelectValue placeholder="Price" />
@@ -308,7 +308,6 @@ const Dashboard = () => {
               </SelectContent>
             </Select>
 
-            {/* NUMBER */}
             <Popover>
               <PopoverTrigger className="rounded-full border px-3">
                 <div className="inline-flex items-center gap-2">
@@ -330,7 +329,6 @@ const Dashboard = () => {
               </PopoverContent>
             </Popover>
 
-            {/* DATE */}
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -355,7 +353,6 @@ const Dashboard = () => {
               </PopoverContent>
             </Popover>
 
-            {/* RESPONSE */}
             <Select>
               <SelectTrigger className="w-max rounded-full focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0">
                 <SelectValue placeholder="Response type" />
@@ -370,7 +367,6 @@ const Dashboard = () => {
             </Select>
           </div>
 
-          {/* -- filter icon */}
           <div
             onClick={() => setOpenFilter(true)}
             className="inline-flex cursor-pointer items-center justify-center gap-3 rounded-full border bg-white p-1 pr-3 lg:hidden"
@@ -425,7 +421,7 @@ const Dashboard = () => {
                               <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#FF4C4C] text-xs text-white">
                                 {res?.unread_messages_count}
                               </span>
-                            )} */}
+                            )}
                           </div>
                         </div>
                       </TableCell>
@@ -438,7 +434,7 @@ const Dashboard = () => {
                             <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#FF4C4C] text-xs text-white">
                               {res?.unread_messages_count}
                             </span>
-                          )} */}
+                          )}
                         </div>{" "}
                       </TableCell>
 
@@ -492,8 +488,9 @@ const Dashboard = () => {
         </div>
         {/* <div className="mx-auto hidden py-10 lg:hidden">
             <DataTable columns={columns} data={responsesTableData} />
-          </div> */}
+          </div>
       </div>
+      */}
     </div>
   );
 };
