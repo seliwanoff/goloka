@@ -1,6 +1,7 @@
 "use client";
 
 import { FC } from "react";
+import ReactPlayer from "react-player"; // Import react-player
 
 interface MediaViewerProps {
   type: "video" | "image" | "document"; // Type of media
@@ -14,13 +15,26 @@ const MediaViewer: FC<MediaViewerProps> = ({ type, url }) => {
 
   return (
     <div className="mx-auto flex w-full items-center justify-center rounded-lg border bg-white p-4">
+      {/* Advanced Video Player */}
       {type === "video" && (
-        <video controls className="h-auto w-full overflow-hidden rounded-md">
-          <source src={url} type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
+        <div className="w-full max-w-2xl">
+          <ReactPlayer
+            url={url}
+            controls
+            width="100%"
+            height="auto"
+            playing={false} // Autoplay off
+            light={false} // Show thumbnail preview
+            pip // Enable Picture-in-Picture mode
+            config={{
+              file: { attributes: { controlsList: "nodownload" } }, // Disable video download
+            }}
+            className="rounded-md object-center shadow-lg"
+          />
+        </div>
       )}
 
+      {/* Image Viewer */}
       {type === "image" && (
         <img
           src={url}
@@ -29,6 +43,7 @@ const MediaViewer: FC<MediaViewerProps> = ({ type, url }) => {
         />
       )}
 
+      {/* Document Viewer */}
       {type === "document" && (
         <div className="h-96 w-full">
           {url.endsWith(".pdf") ? (

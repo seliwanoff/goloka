@@ -12,6 +12,7 @@ import {
   ArrowUpDown,
   Dot,
   Edit,
+  Edit2,
   Eye,
   EyeIcon,
   LoaderCircle,
@@ -36,6 +37,7 @@ import { getCampaignQuestion, getTaskById } from "@/services/contributor";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import Pagination from "@/components/lib/navigation/Pagination";
+import { useQueryClient } from "@tanstack/react-query";
 
 import moment from "moment";
 import {
@@ -82,7 +84,14 @@ import CampaignButton from "@/components/organization-comps/campaign_status_butt
 import WalletTableOptions from "@/components/lib/widgets/WalletTableOptions";
 import ResponseOptions from "@/components/lib/widgets/ReponseOptions";
 import EditMainCampaign from "@/components/lib/modals/edit_man_campaign";
-import { useEditMainCampaignOverlay } from "@/stores/overlay";
+import {
+  useEditAQuestion,
+  useEditMainCampaignOverlay,
+  useRearrageQuestion,
+} from "@/stores/overlay";
+import ReArrangeQuestion from "@/components/lib/modals/rearrange_modal";
+import EditQuestionModal from "@/components/lib/modals/Edit_question_modal";
+import { updateQuestion } from "@/services/campaign/question";
 //import ConfirmFunding from "@/components/wallet_comps/confirm_funding";
 
 const SkeletonBox = ({ className }: { className?: string }) => (
@@ -153,6 +162,7 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
   const { id: campaignId } = useParams();
   const [responseId, setResponseId] = useState<string | null>(null);
   const [campaignList, setCampaignList] = useState<[]>([]);
+  const queryClient = useQueryClient();
 
   // const { step } = useStepper();
   const [activeTab, setActiveTab] = useState("campaigns");
@@ -191,6 +201,11 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
 
     setLgids,
   } = useEditMainCampaignOverlay();
+
+  const { setShowQuestionEdit } = useEditAQuestion();
+  const { setShowQuestion, showQuestion } = useRearrageQuestion();
+
+  const [selectedQuestion, setSelectedQuestion] = useState([]);
   const deletQuestion = async (id: any) => {
     //setClickedId(id);
     setisSubmititng(true);
@@ -230,6 +245,66 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
       setOpenSubmit(false);
     }
   };
+  const handleUpdate = (id: string, required: boolean) => {
+    console.log("Heelo");
+  };
+
+  const ToggleSwitch = ({
+    data,
+    onUpdate,
+  }: {
+    data: {
+      id: string;
+      required: boolean;
+      label: string;
+      type: string;
+      options: any[];
+    };
+    onUpdate: (id: string, required: boolean) => void;
+  }) => {
+    const [localChecked, setLocalChecked] = useState(data.required);
+
+    const handleToggle = async (checked: boolean) => {
+      setLocalChecked(checked);
+      console.log(data.options);
+
+      try {
+        await updateQuestion(
+          campaignId,
+          {
+            question_group_id: "",
+            required: checked,
+            label: data.label,
+            name: data.label,
+            type: data.type,
+            options: data.options
+              ? JSON.stringify([...data.options].map((item: any) => item.label))
+              : null,
+            attributea: null,
+          },
+          data.id,
+        );
+        onUpdate(data.id, checked);
+        getCampaignQuestions(campaignId as string);
+      } catch (error) {
+        console.error("Error updating required state:", error);
+        setLocalChecked(!checked); // Revert UI if request fails
+        toast.error("Failed to update requirement.");
+      }
+    };
+
+    return (
+      <SwitchPrimitive.Root
+        id="switch"
+        checked={localChecked}
+        onCheckedChange={handleToggle}
+        className="relative h-6 w-10 rounded-full bg-gray-300 transition"
+      >
+        <SwitchPrimitive.Thumb className="block h-4 w-4 translate-x-1 transform rounded-full shadow-md transition-transform data-[state=checked]:translate-x-5 data-[state=checked]:bg-blue-500" />
+      </SwitchPrimitive.Root>
+    );
+  };
+
   const CampaignTable = ({ tdata }: { tdata: any[] }) => {
     const router = useRouter();
 
@@ -245,48 +320,53 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {tdata?.map((data, index) => (
-            <TableRow
-              key={index}
-              className="cursor-pointer"
-              // onClick={() => router.push(`campaigns/${data.id}`)}
-            >
-              <TableCell>{data?.label}</TableCell>
-              <TableCell className="">{data?.type}</TableCell>
-              <TableCell className="">
-                <SwitchPrimitive.Root
-                  id="switch"
-                  checked={data.required}
-                  onCheckedChange={(checked) => handleToggle(data.id, checked)}
-                  className="relative h-6 w-10 rounded-full bg-gray-300 transition"
-                >
-                  <SwitchPrimitive.Thumb className="block h-4 w-4 translate-x-1 transform rounded-full shadow-md transition-transform data-[state=checked]:translate-x-5 data-[state=checked]:bg-blue-500" />
-                </SwitchPrimitive.Root>
-              </TableCell>
+          {[...tdata]
+            ?.sort((a, b) => a.order - b.order)
+            .map((data, index) => (
+              <TableRow
+                key={index}
+                className="cursor-pointer"
+                // onClick={() => router.push(`campaigns/${data.id}`)}
+              >
+                <TableCell>{data?.label}</TableCell>
+                <TableCell className="">{data?.type}</TableCell>
+                <TableCell className="">
+                  <ToggleSwitch
+                    key={data.id}
+                    data={data}
+                    onUpdate={handleUpdate}
+                  />
+                </TableCell>
 
-              <TableCell className="">
-                <div className="flex items-center justify-center space-x-2">
-                  <span className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#F8F8F8] p-2 px-2.5 text-sm text-[#4F4F4F]">
-                    <Edit size={18} onClick={() => {}} /> Edit
-                  </span>
-                  <span
-                    className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#FF4C4C14] p-2 px-2.5 text-sm text-[#FF4C4C]"
-                    onClick={() => {
-                      setClickedId(data.id);
-                      setOpenQuestion(true);
-                    }}
-                  >
-                    <Trash size={18} />{" "}
-                    {isSubmitting && clickedId === data.id ? (
-                      <FaSpinner className="animate-spin text-[#FF4C4C]" />
-                    ) : (
-                      "Delete"
-                    )}
-                  </span>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
+                <TableCell className="">
+                  <div className="flex items-center justify-center space-x-2">
+                    <span
+                      className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#F8F8F8] p-2 px-2.5 text-sm text-[#4F4F4F]"
+                      onClick={() => {
+                        setSelectedQuestion(data);
+                        setShowQuestionEdit(true);
+                      }}
+                    >
+                      <Edit size={18} /> Edit
+                    </span>
+                    <span
+                      className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#FF4C4C14] p-2 px-2.5 text-sm text-[#FF4C4C]"
+                      onClick={() => {
+                        setClickedId(data.id);
+                        setOpenQuestion(true);
+                      }}
+                    >
+                      <Trash size={18} />{" "}
+                      {isSubmitting && clickedId === data.id ? (
+                        <FaSpinner className="animate-spin text-[#FF4C4C]" />
+                      ) : (
+                        "Delete"
+                      )}
+                    </span>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
         </TableBody>
       </Table>
     );
@@ -462,7 +542,8 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
       );
       toast.success(`Campaign status changed successfully`);
       setOpen(false);
-      refetchResponse();
+      //@ts-ignore
+      queryClient.invalidateQueries(["get a Campaign", campaignId as string]);
     } catch (e) {
       console.log(e);
       toast.error("Error updating status");
@@ -504,7 +585,6 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
   if (isLoading) {
     return <SkeletonLoader />;
   }
-  console.log(task?.data.states);
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
       case "running":
@@ -550,7 +630,17 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
             onClick={() => handleStatusCampaign("running")}
           >
             <Play size={20} />
-            Run
+            Resume
+          </div>
+        )}
+
+        {task?.data?.status === "paused" && (
+          <div
+            className="flex cursor-pointer justify-center gap-2 rounded-full border border-blue-600 px-8 py-3 font-poppins text-base text-blue-600"
+            onClick={() => handleStatusCampaign("draft")}
+          >
+            <Note size={20} />
+            Draft
           </div>
         )}
         {task?.data?.status === "draft" && (
@@ -617,12 +707,16 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
   const QuestionBubbleButton: {
     icon: LucideIcon;
     title: string;
-    href: string;
+    href?: string;
+    action?: () => void;
   }[] = [
     {
       icon: ArrowUpDown,
       title: "Rearrange",
-      href: `/organization/dashboard/campaigns/questions?questionId=${campaignId}`,
+      action: () => {
+        setShowQuestion(true);
+      },
+      //  href: "#",
     },
     {
       icon: EyeIcon,
@@ -674,6 +768,18 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
       />
 
       <EditMainCampaign />
+
+      <EditQuestionModal
+        questions={selectedQuestion}
+        id={campaignId as string}
+        action={getQuestionByCampaignId}
+      />
+
+      <ReArrangeQuestion
+        questions={campaignList}
+        id={campaignId}
+        action={getQuestionByCampaignId}
+      />
 
       <Toaster richColors position={"top-right"} />
       <section className="space-y-4 py-8 pt-[34px]">
@@ -923,7 +1029,8 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
                     {QuestionBubbleButton.map((item, index) => (
                       <Link
                         key={item.title}
-                        href={item.href}
+                        onClick={item.action}
+                        href={item.href || "javascript:void()"}
                         className="transit flex items-center gap-3 text-gray-500 hover:text-gray-800"
                       >
                         <div
