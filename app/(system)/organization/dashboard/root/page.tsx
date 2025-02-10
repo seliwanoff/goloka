@@ -199,9 +199,9 @@ const Dashboard = () => {
               fg="text-[#FEC53D]"
               icon={TrendUp}
               //@ts-ignore
-              value={dashStat.campaign_stats.total_campaign_count || 0}
+              value={dashStat?.campaign_stats?.total_campaign_count || 0}
               //@ts-ignore
-              footer={`${dashStat.campaign_stats.running_campaign_count || 0}`}
+              footer={`${dashStat?.campaign_stats?.running_campaign_count || 0}`}
               isAnalytics={false}
               increase={true}
               percents={40}
@@ -213,12 +213,12 @@ const Dashboard = () => {
               fg="text-main-100"
               icon={Note}
               //@ts-ignore
-              value={dashStat.response_stats.count || 0}
+              value={dashStat?.response_stats?.count || 0}
               footer="vs last month"
               isAnalytics={true}
               increase={true}
               //@ts-ignore
-              percents={dashStat.response_stats.percentage_increase || 0}
+              percents={dashStat?.response_stats?.percentage_increase || 0}
             />
 
             <DashboardWidget
