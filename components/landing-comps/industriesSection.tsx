@@ -106,7 +106,7 @@ const IndustriesSection = ({ worldMapBg }: IndustriesSectionProps) => {
                 priority
               />
               {/* Pins can be added here as absolute positioned elements */}
-              {[...Array(8)].map((_, index) => (
+              {/* {[...Array(8)].map((_, index) => (
                 <div
                   key={index}
                   className={cn(
@@ -119,7 +119,7 @@ const IndustriesSection = ({ worldMapBg }: IndustriesSectionProps) => {
                     top: `${30 + index * 10}%`,
                   }}
                 />
-              ))}
+              ))} */}
             </div>
           </div>
         </div>
