@@ -1,5 +1,4 @@
 "use client";
-import Hero from "@/components/landing-comps/Hero";
 import { Button } from "@/components/ui/button";
 import rayda from "@/public/assets/images/rayda.svg";
 import open from "@/public/assets/images/open.svg";
@@ -13,25 +12,19 @@ import space from "@/public/assets/images/pace.svg";
 import Star from "@/public/assets/images/star-shade.svg";
 import Image from "next/image";
 import Pattern from "@/public/assets/pattern-bg.svg";
-import Choice1 from "@/public/assets/images/choice1.png";
-import Choice2 from "@/public/assets/images/choice2.png";
-import Choice3 from "@/public/assets/images/choice3.png";
-import Choice4 from "@/public/assets/images/choice4.png";
-import overlay from "@/public/assets/images/choice4-alt.png";
+
 import Topographic from "@/public/assets/images/Topographic.svg";
 import Thumb from "@/public/assets/images/thumb.svg";
 import AppleStore from "@/public/assets/images/App Store.png";
 import PlayStore from "@/public/assets/images/Play Store.png";
 import AppPreview from "@/public/assets/images/download-app.png";
 
-import cta1 from "@/public/assets/images/mac.png";
-import cta2 from "@/public/assets/images/share-thought-cta.png";
+
 import FinIcon from "@/public/assets/images/finance-icon.png";
 import userResp from "@/public/assets/images/user-response.jpg";
 import { ArrowRight, Category2, Location } from "iconsax-react";
 import Link from "next/link";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { TiArrowRight } from "react-icons/ti";
+
 import Testimonials from "@/components/landing-comps/testimonials";
 import Marquee from "@/components/ui/marquee";
 import Footer from "@/components/landing-comps/footer";
@@ -46,20 +39,9 @@ import IndustriesSection from "@/components/landing-comps/industriesSection";
 import HyperLocalSection from "@/components/landing-comps/hyperLocal";
 import man from "@/public/assets/images/man.png";
 import bgImage from "@/public/assets/images/bgImage.png";
+import CampaignList from "@/components/landing-comps/campaignList";
 
-const CampaignCardSkeleton = () => (
-  <div className="rounded-2xl border p-3 md:w-[380px]">
-    <Skeleton className="mb-4 aspect-[3/2] rounded-lg" />
-    <div className="space-y-3">
-      <Skeleton className="h-4 w-3/4" />
-      <Skeleton className="h-4 w-1/2" />
-      <div className="flex items-center space-x-2">
-        <Skeleton className="h-4 w-4 rounded-full" />
-        <Skeleton className="h-4 w-1/3" />
-      </div>
-    </div>
-  </div>
-);
+
 
 const LandingPage = () => {
   const router = useRouter();
@@ -372,7 +354,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      <section className="max-w-8xl mb-5 w-full overflow-hidden">
+      {/* <section className="max-w-8xl mb-5 w-full overflow-hidden">
         <div className="no-scrollbar wrapper w-full">
           {isLoading ? (
             <div className="flex flex-col gap-4 md:w-max md:flex-row">
@@ -458,7 +440,13 @@ const LandingPage = () => {
             </Marquee>
           )}
         </div>
-      </section>
+      </section> */}
+
+      <CampaignList
+        campaignData={campaignData}
+        isLoading={isLoading}
+        router={router}
+      />
 
       {/* ####################################### */}
       {/* -- Choices Section */}

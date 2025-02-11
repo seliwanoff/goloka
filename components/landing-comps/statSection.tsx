@@ -135,7 +135,7 @@ const StatsSection: React.FC<StatsSectionProps> = ({
           {stats.map((stat, index) => (
             <div
               key={index}
-              className={`space-y-4 rounded-3xl p-6 ${stat.bgColor} ${
+              className={`space-y-4 rounded-3xl p-6 relative ${stat.bgColor} ${
                 index === 0 ? "md:col-span-2 xl:col-span-1" : ""
               } ${index === 1 ? "xl:h-[400px]" : ""}`}
             >
