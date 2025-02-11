@@ -9,44 +9,41 @@ type ComponentProps = {};
 
 const Testimonials: FC<ComponentProps> = ({}) => {
   return (
-    <section className="max-w-8xl my-20 flex w-full flex-col items-center gap-5 overflow-hidden">
-      {/* ####################################### */}
-      {/* -- Header section */}
-      {/* ####################################### */}
+    <section className="max-w-8xl my-20 flex w-full flex-col items-center gap-5 overflow-hidden px-4">
+      {/* Header section */}
       <div className="flex w-full flex-col items-center gap-2">
         <div className="text-primary-600 mb-5 flex items-center justify-center gap-2 rounded-full bg-violet-50 px-6 py-2 text-sm font-bold">
           <div className="inline-flex items-center space-x-2 text-primary">
             <Sparkle size={16} />
-            <span className="text-sm">What are people saying</span>
+            <span className="text-sm">Testimonial</span>
           </div>
         </div>
 
-        <h2 className="border-0 text-center">
-          See what our &nbsp;
-          <b className="text-primary-600">Users</b> are saying
+        <h2 className="text-center text-2xl font-semibold text-[#333] md:text-balance md:text-[2rem] md:leading-normal">
+          See what our <b className="text-main-100">Users</b> are saying
         </h2>
-        <p className="-mt-2 text-center text-gray-700">
-          Our AI tool crafts compelling stories from your data.
-        </p>
       </div>
-      {/* -- content */}
-      {/* -- row 1 */}
+
+      {/* Content */}
       <div className="relative w-full">
-        <div className="absolute left-0 top-0 z-10 h-full w-[300px] bg-[linear-gradient(to_right,white_50%,transparent)]" />
-        <div className="absolute right-0 top-0 z-10 h-full w-[300px] bg-[linear-gradient(to_left,white_50%,transparent)]" />
+        {/* Gradient overlays */}
+        <div className="absolute left-0 top-0 z-10 h-full w-[100px] bg-[linear-gradient(to_right,white_50%,transparent)] md:w-[300px]" />
+        <div className="absolute right-0 top-0 z-10 h-full w-[100px] bg-[linear-gradient(to_left,white_50%,transparent)] md:w-[300px]" />
+
+        {/* First row */}
         <Marquee pauseOnHover className="relative mt-10 [--duration:40s]">
           {testimonialData.map((data, idx) => (
             <div
               key={idx}
-              className="flex w-[400px] cursor-pointer flex-col gap-5 rounded-2xl bg-[#F8F8F8] p-4 hover:shadow-lg"
+              className="mx-2 flex w-[280px] cursor-pointer flex-col gap-5 rounded-2xl bg-[#F8F8F8] p-4 hover:shadow-lg md:w-[400px]"
             >
-              <p className="text-right text-sm">{data?.date}</p>
-              <p className="text-gray-600 group-hover:text-gray-800">
+              <p className="text-right text-xs md:text-sm">{data?.date}</p>
+              <p className="text-sm text-gray-600 group-hover:text-gray-800 md:text-base">
                 {data.content}
               </p>
 
               <div className="flex items-end gap-2">
-                <div className="w-10">
+                <div className="w-8 md:w-10">
                   <AspectRatio ratio={1}>
                     <Image
                       src={Customer}
@@ -57,8 +54,10 @@ const Testimonials: FC<ComponentProps> = ({}) => {
                   </AspectRatio>
                 </div>
                 <div className="flex flex-col">
-                  <p className="m-0 text-sm font-medium">{data?.name} </p>
-                  <p className="m-0 text-sm text-muted-foreground">
+                  <p className="m-0 text-xs font-medium md:text-sm">
+                    {data?.name}
+                  </p>
+                  <p className="m-0 text-xs text-muted-foreground md:text-sm">
                     {data?.location}
                   </p>
                 </div>
@@ -66,17 +65,18 @@ const Testimonials: FC<ComponentProps> = ({}) => {
             </div>
           ))}
         </Marquee>
-        {/* -- row 2 */}
+
+        {/* Second row */}
         <Marquee pauseOnHover reverse className="[--duration:40s]">
-          {Array.from({ length: 8 }, (data, idx) => (
+          {Array.from({ length: 8 }, (_, idx) => (
             <div
               key={idx}
-              className="flex w-[400px] cursor-pointer flex-col gap-5 rounded-2xl bg-[#F8F8F8] p-4 hover:shadow-lg"
+              className="mx-2 flex w-[280px] cursor-pointer flex-col gap-5 rounded-2xl bg-[#F8F8F8] p-4 hover:shadow-lg md:w-[400px]"
             >
-              <p className="text-right text-sm">
+              <p className="text-right text-xs md:text-sm">
                 Monday 16th of January 2024 by 01:20 AM
               </p>
-              <p className="text-gray-600 group-hover:text-gray-800">
+              <p className="text-sm text-gray-600 group-hover:text-gray-800 md:text-base">
                 The Cybersecurity training with EvolveHQ so far has been
                 beneficial for a newcomer like me. The content is presented in a
                 way that&apos;s understandable, and the practical exercises have
@@ -84,7 +84,7 @@ const Testimonials: FC<ComponentProps> = ({}) => {
               </p>
 
               <div className="flex items-end gap-2">
-                <div className="w-10">
+                <div className="w-8 md:w-10">
                   <AspectRatio ratio={1}>
                     <Image
                       src={Customer}
@@ -95,8 +95,10 @@ const Testimonials: FC<ComponentProps> = ({}) => {
                   </AspectRatio>
                 </div>
                 <div className="flex flex-col">
-                  <p className="m-0 text-sm font-medium">Benjamin </p>
-                  <p className="m-0 text-sm text-muted-foreground">Austria</p>
+                  <p className="m-0 text-xs font-medium md:text-sm">Benjamin</p>
+                  <p className="m-0 text-xs text-muted-foreground md:text-sm">
+                    Austria
+                  </p>
                 </div>
               </div>
             </div>
