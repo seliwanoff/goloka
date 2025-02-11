@@ -41,6 +41,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/task-stepper/skeleton";
 import { useRouter } from "next/navigation";
 import HeroSection from "@/components/landing-comps/heroSection";
+import StatsSection from "@/components/landing-comps/statSection";
 
 const CampaignCardSkeleton = () => (
   <div className="rounded-2xl border p-3 md:w-[380px]">
@@ -77,13 +78,13 @@ const LandingPage = () => {
       {/* -- Partners Section */}
       {/* ####################################### */}
       <section className="px-4 py-8">
-        <div className=" space-y-6 px-4">
-          <p className="font-extrabold py-3 text-center text-xl text-[#071E3B]">
+        <div className="space-y-6 px-4">
+          <p className="py-3 text-center text-xl font-extrabold text-[#071E3B]">
             Organisations that{" "}
             <span className="text-blue-600">count on us</span>{" "}
           </p>
           <Marquee pauseOnHover className="relative mt-10 [--duration:40s]">
-            <div className="grid grid-cols-9 ">
+            <div className="grid grid-cols-9">
               <Image src={rayda} alt="rayda" />
               <Image src={open} alt="open" />
               <Image src={swofon} alt="swofon" />
@@ -97,6 +98,75 @@ const LandingPage = () => {
           </Marquee>
         </div>
       </section>
+      {/* ####################################### */}
+      {/* -- Stats Section */}
+      {/* ####################################### */}
+      {/* <section className="py-16">
+        <div className="wrapper">
+          <div className="mb-16 flex flex-col items-center gap-6">
+            <div className="mx-auto inline-flex items-center justify-center gap-3 rounded-full bg-[#EBF0FC] px-4 py-3 text-sm font-medium text-main-100">
+              <span>
+                <Image src={Star} alt="star icon" />
+              </span>{" "}
+              The fast growing Data World
+            </div>
+          </div>
+
+          <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3 xl:items-end">
+            <div className="space-y-9 rounded-3xl bg-[#F3F3F3] p-6 md:col-span-2 xl:col-span-1">
+              <h3 className="text-3xl font-extrabold leading-[40px]">
+                25k+
+                <br />
+                <span className="font-medium">Contributors</span>
+              </h3>
+              <p className="text-[#333]">
+                Our growing community of data contributors are driven by the
+                passion to contribute to important research projects that have
+                real-world impact.
+              </p>
+            </div>
+            <div className="relative overflow-hidden rounded-3xl bg-[#004378] p-6 xl:h-[400px]">
+              <div className="relative z-10 h-full space-y-9 xl:flex xl:flex-col xl:justify-between">
+                <h3 className="text-3xl font-extrabold leading-[40px] text-white">
+                  10k+
+                  <br />
+                  <span className="font-normal">Organisations</span>
+                </h3>
+                <p className="text-[#fff]">
+                  Organisations and businesses leverage Goloka&apos;s powerful
+                  features, powered by advanced AI algorithms, to make
+                  data-driven decisions that optimise performance, reduce
+                  losses, and increase revenue.
+                </p>
+              </div>
+              <Image
+                src={Topographic}
+                alt="Topographic pattern"
+                className="absolute left-0 top-0 aspect-square h-full w-full object-cover"
+              />
+            </div>
+            <div className="space-y-9 rounded-3xl bg-[#2F80ED] p-6">
+              <h3 className="text-3xl font-extrabold leading-[40px] text-white">
+                500k+
+                <br />
+                <span className="font-medium">Campaigns</span>
+              </h3>
+              <p className="text-[#fff]">
+                Campaigns launched on Goloka harness geospatial technology,
+                integrating surveys, remote sensing technology, native
+                intelligence, and AI to collect, analyse, and verify data for
+                accurate location-based insights.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section> */}
+
+      <StatsSection
+        starIcon={Star}
+        topographicPattern={Topographic}
+        stats={stats}
+      />
       {/* ####################################### */}
       {/* -- Choices Section */}
       {/* ####################################### */}
@@ -189,69 +259,7 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
-      {/* ####################################### */}
-      {/* -- Stats Section */}
-      {/* ####################################### */}
-      <section className="py-16">
-        <div className="wrapper">
-          <div className="mb-16 flex flex-col items-center gap-6">
-            <div className="mx-auto inline-flex items-center justify-center gap-3 rounded-full bg-[#EBF0FC] px-4 py-3 text-sm font-medium text-main-100">
-              <span>
-                <Image src={Star} alt="star icon" />
-              </span>{" "}
-              The fas growing Data World
-            </div>
-          </div>
 
-          <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3 xl:items-end">
-            <div className="space-y-9 rounded-3xl bg-[#F3F3F3] p-6 md:col-span-2 xl:col-span-1">
-              <h3 className="text-3xl font-extrabold leading-[40px]">
-                25k+
-                <br />
-                <span className="font-medium">Contributors</span>
-              </h3>
-              <p className="text-[#333]">
-                Our growing community of data contributors are driven by the
-                passion to contribute to important research projects that have
-                real-world impact.
-              </p>
-            </div>
-            <div className="relative overflow-hidden rounded-3xl bg-[#004378] p-6 xl:h-[400px]">
-              <div className="relative z-10 h-full space-y-9 xl:flex xl:flex-col xl:justify-between">
-                <h3 className="text-3xl font-extrabold leading-[40px] text-white">
-                  10k+
-                  <br />
-                  <span className="font-normal">Organisations</span>
-                </h3>
-                <p className="text-[#fff]">
-                  Organisations and businesses leverage Goloka&apos;s powerful
-                  features, powered by advanced AI algorithms, to make
-                  data-driven decisions that optimise performance, reduce
-                  losses, and increase revenue.
-                </p>
-              </div>
-              <Image
-                src={Topographic}
-                alt="Topographic pattern"
-                className="absolute left-0 top-0 aspect-square h-full w-full object-cover"
-              />
-            </div>
-            <div className="space-y-9 rounded-3xl bg-[#2F80ED] p-6">
-              <h3 className="text-3xl font-extrabold leading-[40px] text-white">
-                500k+
-                <br />
-                <span className="font-medium">Campaigns</span>
-              </h3>
-              <p className="text-[#fff]">
-                Campaigns launched on Goloka harness geospatial technology,
-                integrating surveys, remote sensing technology, native
-                intelligence, and AI to collect, analyse, and verify data for
-                accurate location-based insights.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
       {/* ####################################### */}
       {/* -- CTA 1 Section */}
       {/* ####################################### */}
@@ -676,5 +684,42 @@ const benefitsData: Benefit[] = [
     title: "Iterate and Improve",
     description:
       "Use insights gained from analyzing campaign metrics to iterate, inform and improve future marketing strategies",
+  },
+];
+
+
+const stats = [
+  {
+    value: 20000,
+    showK: true,
+    title: "Contributors",
+    description:
+      "Our growing community of data contributors are driven by the passion to contribute to important research projects that have real-world impact.",
+    bgColor: "bg-[#F3F3F3]",
+    titleColor: "text-black",
+    numberColor: "text-black",
+    descriptionColor: "text-[#333]",
+  },
+  {
+    value: 20,
+    showK: false,
+    title: "Organisations",
+    description:
+      "Organisations and businesses leverage Goloka's powerful features, powered by advanced AI algorithms, to make data-driven decisions that optimise performance, reduce losses, and increase revenue.",
+    bgColor: "bg-[#004378]",
+    titleColor: "text-white",
+    numberColor: "text-white",
+    descriptionColor: "text-white",
+  },
+  {
+    value: 20,
+    showK: false,
+    title: "Campaigns",
+    description:
+      "Campaigns launched on Goloka harness geospatial technology, integrating surveys, remote sensing technology, native intelligence, and AI to collect, analyse, and verify data for accurate location-based insights.",
+    bgColor: "bg-[#2F80ED]",
+    titleColor: "text-white",
+    numberColor: "text-white",
+    descriptionColor: "text-white",
   },
 ];
