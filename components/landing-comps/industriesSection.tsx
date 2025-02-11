@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image, { StaticImageData } from "next/image";
 import {
   Accordion,
   AccordionContent,
@@ -14,7 +14,7 @@ interface IndustryItem {
 }
 
 interface IndustriesSectionProps {
-  worldMapBg: string;
+  worldMapBg: StaticImageData;
 }
 
 const industries: IndustryItem[] = [
@@ -42,17 +42,17 @@ const industries: IndustryItem[] = [
 
 const IndustriesSection = ({ worldMapBg }: IndustriesSectionProps) => {
   return (
-    <section className="relative min-h-screen w-full bg-[#001B3D] py-16">
+    <section className="relative min-h-screen w-full  py-16">
       {/* Background with map and dots effect */}
       <div className="absolute inset-0 overflow-hidden">
         <Image
           src={worldMapBg}
           alt="World map background"
           fill
-          className="object-cover opacity-20"
+          className="object-cover "
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#001B3D]/50" />
+        {/* <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#001B3D]/50" /> */}
       </div>
 
       {/* Content */}

@@ -29,14 +29,16 @@ const HeroSection: React.FC<ComponentProps> = () => {
             intelligence,
             <br /> mobile, and geospatial technologies.
           </p>
-          <Link href="/signup">
-            <Button
-              // onClick={() => router.push("/signin")}
-              className="h-auto w-10/12 rounded-full bg-main-100 px-7 py-3.5 text-sm font-light text-white hover:bg-blue-700 md:w-auto"
-            >
-              Get Started
-            </Button>
-          </Link>
+          <div>
+            <Link href="/signup">
+              <Button
+                // onClick={() => router.push("/signin")}
+                className="h-auto w-10/12 rounded-full bg-main-100 px-7 py-3.5 text-sm font-light text-white hover:bg-blue-700 md:w-auto"
+              >
+                Get Started
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* Right Image */}

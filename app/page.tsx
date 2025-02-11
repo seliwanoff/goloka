@@ -44,6 +44,8 @@ import HeroSection from "@/components/landing-comps/heroSection";
 import StatsSection from "@/components/landing-comps/statSection";
 import IndustriesSection from "@/components/landing-comps/industriesSection";
 import HyperLocalSection from "@/components/landing-comps/hyperLocal";
+import man from "@/public/assets/images/man.png";
+import bgImage from "@/public/assets/images/bgImage.png";
 
 const CampaignCardSkeleton = () => (
   <div className="rounded-2xl border p-3 md:w-[380px]">
@@ -173,141 +175,13 @@ const LandingPage = () => {
       {/* ####################################### */}
       {/* -- Industries Section */}
       {/* ####################################### */}
-      <IndustriesSection
-        worldMapBg="/world-map-dots.png" // Replace with your actual background image path
-      />
+      <IndustriesSection worldMapBg={bgImage} />
       {/* ####################################### */}
       {/* -- HyperLocal Section */}
       {/* ####################################### */}
 
       <HyperLocalSection />
-      {/* ####################################### */}
-      {/* -- Choices Section */}
-      {/* ####################################### */}
-      <section className="py-10">
-        <div className="wrapper">
-          <div className="mb-16 flex flex-col items-center gap-6 md:mx-auto lg:w-10/12">
-            <div className="mx-auto inline-flex items-center justify-center gap-3 rounded-full bg-[#EBF0FC] px-4 py-3 text-sm font-medium text-main-100">
-              <span>
-                <Image src={Star} alt="star icon" />
-              </span>{" "}
-              Your best choice is here
-            </div>
-            <h2 className="text-center text-2xl font-semibold text-[#333] md:text-balance md:text-[2rem] md:leading-normal">
-              Data generating platforms that serves organization and
-              contributors
-            </h2>
-          </div>
 
-          {/* BENTO GRID */}
-          <div className="space-y-8 md:grid md:grid-cols-2 md:gap-5 md:space-y-0 lg:grid-cols-6 lg:grid-rows-[400px_1fr] lg:gap-8">
-            {/* CARD1 */}
-            <div className="space-y-6 overflow-hidden rounded-3xl bg-main-100 p-6 pb-0 lg:col-span-2">
-              <h3 className="text-2xl font-medium leading-8 text-white">
-                Access quality and organic data
-              </h3>
-              <p className="text-sm leading-6 text-white">
-                Gather reliable and high-quality data from a diverse pool of
-                contributors
-              </p>
-
-              <Image src={Choice1} alt="Access quality and organic data" />
-            </div>
-            {/* CARD2 */}
-            <div className="max-h-[460px] space-y-6 overflow-hidden rounded-3xl bg-[#F8F8F8] p-6 pb-0 lg:col-span-4 lg:h-full">
-              <h3 className="text-2xl font-medium leading-8 text-[#071E3B]">
-                Cost effective solution for gathering data
-              </h3>
-              <p className="text-sm leading-6 text-[#333]">
-                For organizations, Goloka offers a cost-effective way to conduct
-                market research and gather data without the need for extensive
-                resources or time-consuming processes.
-              </p>
-
-              <Image
-                src={Choice2}
-                alt="Access quality and organic data"
-                className="origin-top-left scale-[1.2]"
-              />
-            </div>
-            {/* CARD3 */}
-            <div className="max-h-[480px] space-y-6 overflow-clip rounded-3xl bg-[#F8F8F8] p-6 pb-0 lg:col-span-3">
-              <h3 className="text-2xl font-medium leading-8 text-[#071E3B]">
-                Earn by Sharing Your Valuable Opinions and Insights
-              </h3>
-              <p className="text-sm leading-6 text-[#333]">
-                Earn money by participating in paid surveys and sharing your
-                opinions. Contributors receive instant credit once their
-                responses are accepted.
-              </p>
-
-              <Image
-                src={Choice3}
-                alt="Access quality and organic data"
-                className="origin-top-left scale-[1.2]"
-              />
-            </div>
-            {/* CARD4 */}
-            <div className="max-h-[480px] space-y-6 overflow-clip rounded-3xl bg-[#F8F8F8] p-6 pb-0 lg:col-span-3">
-              <h3 className="text-2xl font-medium leading-8 text-[#071E3B]">
-                Secure and Confidential: Advanced Privacy Measures
-              </h3>
-              <p className="text-sm leading-6 text-[#333]">
-                Your privacy is our priority. Goloka ensures that all your
-                personal information and survey responses are protected .
-              </p>
-
-              <figure className="relative">
-                <Image
-                  src={Choice4}
-                  alt="Access quality and organic data"
-                  className="md:w-7/12"
-                />
-                <Image
-                  src={overlay}
-                  alt="Access quality and organic data"
-                  className="absolute -right-16 top-28 z-10 w-[65%] md:right-10 md:w-[50%]"
-                />
-              </figure>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ####################################### */}
-      {/* -- CTA 1 Section */}
-      {/* ####################################### */}
-      <section className="bg-[#3365E305] py-16">
-        <div className="wrapper lg:grid lg:grid-cols-2 lg:grid-rows-[420px] lg:items-center lg:gap-8">
-          <div className="mb-16 lg:mb-0">
-            <div className="mb-6 inline-flex items-center justify-center gap-3 rounded-full bg-[#EBF0FC] px-4 py-3 text-sm font-medium text-main-100">
-              <span>
-                <Category2 size={20} color="currentColor" variant="Bold" />
-              </span>{" "}
-              Goloka for organization
-            </div>
-            <h2 className="mb-4 text-2xl font-semibold text-[#333] md:text-balance md:text-[2rem] md:leading-snug">
-              Unlock <span className="text-main-100">Valuable Insights</span>{" "}
-              with Goloka’s Data-Driven Solutions
-            </h2>
-            <p className="text-[#434343] md:text-balance">
-              A user-friendly interface that makes it easy for companies to
-              manage data collection projects and collaborate with data
-              contributors.
-            </p>
-            <Button className="mt-6 h-auto w-full rounded-full bg-main-100 py-3.5 text-white hover:bg-blue-700 md:w-auto">
-              Get started with localised data
-            </Button>
-          </div>
-          <div className="h-[450px] overflow-hidden rounded-3xl bg-[#3365E30A] p-8 lg:h-full">
-            <Image
-              src={cta1}
-              alt="cta"
-              className="origin-top-left scale-[2.5] md:scale-100 lg:scale-[1.8]"
-            />
-          </div>
-        </div>
-      </section>
       {/* ####################################### */}
       {/* -- CTA2 Section */}
       {/* ####################################### */}
@@ -318,24 +192,30 @@ const LandingPage = () => {
               <span>
                 <Category2 size="20" variant="Bold" />
               </span>{" "}
-              The world of localised and organic data
+              Goloka for contributor
             </div>
             <h2 className="mb-4 text-2xl font-semibold text-[#333] md:text-balance md:text-[2rem] md:leading-snug lg:leading-relaxed">
-              Share Your Thoughts and&nbsp;
-              <span className="text-main-100">Earn Cash Today!</span>
+              Collect Data Around You&nbsp;
+              <span className="text-main-100">
+                and Earn Cash Today!and Earn Cash Today!
+              </span>
             </h2>
             <p className="text-[#434343] md:text-balance">
               Our product provides real-time, highly-localised, spatial-enriched
               insights and analytics to empower businesses,
             </p>
-            <Button className="mt-6 h-auto w-full rounded-full bg-main-100 py-3.5 text-white hover:bg-blue-700 md:w-auto">
-              Start earning in 2 minutes
-            </Button>
+            <div>
+              <Link href="/signup">
+                <Button className="mt-6 h-auto w-full rounded-full bg-main-100 py-3.5 text-white hover:bg-blue-700 md:w-auto">
+                  Start earning in 2 minutes
+                </Button>
+              </Link>
+            </div>
           </div>
           <div className="relative lg:col-[1/2] lg:row-[1]">
-            <div className="h-[450px] overflow-hidden rounded-3xl bg-[#3365E30A] p-8">
+            <div className="overflow-hidden rounded-3xl bg-[#3365E30A] p-8">
               <Image
-                src={cta2}
+                src={man}
                 alt="cta"
                 className="origin-top-left scale-[1] md:mx-auto md:w-8/12 lg:w-10/12"
               />
@@ -375,6 +255,7 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
+
       {/* ####################################### */}
       {/* -- KEY Benefits Section */}
       {/* ####################################### */}
@@ -385,10 +266,10 @@ const LandingPage = () => {
               <span>
                 <Image src={Star} alt="star icon" />
               </span>{" "}
-              Key benefits of Goloka
+              Endless data possibilities for every business
             </div>
             <h2 className="text-center text-2xl font-semibold text-[#333] md:text-balance md:text-[2rem] md:leading-normal">
-              Data generating platforms that serves organization and
+              Data collection platform that serves organisations and
               contributors
             </h2>
           </div>
@@ -410,6 +291,11 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
+      {/* ####################################### */}
+      {/* -- Testimonials Section */}
+      {/* ####################################### */}
+      <Testimonials />
+
       {/* ####################################### */}
       {/* -- Download app Section */}
       {/* ####################################### */}
@@ -571,6 +457,135 @@ const LandingPage = () => {
           )}
         </div>
       </section>
+
+      {/* ####################################### */}
+      {/* -- Choices Section */}
+      {/* ####################################### */}
+      {/* <section className="py-10">
+        <div className="wrapper">
+          <div className="mb-16 flex flex-col items-center gap-6 md:mx-auto lg:w-10/12">
+            <div className="mx-auto inline-flex items-center justify-center gap-3 rounded-full bg-[#EBF0FC] px-4 py-3 text-sm font-medium text-main-100">
+              <span>
+                <Image src={Star} alt="star icon" />
+              </span>{" "}
+              Your best choice is here
+            </div>
+            <h2 className="text-center text-2xl font-semibold text-[#333] md:text-balance md:text-[2rem] md:leading-normal">
+              Data generating platforms that serves organization and
+              contributors
+            </h2>
+          </div>
+
+
+          <div className="space-y-8 md:grid md:grid-cols-2 md:gap-5 md:space-y-0 lg:grid-cols-6 lg:grid-rows-[400px_1fr] lg:gap-8">
+
+            <div className="space-y-6 overflow-hidden rounded-3xl bg-main-100 p-6 pb-0 lg:col-span-2">
+              <h3 className="text-2xl font-medium leading-8 text-white">
+                Access quality and organic data
+              </h3>
+              <p className="text-sm leading-6 text-white">
+                Gather reliable and high-quality data from a diverse pool of
+                contributors
+              </p>
+
+              <Image src={Choice1} alt="Access quality and organic data" />
+            </div>
+
+            <div className="max-h-[460px] space-y-6 overflow-hidden rounded-3xl bg-[#F8F8F8] p-6 pb-0 lg:col-span-4 lg:h-full">
+              <h3 className="text-2xl font-medium leading-8 text-[#071E3B]">
+                Cost effective solution for gathering data
+              </h3>
+              <p className="text-sm leading-6 text-[#333]">
+                For organizations, Goloka offers a cost-effective way to conduct
+                market research and gather data without the need for extensive
+                resources or time-consuming processes.
+              </p>
+
+              <Image
+                src={Choice2}
+                alt="Access quality and organic data"
+                className="origin-top-left scale-[1.2]"
+              />
+            </div>
+
+            <div className="max-h-[480px] space-y-6 overflow-clip rounded-3xl bg-[#F8F8F8] p-6 pb-0 lg:col-span-3">
+              <h3 className="text-2xl font-medium leading-8 text-[#071E3B]">
+                Earn by Sharing Your Valuable Opinions and Insights
+              </h3>
+              <p className="text-sm leading-6 text-[#333]">
+                Earn money by participating in paid surveys and sharing your
+                opinions. Contributors receive instant credit once their
+                responses are accepted.
+              </p>
+
+              <Image
+                src={Choice3}
+                alt="Access quality and organic data"
+                className="origin-top-left scale-[1.2]"
+              />
+            </div>
+
+            <div className="max-h-[480px] space-y-6 overflow-clip rounded-3xl bg-[#F8F8F8] p-6 pb-0 lg:col-span-3">
+              <h3 className="text-2xl font-medium leading-8 text-[#071E3B]">
+                Secure and Confidential: Advanced Privacy Measures
+              </h3>
+              <p className="text-sm leading-6 text-[#333]">
+                Your privacy is our priority. Goloka ensures that all your
+                personal information and survey responses are protected .
+              </p>
+
+              <figure className="relative">
+                <Image
+                  src={Choice4}
+                  alt="Access quality and organic data"
+                  className="md:w-7/12"
+                />
+                <Image
+                  src={overlay}
+                  alt="Access quality and organic data"
+                  className="absolute -right-16 top-28 z-10 w-[65%] md:right-10 md:w-[50%]"
+                />
+              </figure>
+            </div>
+          </div>
+        </div>
+      </section> */}
+
+      {/* ####################################### */}
+      {/* -- CTA 1 Section */}
+      {/* ####################################### */}
+      {/* <section className="bg-[#3365E305] py-16">
+        <div className="wrapper lg:grid lg:grid-cols-2 lg:grid-rows-[420px] lg:items-center lg:gap-8">
+          <div className="mb-16 lg:mb-0">
+            <div className="mb-6 inline-flex items-center justify-center gap-3 rounded-full bg-[#EBF0FC] px-4 py-3 text-sm font-medium text-main-100">
+              <span>
+                <Category2 size={20} color="currentColor" variant="Bold" />
+              </span>{" "}
+              Goloka for organization
+            </div>
+            <h2 className="mb-4 text-2xl font-semibold text-[#333] md:text-balance md:text-[2rem] md:leading-snug">
+              Unlock <span className="text-main-100">Valuable Insights</span>{" "}
+              with Goloka’s Data-Driven Solutions
+            </h2>
+            <p className="text-[#434343] md:text-balance">
+              A user-friendly interface that makes it easy for companies to
+              manage data collection projects and collaborate with data
+              contributors.
+            </p>
+            <Button className="mt-6 h-auto w-full rounded-full bg-main-100 py-3.5 text-white hover:bg-blue-700 md:w-auto">
+              Get started with localised data
+            </Button>
+          </div>
+          <div className="h-[450px] overflow-hidden rounded-3xl bg-[#3365E30A] p-8 lg:h-full">
+            <Image
+              src={cta1}
+              alt="cta"
+              className="origin-top-left scale-[2.5] md:scale-100 lg:scale-[1.8]"
+            />
+          </div>
+        </div>
+      </section> */}
+
       {/* ####################################### */}
       {/* -- Blog Section */}
       {/* ####################################### */}
@@ -629,18 +644,23 @@ const LandingPage = () => {
         <div className="relative rounded-3xl bg-[radial-gradient(135.58%_135.58%_at_50%_35.83%,#3365E3_0%,#1C387D_100%)] px-4 py-10 md:py-16">
           <div className="relative z-10 text-center">
             <h2 className="text-2xl font-semibold text-white md:text-balance md:text-[2rem] md:leading-normal lg:text-5xl lg:leading-normal">
-              Solve your business problems with accurate data
+              Solve your business problems <br /> with accurate data
             </h2>
             <p className="mt-4 text-white lg:text-balance">
               We guarantee improved data accuracy and verification with Goloka’s
-              cutting-edge geospatial technology. The in-built wallet system,
-              ensures you can seamlessly manage your data collection project.
-              Everything is streamlined for your convenience, from the launch of
-              your project to the payment of data collectors.
+              cutting-edge geospatial <br /> technology. The in-built wallet
+              system, ensures you can seamlessly manage your data <br />
+              collection project. Everything is streamlined for your
+              <br /> convenience, from the launch of your project to the payment
+              of data collectors.
             </p>
-            <Button className="mt-6 h-auto w-full rounded-full bg-white py-3.5 text-main-100 hover:bg-white md:w-auto">
-              Get started with Goloka
-            </Button>
+            <div>
+              <Link href="/signin">
+                <Button className="mt-6 h-auto w-full rounded-full bg-white py-3.5 text-main-100 hover:bg-white md:w-auto">
+                  Get started with Goloka
+                </Button>
+              </Link>
+            </div>
           </div>
 
           {/* Pattern */}
@@ -651,10 +671,7 @@ const LandingPage = () => {
           />
         </div>
       </section>
-      {/* ####################################### */}
-      {/* -- Testimonials Section */}
-      {/* ####################################### */}
-      <Testimonials />
+
       <Footer />
     </div>
   );
@@ -670,19 +687,19 @@ interface Benefit {
 // Array of benefits
 const benefitsData: Benefit[] = [
   {
-    title: "Monitor in Real-Time",
+    title: "Market expansion",
     description:
-      "Keep a close eye on campaign performance in real-time to quickly address any issues or capitalize on emerging opportunities",
+      "With Goloka, businesses and organinzations can break linguistic and cultural boundaries, which allows them to blend in and then stand out.",
   },
   {
-    title: "Generate Reports ",
+    title: "Sales Growth ",
     description:
-      "Summarize campaign performance and insights into comprehensive reports. These reports can include an analysis of key findings, lessons learned, and recommendations for future campaigns",
+      "We businesses and organisations communicate with customers in their own language and create mutual understanding. This helps build customer trust and commitment.",
   },
   {
-    title: "Transparency-Centric Communication",
+    title: "Customer Satisfaction",
     description:
-      "Using meaningful analytics guarantees transparency and data-driven explanations",
+      "With Goloka, brands can create appealing user experiences for diversified target customers. It is a way to show your customers that you care and truly understand what they need",
   },
   {
     title: "Visualising Impact",

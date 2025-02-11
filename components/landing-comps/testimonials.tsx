@@ -17,17 +17,20 @@ const Testimonials: FC<ComponentProps> = ({}) => {
         <div className="text-primary-600 mb-5 flex items-center justify-center gap-2 rounded-full bg-violet-50 px-6 py-2 text-sm font-bold">
           <div className="inline-flex items-center space-x-2 text-primary">
             <Sparkle size={16} />
-            <span className="text-sm">What are people saying</span>
+            <span className="text-sm">Testimonial</span>
           </div>
         </div>
 
-        <h2 className="border-0 text-center">
+        {/* <h2 className="border-0 text-center">
           See what our &nbsp;
           <b className="text-primary-600">Users</b> are saying
         </h2>
         <p className="-mt-2 text-center text-gray-700">
           Our AI tool crafts compelling stories from your data.
-        </p>
+        </p> */}
+        <h2 className="text-center text-2xl font-semibold text-[#333] md:text-balance md:text-[2rem] md:leading-normal">
+          See what our <b className="text-main-100">Users</b> are saying
+        </h2>
       </div>
       {/* -- content */}
       {/* -- row 1 */}
