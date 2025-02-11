@@ -42,6 +42,7 @@ import { Skeleton } from "@/components/task-stepper/skeleton";
 import { useRouter } from "next/navigation";
 import HeroSection from "@/components/landing-comps/heroSection";
 import StatsSection from "@/components/landing-comps/statSection";
+import IndustriesSection from "@/components/landing-comps/industriesSection";
 
 const CampaignCardSkeleton = () => (
   <div className="rounded-2xl border p-3 md:w-[380px]">
@@ -166,6 +167,14 @@ const LandingPage = () => {
         starIcon={Star}
         topographicPattern={Topographic}
         stats={stats}
+      />
+
+
+      {/* ####################################### */}
+      {/* -- Choices Section */}
+      {/* ####################################### */}
+       <IndustriesSection
+        worldMapBg="/world-map-dots.png" // Replace with your actual background image path
       />
       {/* ####################################### */}
       {/* -- Choices Section */}

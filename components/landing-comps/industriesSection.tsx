@@ -6,8 +6,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
-import Imagx from "@/public/assets/images/imageGoloka.png";
-
+import Imagx from "@/public/assets/images/imageGoloka.png"
+import Star from "@/public/assets/images/star-shade.svg";
 interface IndustryItem {
   title: string;
   content: string;
@@ -57,29 +57,37 @@ const IndustriesSection = ({ worldMapBg }: IndustriesSectionProps) => {
 
       {/* Content */}
       <div className="container relative mx-auto px-4">
-        <div className="flex flex-col items-start gap-12 lg:flex-row">
+        {/* <div className="container relative mx-auto px-4"> */}
+        <div className="text-center">
+          {/* <div className="flex items-center gap-2 text-white/80">
+            <span className="inline-block rotate-45">✦</span>
+            <span>Industries we serve</span>
+          </div> */}
+          <div className="mx-auto inline-flex items-center justify-center gap-3 rounded-full bg-white/5 px-4 py-3 text-sm font-medium text-main-100 backdrop-blur-sm">
+            <span>
+              <Image src={Star} alt="star icon" />
+            </span>{" "}
+            Industries we serve
+          </div>
+
+          <h2 className="text-xl font-bold leading-tight text-white md:text-xl lg:text-xl">
+            Real time insights on products, projects <br /> and public opinions
+          </h2>
+        </div>
+        <div className="flex flex-col items-center gap-12 lg:flex-row">
           {/* Left side content */}
           <div className="w-full space-y-8 lg:w-1/2">
-            <div className="flex items-center gap-2 text-white/80">
-              <span className="inline-block rotate-45">✦</span>
-              <span>Industries we serve</span>
-            </div>
-
-            <h2 className="text-3xl font-bold leading-tight text-white md:text-4xl lg:text-5xl">
-              Real time insights on products, projects and public opinions
-            </h2>
-
             <Accordion type="single" collapsible className="w-full space-y-4">
               {industries.map((industry, index) => (
                 <AccordionItem
                   key={index}
                   value={`item-${index}`}
-                  className="overflow-hidden rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm"
+                  className="overflow-hidden rounded-xl border border-white/10 bg-white backdrop-blur-sm"
                 >
-                  <AccordionTrigger className="px-6 py-4 text-white hover:bg-white/10 hover:no-underline">
+                  <AccordionTrigger className="px-6 py-4 text-[#333333] hover:bg-white/10 hover:no-underline">
                     {industry.title}
                   </AccordionTrigger>
-                  <AccordionContent className="px-6 py-4 text-white/80">
+                  <AccordionContent className="px-6 py-4 text-[#4f4f4f]">
                     {industry.content}
                   </AccordionContent>
                 </AccordionItem>

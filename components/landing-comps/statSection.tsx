@@ -120,7 +120,7 @@ const StatsSection: React.FC<StatsSectionProps> = ({
   stats,
 }) => {
   return (
-    <section className="py-16">
+    <section className="  py-16">
       <div className="wrapper">
         <div className="mb-16 flex flex-col items-center gap-6">
           <div className="mx-auto inline-flex items-center justify-center gap-3 rounded-full bg-[#EBF0FC] px-4 py-3 text-sm font-medium text-main-100">
