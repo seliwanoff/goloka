@@ -371,24 +371,25 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
-      <section className="max-w-8xl mb-5 flex w-full flex-col items-center gap-5 overflow-hidden">
-        <div className="no-scrollbar wrapper md:w-full">
+
+      <section className="max-w-8xl mb-5 w-full overflow-hidden">
+        <div className="no-scrollbar wrapper w-full">
           {isLoading ? (
-            <div className="grid gap-6 md:flex md:w-max lg:grid-cols-2 xl:grid-rows-3">
+            <div className="flex flex-col gap-4 md:w-max md:flex-row">
               {[...Array(5)].map((_, index) => (
                 <CampaignCardSkeleton key={index} />
               ))}
             </div>
           ) : (
             <Marquee pauseOnHover className="relative [--duration:40s]">
-              <div className="grid gap-6 md:flex md:w-max lg:grid-cols-2 xl:grid-rows-3">
+              <div className="flex flex-col gap-4 md:w-max md:flex-row">
                 {campaignData?.data
                   .slice(0, 8)
                   .map((campaign: any, index: any) => (
                     <div
                       key={index}
                       onClick={() => router.push("/signin")}
-                      className="cursor-pointer rounded-2xl border p-3 hover:shadow-xl md:w-[380px]"
+                      className="flex h-[500px] w-full cursor-pointer flex-col rounded-2xl border p-3 hover:shadow-xl md:w-[380px]"
                     >
                       <AspectRatio
                         ratio={3 / 2}
@@ -400,18 +401,17 @@ const LandingPage = () => {
                           className="h-full w-full object-cover"
                           fill
                         />
-                        {/* Corner Pill */}
                         <div className="absolute right-2 top-2 rounded-full border bg-white/10 px-3 py-1 text-xs font-semibold text-[#fff]">
                           {campaign.status}
                         </div>
                       </AspectRatio>
 
-                      <div className="flex items-center justify-between">
+                      <div className="mt-3 flex flex-row items-center justify-between">
                         <div className="flex items-center gap-2 rounded-full bg-main-100 bg-opacity-5 p-2">
                           <p className="rounded-full bg-white px-2 py-1 text-[14px] font-semibold leading-[21px] text-[#333333]">
                             {campaign.number_of_responses_received}
                           </p>
-                          <p>of </p>
+                          <p>of</p>
                           <p className="text-[14px] leading-[16.71px] text-[#828282]">
                             {campaign.number_of_responses}{" "}
                             <span className="text-[#828282]">responses</span>
@@ -422,21 +422,23 @@ const LandingPage = () => {
                           {campaign.payment_rate_for_response}
                         </span>
                       </div>
+
                       <h3 className="mb-3.5 mt-4 text-[16px] font-semibold leading-[24px] text-[#333333]">
                         {campaign.title}
                       </h3>
-                      <p className="test-[16px] text-ellipsis font-light leading-[24px] text-[#333333]">
+                      <p className="line-clamp-3 flex-grow text-[16px] font-light leading-[24px] text-[#333333]">
                         {campaign.description}
                       </p>
-                      <div className="mt-3 flex items-center gap-3">
+
+                      <div className="mt-auto flex items-center gap-3">
                         <span className="text-[#4F4F4F]">
                           <Location size={18} color="currentColor" />
                         </span>
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           <p className="leading-[24px] text-[#4F4F4F]">
                             {campaign.locations?.label}
                           </p>
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-wrap items-center gap-2">
                             {campaign.locations.states.map(
                               (loc: any, index: any) => (
                                 <p
