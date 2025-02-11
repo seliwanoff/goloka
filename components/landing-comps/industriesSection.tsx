@@ -6,8 +6,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
-import Imagx from "@/public/assets/images/imageGoloka.png"
-import Star from "@/public/assets/images/star-shade.svg";
+import Imagx from "@/public/assets/images/imageGoloka.png";
+import Star from "@/public/assets/images/white_star.svg";
 interface IndustryItem {
   title: string;
   content: string;
@@ -56,25 +56,25 @@ const IndustriesSection = ({ worldMapBg }: IndustriesSectionProps) => {
       </div>
 
       {/* Content */}
-      <div className="container relative mx-auto px-4">
+      <div className="container relative mx-auto my-24 px-4">
         {/* <div className="container relative mx-auto px-4"> */}
         <div className="text-center">
           {/* <div className="flex items-center gap-2 text-white/80">
             <span className="inline-block rotate-45">✦</span>
             <span>Industries we serve</span>
           </div> */}
-          <div className="mx-auto inline-flex items-center justify-center gap-3 rounded-full bg-white/5 px-4 py-3 text-sm font-medium text-main-100 backdrop-blur-sm">
+          <div className="mx-auto inline-flex items-center justify-center gap-3 rounded-full bg-white/5 px-4 py-3 text-sm font-medium text-[#fff] backdrop-blur-sm mb-4">
             <span>
-              <Image src={Star} alt="star icon" />
+              <Image src={Star} alt="star icon" className="text-[#fff]" />
             </span>{" "}
             Industries we serve
           </div>
 
-          <h2 className="text-xl font-bold leading-tight text-white md:text-xl lg:text-xl">
+          <h2 className="text-xl font-bold leading-tight text-white md:text-xl lg:text-xl mt-4">
             Real time insights on products, projects <br /> and public opinions
           </h2>
         </div>
-        <div className="flex flex-col items-center gap-12 lg:flex-row">
+        <div className="flex flex-col items-center gap-20 lg:flex-row mt-8">
           {/* Left side content */}
           <div className="w-full space-y-8 lg:w-1/2">
             <Accordion type="single" collapsible className="w-full space-y-4">
