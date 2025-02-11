@@ -1,8 +1,15 @@
 "use client";
 import Hero from "@/components/landing-comps/Hero";
 import { Button } from "@/components/ui/button";
-import GoogleImg from "@/public/assets/google.svg";
-import MetaImg from "@/public/assets/meta.svg";
+import rayda from "@/public/assets/images/rayda.svg";
+import open from "@/public/assets/images/open.svg";
+import swofon from "@/public/assets/images/swofon.svg";
+import jsk from "@/public/assets/images/jsk.svg";
+import ille from "@/public/assets/images/ille.svg";
+import jaisaa from "@/public/assets/images/jaisaa.svg";
+import IBP from "@/public/assets/images/IBP.svg";
+import HEDA from "@/public/assets/images/heda.svg";
+import space from "@/public/assets/images/pace.svg";
 import Star from "@/public/assets/images/star-shade.svg";
 import Image from "next/image";
 import Pattern from "@/public/assets/pattern-bg.svg";
@@ -31,9 +38,9 @@ import Footer from "@/components/landing-comps/footer";
 import { getGuestCampaign } from "@/services/campaign";
 import { useQuery } from "@tanstack/react-query";
 
-
 import { Skeleton } from "@/components/task-stepper/skeleton";
 import { useRouter } from "next/navigation";
+import HeroSection from "@/components/landing-comps/heroSection";
 
 const CampaignCardSkeleton = () => (
   <div className="rounded-2xl border p-3 md:w-[380px]">
@@ -65,22 +72,27 @@ const LandingPage = () => {
       {/* ####################################### */}
       {/* -- Hero Section */}
       {/* ####################################### */}
-      <Hero />
+      <HeroSection />
       {/* ####################################### */}
       {/* -- Partners Section */}
       {/* ####################################### */}
       <section className="px-4 py-8">
-        <div className="container mx-auto space-y-6 bg-[#F8F8F8] px-4 py-3">
-          <p className="text-center text-base text-[#071E3B]">
-            Over 200 companies growing with Goloka
+        <div className=" space-y-6 px-4">
+          <p className="font-extrabold py-3 text-center text-xl text-[#071E3B]">
+            Organisations that{" "}
+            <span className="text-blue-600">count on us</span>{" "}
           </p>
           <Marquee pauseOnHover className="relative mt-10 [--duration:40s]">
-            <div className="grid grid-cols-5 gap-5">
-              <Image src={GoogleImg} alt="google logo" />
-              <Image src={MetaImg} alt="meta logo" />
-              <Image src={GoogleImg} alt="google logo" />
-              <Image src={GoogleImg} alt="google logo" />
-              <Image src={GoogleImg} alt="google logo" />
+            <div className="grid grid-cols-9 ">
+              <Image src={rayda} alt="rayda" />
+              <Image src={open} alt="open" />
+              <Image src={swofon} alt="swofon" />
+              <Image src={jsk} alt="jsk" />
+              <Image src={ille} alt="ille" />
+              <Image src={jaisaa} alt="jaisaa" />
+              <Image src={IBP} alt="IBP" />
+              <Image src={HEDA} alt="HEDA" />
+              <Image src={space} alt="SPCE" />
             </div>
           </Marquee>
         </div>
@@ -98,7 +110,7 @@ const LandingPage = () => {
               Your best choice is here
             </div>
             <h2 className="text-center text-2xl font-semibold text-[#333] md:text-balance md:text-[2rem] md:leading-normal">
-              Data generating platforms that serves organisation and
+              Data generating platforms that serves organization and
               contributors
             </h2>
           </div>
@@ -354,7 +366,7 @@ const LandingPage = () => {
               Key benefits of Goloka
             </div>
             <h2 className="text-center text-2xl font-semibold text-[#333] md:text-balance md:text-[2rem] md:leading-normal">
-              Data generating platforms that serves organisation and
+              Data generating platforms that serves organization and
               contributors
             </h2>
           </div>

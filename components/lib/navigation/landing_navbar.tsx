@@ -44,7 +44,7 @@ const LandingNavbar: React.FC<ComponentProps> = ({}) => {
     };
   });
 
-  const isHomePage = pathname === "/"
+  const isHomePage = pathname === "/";
   return (
     <div
       style={{ zIndex: 100 }}
@@ -90,14 +90,22 @@ const LandingNavbar: React.FC<ComponentProps> = ({}) => {
               </Link>
             ))}
           </nav>
-
-          <Button
-            variant={scrollValue > 0 ? "default" : "secondary"}
-            className="mr-16 hidden rounded-full bg-main-100 px-6 text-white hover:bg-blue-700 md:block"
-            onClick={() => router.push("/signin")}
-          >
-            Get Started
-          </Button>
+          <div className="flex items-center gap-4">
+            <Button
+              variant={"outline"}
+              className="hidden rounded-full border border-main-100 px-9 text-main-100 hover:bg-blue-700 md:block hover:text-[#fff]"
+              onClick={() => router.push("/signin")}
+            >
+              login
+            </Button>
+            <Button
+              variant={scrollValue > 0 ? "default" : "secondary"}
+              className="hidden rounded-full bg-main-100 px-6 text-white hover:bg-blue-700 md:block"
+              onClick={() => router.push("/signup")}
+            >
+              Sign up
+            </Button>
+          </div>
         </>
       )}
 
@@ -159,8 +167,8 @@ const LandingNavbar: React.FC<ComponentProps> = ({}) => {
 export default LandingNavbar;
 
 const navLinks: { text: string; href: string }[] = [
-  // { text: "Products", href: "/" },
-  // { text: "Solution", href: "/" },
+  { text: "Products", href: "/" },
+  { text: "Solution", href: "/" },
   { text: "Case study", href: "/case-studies" },
   { text: "Pricing", href: "/pricing" },
   { text: "Blog", href: "/blog" },
