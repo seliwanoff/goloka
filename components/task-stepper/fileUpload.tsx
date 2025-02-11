@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 import { FilePlus2, X } from "lucide-react";
 import Image from "next/image";
 
-const MAX_FILE_SIZE_MB = 10;
-
 const extensionIcons: { [key: string]: string } = {
   pdf: "/resource-icons/pdf.jpg",
   doc: "/resource-icons/word.jpg",
@@ -40,16 +38,6 @@ const FileUpload: React.FC<FileUploadProps> = ({
     const selectedFile = event.target.files?.[0];
 
     if (!selectedFile) return;
-
-    // File size validation
-    if (selectedFile.size / 1024 / 1024 > MAX_FILE_SIZE_MB) {
-      setError(
-        `File size is too high, you can only upload files less than ${MAX_FILE_SIZE_MB}MB`,
-      );
-      setFile(null);
-      setProgress(0);
-      return;
-    }
 
     setError(null);
     setFile(selectedFile);
@@ -103,9 +91,6 @@ const FileUpload: React.FC<FileUploadProps> = ({
     }
   }, [value]);
 
-  // const getFileExtension = (fileName: string) => {
-  //   return fileName.split(".").pop()?.toLowerCase() || "";
-  // };
   const getFileExtension = (fileName: string) => {
     const extension = fileName.split(".").pop()?.toLowerCase();
     // Check if extension is found and return it, otherwise return an empty string
@@ -117,11 +102,6 @@ const FileUpload: React.FC<FileUploadProps> = ({
     // If the extension is not found or invalid, return the 'file' icon
     return extensionIcons[extension] || extensionIcons.file;
   };
-
-  // const getFileIcon = (fileName: string) => {
-  //   const extension = getFileExtension(fileName);
-  //   return extensionIcons[extension] || extensionIcons.file;
-  // };
 
   return (
     <div className="w-full space-y-4">
@@ -139,8 +119,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
               <span>Upload new file</span>
             </div>
             <span className="text-xs text-slate-400">
-              PNG, JPG, JPEG, DOCS, PDF, CSV. File size should not be more than
-              10MB
+              Supported formats: PNG, JPG, JPEG, DOCS, PDF, CSV
             </span>
             <input
               ref={ref}

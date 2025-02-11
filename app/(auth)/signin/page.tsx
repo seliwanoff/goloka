@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { FaSpinner } from "react-icons/fa";
 import { toast } from "sonner";
 import { getContributorsProfile } from "@/services/contributor";
+import { GoogleLogin } from "@react-oauth/google";
 import { useQuery } from "@tanstack/react-query";
 import { useRemoteUserStore } from "@/stores/remoteUser";
 import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
@@ -35,6 +36,53 @@ const SignIn: React.FC<PageProps> = ({}) => {
     formState: { errors },
   } = useForm<FormValues>();
 
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    console.log(credentialResponse, " hthhthththt");
+    try {
+      const res = await fetch(
+        "https://staging.goloka.io/api/login/google/auth",
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+          },
+          body: new URLSearchParams({
+            id_token: credentialResponse.credential,
+            platform: "web",
+          }),
+        },
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Google sign-in failed");
+      }
+
+      // Store tokens
+      localStorage.setItem(
+        "access_token",
+        JSON.stringify(data.tokens.access_token),
+      );
+      localStorage.setItem(
+        "refresh_token",
+        JSON.stringify(data.tokens.refresh_token),
+      );
+      localStorage.setItem(
+        "token_type",
+        JSON.stringify(data.tokens.token_type),
+      );
+
+      toast.success("Google sign in successful");
+      router.replace("/dashboard/root");
+    } catch (error: any) {
+      console.error("Google sign-in error:", error);
+      toast.error(error.message || "Failed to sign in with Google");
+    }
+  };
+  const handleGoogleError = () => {
+    toast.error("Google sign-in was unsuccessful. Please try again.");
+  };
   const handleToggle1 = () => {
     setEye1((prev: boolean) => !prev);
   };
@@ -171,10 +219,20 @@ const SignIn: React.FC<PageProps> = ({}) => {
             >
               {isLoading ? <FaSpinner className="animate-spin" /> : "Login"}
             </Button>
-            <Button className="h-12 w-full gap-2 rounded-full border border-main-100 bg-main-100 bg-opacity-15 text-base font-light text-white hover:bg-current">
+            {/* <Button className="h-12 w-full gap-2 rounded-full border border-main-100 bg-main-100 bg-opacity-15 text-base font-light text-white hover:bg-current">
               <FcGoogle size={20} />{" "}
               <span className="text-neutral-600">Login with Google</span>
-            </Button>
+            </Button> */}
+
+            <div className="flex justify-center">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                theme="outline"
+                size="large"
+                width="100%"
+              />
+            </div>
           </div>
 
           <p className="my-8 text-center">

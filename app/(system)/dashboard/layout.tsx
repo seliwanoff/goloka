@@ -33,6 +33,8 @@ import { useUserStore } from "@/stores/currentUserStore";
 import { getContributorsProfile } from "@/services/contributor";
 import { useRemoteUserStore } from "@/stores/remoteUser";
 import Image from "next/image";
+import { getAblyToken } from "@/services/misc";
+import { useAblyToken } from "@/stores/ably/useAblyToken";
 
 type LayoutProps = {
   children: React.ReactNode;
@@ -44,7 +46,7 @@ const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
   const loginUser = useUserStore((state) => state.loginUser);
   const logoutUser = useUserStore((state) => state.logoutUser);
   const setRefetchUser = useUserStore((state) => state.setRefetchUser);
-
+  const { token, timeRemaining, isLoading: isTokenLoading } = useAblyToken();
   // Query for remote user data
   const {
     data: currentUser,
@@ -56,6 +58,12 @@ const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
     queryFn: getCurrentUser,
     retry: 1, // Only retry once before considering it a failure
   });
+  // Query for remote user data
+  // const { data: token } = useQuery({
+  //   queryKey: ["getAblyToken"],
+  //   queryFn: getAblyToken,
+  //   retry: 1, // Only retry once before considering it a failure
+  // });
 
   const {
     data: remoteContributor,
@@ -66,7 +74,16 @@ const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
     queryFn: getContributorsProfile,
   });
 
-  console.log(remoteContributor, "fbfbbf");
+  console.log(token, "token");
+   useEffect(() => {
+     if (process.env.NODE_ENV === "development") {
+       console.log(
+         "Token time remaining:",
+         Math.floor(timeRemaining / 1000),
+         "seconds",
+       );
+     }
+   }, [timeRemaining]);
 
   // Handle error and authentication
   useEffect(() => {
@@ -122,7 +139,7 @@ const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
   // Show loading state while fetching user data
   if (isLoading || isContributorLoading) {
     return (
-      <div className=" flex flex-col h-screen w-full items-center justify-center">
+      <div className="flex h-screen w-full flex-col items-center justify-center">
         <Image
           src={Logo}
           alt="goloka logo"
@@ -130,7 +147,9 @@ const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
           height={160}
           className="animate-pulse"
         />
-        <p className="text-main-100 font-bold text-lg animate-pulse font-serif">Loading...</p>
+        <p className="animate-pulse font-serif text-lg font-bold text-main-100">
+          Loading...
+        </p>
       </div>
     );
   }
@@ -144,12 +163,7 @@ const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
             /*remoteUser*/ true ? (
               <>
                 <DashSideBarDesktop navMenuList={NavData} />
-                {/* <main className="relative col-span-6 flex h-screen flex-col overflow-hidden pb-10 pt-[70px] xl:col-span-5 xl:bg-[#F8F8F8]">
-                  <DashTopNav />
-                  <div className="h-[calc(100% - 72px)] tablet:px-8 w-full overflow-auto px-5 pb-10 lg:px-10">
-                    {children}
-                  </div>
-                </main> */}
+
 
                 <main className="relative col-span-6 flex h-screen flex-col overflow-hidden pb-10 pt-[70px] xl:col-span-5 xl:bg-[#F8F8F8]">
                   <DashTopNav />
@@ -172,18 +186,6 @@ const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
 
 export default SystemLayout;
 
-// ~ =============================================>
-// ~ ======= Navigation data -->
-// ~ =============================================>
-// const NavData: { icon: any; title: string; link: string }[] = [
-//   { icon: LayoutGrid, title: "Dashboard", link: "/dashboard/root" },
-//   { icon: Note, title: "Tasks", link: "/dashboard/tasks" },
-//   { icon: DocumentCopy, title: "Responses", link: "/dashboard/responses" },
-//   { icon: Wallet3, title: "Wallet", link: "/dashboard/wallet" },
-//   { icon: MessageQuestion, title: "Support", link: "/dashboard/support" },
-//   { icon: Settings, title: "Settings", link: "/dashboard/settings" },
-// ];
-
 
 // ~ =============================================>
 // ~ ======= Navigation data -->
@@ -191,6 +193,7 @@ export default SystemLayout;
 const NavData: { icon: any; title: string; link: string }[] = [
   { icon: LayoutGrid, title: "Dashboard", link: "/dashboard/root" },
   { icon: Note, title: "Marketplace", link: "/dashboard/marketplace" },
+
   { icon: DocumentCopy, title: "Responses", link: "/dashboard/responses" },
   {
     icon: Import,

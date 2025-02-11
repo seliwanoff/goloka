@@ -49,6 +49,19 @@ export const getOTP = async ({}: any): Promise<
     },
   });
 };
+export const googleSignUp = async (
+  credentialResponse: any,
+): Promise<UseQueryResult<ServerResponse<any>>> => {
+  return queryClient.fetchQuery({
+    queryKey: ["googleAuth"],
+    queryFn: async () => {
+      return await postData<ServerResponse<any>>(
+        `/login/google/callback/mobile?id_token=${credentialResponse}`,
+        {},
+      );
+    },
+  });
+};
 export const forgetPassword = async (
   data: any,
 ): Promise<UseQueryResult<ServerResponse<any>>> => {
@@ -123,6 +136,15 @@ export const getNotificationsPreference = async (): Promise<ServerResponseOrNull
     return await fetchData<ServerResponse<any>>(
       "/notifications/preferences/get",
     );
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
+
+export const getAblyToken = async (): Promise<ServerResponseOrNull<any>> => {
+  try {
+    return await fetchData<ServerResponse<any>>("/ably/token");
   } catch (error) {
     console.log(error);
     return null;

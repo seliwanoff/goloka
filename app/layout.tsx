@@ -1,16 +1,14 @@
-
 import "./globals.css";
 import type { Metadata } from "next";
 import TanstackProvider from "@/components/layout/tanstackProvider";
 import LandingNavbar from "@/components/lib/navigation/landing_navbar";
-import Footer from "@/components/landing-comps/footer";
-
+import { GoogleOAuthProvider } from "@react-oauth/google";
+// import { AblyProvider } from "@ably-labs/react-hooks";
+// import { ably } from "@/lib/ably";
 export const metadata: Metadata = {
   title: "Goloka | Write with ease",
   description: "Goloka is your personal writer",
 };
-
-
 
 export default function RootLayout({
   children,
@@ -21,10 +19,16 @@ export default function RootLayout({
     <html lang="en">
       {/* className={poppins.className} */}
       <body>
-        <TanstackProvider>
-          <LandingNavbar />
-          <div className="-z-10">{children}</div>
-        </TanstackProvider>
+        <GoogleOAuthProvider
+          clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
+        >
+          {/* <AblyProvider client={ably}> */}
+          <TanstackProvider>
+            <LandingNavbar />
+            <div className="-z-10">{children}</div>
+          </TanstackProvider>
+          {/* </AblyProvider> */}
+        </GoogleOAuthProvider>
       </body>
     </html>
   );

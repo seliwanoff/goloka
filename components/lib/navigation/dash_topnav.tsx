@@ -66,6 +66,7 @@ import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
 import { useCreateOrganizationOverlay } from "@/stores/overlay";
 import CreateOrganization from "../modals/create_orgnaization_modal";
 import { getCurrentUser } from "@/services/user";
+import { useAblyToken } from "@/stores/ably/useAblyToken";
 
 type ComponentProps = {};
 
@@ -78,6 +79,7 @@ const data = {
 };
 
 const DashTopNav: React.FC<ComponentProps> = ({}) => {
+  const { ablyClient, token, channelName, connectionError } = useAblyToken();
   const [open, setOpen] = useState(false);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [organizations, setOrganizations] = useState([]);
@@ -120,6 +122,63 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
     [FirstName],
   );
 
+  // const { token } = useAblyToken();
+  const [lastMessage, setLastMessage] = useState<any>(null);
+
+  console.log(token, "house");
+  console.log(ablyClient, "ablyClient");
+
+  // const { channelName } = useAblyToken();
+  console.log(channelName, "channelName");
+
+  // useEffect(() => {
+  //   if (ablyClient && channelName) {
+  //     console.log("Setting up channel subscription for:", channelName);
+
+  //     const channel = ablyClient.channels.get(channelName);
+
+  //     // Log channel state changes
+  //     channel.on("attached", () => {
+  //       console.log("Successfully attached to channel:", channelName);
+  //     });
+
+  //     channel.on("error", (error) => {
+  //       console.error("Channel error:", error);
+  //     });
+
+  //     // Subscribe to new notification events
+  //     channel.subscribe("new-notification", (message) => {
+  //       console.log("New notification received:", message);
+  //       refetch();
+  //     });
+
+  //     // Cleanup subscription on unmount
+  //     return () => {
+  //       console.log("Cleaning up channel subscription");
+  //       channel.unsubscribe();
+  //       channel.detach();
+  //     };
+  //   }
+  // }, [ablyClient, channelName, refetch]);
+
+  useEffect(() => {
+    if (ablyClient && channelName) {
+      const channel = ablyClient.channels.get(channelName);
+      //@ts-ignore
+      const onMessage = (message: Ably.Types.Message) => {
+        console.log("New notification received:", message.data);
+        refetch();
+      };
+
+      channel.subscribe("new-notification", onMessage);
+
+      return () => {
+        channel.unsubscribe("new-notification", onMessage);
+        channel.detach();
+      };
+    }
+  }, [ablyClient, channelName, refetch]);
+
   const initiateLogout = () => {
     try {
       const res = userLogout();
@@ -136,9 +195,6 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
       console.log(error, "error");
     }
   };
-  // console.log(document.readyState);
-
-  // console.log(currentUser);
 
   const notificationData = formatNotifications(notification);
 
@@ -217,7 +273,9 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
       ),
     [currentOrganization, currentUser],
   );
-
+  if (connectionError) {
+    console.error("Ably connection error:", connectionError);
+  }
   return (
     <>
       {/*** Organization creation */}
@@ -279,7 +337,10 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
 
               {/* SHEET CONTENT */}
               <div className="no-scrollbar h-full overflow-y-auto pb-11 pt-10">
-                <DashNotificationPopOver notificationList={notificationData} />
+                <DashNotificationPopOver
+                  notificationList={notificationData}
+                  ablyClient={ablyClient}
+                />
               </div>
             </SheetContent>
           </Sheet>
