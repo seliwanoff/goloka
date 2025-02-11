@@ -91,20 +91,24 @@ const LandingNavbar: React.FC<ComponentProps> = ({}) => {
             ))}
           </nav>
           <div className="flex items-center gap-4">
-            <Button
-              variant={"outline"}
-              className="hidden rounded-full border border-main-100 px-9 text-main-100 hover:bg-blue-700 md:block hover:text-[#fff]"
-              onClick={() => router.push("/signin")}
-            >
-              login
-            </Button>
-            <Button
-              variant={scrollValue > 0 ? "default" : "secondary"}
-              className="hidden rounded-full bg-main-100 px-6 text-white hover:bg-blue-700 md:block"
-              onClick={() => router.push("/signup")}
-            >
-              Sign up
-            </Button>
+            <Link href="/signin">
+              <Button
+                variant={"outline"}
+                className="hidden rounded-full border border-main-100 px-9 text-main-100 hover:bg-blue-700 hover:text-[#fff] md:block"
+                // onClick={() => router.push("/signin")}
+              >
+                login
+              </Button>
+            </Link>
+            <Link href="/signup">
+              <Button
+                variant={scrollValue > 0 ? "default" : "secondary"}
+                className="hidden rounded-full bg-main-100 px-6 text-white hover:bg-blue-700 md:block"
+                // onClick={() => router.push("/signup")}
+              >
+                Sign up
+              </Button>
+            </Link>
           </div>
         </>
       )}

@@ -43,6 +43,7 @@ import { useRouter } from "next/navigation";
 import HeroSection from "@/components/landing-comps/heroSection";
 import StatsSection from "@/components/landing-comps/statSection";
 import IndustriesSection from "@/components/landing-comps/industriesSection";
+import HyperLocalSection from "@/components/landing-comps/hyperLocal";
 
 const CampaignCardSkeleton = () => (
   <div className="rounded-2xl border p-3 md:w-[380px]">
@@ -169,13 +170,17 @@ const LandingPage = () => {
         stats={stats}
       />
 
-
       {/* ####################################### */}
-      {/* -- Choices Section */}
+      {/* -- Industries Section */}
       {/* ####################################### */}
-       <IndustriesSection
+      <IndustriesSection
         worldMapBg="/world-map-dots.png" // Replace with your actual background image path
       />
+      {/* ####################################### */}
+      {/* -- HyperLocal Section */}
+      {/* ####################################### */}
+
+      <HyperLocalSection />
       {/* ####################################### */}
       {/* -- Choices Section */}
       {/* ####################################### */}
@@ -695,7 +700,6 @@ const benefitsData: Benefit[] = [
       "Use insights gained from analyzing campaign metrics to iterate, inform and improve future marketing strategies",
   },
 ];
-
 
 const stats = [
   {

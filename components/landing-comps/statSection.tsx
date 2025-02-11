@@ -135,7 +135,7 @@ const StatsSection: React.FC<StatsSectionProps> = ({
           {stats.map((stat, index) => (
             <div
               key={index}
-              className={`space-y-9 rounded-3xl p-6 ${stat.bgColor} ${
+              className={`space-y-4 rounded-3xl p-6 ${stat.bgColor} ${
                 index === 0 ? "md:col-span-2 xl:col-span-1" : ""
               } ${index === 1 ? "xl:h-[400px]" : ""}`}
             >
@@ -151,7 +151,7 @@ const StatsSection: React.FC<StatsSectionProps> = ({
                   index === 1 ? "xl:flex xl:flex-col xl:justify-between" : ""
                 }`}
               >
-                <h3 className="space-y-2">
+                <h3 className="">
                   <AnimatedCounter
                     end={stat.value}
                     showK={stat.showK}
