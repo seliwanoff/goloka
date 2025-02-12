@@ -95,6 +95,7 @@ const SignIn: React.FC<PageProps> = ({}) => {
   const login = useGoogleLogin({
     onSuccess: handleGoogleSuccess,
     onError: handleGoogleError,
+    flow: "auth-code",
   });
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
@@ -232,17 +233,27 @@ const SignIn: React.FC<PageProps> = ({}) => {
               <FcGoogle size={20} />
               <span className="text-neutral-600">Login with Google</span>
             </Button>
-            {/*
-            <div className="flex justify-center w-full">
-              <GoogleLogin
 
-                onSuccess={handleGoogleSuccess}
-                onError={handleGoogleError}
-                theme="outline"
-                size="large"
-                width="100%"
-              />
-            </div> */}
+            {/* <div className="flex justify-center w-full">
+  <div className="w-full">
+    <GoogleLogin
+      onSuccess={handleGoogleSuccess}
+      onError={handleGoogleError}
+      type="standard"
+      theme="outline"
+      size="large"
+      shape="pill"
+      width="100%"
+      text="continue_with"
+      custom_style={{
+        height: '48px',
+        backgroundColor: 'rgba(var(--main-100), 0.15)',
+        border: '1px solid var(--main-100)',
+        borderRadius: '9999px',
+      }}
+    />
+  </div>
+</div> */}
           </div>
 
           <p className="my-8 text-center">
