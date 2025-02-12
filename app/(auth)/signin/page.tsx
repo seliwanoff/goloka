@@ -15,7 +15,7 @@ import { useRouter } from "next/navigation";
 import { FaSpinner } from "react-icons/fa";
 import { toast } from "sonner";
 import { getContributorsProfile } from "@/services/contributor";
-import { GoogleLogin } from "@react-oauth/google";
+import { GoogleLogin, useGoogleLogin } from "@react-oauth/google";
 import { useQuery } from "@tanstack/react-query";
 import { useRemoteUserStore } from "@/stores/remoteUser";
 import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
@@ -91,6 +91,11 @@ const SignIn: React.FC<PageProps> = ({}) => {
     (state) => state.organization,
   );
   console.log(currentOrganization);
+
+  const login = useGoogleLogin({
+    onSuccess: handleGoogleSuccess,
+    onError: handleGoogleError,
+  });
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     setIsLoading(true);
@@ -219,20 +224,25 @@ const SignIn: React.FC<PageProps> = ({}) => {
             >
               {isLoading ? <FaSpinner className="animate-spin" /> : "Login"}
             </Button>
-            {/* <Button className="h-12 w-full gap-2 rounded-full border border-main-100 bg-main-100 bg-opacity-15 text-base font-light text-white hover:bg-current">
-              <FcGoogle size={20} />{" "}
+            <Button
+              type="button"
+              onClick={() => login()}
+              className="h-12 w-full gap-2 rounded-full border border-main-100 bg-main-100 bg-opacity-15 text-base font-light text-white hover:bg-current"
+            >
+              <FcGoogle size={20} />
               <span className="text-neutral-600">Login with Google</span>
-            </Button> */}
-
-            <div className="flex justify-center">
+            </Button>
+            {/*
+            <div className="flex justify-center w-full">
               <GoogleLogin
+
                 onSuccess={handleGoogleSuccess}
                 onError={handleGoogleError}
                 theme="outline"
                 size="large"
                 width="100%"
               />
-            </div>
+            </div> */}
           </div>
 
           <p className="my-8 text-center">
