@@ -1018,7 +1018,7 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
                             className="h-12 w-12 rounded-full object-cover object-center"
                           /> */}
                           <SheetTitle className="font-normal text-white">
-                            Messages
+                            Message
                           </SheetTitle>
                           {/* <SheetDescription className="text-white">
                             24
