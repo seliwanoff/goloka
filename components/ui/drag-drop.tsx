@@ -1,4 +1,4 @@
-import { Edit } from "lucide-react";
+import { Edit, Trash } from "lucide-react";
 import React from "react";
 import { Draggable } from "@hello-pangea/dnd";
 import { BsThreeDots } from "react-icons/bs";
@@ -13,6 +13,8 @@ type DraggableComponentProps = {
   type?: string;
   data?: any;
   setSelectedQuestion: any;
+  setClickedId?: any;
+  setOpenQuestion?: any;
 };
 
 const DraggableComponent: React.FC<DraggableComponentProps> = ({
@@ -24,6 +26,8 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
   type,
   data,
   setSelectedQuestion,
+  setClickedId,
+  setOpenQuestion,
 }) => {
   const { setShowQuestionEdit } = useEditAQuestion();
 
@@ -49,6 +53,17 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
               >
                 <Edit size={18} />
                 Edit
+              </span>
+
+              <span
+                className="inline-flex cursor-pointer items-center gap-2 rounded-md text-[#FF4C4C]"
+                onClick={() => {
+                  setClickedId(data.id);
+                  setOpenQuestion(true);
+                  // setSelectedQuestion(data);
+                }}
+              >
+                <Trash size={18} />
               </span>
               {/***
               <BsThreeDots style={{ transform: "rotate(90deg)" }} />

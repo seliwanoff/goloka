@@ -60,7 +60,7 @@ const WithdrawFunds = () => {
             const accountName = response?.data?.account_name;
             setValue("amount", accountName);
 
-            console.log(response, "hfhfh");
+            //  console.log(response, "hfhfh");
             setLoading(false);
             toast.success("Account Resolved Successfully");
           }

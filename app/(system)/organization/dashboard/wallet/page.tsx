@@ -116,14 +116,18 @@ const WalletPage = () => {
         setValidated(true);
         setIsPolling(false);
         setOpen(true);
-        setStep((prev: number) => prev + 1);
+        setStep(2);
         setAmount(amount);
         setReference(ref || "");
         setDate(response.data.created_at);
+
+        const url = new URL(window.location.href);
+        url.search = ""; // Clear the query string
+        window.history.replaceState({}, "", url.toString());
       }
     } catch (err: any) {
       console.error("Error during validation:", err);
-      toast.error(err.message || "An error occurred during validation.");
+      // toast.error(err.message || "An error occurred during validation.");
     }
   }, [trxref, ref]);
 
