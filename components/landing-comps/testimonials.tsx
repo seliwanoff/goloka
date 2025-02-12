@@ -6,8 +6,21 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import Customer from "@/public/assets/images/reviewer.jpg";
 
 type ComponentProps = {};
-
+type Testimonial = {
+  id: string;
+  quote: string;
+  author: string;
+  position: string;
+  organization: string;
+};
 const Testimonials: FC<ComponentProps> = ({}) => {
+  const getInitials = (name: string): string => {
+    return name
+      .split(" ")
+      .map((word: string) => word[0])
+      .join("")
+      .toUpperCase();
+  };
   return (
     <section className="max-w-8xl my-20 flex w-full flex-col items-center gap-5 overflow-hidden px-4">
       {/* Header section */}
@@ -32,33 +45,29 @@ const Testimonials: FC<ComponentProps> = ({}) => {
 
         {/* First row */}
         <Marquee pauseOnHover className="relative mt-10 [--duration:40s]">
-          {testimonialData.map((data, idx) => (
+          {testimonials.map((data) => (
             <div
-              key={idx}
+              key={data.id}
               className="mx-2 flex w-[280px] cursor-pointer flex-col gap-5 rounded-2xl bg-[#F8F8F8] p-4 hover:shadow-lg md:w-[400px]"
             >
-              <p className="text-right text-xs md:text-sm">{data?.date}</p>
               <p className="text-sm text-gray-600 group-hover:text-gray-800 md:text-base">
-                {data.content}
+                {data.quote}
               </p>
 
               <div className="flex items-end gap-2">
                 <div className="w-8 md:w-10">
                   <AspectRatio ratio={1}>
-                    <Image
-                      src={Customer}
-                      alt="person-img"
-                      fill
-                      className="rounded-full"
-                    />
+                    <div className="flex h-full w-full items-center justify-center rounded-full bg-blue-600 text-white">
+                      {getInitials(data.author)}
+                    </div>
                   </AspectRatio>
                 </div>
                 <div className="flex flex-col">
                   <p className="m-0 text-xs font-medium md:text-sm">
-                    {data?.name}
+                    {data.author}
                   </p>
                   <p className="m-0 text-xs text-muted-foreground md:text-sm">
-                    {data?.location}
+                    {data.position}, {data.organization}
                   </p>
                 </div>
               </div>
@@ -68,36 +77,29 @@ const Testimonials: FC<ComponentProps> = ({}) => {
 
         {/* Second row */}
         <Marquee pauseOnHover reverse className="[--duration:40s]">
-          {Array.from({ length: 8 }, (_, idx) => (
+          {testimonials.map((data) => (
             <div
-              key={idx}
+              key={data.id}
               className="mx-2 flex w-[280px] cursor-pointer flex-col gap-5 rounded-2xl bg-[#F8F8F8] p-4 hover:shadow-lg md:w-[400px]"
             >
-              <p className="text-right text-xs md:text-sm">
-                Monday 16th of January 2024 by 01:20 AM
-              </p>
               <p className="text-sm text-gray-600 group-hover:text-gray-800 md:text-base">
-                The Cybersecurity training with EvolveHQ so far has been
-                beneficial for a newcomer like me. The content is presented in a
-                way that&apos;s understandable, and the practical exercises have
-                helped reinforce my understanding.
+                {data.quote}
               </p>
 
               <div className="flex items-end gap-2">
                 <div className="w-8 md:w-10">
                   <AspectRatio ratio={1}>
-                    <Image
-                      src={Customer}
-                      alt="person-img"
-                      fill
-                      className="rounded-full"
-                    />
+                    <div className="flex h-full w-full items-center justify-center rounded-full bg-blue-600 text-white">
+                      {getInitials(data.author)}
+                    </div>
                   </AspectRatio>
                 </div>
                 <div className="flex flex-col">
-                  <p className="m-0 text-xs font-medium md:text-sm">Benjamin</p>
+                  <p className="m-0 text-xs font-medium md:text-sm">
+                    {data.author}
+                  </p>
                   <p className="m-0 text-xs text-muted-foreground md:text-sm">
-                    Austria
+                    {data.position}, {data.organization}
                   </p>
                 </div>
               </div>
@@ -197,5 +199,56 @@ const testimonialData: {
     img: "/images/customer10.jpg",
     name: "Oliver",
     location: "United Kingdom",
+  },
+];
+
+const testimonials: Testimonial[] = [
+  {
+    id: "1",
+    quote:
+      "Working with Goloka was a game-changer for our data collection process. Their agents were knowledgeable, responsive, and always went above and beyond to ensure that we received the data we needed on time",
+    author: "Atiku Samuel",
+    position: "Technical Coordinator",
+    organization: "IBP",
+  },
+  {
+    id: "2",
+    quote:
+      "We were impressed by Goloka's commitment to quality and attention to detail. Their agents provided us with thorough and accurate data, which enabled us to make informed decisions about our business strategies.",
+    author: "Kadaria Ahmed",
+    position: "CEO",
+    organization: "Daria Media",
+  },
+  {
+    id: "3",
+    quote:
+      "We needed to conduct a market survey in a remote location, and GoLoka's agents were able to mobilise quickly and gather valuable data that helped us make informed business decisions.",
+    author: "Ambassador Jola Adekola",
+    position: "Exec. Director",
+    organization: "JAIRAA",
+  },
+  {
+    id: "4",
+    quote:
+      "Goloka's mobile field agents were incredibly helpful in gathering real-time data for our research project. Their professional and efficient approach made the process seamless and stress-free.",
+    author: "Martin Obono",
+    position: "Executive Director",
+    organization: "TapNitiative",
+  },
+  {
+    id: "5",
+    quote:
+      "I am thrilled to share my positive experience working with Goloka on a digital surveillance project. Their services exceeded my expectations in terms of quality and functionality. Thank you for your outstanding work!",
+    author: "Victoria Ibezim",
+    position: "Exec. Director",
+    organization: "SFC",
+  },
+  {
+    id: "6",
+    quote:
+      "I recently had the pleasure of working with Goloka on a State Open Contracting Research project and I must say, I am thoroughly impressed with their level of professionalism and expertise. The quality of their work exceeded my expectations and the final deliverables were exceptional.",
+    author: "Andie Okon",
+    position: "Program Manager",
+    organization: "OCP",
   },
 ];
