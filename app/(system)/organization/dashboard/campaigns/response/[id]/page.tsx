@@ -59,7 +59,7 @@ import { Toaster } from "@/components/ui/sonner";
 
 import { getCampaignQuestion, getTaskById } from "@/services/contributor";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import Pagination from "@/components/lib/navigation/Pagination";
 
 import moment from "moment";
@@ -220,7 +220,6 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
   const [isSubmittingCampaign, setisSubmititngCampaign] =
     useState<boolean>(false);
   const [message, setMessage] = useState("");
-  const queryClient = useQueryClient();
 
   const [selectedStatus, setSeletctedStatus] = useState("");
   const [step, setStep] = useState(1);
@@ -241,9 +240,7 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
         status,
         message,
       );
-      //  refetchResponse();
-      //@ts-ignore
-      queryClient.invalidateQueries(["Get Response", responseId as string]);
+      refetchResponse();
 
       if (response) {
         toast.success("Response updated successfully");
@@ -466,7 +463,7 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
   const getQuestionResponse = async () => {
     try {
       const response = await getAllResponseByCampaign(responseId as string);
-      // console.log(response);
+      console.log(response);
       //@ts-ignore
       setCampaignGroupList(response.data.responses);
 
@@ -584,40 +581,36 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
     return (
       <div className="flex w-full items-center justify-center gap-[14px]">
         {/**** BUTTON PAUSE RUNNING STATUS */}
-        {task?.data?.status !== "rejected" &&
-          task?.data?.status !== "approved" && (
-            <div
-              className="flex cursor-pointer justify-center gap-2 rounded-full bg-[#FFEDED] px-8 py-3 font-poppins text-base text-[#FF4C4C]"
-              onClick={() => setOpenQuestion(true)}
-            >
-              <Danger size={20} />
-              Reject
-            </div>
-          )}
-        {task?.data?.status !== "reviewed" &&
-          task?.data?.status !== "approved" && (
-            <div
-              className="flex cursor-pointer justify-center gap-2 rounded-full border border-blue-600 px-8 py-3 font-poppins text-base text-blue-600"
-              onClick={() => setOpenReview(true)}
-            >
-              <DocumentText size={20} />
-              Review
-            </div>
-          )}
-
-        {task?.data?.status !== "approved" && (
+        {task?.data?.status !== "rejected" && (
           <div
-            className="flex w-full cursor-pointer justify-center gap-2 rounded-full border border-blue-600 bg-blue-600 px-8 py-3 font-poppins text-base text-white"
-            onClick={() => setOpenSubmit(true)}
+            className="flex cursor-pointer justify-center gap-2 rounded-full bg-[#FFEDED] px-8 py-3 font-poppins text-base text-[#FF4C4C]"
+            onClick={() => setOpenQuestion(true)}
           >
-            <NotepadText size={20} />
-            {isSubmittingCampaign ? (
-              <FaSpinner className="animate-spin text-blue-600" />
-            ) : (
-              <span className="text-nowrap">Accept response</span>
-            )}
+            <Danger size={20} />
+            Reject
           </div>
         )}
+        {task?.data?.status !== "reviewed" && (
+          <div
+            className="flex cursor-pointer justify-center gap-2 rounded-full border border-blue-600 px-8 py-3 font-poppins text-base text-blue-600"
+            onClick={() => setOpenReview(true)}
+          >
+            <DocumentText size={20} />
+            Review
+          </div>
+        )}
+
+        <div
+          className="flex w-full cursor-pointer justify-center gap-2 rounded-full border border-blue-600 bg-blue-600 px-8 py-3 font-poppins text-base text-white"
+          onClick={() => setOpenSubmit(true)}
+        >
+          <NotepadText size={20} />
+          {isSubmittingCampaign ? (
+            <FaSpinner className="animate-spin text-blue-600" />
+          ) : (
+            <span className="text-nowrap">Accept response</span>
+          )}
+        </div>
       </div>
     );
   };
@@ -972,7 +965,7 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
       <UpdateCampaignDialog
         title={"Accept response"}
         content={"Are you sure you want to accept this response?"}
-        action={() => handleUpdateResponseStatus("approved")}
+        action={() => handleUpdateResponseStatus("accepted")}
         open={openSumit}
         isSubmitting={isSubmitting}
         setOpen={setOpenSubmit}
@@ -1039,7 +1032,7 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
               <div className="mt-6">
                 <Pagination
                   // @ts-ignore
-                  totalPages={task?.data?.answers?.length}
+                  totalPages={currentPageData.length}
                   currentPage={currentPage}
                   onPageChange={setCurrentPage}
                   pageSize={pageSize}

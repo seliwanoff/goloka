@@ -47,9 +47,7 @@ const FileReaderModal: React.FC<GoogleMapLocationModalProps> = ({
         </DialogHeader>
 
         <div className="mt-5" />
-        <div className="">
-          <MediaViewer type={type} url={url} />
-        </div>
+        <MediaViewer type={type} url={url} />
       </DialogContent>
     </Dialog>
   );

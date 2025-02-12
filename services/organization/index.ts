@@ -49,18 +49,6 @@ export const getUseServices = async (): Promise<AxiosResponse<any>> => {
     throw error;
   }
 };
-
-export const getOrganizationStat = async (): Promise<AxiosResponse<any>> => {
-  try {
-    return await fetchData(
-      `organizations/${organizationDetails.domain}/analytics/stat-one`,
-    );
-  } catch (error) {
-    console.error("Error fetching  organization detais", error);
-    throw error;
-  }
-};
-
 export const validateTopUp = async (
   trxref: any,
   ref: any,

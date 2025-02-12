@@ -63,6 +63,8 @@ import {
 } from "@/services/campaign";
 import RadioSelection from "@/components/ui/radio-select";
 import EditQuestionModal from "@/components/lib/modals/Edit_question_modal";
+import UpdateCampaignDialog from "@/components/lib/modals/confirm_update_campaign_modal";
+import { deleteQuestionCampaign } from "@/services/response";
 type FormValues = {
   fullname: string;
   email: string;
@@ -90,6 +92,9 @@ const Create = () => {
   const [isAddQuestion, setIsAddQuestion] = useState(false);
   const [campaigns, setCampaigns] = useState<any>([]);
   const [localChecked, setLocalChecked] = useState(false);
+  const [openQuestion, setOpenQuestion] = useState<boolean>(false);
+  const [clickedId, setClickedId] = useState<string | null>(null);
+
   const router = useRouter();
   const {
     register,
@@ -208,8 +213,10 @@ const Create = () => {
           <DraggableComponent
             key={item?.id}
             data={item}
+            setClickedId={setClickedId}
             id={item?.id.toString()}
             index={index}
+            setOpenQuestion={setOpenQuestion}
             setSelectedQuestion={setSelectedQuestion}
             title={` ${item?.label}`} // Display order and label
             className="font-semibold text-[#071E3B]"
@@ -1399,6 +1406,26 @@ const Create = () => {
   useEffect(() => {
     getCampaign();
   }, []);
+
+  const deletQuestion = async (id: any) => {
+    //setClickedId(id);
+    setIsSubmitting(true);
+    try {
+      const response = await deleteQuestionCampaign(questionId as string, id);
+
+      if (response) {
+        toast.success("Question deleted successfully");
+        getAllQuestion();
+        setOpenQuestion(false);
+      }
+    } catch (e) {
+      console.log(e);
+      toast.error("Error deleting question");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <>
       {/*** EDIT QUESTION */}
@@ -1409,17 +1436,29 @@ const Create = () => {
         action={getAllQuestion}
       />
 
+      <UpdateCampaignDialog
+        title={"Delete Question"}
+        content={"Are you sure you want to delete this question?"}
+        action={() => deletQuestion(clickedId)}
+        open={openQuestion}
+        setOpen={setOpenQuestion}
+        status="delete"
+        isSubmitting={isSubmitting}
+      />
+
       <section className="mx-auto mt-5 w-full max-w-[896px]">
         <div className="flex flex-col gap-[12px]">
           <div className="flex items-center justify-between">
             <CustomBreadCrumbs />
             <div className="flex items-center gap-6">
+              {/***
               <Button
                 variant="outline"
                 className="rounded-[50px] border-main-100 font-bold text-main-100"
               >
                 Generate with AI
               </Button>
+              */}
               <Button
                 variant="outline"
                 className="items-center gap-2 rounded-[50px] bg-main-100 font-bold text-white"

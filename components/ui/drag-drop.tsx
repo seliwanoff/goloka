@@ -2,7 +2,6 @@ import { Edit } from "lucide-react";
 import React from "react";
 import { Draggable } from "@hello-pangea/dnd";
 import { BsThreeDots } from "react-icons/bs";
-import { useEditAQuestion } from "@/stores/overlay";
 
 type DraggableComponentProps = {
   id: string;
@@ -11,8 +10,6 @@ type DraggableComponentProps = {
   children: React.ReactNode;
   className?: string;
   type?: string;
-  data?: any;
-  setSelectedQuestion: any;
 };
 
 const DraggableComponent: React.FC<DraggableComponentProps> = ({
@@ -22,11 +19,7 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
   children,
   className,
   type,
-  data,
-  setSelectedQuestion,
 }) => {
-  const { setShowQuestionEdit } = useEditAQuestion();
-
   return (
     <Draggable draggableId={id?.toString()} index={index}>
       {(provided) => (
@@ -38,22 +31,15 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
         >
           <div className="flex items-center justify-between">
             <h3 className={`${className}`}>{title}</h3>
-
+            {/***
             <div className="flex items-center gap-2">
-              <span
-                className="inline-flex cursor-pointer items-center gap-2 rounded-md bg-gray-200 px-4 py-2 text-gray-600"
-                onClick={() => {
-                  setShowQuestionEdit(true);
-                  setSelectedQuestion(data);
-                }}
-              >
+              <span className="inline-flex cursor-pointer items-center gap-2 rounded-md bg-gray-200 px-4 py-2 text-gray-600">
                 <Edit size={18} />
                 Edit
               </span>
-              {/***
               <BsThreeDots style={{ transform: "rotate(90deg)" }} />
-              */}
             </div>
+            */}
           </div>
           <div>{children}</div>
         </div>
