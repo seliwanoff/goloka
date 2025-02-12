@@ -12,15 +12,34 @@ import Add from "@/components/ui/add";
 import MultipleChoices from "@/components/ui/multiple-choices";
 import FileUpload from "@/components/task-stepper/fileUpload";
 //import Boolean from "@/components/question/boolean";
+
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@radix-ui/react-popover";
+  // PopoverClose,
+} from "@/components/ui/popover";
 //import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Calendar as CalenderDate } from "@/components/ui/calendar";
-import { Calendar, Timer } from "lucide-react";
+import {
+  Calendar,
+  EllipsisVertical,
+  MoveLeft,
+  OctagonAlert,
+  Timer,
+  X,
+} from "lucide-react";
 import { TimePicker } from "@/components/ui/time";
 import AudioUpload from "@/components/task-stepper/inputs/audioUpload";
 import CheckboxList from "@/components/task-stepper/checkboxOption";
@@ -48,6 +67,7 @@ import {
   Danger,
   DocumentText,
   EyeSlash,
+  Message,
   Note,
 } from "iconsax-react";
 // import Map from "@/public/assets/images/tasks/tasks.png";
@@ -80,6 +100,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 export type Status = "draft" | "running" | "completed" | "archived";
 
@@ -118,14 +147,15 @@ import ResponseMessageModal from "@/components/lib/modals/message_repone_modal";
 import { Input } from "@/components/ui/input";
 import RadioSelection from "@/components/ui/radio-select";
 import RadioGroupWrapper from "@/components/question/boolean";
-import { Label } from "@radix-ui/react-label";
-import { SmallAnswer } from "@/components/ui/small-input-answer";
 import AudioRecorder from "@/components/task-stepper/customAudioRecorder";
 import AudioPlayer from "@/components/task-stepper/audioPlayer";
 import FileItem from "@/components/ui/FileItem";
 import LocationFile from "@/components/ui/location";
 import GoogleMapLocationModal from "@/components/lib/modals/google_map_response";
 import FileReaderModal from "@/components/lib/modals/fileReader";
+import ChatWidget from "@/components/lib/widgets/response-chat-widget";
+import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
+import { useMediaQuery } from "@react-hook/media-query";
 //import ConfirmFunding from "@/components/wallet_comps/confirm_funding";
 
 const SkeletonBox = ({ className }: { className?: string }) => (
@@ -231,6 +261,13 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
   const [areas] = useState(["", "", "", ""]);
   const { show, setShow, setCoordinates, setMethod } = useGoogleMap();
   const { shows, setShows, setType, setUrl } = useMediaViewer();
+  const currentOrganization = useOrganizationStore(
+    (state) => state.organization,
+  );
+
+  const isDesktop = useMediaQuery("(min-width: 768px)");
+
+  const [openMessages, setOpenMessages] = useState(false);
 
   const handleUpdateResponseStatus = async (status: string) => {
     //setClickedId(id);
@@ -280,47 +317,8 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
       setCurrentStatus(status);
       setOpenMessage(true);
     }
-    /***
-    //setClickedId(id);
-    setisSubmititng(true);
-    try {
-      const response = await updateResponseStatus(responseId as string, status);
-
-      if (response) {
-        toast.success("Response updated successfully");
-
-        // setOpenQuestion(false);
-      }
-    } catch (e) {
-      console.log(e);
-      toast.error("Error updating response");
-    } finally {
-      setisSubmititng(false);
-      setOpenQuestion(false);
-      setOpenReview(false);
-      setOpenSubmit(false);
-    }
-      */
   };
 
-  const handleSubmitCampaign = async () => {
-    // setisSubmititng(true);
-    setisSubmititngCampaign(true);
-    try {
-      const response = await submitCampaign(responseId as string);
-
-      if (response) {
-        toast.success("Campaign submitted sucessfully");
-        getQuestionByresponseId();
-        setOpenQuestion(false);
-      }
-    } catch (e) {
-      console.log(e);
-      toast.error("Error submitting campaign");
-    } finally {
-      setisSubmititngCampaign(false);
-    }
-  };
   const CampaignTable = ({ tdata }: { tdata: any[] }) => {
     const router = useRouter();
 
@@ -431,13 +429,7 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
     enabled: !!responseId,
   });
 
-  //@ts-ignore
-  const locations = useMemo(
-    () => task?.data?.locations?.states?.map((state: any) => state.label),
-    [task],
-  );
-  //@ts-ignore
-  const responses = useMemo(() => task?.data?.responses, [task]);
+  console.log(task);
 
   const getQuestionByresponseId = async () => {
     try {
@@ -536,9 +528,7 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
   };
 
   //@ts-ignore
-  const locationData = task?.data?.locations;
 
-  console.log(task);
   const WrappedTaskStepper = () => (
     <TaskStepper
       response={getResponse}
@@ -622,51 +612,11 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
     );
   };
 
-  const tabs = [
-    {
-      label: "Questions",
-      value: "campaigns",
-    },
-    {
-      label: "Response",
-      value: "campaign-groups",
-    },
-  ];
-  const QuestionBubbleButton: {
-    icon: LucideIcon;
-    title: string;
-    href: string;
-  }[] = [
-    {
-      icon: ArrowUpDown,
-      title: "Rearrange",
-      href: `/organization/dashboard/campaigns/questions?questionId=${responseId}`,
-    },
-    {
-      icon: EyeIcon,
-      title: "Preview",
-      href: `/organization/dashboard/campaigns/questions?questionId=${responseId}`,
-    },
-    {
-      icon: Plus,
-      title: "Add question",
-      href: `/organization/dashboard/campaigns/questions?questionId=${responseId}`,
-    },
-    /**
-    {
-      icon: Settings,
-      title: "Generate with AI",
-      href: "/dashboard/settings",
-    },
-     */
-  ];
-
   const handleFileClick = (url: any, type: any) => {
     //alert(`Clicked on`);
     setType(type);
     setUrl(url);
     setShows(true);
-    // You can open a modal, preview the file, etc.
   };
   const renderQuestionInput = (
     type: string,
@@ -755,10 +705,9 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
               try {
                 const parsedValue = value ? JSON.parse(value) : [];
 
-                // Ensure parsedValue is always an array
                 const normalizedArray = Array.isArray(parsedValue)
                   ? parsedValue
-                  : [parsedValue]; // Wrap single object in array
+                  : [parsedValue];
 
                 return normalizedArray.map((option) =>
                   typeof option === "object" && option !== null
@@ -853,7 +802,15 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
           </div>
         );
       case "url":
-        return <Link href={`${JSON.parse(value)}`}>{JSON.parse(value)}</Link>;
+        return (
+          <Link
+            href={`${JSON.parse(value)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {JSON.parse(value)}
+          </Link>
+        );
       case "password":
         return (
           <div className="text-[14px]] font-poppins text-[#333333]">
@@ -1027,6 +984,154 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
               </div>
 
               <div>{<StatusPill status={task?.data?.status} />}</div>
+            </div>
+
+            {/* MESSAGE CHAT SHEET */}
+            <div className="col-span-2 md:col-span-1 md:place-self-end">
+              {isDesktop ? (
+                <>
+                  <Sheet open={openMessages} onOpenChange={setOpenMessages}>
+                    <SheetTrigger asChild className="relative flex justify-end">
+                      {task?.data?.status !== "draft" &&
+                        task?.data?.status !== "approved" && (
+                          <Button className="h-full w-[150px] gap-3 rounded-full bg-[#3365E314] py-3 font-medium text-main-100 hover:bg-[#3365E314]">
+                            Message{" "}
+                            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#f10] text-xs font-normal text-white">
+                              {/* @ts-ignore */}
+                              {/***res?.unread_messages_count **/}
+                            </span>
+                          </Button>
+                        )}
+                    </SheetTrigger>
+                    <SheetContent className="border-0 p-0 md:max-w-md lg:max-w-xl">
+                      <SheetHeader className="absolute right-0 top-0 z-10 w-full bg-main-100 p-5">
+                        <div className="flex items-center gap-5">
+                          <div
+                            onClick={() => setOpenMessages(false)}
+                            className="cursor-pointer text-[#fff]"
+                          >
+                            <MoveLeft />
+                          </div>
+                          {/* <Image
+                            src={profileImg}
+                            alt="chat-user"
+                            className="h-12 w-12 rounded-full object-cover object-center"
+                          /> */}
+                          <SheetTitle className="font-normal text-white">
+                            Message
+                          </SheetTitle>
+                          {/* <SheetDescription className="text-white">
+                            24
+                          </SheetDescription> */}
+                        </div>
+                        {/* CUSTOM CLOSE */}
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <span className="absolute right-4 mt-0 flex h-8 w-8 -translate-y-[calc(50%_-_20px)] cursor-pointer items-center justify-center rounded-full bg-white text-main-100">
+                              <EllipsisVertical size={20} />
+                            </span>
+                          </PopoverTrigger>
+                          <PopoverContent className="max-w-fit cursor-pointer rounded-md text-[#EB5757] shadow-lg hover:bg-slate-200">
+                            <div className="item-center flex gap-3 text-[#EB5757]">
+                              <OctagonAlert />
+                              <p className="text-[#EB5757]">Report user</p>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      </SheetHeader>
+
+                      {/* CHAT WIDGET */}
+                      <div className="mt-24">
+                        <ChatWidget
+                          modelType="response"
+                          modelId={+responseId}
+                          currentUserId={currentOrganization?.id as number}
+                        />
+                      </div>
+
+                      {/* CHAT MESSAGE INPUT */}
+                      {/* <SheetFooter className="absolute bottom-0 left-0 w-full border-t md:flex-row md:justify-start md:p-4">
+                        <form id="chat-box" className="block w-full">
+                          <div className="flex w-full items-center gap-6">
+                            <Input
+                              type="text"
+                              name="message"
+                              id="message"
+                              aria-label="Message"
+                              placeholder="Input your message"
+                              className="form-input h-[50px] rounded-full border border-[#DAD8DF] bg-[#F5F5F5] focus:ring-main-100 focus:ring-offset-0 focus-visible:outline-none"
+                            />
+                            <Button className="h-[50px] items-center gap-2 rounded-full bg-main-100 px-5 font-medium text-white">
+                              <span className="">
+                                <Send2 size="24" />
+                              </span>
+                              Send
+                            </Button>
+                          </div>
+                        </form>
+                      </SheetFooter> */}
+                    </SheetContent>
+                  </Sheet>
+                </>
+              ) : (
+                <>
+                  <Drawer open={open} onOpenChange={setOpen}>
+                    <DrawerTrigger asChild>
+                      <Button className="h-full w-full gap-3 place-self-end rounded-full bg-[#3365E314] py-3 font-medium text-main-100 hover:bg-[#3365E314] focus-visible:ring-0 focus-visible:ring-offset-0 md:w-[150px]">
+                        Message{" "}
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#f10] text-xs font-normal text-white">
+                          {/* @ts-ignore */}
+                          {/***res?.unread_messages_count () **/}
+                        </span>
+                      </Button>
+                    </DrawerTrigger>
+                    <DrawerContent className="overflow-hidden border-0 focus-visible:outline-none">
+                      <DrawerHeader className="absolute left-0 top-0 z-10 w-full bg-main-100 p-5 text-left">
+                        <DrawerTitle className="font-normal text-white">
+                          {" "}
+                          Messages
+                        </DrawerTitle>
+                        <DrawerDescription className="text-white">
+                          24
+                        </DrawerDescription>
+                        <span
+                          onClick={() => setOpen(false)}
+                          className="absolute right-4 mt-0 flex h-8 w-8 translate-y-[24px] cursor-pointer items-center justify-center rounded-full bg-white text-main-100"
+                        >
+                          <X size={20} />
+                        </span>
+                      </DrawerHeader>
+                      <div className="mt-24" />
+                      {/* <ChatWidget /> */}
+                      <ChatWidget
+                        modelType="response"
+                        modelId={+responseId}
+                        currentUserId={currentOrganization?.id as number}
+                      />
+                      {/* <DrawerFooter className="border-t">
+                        <form id="chat-box">
+                          <div className="flex items-center gap-6">
+                            <Input
+                              type="text"
+                              name="message"
+                              id="message"
+                              aria-label="Message"
+                              placeholder="Input your message"
+                              className="form-input h-[50px] rounded-full border border-[#DAD8DF] bg-[#F5F5F5] focus:ring-main-100 focus:ring-offset-0 focus-visible:outline-none"
+                            />
+                            <Button className="h-[50px] items-center gap-2 rounded-full bg-main-100 px-5 font-medium text-white">
+                              <span className="">
+                                <Send2 size="24" />
+                              </span>
+                              Send
+                            </Button>
+                          </div>
+                        </form>
+                      </DrawerFooter> */}
+                    </DrawerContent>
+                  </Drawer>
+                </>
+              )}
             </div>
 
             {/* ####################################### */}

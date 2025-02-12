@@ -212,13 +212,13 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
         }
       : null;
     //@ts-ignore
-    const organizations = response.services.organizations.map((org: any) => ({
+    const organizations = response.services.organizations?.map((org: any) => ({
       ...org,
       account_type: "organization",
     }));
 
     const mergedData = contributor
-      ? [contributor, ...organizations]
+      ? [contributor, ...(organizations || [])]
       : organizations;
 
     setOrganizations(mergedData);
@@ -228,8 +228,6 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
       getCurrentOrganization(mergedData[1]);
     }
     **/
-
-    console.log(document.readyState);
   };
 
   useEffect(() => {
@@ -238,6 +236,7 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
   const handleCurrentOrgnization = (org: any) => {
     if (org.account_type === "contributor") {
       getCurrentUser();
+      // getCurrentOrganization(null);
       window.location.href = "/dashboard/root";
     } else {
       getCurrentOrganization(org);
@@ -261,9 +260,8 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
   };
 
   //console.log(currentOrganization);
-  const filteredOrganizations = organizations?.filter(
-    (org: any) => org.id !== currentOrganization?.id,
-  );
+  const filteredOrganizations = organizations;
+  //console.log(currentUser);
   const initials = useMemo(
     () =>
       getInitials(
@@ -276,6 +274,7 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
   if (connectionError) {
     console.error("Ably connection error:", connectionError);
   }
+
   return (
     <>
       {/*** Organization creation */}

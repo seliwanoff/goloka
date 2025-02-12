@@ -103,7 +103,7 @@ axiosInstance.interceptors.response.use(
     }
 
     // For all other errors (including 403/permission issues), just show the error message
-    toast.error(errorMessage);
+    //  toast.error(errorMessage);
     return Promise.reject(error);
   },
 );

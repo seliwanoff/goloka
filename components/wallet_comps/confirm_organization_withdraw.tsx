@@ -19,7 +19,8 @@ import { numberWithCommas } from "@/helper";
 
 const ConfirmWithdrawalOrganization = () => {
   const { setOpen } = useWithdrawalfundsOverlay();
-  const { step, setStep, amount } = useWithdrawStepperOrganization();
+  const { step, setStep, amount, actualAmount } =
+    useWithdrawStepperOrganization();
   const isMobile = useMediaQuery("(max-width: 640px)");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const currentOrganization = useOrganizationStore(
@@ -34,7 +35,7 @@ const ConfirmWithdrawalOrganization = () => {
     localStorage.setItem("amount", amount.toString());
 
     try {
-      const res = await walletFunding(amount);
+      const res = await walletFunding(actualAmount);
       toast.success("Payment link generated");
       setIsSubmitting(false);
 
