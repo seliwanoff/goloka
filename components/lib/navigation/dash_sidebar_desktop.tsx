@@ -74,6 +74,7 @@ const DashSideBarDesktop: React.FC<ComponentProps> = ({ navMenuList }) => {
   useEffect(() => {
     getRegisteredUsersService();
   }, []);
+
   return (
     <>
       {/***

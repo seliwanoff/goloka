@@ -68,12 +68,15 @@ const Page = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState<number>(10);
   const [campaignGroupList, setCampaignGroupList] = useState<[]>([]);
+  const [totalCampaign, setTotalCampaig] = useState(0);
 
   const [filteredData, setFilteredData] = useState<any[]>(
     activeTab === "campaigns" ? campaignList : campaignGroupList,
   );
   const pages = chunkArray(filteredData, pageSize);
-  const currentPageData = pages[currentPage - 1] || [];
+
+  const currentPageData = pages[currentPage >= 2 ? 0 : currentPage - 1] || [];
+  // console.log(currentPageData);
   const [activeStatus, setActiveStatus] = useState<string>("all");
   const { setShowCreate } = useAddcampaignGroupOverlay();
 
@@ -86,6 +89,11 @@ const Page = () => {
       const response = await getOrganizationCampaign();
       if (response && response.data) {
         setCampaignGroupList(response.data);
+        //@ts-ignore
+        setTotalCampaig(
+          //@ts-ignore
+          response?.pagination?.total_items || response.data || 0,
+        );
       } else {
         console.warn("Response is null or does not contain data");
       }
@@ -93,11 +101,15 @@ const Page = () => {
       console.error("Error fetching campaign groups:", error);
     }
   };
+
   const getCampaignMain = async () => {
     try {
-      const response = await getCampaign();
+      const response = await getCampaign(pageSize, currentPage);
       if (response && response.data) {
+        // console.log(response);
         setCampaignList(response.data);
+        //@ts-ignore
+        setTotalCampaig(response?.pagination?.total_items);
       } else {
         console.warn("Response is null or does not contain data");
       }
@@ -105,10 +117,12 @@ const Page = () => {
       console.error("Error fetching campaign groups:", error);
     }
   };
+
+  // console.log(campaignList);
   useEffect(() => {
     getCampaignGroup();
     getCampaignMain();
-  }, [show, isShowEdit]);
+  }, [show, isShowEdit, pageSize, currentPage]);
 
   useEffect(() => {
     function filter(status: string) {
@@ -133,7 +147,7 @@ const Page = () => {
       default:
         setFilteredData(campaignList);
     }
-  }, [activeStatus]);
+  }, [activeStatus, pageSize, currentPage]);
 
   useEffect(() => {
     if (activeTab === "campaigns") {
@@ -141,7 +155,7 @@ const Page = () => {
     } else if (activeTab === "campaign-groups") {
       setFilteredData(campaignGroupList);
     }
-  }, [activeTab, campaignList, campaignGroupList]);
+  }, [activeTab, campaignList, campaignGroupList, pageSize, currentPage]);
 
   return (
     <>
@@ -319,10 +333,11 @@ const Page = () => {
           <div className="">{renderTable(activeTab, currentPageData)}</div>
 
           {/* Pagination */}
+
           <div className="mt-6">
             <Pagination
               // @ts-ignore
-              totalPages={currentPageData?.length}
+              totalPages={totalCampaign}
               currentPage={currentPage}
               onPageChange={setCurrentPage}
               pageSize={pageSize}
@@ -352,6 +367,8 @@ const getStatusColor = (status: string) => {
 
 const CampaignTable = ({ tdata }: { tdata: any[] }) => {
   const router = useRouter();
+
+  // console.log(tdata);
   return (
     <Table>
       <TableHeader>
