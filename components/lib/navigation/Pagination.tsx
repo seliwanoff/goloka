@@ -66,7 +66,7 @@ const Pagination: React.FC<PaginationProps> = ({
             <SelectContent>
               <SelectGroup>
                 <SelectLabel>Rows per page</SelectLabel>
-                {[10, 20, 30, 40, 50].map((size) => (
+                {[10, 20, 30, 40, 50, 100].map((size) => (
                   <SelectItem key={size} value={size.toString()}>
                     {size}
                   </SelectItem>

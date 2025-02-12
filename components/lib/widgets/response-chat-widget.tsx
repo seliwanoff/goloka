@@ -3,7 +3,13 @@ import Image from "next/image";
 import { Danger, Send2 } from "iconsax-react";
 import profileImg from "@/public/assets/images/chat-user-profile.png";
 import { useChatMessages } from "@/stores/useChatMessage";
-import { Check, CheckCheck, Loader2, LoaderCircle, Paperclip } from "lucide-react";
+import {
+  Check,
+  CheckCheck,
+  Loader2,
+  LoaderCircle,
+  Paperclip,
+} from "lucide-react";
 
 interface ChatWidgetProps {
   modelType: string;
@@ -67,7 +73,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
     switch (msg.__temp_status) {
       case "sending":
         return <LoaderCircle className="h-3 w-3 animate-spin text-gray-400" />;
-        // return <Loader2 className="h-3 w-3 animate-spin text-gray-400" />;
+      // return <Loader2 className="h-3 w-3 animate-spin text-gray-400" />;
       case "success":
         return (
           <div className="flex">
@@ -104,17 +110,17 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
   return (
     <>
       {/* Add overflow-y-auto and max-h to enable scrolling */}
-      <div className="flex max-h-[calc(100vh-200px)] flex-col space-y-8 overflow-y-auto p-4 pb-20 md:self-stretch md:pb-4">
+      <div className="flex max-h-[calc(100vh-200px)] w-full flex-col space-y-8 overflow-y-auto p-4 pb-20 md:self-stretch md:pb-4">
         {sortedMessages.map((msg) => (
           <div
             key={msg.local_id || msg.id}
             className={`flex ${
               msg.sender_id === currentUserId
-                ? "justify-end"
-                : "items-end justify-start gap-4"
+                ? "items-end justify-start gap-4"
+                : "justify-end"
             }`}
           >
-            {msg.sender_id !== currentUserId && (
+            {msg.sender_id === currentUserId && (
               <Image
                 src={profileImg}
                 alt="chat-user"
@@ -124,17 +130,16 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
             <div
               className={`max-w-xs rounded-2xl p-4 ${
                 msg.sender_id === currentUserId
-                  ? "bg-[#005eb5]" // Changed to blue for sent messages
-                  : "bg-[#3e84fc]" // Changed to gray for received messages
+                  ? "bg-[#3365E3]" // White background for sent messages
+                  : "bg-[#F5F5F5]" // Red background for received messages
               }`}
             >
-              {msg.message && <p className="text-white">{msg.message}</p>}
+              {msg.message && <p className="text-black">{msg.message}</p>}
 
               {/* Attached files section */}
               {msg.image_paths && msg.image_paths.length > 0 && (
                 <div className={`mt-2 ${msg.message ? "border-t pt-2" : ""}`}>
                   {msg.image_paths.map((imageUrl, index) => {
-                    // Safely handle different possible formats of image paths
                     const fileName =
                       typeof imageUrl === "string"
                         ? imageUrl.split("/").pop()
@@ -151,7 +156,6 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
                   })}
 
                   {msg.image_paths.map((imageUrl, index) => {
-                    // Safely handle image URL
                     const src =
                       typeof imageUrl === "string"
                         ? imageUrl
@@ -171,14 +175,14 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
                 </div>
               )}
 
-              <div
-                className={`mt-1 flex items-center ${
-                  msg.sender_id === currentUserId
-                    ? "justify-between text-[#fff]"
-                    : "justify-between text-[#ffff]"
-                }`}
-              >
-                <span className="text-xs">
+              <div className="mt-1 flex items-center justify-between">
+                <span
+                  className={`text-xs ${
+                    msg.sender_id === currentUserId
+                      ? "inline-block w-full text-left text-[#fff]"
+                      : "inline-block w-full text-right text-[#9A96A4]"
+                  }}`}
+                >
                   {new Date(msg.created_at).toLocaleTimeString([], {
                     hour: "2-digit",
                     minute: "2-digit",
@@ -186,10 +190,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
                 </span>
               </div>
             </div>
-            <span>
-              {" "}
-              {msg.sender_id === currentUserId && renderMessageStatus(msg)}
-            </span>
+            {msg.sender_id !== currentUserId && renderMessageStatus(msg)}
           </div>
         ))}
         {/* Ref to scroll to the bottom of messages */}
