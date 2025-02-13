@@ -16,6 +16,7 @@ import { useRemoteUserStore } from "@/stores/remoteUser";
 import moment from "moment";
 import { useTopUpStores } from "@/stores/topUpstore";
 import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
+import { numberWithCommas } from "@/helper";
 
 type ComponentProps = {};
 
@@ -83,7 +84,7 @@ const TopUpSuccessful: React.FC<ComponentProps> = ({}) => {
             <div className="grid grid-cols-2">
               <span className="text-sm text-[#4F4F4F]">Amount Deposited</span>
               <span className="justify-self-end text-sm font-medium text-[#333]">
-                {USER_CURRENCY_SYMBOL} {amount}
+                {USER_CURRENCY_SYMBOL} {numberWithCommas(amount)}
               </span>
             </div>
           </div>

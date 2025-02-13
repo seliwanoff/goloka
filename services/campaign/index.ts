@@ -100,10 +100,13 @@ export const getGuestCampaign = async (): Promise<AxiosResponse<any>> => {
   }
 };
 
-export const getCampaign = async (): Promise<AxiosResponse<any>> => {
+export const getCampaign = async (
+  page?: any,
+  currentPage?: any,
+): Promise<AxiosResponse<any>> => {
   try {
     return await fetchData(
-      `/organizations/${organizationDetails.domain}/campaigns`,
+      `/organizations/${organizationDetails.domain}/campaigns?per_page=${page}&page=${currentPage}`,
     );
   } catch (error) {
     console.error("Error fetching campaign questions:", error);

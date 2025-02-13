@@ -185,9 +185,7 @@ const Dashboard = () => {
               textColor="text-white"
               icon={Wallet3}
               value={`${(currentOrganization && currentOrganization.symbol) || "₦"}${numberWithCommas(data.wallet_balance) || 0}`}
-              footer={
-                <span className="font-medium">₦0.00 Pending balance</span>
-              }
+              footer={""}
               isAnalytics={false}
               increase={true}
               percents={40}
