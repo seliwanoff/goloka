@@ -448,9 +448,18 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
 
   //@ts-ignore
   const locations = useMemo(
-    () => task?.data?.locations?.states?.map((state: any) => state.label),
+    () =>
+      task?.data?.locations?.states?.map((state: any) => (
+        <span
+          key={state.label}
+          className="bg-gray-200 px-[6px] py-[3px] font-poppins text-[12px] text-[#4F4F4F]"
+        >
+          {state.label}
+        </span>
+      )),
     [task],
   );
+
   //@ts-ignore
   const responses = useMemo(() => task?.data?.responses, [task]);
 
@@ -875,31 +884,56 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
                   Campaign Details
                 </h3>
                 <div className="mt-6 flex flex-wrap gap-5 md:justify-between">
-                  <div>
+                  <div className="basis-[300px]">
                     <h4 className="text-[#101828]">
                       {USER_CURRENCY_SYMBOL} {/* @ts-ignore */}
                       {task?.data?.payment_rate_for_response}{" "}
                     </h4>
                     <p className="text-sm text-gray-400">Per response</p>
                   </div>
-                  <div>
+
+                  <div className="basis-[300px]">
+                    <h4 className="text-[#101828]">
+                      {USER_CURRENCY_SYMBOL} {/* @ts-ignore */}
+                      {task?.data?.campaign_fee}{" "}
+                    </h4>
+                    <p className="text-sm text-gray-400">Campaign cost</p>
+                  </div>
+
+                  <div className="basis-[300px]">
+                    <h4 className="text-[#101828]">
+                      {USER_CURRENCY_SYMBOL} {/* @ts-ignore */}
+                      {task?.data?.admin_fee}{" "}
+                    </h4>
+                    <p className="text-sm text-gray-400">Admin fee</p>
+                  </div>
+                  <div className="basis-[300px]">
+                    <h4 className="text-[#101828]">
+                      {USER_CURRENCY_SYMBOL} {/* @ts-ignore */}
+                      {task?.data?.total_fee}{" "}
+                    </h4>
+                    <p className="text-sm text-gray-400">Total fee</p>
+                  </div>
+                  <div className="basis-[300px]">
                     <h4 className="font-medium text-[#101828]">
                       {task?.data?.type}
                     </h4>
                     <p className="text-sm text-gray-400">Campaign type </p>
                   </div>
 
-                  <div>
+                  <div className="basis-[300px]">
                     <h4 className="font-medium text-[#101828]">
                       {task?.data?.number_of_responses}
                     </h4>
                     <p className="text-sm text-gray-400">Number of response</p>
                   </div>
-                  <div>
-                    <h4 className="font-medium text-[#101828]">{locations}</h4>
+                  <div className="basis-[300px]">
+                    <h4 className="flex gap-2 font-medium text-[#101828]">
+                      {locations}
+                    </h4>
                     <p className="text-sm text-gray-400">Location</p>
                   </div>
-                  <div>
+                  <div className="basis-[300px]">
                     <h4 className="font-medium text-[#101828]">
                       {task?.data?.number_of_responses_received}
                     </h4>
@@ -907,7 +941,7 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
                       Number of response received
                     </p>
                   </div>
-                  <div>
+                  <div className="basis-[300px]">
                     <h4 className="font-medium text-[#101828]">
                       {task?.data?.number_of_pending_responses}
                     </h4>
@@ -915,14 +949,20 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
                       Number of pending response
                     </p>
                   </div>
-                  <div className="md:text-left">
+                  <div className="basis-[300px]">
+                    <h4 className="font-medium text-[#101828]">
+                      {task?.data?.number_of_pending_responses}
+                    </h4>
+                    <p className="text-sm text-gray-400">Expected response</p>
+                  </div>
+                  <div className="basis-[300px] md:text-left">
                     <h4 className="font-medium text-[#101828]">
                       {/* @ts-ignore */}
-                      {task?.data?.campaign_group}{" "}
+                      {task?.data?.number_of_responses}{" "}
                     </h4>
                     <p className="text-sm text-gray-400">Campaign group</p>
                   </div>
-                  <div className="">
+                  <div className="basis-[300px]">
                     <div className="flex items-center">
                       <h4 className="font-medium text-[#101828]">{Date}</h4>
                       <div className="font-medium text-[#101828]">
@@ -932,7 +972,7 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
                     </div>
                     <p className="text-sm text-gray-400">Starts on</p>
                   </div>
-                  <div className="">
+                  <div className="basis-[300px]">
                     <div className="flex items-center">
                       <h4 className="font-medium text-[#101828]">{endDate}</h4>
                       <div className="font-medium text-[#101828]">
@@ -944,7 +984,7 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
                     </div>
                     <p className="text-sm text-gray-400">Ends on</p>
                   </div>
-                  <div className="">
+                  <div className="basis-[300px]">
                     <div className="flex items-center">
                       <h4 className="font-medium text-[#101828]">
                         {createdDate}
@@ -1017,7 +1057,7 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
                 ) : (
                   <div className="flex w-full items-center justify-between">
                     <h3 className="font-Satoshi text-2xl font-bold text-[#101828]">
-                      {filteredData?.length} Contributors
+                      {filteredData?.length} Contributions
                     </h3>
 
                     <ResponseOptions />

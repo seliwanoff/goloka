@@ -362,7 +362,7 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                     {
                       INDIVIDUAL: (
                         <p className="-mt-1 text-sm font-light">
-                          Individual Accounts
+                          Contributor Accounts
                         </p>
                       ),
                       ORGANISATION: (
