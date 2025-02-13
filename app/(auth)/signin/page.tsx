@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState } from "react";
 import BgPattern from "@/public/assets/images/auth-bg-pattern.svg";
 import Logo from "@/public/assets/images/thumb.svg";
@@ -9,27 +10,22 @@ import { FiEye, FiEyeOff } from "react-icons/fi";
 import { Button } from "@/components/ui/button";
 import { FcGoogle } from "react-icons/fc";
 import Link from "next/link";
-import { useForm, SubmitHandler } from "react-hook-form";
-import { userSignIn } from "@/services/auth";
-import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
 import { FaSpinner } from "react-icons/fa";
+import { useGoogleLogin } from "@react-oauth/google";
 import { toast } from "sonner";
-import { getContributorsProfile } from "@/services/contributor";
-import { GoogleLogin, useGoogleLogin } from "@react-oauth/google";
-import { useQuery } from "@tanstack/react-query";
-import { useRemoteUserStore } from "@/stores/remoteUser";
-import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
+import { useAuth } from "@/services/auth/hooks";
 
-type PageProps = {};
 
 type FormValues = {
   email: string;
   password: string;
 };
 
-const SignIn: React.FC<PageProps> = ({}) => {
+const SignIn = () => {
   const [eye1, setEye1] = useState(false);
-  const router = useRouter();
+  const { login, googleLogin, isLoading } = useAuth();
+
   const {
     register,
     handleSubmit,
@@ -37,114 +33,23 @@ const SignIn: React.FC<PageProps> = ({}) => {
   } = useForm<FormValues>();
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
-    console.log(credentialResponse, " hthhthththt");
-    try {
-      const res = await fetch(
-        "https://staging.goloka.io/api/login/google/auth",
-        {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-          },
-          body: new URLSearchParams({
-            id_token: credentialResponse.credential,
-            platform: "web",
-          }),
-        },
-      );
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || "Google sign-in failed");
-      }
-
-      // Store tokens
-      localStorage.setItem(
-        "access_token",
-        JSON.stringify(data.tokens.access_token),
-      );
-      localStorage.setItem(
-        "refresh_token",
-        JSON.stringify(data.tokens.refresh_token),
-      );
-      localStorage.setItem(
-        "token_type",
-        JSON.stringify(data.tokens.token_type),
-      );
-
-      toast.success("Google sign in successful");
-      router.replace("/dashboard/root");
-    } catch (error: any) {
-      console.error("Google sign-in error:", error);
-      toast.error(error.message || "Failed to sign in with Google");
+    if (credentialResponse.credential) {
+      googleLogin(credentialResponse.credential);
     }
   };
+
   const handleGoogleError = () => {
     toast.error("Google sign-in was unsuccessful. Please try again.");
   };
-  const handleToggle1 = () => {
-    setEye1((prev: boolean) => !prev);
-  };
-  const [isLoading, setIsLoading] = useState(false);
-  const currentOrganization = useOrganizationStore(
-    (state) => state.organization,
-  );
-  console.log(currentOrganization);
 
-  const login = useGoogleLogin({
+  const googleLoginHook = useGoogleLogin({
     onSuccess: handleGoogleSuccess,
     onError: handleGoogleError,
     flow: "auth-code",
   });
 
-  const onSubmit: SubmitHandler<FormValues> = async (data) => {
-    setIsLoading(true);
-
-    try {
-      const { email, password } = data;
-      // console.log(data);
-
-      const response = await userSignIn(email, password);
-
-      if (!response) {
-        throw new Error(
-          "Failed to sign in. Please check your credentials and try again.",
-        );
-      }
-      //@ts-ignore
-      // setUser(remoteUser.data);
-
-      //@ts-ignore
-      const { access_token, token_type, refresh_token } = response.tokens;
-
-      //const {}
-
-      const storeTokens = () => {
-        localStorage.setItem("access_token", JSON.stringify(access_token));
-        localStorage.setItem("refresh_token", JSON.stringify(refresh_token));
-        localStorage.setItem("token_type", JSON.stringify(token_type));
-      };
-
-      // Redirect to the dashboard
-      storeTokens();
-      //  console.log(response);
-      toast.success("Sign in successful");
-      //@ts-ignore
-      if (response.user.current_role === "campaigner") {
-        router.replace("/organization/dashboard/root");
-      } else {
-        router.replace("/dashboard/root");
-      }
-    } catch (error: any) {
-      console.error("Sign-in error:", error);
-      toast.error(
-        error?.response?.data?.message ||
-          "Failed to sign in. Please try again.",
-      );
-    } finally {
-      setIsLoading(false);
-    }
+  const onSubmit = (data: FormValues) => {
+    login(data);
   };
 
   return (
@@ -200,7 +105,7 @@ const SignIn: React.FC<PageProps> = ({}) => {
               />
               <span
                 className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-[#828282]"
-                onClick={handleToggle1}
+                onClick={() => setEye1(!eye1)}
               >
                 {!eye1 ? <FiEye size={20} /> : <FiEyeOff size={20} />}
               </span>
@@ -211,6 +116,7 @@ const SignIn: React.FC<PageProps> = ({}) => {
               </span>
             )}
           </Label>
+
           <Link
             href="/forget_password"
             className="mt-6 inline-block text-sm capitalize text-main-100"
@@ -221,43 +127,23 @@ const SignIn: React.FC<PageProps> = ({}) => {
           <div className="space-y-4">
             <Button
               type="submit"
+              disabled={isLoading}
               className="h-12 w-full rounded-full bg-main-100 text-base font-light text-white hover:bg-blue-700"
             >
               {isLoading ? <FaSpinner className="animate-spin" /> : "Login"}
             </Button>
             <Button
               type="button"
-              onClick={() => login()}
+              onClick={() => googleLoginHook()}
               className="h-12 w-full gap-2 rounded-full border border-main-100 bg-main-100 bg-opacity-15 text-base font-light text-white hover:bg-current"
             >
               <FcGoogle size={20} />
               <span className="text-neutral-600">Login with Google</span>
             </Button>
-
-            {/* <div className="flex justify-center w-full">
-  <div className="w-full">
-    <GoogleLogin
-      onSuccess={handleGoogleSuccess}
-      onError={handleGoogleError}
-      type="standard"
-      theme="outline"
-      size="large"
-      shape="pill"
-      width="100%"
-      text="continue_with"
-      custom_style={{
-        height: '48px',
-        backgroundColor: 'rgba(var(--main-100), 0.15)',
-        border: '1px solid var(--main-100)',
-        borderRadius: '9999px',
-      }}
-    />
-  </div>
-</div> */}
           </div>
 
           <p className="my-8 text-center">
-            Don’t have an account? &nbsp;
+            Don&apos;t have an account? &nbsp;
             <Link href="/signup" className="text-main-100">
               Sign up
             </Link>

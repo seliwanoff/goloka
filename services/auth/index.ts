@@ -101,3 +101,69 @@ export const getCurrentOrganization = (org: any) => {
     symbol: org.country["currency-symbol"],
   });
 };
+
+import apiClient from "./api-client";
+import { AxiosError } from "axios";
+
+export interface AuthResponse {
+  tokens: {
+    access_token: string;
+    refresh_token: string;
+    token_type: string;
+  };
+  user: {
+    current_role: string;
+    [key: string]: any;
+  };
+}
+
+export interface GoogleAuthResponse {
+  tokens: {
+    access_token: string;
+    refresh_token: string;
+    token_type: string;
+  };
+}
+
+export const authApi = {
+  login: async (email: string, password: string): Promise<AuthResponse> => {
+    try {
+      const { data } = await apiClient.post<AuthResponse>("/login", {
+        email,
+        password,
+        platform: "web",
+      });
+      return data;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        throw new Error(error.response?.data?.message || "Failed to sign in");
+      }
+      throw error;
+    }
+  },
+
+  googleLogin: async (credential: string): Promise<GoogleAuthResponse> => {
+    try {
+      const { data } = await apiClient.post<GoogleAuthResponse>(
+        "/api/login/google/auth",
+        new URLSearchParams({
+          id_token: credential,
+          platform: "web",
+        }),
+        {
+          headers: {
+            Accept: "application/json",
+          },
+        },
+      );
+      return data;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        throw new Error(
+          error.response?.data?.message || "Google sign-in failed",
+        );
+      }
+      throw error;
+    }
+  },
+};
