@@ -19,7 +19,6 @@ import AppleStore from "@/public/assets/images/App Store.png";
 import PlayStore from "@/public/assets/images/Play Store.png";
 import AppPreview from "@/public/assets/images/download-app.png";
 
-
 import FinIcon from "@/public/assets/images/finance-icon.png";
 import userResp from "@/public/assets/images/user-response.jpg";
 import { ArrowRight, Category2, Location } from "iconsax-react";
@@ -40,8 +39,9 @@ import HyperLocalSection from "@/components/landing-comps/hyperLocal";
 import man from "@/public/assets/images/man.png";
 import bgImage from "@/public/assets/images/bgImage.png";
 import CampaignList from "@/components/landing-comps/campaignList";
-
-
+import { AspectRatio } from "@/components/ui/aspect-ratio";
+import BlogCard from "@/components/landing-comps/blog-comps/BlogCard";
+import { blogData } from "@/utils/blog";
 
 const LandingPage = () => {
   const router = useRouter();
@@ -195,12 +195,8 @@ const LandingPage = () => {
             </div>
           </div>
           <div className="relative lg:col-[1/2] lg:row-[1]">
-            <div className="overflow-hidden rounded-3xl bg-[#3365E30A] p-8">
-              <Image
-                src={man}
-                alt="cta"
-                className="origin-top-left scale-[1] md:mx-auto md:w-8/12 lg:w-10/12"
-              />
+            <div className="overflow-hidden rounded-3xl bg-[#3365E30A] p-3">
+              <Image src={man} alt="cta" className="object-cover" />
             </div>
 
             <div className="absolute left-0 top-[280px] grid w-max grid-cols-[40px_1fr_30px] gap-3 rounded-full border border-[#14342C0F] bg-white p-2 md:left-6 lg:-right-14 lg:bottom-7 lg:left-auto lg:top-auto">
@@ -579,54 +575,25 @@ const LandingPage = () => {
       {/* ####################################### */}
       {/* -- Blog Section */}
       {/* ####################################### */}
-      {/* <section className="bg-[#3365E305] py-16 lg:pb-0">
+      <section className="space-y-16 bg-[#FBFCFE] lg:pb-0">
         <div className="wrapper">
           <div className="mb-9 md:mx-auto md:mb-0 lg:w-10/12 xl:w-7/12">
             <h2 className="text-center text-2xl font-semibold text-[#333] md:text-[2rem]">
-              Explore news from <span className="text-main-100">Goloka</span>
+              Case Study
             </h2>
             <p className="mt-4 text-center leading-7 text-[#434343] md:text-balance">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Amet
-              habitant dui consectetur sed nam amet, magna. Iet se
+              How we serve several industry partners to generate Hyperlocal Data
             </p>
           </div>
         </div>
-        <div className="no-scrollbar wrapper md:w-full md:overflow-x-auto md:py-16">
-          <div className="grid gap-6 md:flex md:w-max lg:grid-cols-2 xl:grid-cols-3">
-            {Array.from({ length: 4 }, (_: any, i: number) => (
-              <div
-                className="rounded-2xl bg-white p-4 shadow-[0px_0px_64.8px_0px_rgba(8,_0,_81,_0.08)] md:w-[380px]"
-                key={i}
-              >
-                <AspectRatio
-                  ratio={3 / 2}
-                  className="overflow-hidden rounded-lg"
-                >
-                  <Image src={Agric} alt="Agricultural" fill />
-                </AspectRatio>
-                <h3 className="mb-3.5 mt-4 text-xl font-semibold text-[#333]">
-                  Agricultural & Food Security
-                </h3>
-                <p className="mb-6 leading-6 text-[#333]">
-                  Lorem ipsum dolor sit amet consectetur. Sed et in massa sit
-                  vestibulum sit dignissim suspendisse nam. Mi ut donec tellus
-                  at. Laoreet faucibus ac sed sit sem. Amet nibh dignissim nunc
-                  tempor.
-                </p>
-                <Link
-                  href="/"
-                  className="inline-flex items-center gap-1 text-sm text-main-100"
-                >
-                  <span>Learn more</span>
-                  <span>
-                    <ArrowRight size={16} color="currentColor" />
-                  </span>
-                </Link>
-              </div>
+        <div className="container mx-auto px-4">
+          <div className="mx-auto grid max-w-4xl grid-cols-1 gap-8 md:grid-cols-2">
+            {blogData.map((post) => (
+              <BlogCard key={post.id} data={post} />
             ))}
           </div>
         </div>
-      </section> */}
+      </section>
       {/* ####################################### */}
       {/* -- CALL TO ACTION Section */}
       {/* ####################################### */}

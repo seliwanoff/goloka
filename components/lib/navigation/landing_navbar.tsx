@@ -77,12 +77,13 @@ const LandingNavbar: React.FC<ComponentProps> = ({}) => {
           <nav className="hidden items-center gap-6 md:flex">
             {navLinks.map((link) => (
               <Link
+                aria-disabled
                 href={link.href}
                 key={link.href}
                 className={classMerge(
-                  "transit text-base font-medium text-[#4F4F4F] hover:text-main-100",
+                  "transit text-base font-medium text-[#fff] hover:text-[#fff]",
                   pathname.includes(link.href)
-                    ? "hover:text-primary-400 text-primary"
+                    ? "hover:text-[#fff] text-[#fff]"
                     : "",
                 )}
               >
@@ -146,13 +147,14 @@ const LandingNavbar: React.FC<ComponentProps> = ({}) => {
           <PopoverContent className="flex flex-col gap-4">
             {navLinks.map((link) => (
               <Link
+                aria-disabled
                 href={link.href}
                 key={link.text}
                 className={classMerge(
                   "transit text-sm font-normal",
                   pathname.includes(link.href)
                     ? "hover:text-primary-400 text-primary"
-                    : "text-gray-600 hover:text-black",
+                    : "text-[#fff] hover:text-[#fff]",
                 )}
               >
                 {link.text}

@@ -21,7 +21,6 @@ import { useRemoteUserStore } from "@/stores/remoteUser";
 import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
 
 
-//fix bugs and updates
 type PageProps = {};
 
 type FormValues = {

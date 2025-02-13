@@ -33,13 +33,6 @@ const HeroSection: React.FC<ComponentProps> = () => {
             intelligence, mobile, and geospatial technologies.
           </p>
 
-          {/* <div className="w-full lg:w-auto">
-            <Link href="/signup" className="block w-full lg:inline-block">
-              <Button className="w-full max-w-sm mx-auto rounded-full bg-main-100 px-7 py-3.5 text-sm font-light text-white hover:bg-blue-700 lg:w-auto">
-                Get Started
-              </Button>
-            </Link>
-          </div> */}
           <div className="w-full lg:w-auto">
             <Link href="/signin" className="block w-full lg:inline-block">
               <Button className="mx-auto w-full max-w-sm rounded-full bg-main-100 px-7 py-3.5 text-sm font-light text-white hover:bg-blue-700 lg:w-auto">
@@ -50,8 +43,8 @@ const HeroSection: React.FC<ComponentProps> = () => {
         </div>
 
         {/* Right Image */}
-        <div className="relative mx-auto w-full max-w-2xl flex-1 rounded-2xl bg-[#EBF0FC] p-4 lg:max-w-none">
-          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl">
+        <div className="relative mx-auto w-full max-w-xl flex-1 rounded-2xl bg-[#EBF0FC] p-4 lg:max-w-xl">
+          <div className="aspect-square relative w-full overflow-hidden rounded-2xl">
             <Image
               src={heroImage}
               alt="Aerial view of a city with dense housing"
