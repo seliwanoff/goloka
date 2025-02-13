@@ -528,7 +528,11 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
                 currentPage={currentPage}
                 pageSize={pageSize}
                 onPageChange={setCurrentPage}
-                onRowSizeChange={setPageSize} totalPages={undefined}              />
+                //@ts-ignore
+                onRowSizeChange={setPageSize}
+                //@ts-ignore
+                totalPages={responseData?.pagination?.total_items / pageSize}
+              />
             </div>
           </div>
         </div>
@@ -538,7 +542,6 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
 };
 
 export default ResponsesPage;
-
 
 interface StatusPillProps {
   status: Status;

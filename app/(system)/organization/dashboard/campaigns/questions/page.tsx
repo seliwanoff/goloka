@@ -92,10 +92,8 @@ const Create = () => {
   const [isAddQuestion, setIsAddQuestion] = useState(false);
   const [campaigns, setCampaigns] = useState<any>([]);
   const [localChecked, setLocalChecked] = useState(false);
-    const [openQuestion, setOpenQuestion] = useState<boolean>(false);
-      const [clickedId, setClickedId] = useState<string | null>(null);
-
-
+  const [openQuestion, setOpenQuestion] = useState<boolean>(false);
+  const [clickedId, setClickedId] = useState<string | null>(null);
 
   const router = useRouter();
   const {
@@ -377,8 +375,8 @@ const Create = () => {
 
     if (!isAnyQuestionAvailable) {
       try {
-        await submitCampaign(questionId);
-        router.push("/organization/dashboard/campaigns");
+        //   await submitCampaign(questionId);
+        router.push(`/organization/dashboard/campaigns/${questionId}`);
       } catch (e: any) {
         //console.log(e?.response?.data?.message);
         toast.error(e?.response?.data?.message);
@@ -430,7 +428,7 @@ const Create = () => {
 
         await createQuestion(questionId, payload);
         try {
-          await submitCampaign(questionId);
+         // await submitCampaign(questionId);
           toast.success("Question saved successfully.");
         } catch (e) {
           console.log(e);
@@ -443,7 +441,8 @@ const Create = () => {
         ]);
         setIsQuestionSaved(true);
       }
-      router.push("/organization/dashboard/campaigns");
+      router.push(`/organization/dashboard/campaigns/${questionId}`);
+
     } catch (error) {
       allQuestionsSaved = false;
       console.error("Error saving questions:", error);
@@ -1409,25 +1408,24 @@ const Create = () => {
     getCampaign();
   }, []);
 
-
   const deletQuestion = async (id: any) => {
-      //setClickedId(id);
-      setIsSubmitting(true);
-      try {
-        const response = await deleteQuestionCampaign(questionId as string, id);
+    //setClickedId(id);
+    setIsSubmitting(true);
+    try {
+      const response = await deleteQuestionCampaign(questionId as string, id);
 
-        if (response) {
-          toast.success("Question deleted successfully");
-          getAllQuestion();
-          setOpenQuestion(false);
-        }
-      } catch (e) {
-        console.log(e);
-        toast.error("Error deleting question");
-      } finally {
-        setIsSubmitting(false);
+      if (response) {
+        toast.success("Question deleted successfully");
+        getAllQuestion();
+        setOpenQuestion(false);
       }
-    };
+    } catch (e) {
+      console.log(e);
+      toast.error("Error deleting question");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <>
@@ -1439,8 +1437,7 @@ const Create = () => {
         action={getAllQuestion}
       />
 
-
-<UpdateCampaignDialog
+      <UpdateCampaignDialog
         title={"Delete Question"}
         content={"Are you sure you want to delete this question?"}
         action={() => deletQuestion(clickedId)}

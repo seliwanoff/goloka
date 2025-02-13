@@ -101,8 +101,8 @@ export const getGuestCampaign = async (): Promise<AxiosResponse<any>> => {
 };
 
 export const getCampaign = async (
-  page: any,
-  currentPage: any,
+  page?: any,
+  currentPage?: any,
 ): Promise<AxiosResponse<any>> => {
   try {
     return await fetchData(
