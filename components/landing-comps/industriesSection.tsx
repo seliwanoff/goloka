@@ -6,7 +6,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
-import Imagx from "@/public/assets/images/imageGoloka.png";
+import Imagx from "@/public/assets/images/mapx.png";
 import Star from "@/public/assets/images/white_star.svg";
 interface IndustryItem {
   title: string;
@@ -42,14 +42,14 @@ const industries: IndustryItem[] = [
 
 const IndustriesSection = ({ worldMapBg }: IndustriesSectionProps) => {
   return (
-    <section className="relative min-h-screen w-full  py-16">
+    <section className="relative min-h-screen w-full py-16">
       {/* Background with map and dots effect */}
       <div className="absolute inset-0 overflow-hidden">
         <Image
           src={worldMapBg}
           alt="World map background"
           fill
-          className="object-cover "
+          className="object-cover"
           priority
         />
         {/* <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#001B3D]/50" /> */}
@@ -63,18 +63,18 @@ const IndustriesSection = ({ worldMapBg }: IndustriesSectionProps) => {
             <span className="inline-block rotate-45">✦</span>
             <span>Industries we serve</span>
           </div> */}
-          <div className="mx-auto inline-flex items-center justify-center gap-3 rounded-full bg-white/5 px-4 py-3 text-sm font-medium text-[#fff] backdrop-blur-sm mb-4">
+          <div className="mx-auto mb-4 inline-flex items-center justify-center gap-3 rounded-full bg-white/5 px-4 py-3 text-sm font-medium text-[#fff] backdrop-blur-sm">
             <span>
               <Image src={Star} alt="star icon" className="text-[#fff]" />
             </span>{" "}
             Industries we serve
           </div>
 
-          <h2 className="text-xl font-bold leading-tight text-white md:text-xl lg:text-xl mt-4">
+          <h2 className="mt-4 text-xl font-bold leading-tight text-white md:text-xl lg:text-xl">
             Real time insights on products, projects <br /> and public opinions
           </h2>
         </div>
-        <div className="flex flex-col items-center gap-20 lg:flex-row mt-8">
+        <div className="mt-8 flex flex-col items-center gap-20 lg:flex-row">
           {/* Left side content */}
           <div className="w-full space-y-8 lg:w-1/2">
             <Accordion type="single" collapsible className="w-full space-y-4">
@@ -96,7 +96,7 @@ const IndustriesSection = ({ worldMapBg }: IndustriesSectionProps) => {
           </div>
 
           {/* Right side map */}
-          <div className="w-full lg:w-1/2">
+          <div className="w-full rounded-3xl bg-[#EBF0FC] p-3 lg:w-1/2">
             <div className="relative aspect-square w-full overflow-hidden rounded-3xl">
               <Image
                 src={Imagx}
@@ -105,21 +105,6 @@ const IndustriesSection = ({ worldMapBg }: IndustriesSectionProps) => {
                 className="object-cover"
                 priority
               />
-              {/* Pins can be added here as absolute positioned elements */}
-              {/* {[...Array(8)].map((_, index) => (
-                <div
-                  key={index}
-                  className={cn(
-                    "absolute h-4 w-4 rounded-full",
-                    index % 2 === 0 ? "bg-red-500" : "bg-yellow-400",
-                    "animate-pulse",
-                  )}
-                  style={{
-                    left: `${20 + index * 15}%`,
-                    top: `${30 + index * 10}%`,
-                  }}
-                />
-              ))} */}
             </div>
           </div>
         </div>

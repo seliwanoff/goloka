@@ -10,6 +10,7 @@ import { BiLogoInstagramAlt } from "react-icons/bi";
 type Props = {};
 
 const Footer = (props: Props) => {
+   const currentYear = new Date().getFullYear();
   return (
     <>
       <div className="py-10">
@@ -22,10 +23,12 @@ const Footer = (props: Props) => {
               </AspectRatio>
             </div>
             <p className="mt-6 text-sm font-medium text-[#4F4F4F] md:text-base">
-              Goloka is a robust data collection platform that leverages AI and <br/>
-              citizen-sourced data to deliver real-time, localised insights <br/>
-              which unlocks hyperlocal research for business, <br/>government and
-              development organisations
+              Goloka is a robust data collection platform that leverages AI and{" "}
+              <br />
+              citizen-sourced data to deliver real-time, localised insights{" "}
+              <br />
+              which unlocks hyperlocal research for business, <br />
+              government and development organisations
             </p>
           </div>
 
@@ -82,7 +85,7 @@ const Footer = (props: Props) => {
                 Plot 404, Marcus Garvey St, 54Road,
                 <br /> 5th Ave, Gwarimpa, Abuja, Nigeria
               </li>
-              <li>contact@goloka.com</li>
+              <li>hello@goloka.io</li>
               <li>+234 (811) 666 5321</li>
             </ul>
           </div>
@@ -91,7 +94,7 @@ const Footer = (props: Props) => {
 
           <div className="text-center text-xs text-[#797B89] md:col-span-4">
             <hr className="mb-3" />
-            Copyright © 2024 GOLOKA
+            Copyright © {currentYear} GOLOKA™
           </div>
         </div>
       </div>
