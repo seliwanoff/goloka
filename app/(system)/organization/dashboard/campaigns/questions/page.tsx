@@ -428,7 +428,7 @@ const Create = () => {
 
         await createQuestion(questionId, payload);
         try {
-          await submitCampaign(questionId);
+         // await submitCampaign(questionId);
           toast.success("Question saved successfully.");
         } catch (e) {
           console.log(e);
@@ -441,7 +441,8 @@ const Create = () => {
         ]);
         setIsQuestionSaved(true);
       }
-      router.push("/organization/dashboard/campaigns");
+      router.push(`/organization/dashboard/campaigns/${questionId}`);
+
     } catch (error) {
       allQuestionsSaved = false;
       console.error("Error saving questions:", error);
