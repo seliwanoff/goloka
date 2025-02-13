@@ -128,6 +128,8 @@ const WalletPage = () => {
     } catch (err: any) {
       console.error("Error during validation:", err);
       // toast.error(err.message || "An error occurred during validation.");
+    } finally {
+      await getOrgaization();
     }
   }, [trxref, ref]);
 
