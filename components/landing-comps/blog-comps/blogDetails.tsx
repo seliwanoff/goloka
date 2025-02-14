@@ -18,7 +18,7 @@ const BlogDetails = ({ post }: BlogDetailsProps) => {
       <div className="wrapper mx-auto max-w-5xl pb-16 pt-28">
         <div className="">
           <p className="inline-flex items-center gap-4 text-[#4f4f4f]">
-            March 31st, 2024{" "}
+            {post.time}{" "}
             <span className="inline-block h-2 w-2 rounded-full bg-[#D9D9D9]" />{" "}
             {post.readTime} mins read
           </p>
