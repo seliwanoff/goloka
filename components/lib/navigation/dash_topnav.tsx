@@ -203,6 +203,7 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
           ...response.services.contributor,
           account_type: "contributor",
           name: currentUsers && currentUsers.data.name,
+          image: currentUsers && currentUsers.data.profile.profile_photo_path,
         }
       : null;
     //@ts-ignore
@@ -224,7 +225,7 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
   const handleCurrentOrgnization = (org: any) => {
     if (org.account_type === "contributor") {
       getCurrentUser();
-      getCurrentOrganization([]);
+      getCurrentOrganization({ ...org, id: null });
       window.location.href = "/dashboard/root";
     } else {
       getCurrentOrganization(org);
@@ -254,6 +255,23 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
   );
 
   //console.log(currentUser);
+
+  const profileImage = useMemo(() => {
+    if (
+      currentOrganization &&
+      firstSegment === "organization" &&
+      currentOrganization.image
+    ) {
+      return currentOrganization.image;
+    }
+    if (currentUser) {
+      //@ts-ignore
+      return currentUser?.profile.profile_photo_path;
+    }
+    return null;
+  }, [currentOrganization, currentUser]);
+
+  // console.log(currentUser);
   const initials = useMemo(
     () =>
       getInitials(
@@ -344,7 +362,15 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                   className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-white`}
                   style={{ backgroundColor }}
                 >
-                  {initials}
+                  {profileImage ? (
+                    <img
+                      src={profileImage}
+                      alt="Profile"
+                      className="h-full w-full rounded-full"
+                    />
+                  ) : (
+                    initials
+                  )}
                 </div>
 
                 <div className="hidden flex-col items-start justify-center lg:flex">
@@ -391,7 +417,15 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                               className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-white`}
                               style={{ backgroundColor }}
                             >
-                              {getInitials(org.name)}
+                              {org.image ? (
+                                <img
+                                  src={org.image}
+                                  alt="profile"
+                                  className="object-cover33 h-full w-full rounded-full"
+                                />
+                              ) : (
+                                getInitials(org.name)
+                              )}
                             </div>
                             <div className="flex flex-col justify-center">
                               <p className="text-base font-semibold">
