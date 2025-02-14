@@ -261,7 +261,7 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
 
   //console.log(currentOrganization);
   const filteredOrganizations = organizations.filter(
-    (org) => org.id !== currentOrganization?.id
+    (org) => org?.id !== currentOrganization?.id
   );
     //console.log(currentUser);
   const initials = useMemo(
