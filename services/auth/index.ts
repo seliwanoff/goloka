@@ -89,16 +89,16 @@ export const userLogout = async () => {
 
 export const getCurrentOrganization = (org: any) => {
   useOrganizationStore.getState().setOrganization({
-    id: org.id,
-    name: org.name,
+    id: org?.id,
+    name: org?.name,
     email: "",
-    country: org.country,
+    country: org?.country,
     current_role: "",
     email_verified_at: "",
     pin_status: false,
-    domain: org.domain,
-    currency: org.country["currency-code"],
-    symbol: org.country["currency-symbol"],
+    domain: org?.domain,
+    currency: (org?.country && org?.country["currency-code"]) || "",
+    symbol: (org?.country && org?.country["currency-symbol"]) || "",
   });
 };
 

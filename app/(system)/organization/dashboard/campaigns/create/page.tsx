@@ -64,6 +64,7 @@ const CreateNewCampaign = () => {
   const [endDate, setEndDate] = useState<Date | null>(null);
   const { show, setShowCreate } = useAddcampaignGroupOverlay();
   const [file, setFile] = useState<File | null>(null);
+  const [isAllow, setIsAllow] = useState<boolean>(true);
 
   const [organizationCampaign, setOrganizationCampaign] = useState([]);
 
@@ -223,7 +224,7 @@ const CreateNewCampaign = () => {
     formData.append("payment_rate_for_response", paymentRate.toString());
     formData.append("starts_at", formattedStartsAt);
     formData.append("ends_at", formattedEndsAt);
-    formData.append("allows_multiple_responses", "1");
+    formData.append("allows_multiple_responses", isAllow ? "1" : "0");
 
     if (file) {
       formData.append("images[0]", file, file.name);
@@ -560,12 +561,18 @@ const CreateNewCampaign = () => {
                 <Input
                   name="question"
                   id="question"
-                  type="number"
+                  type="text"
+                  value={paymentRate}
                   autoComplete="off"
                   placeholder="Payment rate"
-                  onChange={(e) => setPaymentRate(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const sanitizedValue = value.replace(/\D/g, "");
+                    setPaymentRate(sanitizedValue);
+                  }}
                   className="h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
                 />
+
                 <span className="font-poppins text-sm font-normal leading-[21px] text-[#828282]">
                   This is amount you are willing to pay for each response
                 </span>
@@ -577,16 +584,30 @@ const CreateNewCampaign = () => {
                 </span>
                 <Input
                   name="question"
-                  type="number"
-                  autoComplete="off"
                   id="question"
-                  onChange={(e) => setResponseNumber(e.target.value)}
-                  placeholder="input number of response"
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  placeholder="Input number of response"
+                  value={responseNumber}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const sanitizedValue = value.replace(/\D/g, "");
+                    setResponseNumber(sanitizedValue);
+                  }}
                   className="h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
                 />
-                <span className="font-poppins text-sm font-normal leading-[21px] text-[#828282]">
-                  <Checkbox /> Accept multiple response from an individual
-                  response
+
+                <span className="mt-2 inline-flex gap-2 font-poppins text-sm font-normal leading-[21px] text-[#828282]">
+                  <Input
+                    type="checkbox"
+                    checked={isAllow}
+                    className="h-3 w-1 cursor-pointer"
+                    onChange={(e: any) => {
+                      setIsAllow(e.target.checked);
+                    }}
+                  />
+                  Accept multiple response from an individual response
                 </span>
               </Label>
 
