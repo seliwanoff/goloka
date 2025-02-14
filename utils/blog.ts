@@ -9,6 +9,7 @@ export interface BlogPost {
   image: StaticImageData;
   readTime: string;
   category: string;
+  time: string;
   content: {
     introduction: {
       client: string;
@@ -32,6 +33,7 @@ export const blogData: BlogPost[] = [
     image: swofon,
     readTime: "8",
     category: "Agriculture",
+    time: " May 31st, 2024",
     content: {
       introduction: {
         client:
@@ -71,6 +73,7 @@ export const blogData: BlogPost[] = [
     image: jet,
     readTime: "6",
     category: "Environment",
+    time: " March 31st, 2024",
     content: {
       introduction: {
         client: "Centre for Journalism Innovation and Development (CJID)",

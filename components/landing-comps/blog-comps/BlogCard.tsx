@@ -24,7 +24,7 @@ const BlogCard = ({ data, className }: BlogCardProps) => {
 
       <div className="mt-4">
         <p className="inline-flex items-center gap-3 text-[#4f4f4f]">
-          May 31st, 2024{" "}
+         {data.time}{" "}
           <span className="inline-block h-2 w-2 rounded-full bg-[#D9D9D9]" />{" "}
           {data.readTime} mins read
         </p>

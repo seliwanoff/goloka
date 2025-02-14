@@ -83,7 +83,7 @@ const LandingNavbar: React.FC<ComponentProps> = ({}) => {
                 className={classMerge(
                   "transit text-base font-medium text-[#fff] hover:text-[#fff]",
                   pathname.includes(link.href)
-                    ? "hover:text-[#fff] text-[#fff]"
+                    ? "text-[#fff] hover:text-[#fff]"
                     : "",
                 )}
               >
@@ -151,7 +151,7 @@ const LandingNavbar: React.FC<ComponentProps> = ({}) => {
                 href={link.href}
                 key={link.text}
                 className={classMerge(
-                  "transit text-sm font-normal",
+                  "transit hidden text-sm font-normal",
                   pathname.includes(link.href)
                     ? "hover:text-primary-400 text-primary"
                     : "text-[#fff] hover:text-[#fff]",
@@ -160,7 +160,10 @@ const LandingNavbar: React.FC<ComponentProps> = ({}) => {
                 {link.text}
               </Link>
             ))}
-            <Button className="mt-3" onClick={() => router.push("/signin")}>
+            <Button
+              className="mt-3 bg-main-100 px-6 text-white hover:bg-blue-700 md:block"
+              onClick={() => router.push("/signin")}
+            >
               Get Started
             </Button>
           </PopoverContent>
