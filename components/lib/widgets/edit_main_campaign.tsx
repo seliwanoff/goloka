@@ -268,6 +268,16 @@ const EditMainCampaignWidget = () => {
         : [...selectedStateIds, stateId],
     );
   };
+  const toggleCampaignSelection = (groupid: number) => {
+    setSelectedCampaignGroupId((prev: number | null) => {
+      const newSelectedId = prev === groupid ? null : groupid;
+
+      // Ensure the updated value is used in getSelectedGroupIds
+      getSelectedGroupIds([null], organizationCampaign || []);
+
+      return newSelectedId;
+    });
+  };
 
   const toggleLgaSelection = (lgaId: number) => {
     setSelectedLgaIds((prev) =>
@@ -301,6 +311,12 @@ const EditMainCampaignWidget = () => {
       .map((id) => data.find((item) => item.id === id)?.label)
       .filter(Boolean);
   };
+
+  const getSelectedGroupIds = (ids: any, data: any[]) => {
+    return ids
+      .map((id: any) => data.find((item) => item.id === id)?.name)
+      .filter(Boolean);
+  };
   useEffect(() => {
     getCampaignGroup();
   }, []);
@@ -318,6 +334,31 @@ const EditMainCampaignWidget = () => {
             <span className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
               Campaign group
             </span>
+
+            <div className="mt-4 flex flex-wrap gap-2 rounded-md border border-[#D9DCE0] p-2">
+              {getSelectedGroupIds([groupdId], organizationCampaign || []).map(
+                (label: any) => (
+                  <div
+                    key={label}
+                    className="flex items-center gap-2 rounded-full bg-main-100 px-3 py-1 text-sm text-white"
+                  >
+                    {label}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        toggleCampaignSelection(
+                          organizationCampaign.find(
+                            (item: any) => item === item.id,
+                          ) || 0,
+                        )
+                      }
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ),
+              )}
+            </div>
             <Select
               value={selectedCampaignGroupId}
               onValueChange={(value: any) => {
