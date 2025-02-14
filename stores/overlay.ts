@@ -96,7 +96,7 @@ interface EditCampaignMainState {
   setShow: (value: boolean) => void;
   title: string;
   id: number;
-  groupdId: number;
+  groupdId: any;
   setTitle: (value: string) => void;
   description: string;
   setDescription: (value: string) => void;
@@ -234,7 +234,7 @@ const useEditMainCampaignOverlay = create<EditCampaignMainState>((set) => ({
   setTitle: (value) => set({ title: value }),
   description: "",
   id: 0,
-  groupdId:"",
+  groupdId: "",
   setDescription: (value) => set({ description: value }),
   setId: (value) => set({ id: value }),
   setGroupId: (value) => set({ groupdId: value }),
