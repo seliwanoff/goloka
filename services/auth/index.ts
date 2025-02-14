@@ -97,7 +97,7 @@ export const getCurrentOrganization = (org: any) => {
     email_verified_at: "",
     pin_status: false,
     domain: org?.domain,
-    currency: org?.country &&  org?.country["currency-code"] || "",
-    symbol:org?.country &&  org?.country["currency-symbol"] || '',
+    currency: (org?.country && org?.country["currency-code"]) || "",
+    symbol: (org?.country && org?.country["currency-symbol"]) || "",
   });
 };

@@ -133,14 +133,13 @@ const Dashboard = () => {
       : organizations;
 
     setOrganizations(mergedData);
-    // console.log(currentOrganization);
-    //console.log(data.id);
+
+    // if(orgData)
+
     if (orgData?.id === undefined && document.readyState === "complete") {
       getCurrentOrganization(mergedData[1]);
       window.location.reload();
     }
-
-    //console.log(document.readyState);
   };
 
   useEffect(() => {

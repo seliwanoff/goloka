@@ -74,7 +74,7 @@ import {
 import { BookmarkButton } from "@/components/contributor/BookmarkButton";
 import Map from "@/components/map/map";
 import { useRemoteUserStore } from "@/stores/remoteUser";
-import { getStatusText } from "@/helper";
+import { getStatusText, numberWithCommas } from "@/helper";
 import { chunkArray, cn } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BsThreeDots } from "react-icons/bs";
@@ -226,26 +226,6 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
     }
   };
 
-  const handleSubmitCampaign = async () => {
-    // setisSubmititng(true);
-    setisSubmititngCampaign(true);
-    try {
-      const response = await submitCampaign(campaignId as string);
-
-      if (response) {
-        toast.success("Campaign submitted sucessfully");
-        getQuestionByCampaignId();
-        setOpenQuestion(false);
-      }
-    } catch (e) {
-      console.log(e);
-      /**@ts-ignore **/
-      toast.error(e?.response?.data.message || "Error submitting question");
-    } finally {
-      setisSubmititngCampaign(false);
-      setOpenSubmit(false);
-    }
-  };
   const handleUpdate = (id: string, required: boolean) => {
     console.log("Heelo");
   };
@@ -453,7 +433,7 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
       task?.data?.locations?.states?.map((state: any) => (
         <span
           key={state.label}
-          className="bg-gray-200 px-[6px] py-[3px] font-poppins text-[12px] text-[#4F4F4F] rounded-lg"
+          className="rounded-lg bg-gray-200 px-[6px] py-[3px] font-poppins text-[12px] text-[#4F4F4F]"
         >
           {state.label}
         </span>
@@ -472,9 +452,11 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
         //@ts-ignore
         const groupedQuestions =
           //@ts-ignore
-          response.question_groups?.flatMap((group) => group.questions) || [];
+          response.grouped_questions?.flatMap((group) => group.questions) || [];
         //@ts-ignore
         const ungroupedQuestions = response.ungrouped_questions || [];
+
+        //  console.log("ungrouped", grouped_questions)
 
         const allQuestions = [...groupedQuestions, ...ungroupedQuestions];
 
@@ -541,7 +523,28 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
     setSeletctedStatus(status);
     setOpen(true);
   };
+  const handleSubmitCampaign = async () => {
+    // setisSubmititng(true);
+    setisSubmititngCampaign(true);
+    try {
+      const response = await submitCampaign(campaignId as string);
+      //@ts-ignore
+      queryClient.invalidateQueries(["get a Campaign", campaignId as string]);
 
+      if (response) {
+        toast.success("Campaign submitted sucessfully");
+        getQuestionByCampaignId();
+        setOpenQuestion(false);
+      }
+    } catch (e) {
+      console.log(e);
+      /**@ts-ignore **/
+      toast.error(e?.response?.data.message || "Error submitting question");
+    } finally {
+      setisSubmititngCampaign(false);
+      setOpenSubmit(false);
+    }
+  };
   const updateCampaignStatus = async (status: string) => {
     setisSubmititngCampaign(true);
     try {
@@ -681,7 +684,7 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
               setEndDate(task?.data.ends_at);
               setNumberOfresponse(task?.data.number_of_responses);
               setShow(true);
-              setGroupId(task?.data?.campaign_group_id)
+              setGroupId(task?.data?.campaign_group_id);
             }}
           >
             <Edit size={20} />
@@ -897,7 +900,7 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
                   <div className="basis-[300px]">
                     <h4 className="text-[#101828]">
                       {USER_CURRENCY_SYMBOL} {/* @ts-ignore */}
-                      {task?.data?.campaign_fee}{" "}
+                      {numberWithCommas(task?.data?.campaign_fee)}{" "}
                     </h4>
                     <p className="text-sm text-gray-400">Campaign cost</p>
                   </div>
@@ -905,14 +908,14 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
                   <div className="basis-[300px]">
                     <h4 className="text-[#101828]">
                       {USER_CURRENCY_SYMBOL} {/* @ts-ignore */}
-                      {task?.data?.admin_fee}{" "}
+                      {numberWithCommas(task?.data?.admin_fee)}{" "}
                     </h4>
                     <p className="text-sm text-gray-400">Admin fee</p>
                   </div>
                   <div className="basis-[300px]">
                     <h4 className="text-[#101828]">
                       {USER_CURRENCY_SYMBOL} {/* @ts-ignore */}
-                      {task?.data?.total_fee}{" "}
+                      {numberWithCommas(task?.data?.total_fee)}{" "}
                     </h4>
                     <p className="text-sm text-gray-400">Total fee</p>
                   </div>
