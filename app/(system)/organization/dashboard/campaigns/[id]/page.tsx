@@ -195,6 +195,7 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
     setpayment_rate_for_response,
     setNumberOfresponse,
     setEndDate,
+    setGroupId,
     setStartDate,
     number_of_responses,
     payment_rate_for_response,
@@ -452,7 +453,7 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
       task?.data?.locations?.states?.map((state: any) => (
         <span
           key={state.label}
-          className="bg-gray-200 px-[6px] py-[3px] font-poppins text-[12px] text-[#4F4F4F]"
+          className="bg-gray-200 px-[6px] py-[3px] font-poppins text-[12px] text-[#4F4F4F] rounded-lg"
         >
           {state.label}
         </span>
@@ -680,6 +681,7 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
               setEndDate(task?.data.ends_at);
               setNumberOfresponse(task?.data.number_of_responses);
               setShow(true);
+              setGroupId(task?.data?.campaign_group_id)
             }}
           >
             <Edit size={20} />

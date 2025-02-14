@@ -62,6 +62,7 @@ const EditMainCampaignWidget = () => {
     description,
     id,
     setShow,
+    groupdId,
     setIsShowEdit,
     countryId: initialCountryId,
     stateIds: initialStateIds,
@@ -84,7 +85,7 @@ const EditMainCampaignWidget = () => {
     initialStateIds,
   );
   const [selectedCampaignGroupId, setSelectedCampaignGroupId] =
-    useState<any>("");
+    useState<any>(groupdId);
   const [selectedCampaignGroup, setSelectedCampaignGroup] = useState("");
 
   const [selectedLgaIds, setSelectedLgaIds] = useState<number[]>(

@@ -236,7 +236,7 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
   const handleCurrentOrgnization = (org: any) => {
     if (org.account_type === "contributor") {
       getCurrentUser();
-      // getCurrentOrganization(null);
+     getCurrentOrganization([]);
       window.location.href = "/dashboard/root";
     } else {
       getCurrentOrganization(org);
@@ -260,8 +260,10 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
   };
 
   //console.log(currentOrganization);
-  const filteredOrganizations = organizations;
-  //console.log(currentUser);
+  const filteredOrganizations = organizations.filter(
+    (org) => org.id !== currentOrganization?.id
+  );
+    //console.log(currentUser);
   const initials = useMemo(
     () =>
       getInitials(
@@ -362,12 +364,12 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                     {
                       INDIVIDUAL: (
                         <p className="-mt-1 text-sm font-light">
-                          Contributor Accounts
+                          Contributor Account
                         </p>
                       ),
                       ORGANISATION: (
                         <p className="-mt-1 text-sm font-light">
-                          Organisation accounts
+                          Organisation account
                         </p>
                       ),
                     }[
@@ -408,8 +410,8 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
 
                             <p className="mt-1 max-w-[200px] overflow-hidden text-ellipsis text-nowrap text-xs font-medium text-gray-600">
                               {org.account_type === "contributor"
-                                ? "Individual accounts"
-                                : "Organisation accounts"}
+                                ? "Contributor Account"
+                                : "Organisation Acount"}
                             </p>
                           </p>
 
@@ -449,12 +451,12 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                           {
                             INDIVIDUAL: (
                               <p className="-mt-1 text-sm font-light">
-                                Individual Accounts
+                                Contributor Account
                               </p>
                             ),
                             ORGANISATION: (
                               <p className="-mt-1 text-sm font-light">
-                                Organisation accounts
+                                Organisation account
                               </p>
                             ),
                           }[
