@@ -225,7 +225,7 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
   const handleCurrentOrgnization = (org: any) => {
     if (org.account_type === "contributor") {
       getCurrentUser();
-      getCurrentOrganization([]);
+      getCurrentOrganization({ ...org, id: null });
       window.location.href = "/dashboard/root";
     } else {
       getCurrentOrganization(org);
@@ -271,7 +271,7 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
     return null;
   }, [currentOrganization, currentUser]);
 
-  console.log(currentUser);
+  // console.log(currentUser);
   const initials = useMemo(
     () =>
       getInitials(
