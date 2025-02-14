@@ -125,12 +125,6 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
   // const { token } = useAblyToken();
   const [lastMessage, setLastMessage] = useState<any>(null);
 
-  console.log(token, "house");
-  console.log(ablyClient, "ablyClient");
-
-  // const { channelName } = useAblyToken();
-  console.log(channelName, "channelName");
-
   // useEffect(() => {
   //   if (ablyClient && channelName) {
   //     console.log("Setting up channel subscription for:", channelName);
@@ -166,7 +160,7 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
       const channel = ablyClient.channels.get(channelName);
       //@ts-ignore
       const onMessage = (message: Ably.Types.Message) => {
-        console.log("New notification received:", message.data);
+        //console.log("New notification received:", message.data);
         refetch();
       };
 
@@ -222,12 +216,6 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
       : organizations;
 
     setOrganizations(mergedData);
-    // console.log(currentOrganization);
-    /***
-    if (currentOrganization == null && document.readyState === "complete") {
-      getCurrentOrganization(mergedData[1]);
-    }
-    **/
   };
 
   useEffect(() => {
@@ -261,8 +249,10 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
 
   //console.log(currentOrganization);
   const filteredOrganizations = organizations.filter(
-    (org: any) => org?.id !== currentOrganization?.id,
+    (org: any) =>
+      org?.id !== currentOrganization?.id && org?.id !== currentUser?.id,
   );
+
   //console.log(currentUser);
   const initials = useMemo(
     () =>
@@ -369,7 +359,7 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                       ),
                       ORGANISATION: (
                         <p className="-mt-1 text-sm font-light">
-                          Organisation account
+                          Organisation Account
                         </p>
                       ),
                     }[
@@ -389,33 +379,34 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                     scrollbarWidth: "thin",
                   }}
                 >
-                  {filteredOrganizations?.length > 0 ? (
-                    filteredOrganizations?.map((org: any, index) => (
-                      <div
-                        className="flex cursor-pointer items-center gap-5"
-                        onClick={() => handleCurrentOrgnization(org)}
-                        key={index}
-                      >
-                        <div
-                          className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-white`}
-                          style={{ backgroundColor }}
-                        >
-                          {getInitials(org.name)}
-                        </div>
-                        <div className="flex flex-col justify-center">
-                          <p className="text-base font-semibold">
-                            <p className="max-w-[200px] overflow-hidden text-ellipsis text-nowrap text-base font-semibold">
-                              {org.name}
-                            </p>
+                  {
+                    filteredOrganizations?.length > 0
+                      ? filteredOrganizations?.map((org: any, index) => (
+                          <div
+                            className="flex cursor-pointer items-center gap-5"
+                            onClick={() => handleCurrentOrgnization(org)}
+                            key={index}
+                          >
+                            <div
+                              className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-white`}
+                              style={{ backgroundColor }}
+                            >
+                              {getInitials(org.name)}
+                            </div>
+                            <div className="flex flex-col justify-center">
+                              <p className="text-base font-semibold">
+                                <p className="max-w-[200px] overflow-hidden text-ellipsis text-nowrap text-base font-semibold">
+                                  {org.name}
+                                </p>
 
-                            <p className="mt-1 max-w-[200px] overflow-hidden text-ellipsis text-nowrap text-xs font-medium text-gray-600">
-                              {org.account_type === "contributor"
-                                ? "Contributor Account"
-                                : "Organisation Acount"}
-                            </p>
-                          </p>
+                                <p className="mt-1 max-w-[200px] overflow-hidden text-ellipsis text-nowrap text-xs font-medium text-gray-600">
+                                  {org.account_type === "contributor"
+                                    ? "Contributor Account"
+                                    : "Organisation Acount"}
+                                </p>
+                              </p>
 
-                          {/**
+                              {/**
                         {
                           // @ts-ignore
                           {
@@ -432,10 +423,11 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                           }[user.data.account_type || "INDIVIDUAL"]
                         }
                           */}
-                        </div>
-                      </div>
-                    ))
-                  ) : (
+                            </div>
+                          </div>
+                        ))
+                      : "" /**(
+                     {/***
                     <div className="flex items-center gap-4">
                       <div
                         className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-white`}
@@ -443,6 +435,7 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                       >
                         {getInitials(user.data.name)}
                       </div>
+
 
                       <div className="hidden flex-col items-start justify-center lg:flex">
                         <p className="text-base font-semibold">{FirstName}</p>
@@ -456,7 +449,7 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                             ),
                             ORGANISATION: (
                               <p className="-mt-1 text-sm font-light">
-                                Organisation account
+                                Organisation Accountp
                               </p>
                             ),
                           }[
@@ -466,8 +459,11 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                           ]
                         }
                       </div>
+
                     </div>
-                  )}
+
+                  ) **/
+                  }
                 </div>
                 {organizations?.length > 0 &&
                   firstSegment !== "organization" && (

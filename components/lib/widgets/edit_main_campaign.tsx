@@ -62,7 +62,7 @@ const EditMainCampaignWidget = () => {
     description,
     id,
     setShow,
-    groupdId,
+
     setIsShowEdit,
     countryId: initialCountryId,
     stateIds: initialStateIds,
@@ -73,6 +73,7 @@ const EditMainCampaignWidget = () => {
     endDate: initialEndDate,
     allow_multiple_responses: allow_multiple_responses,
     type: type,
+    groupdId,
   } = useEditMainCampaignOverlay(); // Initial values from overlay
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -86,7 +87,7 @@ const EditMainCampaignWidget = () => {
   );
   const [selectedCampaignGroupId, setSelectedCampaignGroupId] =
     useState<any>(groupdId);
-  const [selectedCampaignGroup, setSelectedCampaignGroup] = useState("");
+  // const [selectedCampaignGroup, setSelectedCampaignGroup] = useState("");
 
   const [selectedLgaIds, setSelectedLgaIds] = useState<number[]>(
     /* @ts-ignore */
@@ -268,16 +269,24 @@ const EditMainCampaignWidget = () => {
         : [...selectedStateIds, stateId],
     );
   };
-  const toggleCampaignSelection = (groupid: number) => {
-    setSelectedCampaignGroupId((prev: number | null) => {
-      const newSelectedId = prev === groupid ? null : groupid;
-
-      // Ensure the updated value is used in getSelectedGroupIds
-      getSelectedGroupIds([null], organizationCampaign || []);
-
-      return newSelectedId;
-    });
+  const getSelectedGroupIds = (ids: (number | null)[], data: any[]) => {
+    return ids
+      .map((id) => data.find((item) => item.id === id)?.name)
+      .filter(Boolean);
   };
+
+  const toggleCampaignSelection = (groupid: number) => {
+    setSelectedCampaignGroupId((prev: any) =>
+      prev === groupid ? null : groupid,
+    );
+  };
+
+  // Get selected campaign group name
+  const selectedCampaignGroup =
+    getSelectedGroupIds(
+      [selectedCampaignGroupId],
+      organizationCampaign || [],
+    )[0] || "";
 
   const toggleLgaSelection = (lgaId: number) => {
     setSelectedLgaIds((prev) =>
@@ -312,11 +321,6 @@ const EditMainCampaignWidget = () => {
       .filter(Boolean);
   };
 
-  const getSelectedGroupIds = (ids: any, data: any[]) => {
-    return ids
-      .map((id: any) => data.find((item) => item.id === id)?.name)
-      .filter(Boolean);
-  };
   useEffect(() => {
     getCampaignGroup();
   }, []);
@@ -336,38 +340,30 @@ const EditMainCampaignWidget = () => {
             </span>
 
             <div className="mt-4 flex flex-wrap gap-2 rounded-md border border-[#D9DCE0] p-2">
-              {getSelectedGroupIds([groupdId], organizationCampaign || []).map(
-                (label: any) => (
-                  <div
-                    key={label}
-                    className="flex items-center gap-2 rounded-full bg-main-100 px-3 py-1 text-sm text-white"
+              {selectedCampaignGroup && (
+                <div className="flex items-center gap-2 rounded-full bg-main-100 px-3 py-1 text-sm text-white">
+                  {selectedCampaignGroup}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      toggleCampaignSelection(selectedCampaignGroupId!)
+                    }
                   >
-                    {label}
-                    <button
-                      type="button"
-                      onClick={() =>
-                        toggleCampaignSelection(
-                          organizationCampaign.find(
-                            (item: any) => item === item.id,
-                          ) || 0,
-                        )
-                      }
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
-                ),
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
               )}
             </div>
-            <Select
-              value={selectedCampaignGroupId}
-              onValueChange={(value: any) => {
-                const selected = organizationCampaign.find(
-                  (item: any) => item.id === parseInt(value),
-                ) as { id: number; name: string } | undefined;
 
-                setSelectedCampaignGroup(selected?.name || "");
-                setSelectedCampaignGroupId(selected?.id);
+            <Select
+              value={selectedCampaignGroupId?.toString() ?? ""}
+              onValueChange={(value: string) => {
+                const selected = organizationCampaign.find(
+                  (item: { id: number; name: string }) =>
+                    item.id === parseInt(value),
+                );
+                //@ts-ignore
+                setSelectedCampaignGroupId(selected?.id ?? null);
               }}
             >
               <SelectTrigger className="h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0">
@@ -396,6 +392,7 @@ const EditMainCampaignWidget = () => {
               </SelectContent>
             </Select>
           </Label>
+
           <Label
             htmlFor="title"
             className="mb-2 mt-6 inline-block font-light text-[#4F4F4F]"
@@ -427,7 +424,7 @@ const EditMainCampaignWidget = () => {
             htmlFor="description"
             className="mb-2 inline-block font-light text-[#4F4F4F]"
           >
-            Description
+            Descriptions
           </Label>
           <Textarea
             {...register("description")}
@@ -607,145 +604,145 @@ const EditMainCampaignWidget = () => {
                 </SelectGroup>
               </SelectContent>
             </Select>
+
             {errors.lgaIds && (
               <p className="text-sm text-red-500">{errors.lgaIds.message}</p>
             )}
-
-            <Label htmlFor="question" className="w-full">
-              <span className="mb-2 mt-6 inline-block text-base font-extralight text-[#4F4F4F]">
-                Payment rate (
-                {currentOrganization && currentOrganization.currency}{" "}
-                {currentOrganization && currentOrganization?.symbol})
-              </span>
-              <Input
-                {...register("rate")}
-                name="rate"
-                id="rate"
-                onChange={(e) => setValue("rate", e.target.value)}
-                type="number"
-                autoComplete="off"
-                placeholder="Payment rate"
-                // onChange={(e) => setPaymentRate(e.target.value)}
-                className="h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
-              />
-              <span className="font-poppins text-sm font-normal leading-[21px] text-[#828282]">
-                This is amount you are willing to pay for each response
-              </span>
-            </Label>
-
-            <Label htmlFor="question" className="mt-6 w-full">
-              <span className="mb-2 mt-6 inline-block text-base font-extralight text-[#4F4F4F]">
-                Number of respondents
-              </span>
-              <Input
-                {...register("response")}
-                name="response"
-                type="number"
-                autoComplete="off"
-                id="response"
-                onChange={(e) => setValue("response", e.target.value)}
-                //  onChange={(e) => setResponseNumber(e.target.value)}
-                placeholder="input number of response"
-                className="h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
-              />
-            </Label>
-            <div className="mt-4 flex w-full items-center gap-6">
-              <Label htmlFor="startDate" className="w-1/2">
-                <span className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
-                  Start at
-                </span>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-between gap-3 rounded-md border px-3 pr-1 text-center text-sm font-normal",
-                        "border-neutral-300",
-                      )}
-                    >
-                      {startDate
-                        ? `${format(startDate, "PPP")}`
-                        : "Select  date"}
-                      <span className="flex h-8 w-8 items-center justify-center rounded-md bg-[#F8F8F8]">
-                        <Calendar size={20} color="#828282" />
-                      </span>
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-4">
-                    <div className="flex flex-col items-center gap-4 rounded-md border bg-[#fff] shadow-md">
-                      <CalenderDate
-                        mode="single"
-                        //@ts-ignore
-                        selected={startDate}
-                        onSelect={(date: any) => setStartDate(date || null)}
-                        initialFocus
-                      />
-                      <div className="flex w-auto items-center justify-between">
-                        <button
-                          className="rounded-full bg-[#F8F8F8] px-2 py-1 text-sm text-blue-500"
-                          onClick={() => setStartDate(null)}
-                        >
-                          Clear
-                        </button>
-                      </div>
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              </Label>
-
-              <Label htmlFor="endDate" className="border-red w-1/2">
-                <span className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
-                  End at
-                </span>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-between gap-3 rounded-md border px-3 pr-1 text-center text-sm font-normal",
-                        "border-neutral-300", // Adjust border color
-                      )}
-                    >
-                      {endDate ? `${format(endDate, "PPP")}` : "Select date"}
-                      <span className="flex h-8 w-8 items-center justify-center rounded-md bg-[#F8F8F8]">
-                        <Calendar size={20} color="#828282" />
-                      </span>
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-4">
-                    <div className="flex flex-col items-center gap-4 rounded-md border bg-[#fff] shadow-md">
-                      <CalenderDate
-                        mode="single"
-                        //@ts-ignore
-                        selected={endDate}
-                        onSelect={(date: any) => setEndDate(date || null)}
-                        initialFocus
-                      />
-                      <div className="flex w-auto items-center justify-between">
-                        <button
-                          className="rounded-full bg-[#F8F8F8] px-2 py-1 text-sm text-blue-500"
-                          onClick={() => setEndDate(null)}
-                        >
-                          Clear
-                        </button>
-                      </div>
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              </Label>
-            </div>
-            <div className="mt-6">
-              <FileUpload
-                ref={null}
-                value={file}
-                onFileUpload={(file: any) => {
-                  setFile(file);
-                  console.log(file);
-                }}
-              />
-            </div>
           </div>
         )}
+
+        <Label htmlFor="question" className="w-full">
+          <span className="mb-2 mt-6 inline-block text-base font-extralight text-[#4F4F4F]">
+            Payment rate ({currentOrganization && currentOrganization.currency}{" "}
+            {currentOrganization && currentOrganization?.symbol})
+          </span>
+          <Input
+            {...register("rate")}
+            name="rate"
+            id="rate"
+            onChange={(e) => setValue("rate", e.target.value)}
+            type="text"
+            autoComplete="off"
+            disabled={true}
+            placeholder="Payment rate"
+            // onChange={(e) => setPaymentRate(e.target.value)}
+            className="h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
+          />
+          <span className="font-poppins text-sm font-normal leading-[21px] text-[#828282]">
+            This is amount you are willing to pay for each response
+          </span>
+        </Label>
+
+        <Label htmlFor="question" className="mt-6 w-full">
+          <span className="mb-2 mt-6 inline-block text-base font-extralight text-[#4F4F4F]">
+            Number of respondents
+          </span>
+          <Input
+            {...register("response")}
+            name="response"
+            type="text"
+            autoComplete="off"
+            id="response"
+            disabled={true}
+            onChange={(e) => setValue("response", e.target.value)}
+            //  onChange={(e) => setResponseNumber(e.target.value)}
+            placeholder="input number of response"
+            className="h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
+          />
+        </Label>
+        <div className="mt-4 flex w-full items-center gap-6">
+          <Label htmlFor="startDate" className="w-1/2">
+            <span className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
+              Start at
+            </span>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-between gap-3 rounded-md border px-3 pr-1 text-center text-sm font-normal",
+                    "border-neutral-300",
+                  )}
+                >
+                  {startDate ? `${format(startDate, "PPP")}` : "Select  date"}
+                  <span className="flex h-8 w-8 items-center justify-center rounded-md bg-[#F8F8F8]">
+                    <Calendar size={20} color="#828282" />
+                  </span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-4">
+                <div className="flex flex-col items-center gap-4 rounded-md border bg-[#fff] shadow-md">
+                  <CalenderDate
+                    mode="single"
+                    //@ts-ignore
+                    selected={startDate}
+                    onSelect={(date: any) => setStartDate(date || null)}
+                    initialFocus
+                  />
+                  <div className="flex w-auto items-center justify-between">
+                    <button
+                      className="rounded-full bg-[#F8F8F8] px-2 py-1 text-sm text-blue-500"
+                      onClick={() => setStartDate(null)}
+                    >
+                      Clear
+                    </button>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </Label>
+
+          <Label htmlFor="endDate" className="border-red w-1/2">
+            <span className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
+              End at
+            </span>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-between gap-3 rounded-md border px-3 pr-1 text-center text-sm font-normal",
+                    "border-neutral-300", // Adjust border color
+                  )}
+                >
+                  {endDate ? `${format(endDate, "PPP")}` : "Select date"}
+                  <span className="flex h-8 w-8 items-center justify-center rounded-md bg-[#F8F8F8]">
+                    <Calendar size={20} color="#828282" />
+                  </span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-4">
+                <div className="flex flex-col items-center gap-4 rounded-md border bg-[#fff] shadow-md">
+                  <CalenderDate
+                    mode="single"
+                    //@ts-ignore
+                    selected={endDate}
+                    onSelect={(date: any) => setEndDate(date || null)}
+                    initialFocus
+                  />
+                  <div className="flex w-auto items-center justify-between">
+                    <button
+                      className="rounded-full bg-[#F8F8F8] px-2 py-1 text-sm text-blue-500"
+                      onClick={() => setEndDate(null)}
+                    >
+                      Clear
+                    </button>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </Label>
+        </div>
+        <div className="mt-6">
+          <FileUpload
+            ref={null}
+            value={file}
+            onFileUpload={(file: any) => {
+              setFile(file);
+              console.log(file);
+            }}
+          />
+        </div>
 
         {/* Submit Button */}
         <div>

@@ -90,7 +90,7 @@ const SignIn: React.FC<PageProps> = ({}) => {
   const currentOrganization = useOrganizationStore(
     (state) => state.organization,
   );
-  console.log(currentOrganization);
+  // console.log(currentOrganization);
 
   const login = useGoogleLogin({
     onSuccess: handleGoogleSuccess,
