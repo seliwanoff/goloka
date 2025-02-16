@@ -178,7 +178,7 @@ export default LandingNavbar;
 const navLinks: { text: string; href: string }[] = [
   { text: "Products", href: "/" },
   { text: "Solution", href: "/" },
-  { text: "Case study", href: "/case-studies" },
-  { text: "Pricing", href: "/pricing" },
-  { text: "Blog", href: "/blog" },
+  { text: "Case study", href: "/" },
+  { text: "Pricing", href: "/" },
+  { text: "Blog", href: "/" },
 ];
