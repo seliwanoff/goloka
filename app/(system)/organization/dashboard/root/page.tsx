@@ -133,14 +133,27 @@ const Dashboard = () => {
       : organizations;
 
     setOrganizations(mergedData);
-    // console.log(currentOrganization);
-    //console.log(data.id);
-    if (orgData?.id === undefined && document.readyState === "complete") {
-      getCurrentOrganization(mergedData[1]);
+    //console.log(orgData);
+    if (orgData) {
+      getCurrentOrganization(orgData);
+      /***
+      if (orgData?.id === undefined && document.readyState === "complete") {
+        getCurrentOrganization(
+          mergedData[0]?.account_type === "organization"
+            ? mergedData[0]
+            : mergedData[1],
+        );
+        window.location.reload();
+      }
+        */
+    } else {
+      getCurrentOrganization(
+        mergedData[0]?.account_type === "organization"
+          ? mergedData[0]
+          : mergedData[1],
+      );
       window.location.reload();
     }
-
-    //console.log(document.readyState);
   };
 
   useEffect(() => {
