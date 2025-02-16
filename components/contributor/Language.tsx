@@ -67,6 +67,7 @@ export const languages = [
   { label: "Turkish", value: "turkish" },
   { label: "Urhobo", value: "urhobo" },
   { label: "Vietnamese", value: "vietnamese" },
+  { label: "Yoruba", value: "yoruba" },
   { label: "Waha", value: "waha" },
 ];
 
