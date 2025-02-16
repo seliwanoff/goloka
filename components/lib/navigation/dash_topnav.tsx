@@ -27,6 +27,7 @@ import {
   LucideIcon,
   LucideX,
   OctagonAlert,
+  MapPin,
 } from "lucide-react";
 // import { getCurrentUser } from "@/services/user_service";
 import { useQuery } from "@tanstack/react-query";
@@ -45,6 +46,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+
 import { ArrowLeft } from "iconsax-react";
 import { useMediaQuery } from "@react-hook/media-query";
 import { Close } from "@radix-ui/react-dialog";
@@ -67,6 +69,8 @@ import { useCreateOrganizationOverlay } from "@/stores/overlay";
 import CreateOrganization from "../modals/create_orgnaization_modal";
 import { getCurrentUser } from "@/services/user";
 import { useAblyToken } from "@/stores/ably/useAblyToken";
+import { useShowOverlay } from "@/stores/location";
+import Tooltip from "../tootip";
 
 type ComponentProps = {};
 
@@ -103,7 +107,12 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
   const user = { data };
   const currentUser = useUserStore((state) => state.user);
   const [isPageLoaded, setIsPageLoaded] = useState(false);
+  const { setOpen: setOpenc } = useShowOverlay();
 
+  const handleLocationClick = () => {
+    console.log("Opening location modal"); // Debug log
+    setOpenc(true);
+  };
   const currentOrganization = useOrganizationStore(
     (state) => state.organization,
   );
@@ -308,6 +317,14 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
 
         {/* -- activity section */}
         <div className="flex items-center justify-center gap-4">
+          <Tooltip message="Update Location">
+            <button
+              onClick={handleLocationClick}
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 text-blue-600 transition-all hover:bg-blue-100 hover:text-blue-700"
+            >
+              <MapPin className="h-5 w-5" />
+            </button>
+          </Tooltip>
           {/* notification icon */}
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>

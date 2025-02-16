@@ -35,6 +35,7 @@ import { useRemoteUserStore } from "@/stores/remoteUser";
 import Image from "next/image";
 import { getAblyToken } from "@/services/misc";
 import { useAblyToken } from "@/stores/ably/useAblyToken";
+import UpdateLocationModal from "@/components/contributor/location";
 
 type LayoutProps = {
   children: React.ReactNode;
@@ -75,15 +76,15 @@ const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
   });
 
   console.log(token, "token");
-   useEffect(() => {
-     if (process.env.NODE_ENV === "development") {
-       console.log(
-         "Token time remaining:",
-         Math.floor(timeRemaining / 1000),
-         "seconds",
-       );
-     }
-   }, [timeRemaining]);
+  useEffect(() => {
+    if (process.env.NODE_ENV === "development") {
+      console.log(
+        "Token time remaining:",
+        Math.floor(timeRemaining / 1000),
+        "seconds",
+      );
+    }
+  }, [timeRemaining]);
 
   // Handle error and authentication
   useEffect(() => {
@@ -157,13 +158,11 @@ const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div>
       <StepperProvider totalSteps={5}>
-        {/* <NotificationLayout> */}
         <div className="grid h-screen min-h-[200px] w-full grid-cols-6 overflow-hidden bg-[#F8F8F8]">
           {
             /*remoteUser*/ true ? (
               <>
                 <DashSideBarDesktop navMenuList={NavData} />
-
 
                 <main className="relative col-span-6 flex h-screen flex-col overflow-hidden pb-10 pt-[70px] xl:col-span-5 xl:bg-[#F8F8F8]">
                   <DashTopNav />
@@ -180,12 +179,12 @@ const SystemLayout: React.FC<LayoutProps> = ({ children }) => {
           }
         </div>
       </StepperProvider>
+      <UpdateLocationModal />
     </div>
   );
 };
 
 export default SystemLayout;
-
 
 // ~ =============================================>
 // ~ ======= Navigation data -->
