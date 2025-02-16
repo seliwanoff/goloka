@@ -15,6 +15,7 @@ interface OrganizationData {
   domain?: string;
   currency?: string;
   symbol?: string;
+  image?: any;
 }
 
 interface OrganizationStore {

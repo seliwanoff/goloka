@@ -255,6 +255,8 @@ const Create = () => {
                 data={item}
                 setSelectedQuestion={setSelectedQuestion}
                 title={`${item.label}`}
+                setClickedId={setClickedId}
+                setOpenQuestion={setOpenQuestion}
                 className="p-2 font-semibold text-[#071E3B]"
               >
                 {renderQuestionInput(item.type, index, item.options, "preview")}

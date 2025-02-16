@@ -4,7 +4,13 @@ import Image from "next/image";
 import LogoImg from "@/public/assets/images/goloka-full-logo.svg";
 import Link from "next/link";
 import { Phone } from "lucide-react";
-import { FaFacebook, FaTwitter } from "react-icons/fa";
+import {
+
+  FaTwitter,
+  FaFacebook,
+
+  FaLinkedin,
+} from "react-icons/fa";
 import { BiLogoInstagramAlt } from "react-icons/bi";
 
 type Props = {};
@@ -70,13 +76,16 @@ const Footer = (props: Props) => {
 
           <div className="col-span-2">
             <div className="flex items-center justify-normal space-x-6 text-main-100 md:justify-end">
-              <Link href={"#"}>
+              <Link href="https://facebook.com/GolokaAnalytics">
                 <FaFacebook size={20} />
               </Link>
-              <Link href={"#"}>
+              <Link href="https://x.com/GolokaAnalytics">
                 <FaTwitter size={20} />
               </Link>
-              <Link href={"#"}>
+              <Link href="https://www.linkedin.com/in/goloka-analytics-9b43b3269/">
+                <FaLinkedin size={20} />
+              </Link>
+              <Link href="https://instagram.com/GolokaAnalytics">
                 <BiLogoInstagramAlt size={20} />
               </Link>
             </div>
@@ -85,7 +94,11 @@ const Footer = (props: Props) => {
                 Plot 404, Marcus Garvey St, 54Road,
                 <br /> 5th Ave, Gwarimpa, Abuja, Nigeria
               </li>
-              <li>hello@goloka.io</li>
+              <li>
+                <a href="mailto:hello@goloka.io" className="hover:underline">
+                  hello@goloka.io
+                </a>
+              </li>
               <li>+234 (811) 666 5321</li>
             </ul>
           </div>
