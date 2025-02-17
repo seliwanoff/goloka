@@ -119,7 +119,7 @@ export const useChatMessages = (params: ChatParams) => {
               ...newMessage,
               id: undefined,
               local_id: newMessage.local_id,
-              sender_id: currentUser?.id,
+              sender_id: currentUser?.id || params.currentUserId,
               created_at: new Date().toISOString(),
               // Add a temporary status for visual feedback
               __temp_status: "sending",
@@ -131,6 +131,7 @@ export const useChatMessages = (params: ChatParams) => {
       return { previousMessages };
     },
     onSuccess: (response, variables, context) => {
+      //  console.log(response);
       queryClient.setQueryData(
         ["chatMessages", params.model_type, params.model_id],
         (old: { data: Chat[] } | undefined) => ({
@@ -145,7 +146,11 @@ export const useChatMessages = (params: ChatParams) => {
           ),
         }),
       );
+      queryClient.invalidateQueries({
+        queryKey: ["chatMessages", params.model_type, params.model_id],
+      });
     },
+
     onError: (error, variables, context) => {
       queryClient.setQueryData(
         ["chatMessages", params.model_type, params.model_id],

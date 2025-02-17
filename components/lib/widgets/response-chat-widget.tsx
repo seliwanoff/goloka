@@ -30,6 +30,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
   const { messages, isLoading, error, sendMessage } = useChatMessages({
     model_type: modelType,
     model_id: modelId,
+    currentUserId: currentUserId,
   });
 
   // Scroll to bottom whenever messages change
@@ -121,76 +122,99 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
                 : "items-end justify-start gap-4"
             }`}
           >
-            {msg.sender_id !== currentUserId && (
+            {msg.sender_id && msg.sender_id !== currentUserId && (
               <Image
                 src={profileImg}
                 alt="chat-user"
                 className="h-12 w-12 rounded-full object-cover object-center"
               />
             )}
-            <div
-              className={`max-w-xs rounded-2xl p-4 ${
-                msg.sender_id === currentUserId
-                  ? "bg-[#F5F5F5]" // White background for sent messages
-                  : "bg-[#3365E3]" // Red background for received messages
-              }`}
-            >
-              {msg.message && <p className="text-black">{msg.message}</p>}
+            {msg.sender_id && (
+              <div
+                className={`max-w-xs rounded-2xl p-4 ${
+                  msg.sender_id === currentUserId
+                    ? "bg-[#F5F5F5]"
+                    : "bg-[#3365E3]"
+                }`}
+              >
+                {msg.message && <p className="text-black">{msg.message}</p>}
 
-              {/* Attached files section */}
-              {msg.image_paths && msg.image_paths.length > 0 && (
-                <div className={`mt-2 ${msg.message ? "border-t pt-2" : ""}`}>
-                  {msg.image_paths.map((imageUrl, index) => {
-                    const fileName =
-                      typeof imageUrl === "string"
-                        ? imageUrl.split("/").pop()
-                        : (imageUrl as any)?.name || `Image ${index + 1}`;
+                {/* Attached files section */}
+                {msg.image_paths && msg.image_paths.length > 0 && (
+                  <div className={`mt-2 ${msg.message ? "border-t pt-2" : ""}`}>
+                    {msg.image_paths.map((imageUrl, index) => {
+                      const fileName =
+                        typeof imageUrl === "string"
+                          ? imageUrl.split("/").pop()
+                          : (imageUrl as any)?.name || `Image ${index + 1}`;
 
-                    return (
-                      <div key={index} className="mb-1 flex items-center gap-2">
-                        <Paperclip className="h-4 w-4" />
-                        <span className="max-w-[200px] truncate text-sm">
-                          {fileName}
-                        </span>
-                      </div>
-                    );
-                  })}
+                      return (
+                        <div
+                          key={index}
+                          className="mb-1 flex items-center gap-2"
+                        >
+                          <Paperclip className="h-4 w-4" />
+                          <span className="max-w-[200px] truncate text-sm">
+                            {fileName}
+                          </span>
+                        </div>
+                      );
+                    })}
 
-                  {msg.image_paths.map((imageUrl, index) => {
-                    const src =
-                      typeof imageUrl === "string"
-                        ? imageUrl
-                        : URL.createObjectURL(imageUrl as File);
+                    {msg.image_paths.map((imageUrl, index) => {
+                      const src =
+                        typeof imageUrl === "string"
+                          ? imageUrl
+                          : URL.createObjectURL(imageUrl as File);
 
-                    return (
-                      <Image
-                        key={index}
-                        src={src}
-                        alt={`Attached image ${index + 1}`}
-                        width={200}
-                        height={200}
-                        className="mt-2 rounded-lg"
-                      />
-                    );
-                  })}
+                      return (
+                        <Image
+                          key={index}
+                          src={src}
+                          alt={`Attached image ${index + 1}`}
+                          width={200}
+                          height={200}
+                          className="mt-2 rounded-lg"
+                        />
+                      );
+                    })}
+                  </div>
+                )}
+
+                <div className="mt-1 flex items-center justify-between">
+                  <span
+                    className={`text-xs ${
+                      msg.sender_id === currentUserId
+                        ? "inline-block w-full text-right text-[#9A96A4]"
+                        : "inline-block w-full text-left text-[#fff]"
+                    }}`}
+                  >
+                    {msg.created_at &&
+                    !isNaN(new Date(msg.created_at).getTime())
+                      ? (() => {
+                          const msgTime = new Date(msg.created_at);
+                          msgTime.setHours(msgTime.getHours() + 1);
+
+                          const now = new Date();
+                          const isNow =
+                            now.getFullYear() === msgTime.getFullYear() &&
+                            now.getMonth() === msgTime.getMonth() &&
+                            now.getDate() === msgTime.getDate() &&
+                            now.getHours() === msgTime.getHours() &&
+                            now.getMinutes() === msgTime.getMinutes();
+
+                          return isNow
+                            ? "now"
+                            : msgTime.toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              });
+                        })()
+                      : null}
+                  </span>
                 </div>
-              )}
-
-              <div className="mt-1 flex items-center justify-between">
-                <span
-                  className={`text-xs ${
-                    msg.sender_id === currentUserId
-                      ? "inline-block w-full text-right text-[#9A96A4]"
-                      : "inline-block w-full text-left text-[#fff]"
-                  }}`}
-                >
-                  {new Date(msg.created_at).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </span>
               </div>
-            </div>
+            )}
             {msg.sender_id === currentUserId && renderMessageStatus(msg)}
           </div>
         ))}
