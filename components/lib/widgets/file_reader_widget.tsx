@@ -44,25 +44,29 @@ const MediaViewer: FC<MediaViewerProps> = ({ type, url }) => {
       )}
 
       {/* Document Viewer */}
-      {type === "document" && (
+      {type === "document" && url && (
         <div className="h-96 w-full">
-          {url.endsWith(".pdf") ? (
+          {/* Handle PDFs */}
+          {url.toLowerCase().endsWith(".pdf") ? (
             <iframe
               src={url}
               className="h-full w-full rounded-md border"
               title="PDF Viewer"
             />
+          ) : /* Handle Images */
+          /\.(png|jpe?g)$/i.test(url.split("?")[0]) ? (
+            <img
+              src={url}
+              alt="Uploaded Image"
+              className="h-full w-full rounded-md border object-contain"
+            />
           ) : (
-            <div className="text-center">
-              <p className="text-gray-700">File: {url.split("/").pop()}</p>
-              <a
-                href={url}
-                download
-                className="mt-2 inline-block rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-              >
-                Download File
-              </a>
-            </div>
+            /* Handle Other Document Types (DOC, DOCX, XLSX, etc.) */
+            <iframe
+              src={`https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`}
+              className="h-full w-full rounded-md border"
+              title="Document Viewer"
+            />
           )}
         </div>
       )}
