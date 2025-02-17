@@ -1062,6 +1062,7 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
                         <ChatWidget
                           modelType="response"
                           modelId={+responseId}
+                          status={task?.data?.status}
                           //@ts-ignore
                           currentUserId={userId}
                         />

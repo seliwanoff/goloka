@@ -15,14 +15,16 @@ interface ChatWidgetProps {
   modelType: string;
   modelId: number;
   currentUserId: number;
+  status?: any;
 }
 
 const ChatWidget: React.FC<ChatWidgetProps> = ({
   modelType,
   modelId,
   currentUserId,
+  status,
 }) => {
-  // console.log(curr)
+  //console.log(status);
   const [message, setMessage] = useState("");
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -287,8 +289,9 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
             className="form-input h-[50px] flex-1 rounded-full border border-[#DAD8DF] bg-[#F5F5F5] focus:ring-main-100 focus:ring-offset-0 focus-visible:outline-none"
           />
           <button
+            disabled={status === "rejected"}
             type="submit"
-            className="flex h-[50px] items-center gap-2 rounded-full bg-main-100 px-5 font-medium text-white"
+            className={`flex h-[50px] items-center gap-2 rounded-full px-5 font-medium text-white ${status === "rejected" ? "cursor-not-allowed bg-gray-400" : "bg-main-100"}`}
           >
             <Send2 size="24" />
             Send
