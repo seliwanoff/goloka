@@ -120,7 +120,7 @@ const WalletPage = () => {
         setAmount(amount);
         setReference(ref || "");
         setDate(response.data.created_at);
-       // refetchUser()
+        // refetchUser()
         const url = new URL(window.location.href);
         url.search = ""; // Clear the query string
         window.history.replaceState({}, "", url.toString());
@@ -175,7 +175,7 @@ const WalletPage = () => {
             <p className="text-sm font-medium text-white">
               Minimum withdrawal:{" "}
               <span className="font-semibold">
-                {USER_CURRENCY_SYMBOL || ""} 100
+                {USER_CURRENCY_SYMBOL || ""} 500
               </span>
             </p>{" "}
           </div>

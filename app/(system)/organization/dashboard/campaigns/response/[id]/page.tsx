@@ -156,6 +156,8 @@ import FileReaderModal from "@/components/lib/modals/fileReader";
 import ChatWidget from "@/components/lib/widgets/response-chat-widget";
 import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
 import { useMediaQuery } from "@react-hook/media-query";
+import { getCurrentUser } from "@/services/user";
+import { useUserStore } from "@/stores/currentUserStore";
 //import ConfirmFunding from "@/components/wallet_comps/confirm_funding";
 
 const SkeletonBox = ({ className }: { className?: string }) => (
@@ -224,6 +226,9 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { id: responseId } = useParams();
+
+  const campaignId = searchParams.get("campaign") || 0;
+
   //  const [responseId, setResponseId] = useState<string | null>(null);
   const [campaignList, setCampaignList] = useState<[]>([]);
 
@@ -264,6 +269,8 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
   const currentOrganization = useOrganizationStore(
     (state) => state.organization,
   );
+
+  const [userId, setUserId] = useState("");
 
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
@@ -318,6 +325,7 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
       setOpenMessage(true);
     }
   };
+  //@ts-ignore
 
   const CampaignTable = ({ tdata }: { tdata: any[] }) => {
     const router = useRouter();
@@ -429,7 +437,7 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
     enabled: !!responseId,
   });
 
-  console.log(task);
+  // console.log(task);
 
   const getQuestionByresponseId = async () => {
     try {
@@ -449,11 +457,24 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
         setCampaignList(allQuestions);
       }
 
-      console.log(response, "response");
+      //  console.log(response, "response");
     } catch (error) {
       console.error("Error fetching campaign questions:", error);
     }
   };
+
+  useEffect(() => {
+    const getCurrentUserResponse = async () => {
+      const user = await getCurrentUser();
+
+      console.log(user);
+      //@ts-ignore
+      setUserId(user.data.id);
+    };
+    getCurrentUserResponse();
+  }, []);
+
+  //console.log(userId);
 
   const getQuestionResponse = async () => {
     try {
@@ -463,7 +484,7 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
       setCampaignGroupList(response.data.responses);
 
       //@ts-ignore
-      console.log(response.data.responses, "response");
+      // console.log(response.data.responses, "response");
 
       //console.log(response, "response");
     } catch (error) {
@@ -498,16 +519,11 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
     isLoading: questLoading,
     error: questError,
   } = useQuery({
-    queryKey: ["campaign questions", responseId], // The key used for caching
-    queryFn: () => getCampaignQuestion(responseId as string), // Function to fetch data
-    enabled: !!responseId, // Ensures the query only runs when responseId exists
-    retry: 2, // Retry failed queries up to 2 times
+    queryKey: ["campaign questions", responseId],
+    queryFn: () => getCampaignQuestion(responseId as string),
+    enabled: !!responseId,
+    retry: 2,
   });
-
-  const handleStatusCampaign = (status: any) => {
-    setSeletctedStatus(status);
-    setOpen(true);
-  };
 
   const updateCampaignStatus = async (status: string) => {
     try {
@@ -649,7 +665,7 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
           <LocationFile
             imageUrl={JSON.parse(value)}
             onClick={() => {
-              setCoordinates(JSON.parse(value));
+              setCoordinates([JSON.parse(value)]);
               setShow(true);
             }}
           />
@@ -993,7 +1009,8 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
                   <Sheet open={openMessages} onOpenChange={setOpenMessages}>
                     <SheetTrigger asChild className="relative flex justify-end">
                       {task?.data?.status !== "draft" &&
-                        task?.data?.status !== "approved" && (
+                        task?.data?.status !== "approved" &&
+                        task?.data?.status !== "pending" && (
                           <Button className="h-full w-[150px] gap-3 rounded-full bg-[#3365E314] py-3 font-medium text-main-100 hover:bg-[#3365E314]">
                             Message{" "}
                             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#f10] text-xs font-normal text-white">
@@ -1045,7 +1062,8 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
                         <ChatWidget
                           modelType="response"
                           modelId={+responseId}
-                          currentUserId={currentOrganization?.id as number}
+                          //@ts-ignore
+                          currentUserId={userId}
                         />
                       </div>
 
@@ -1106,7 +1124,8 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
                       <ChatWidget
                         modelType="response"
                         modelId={+responseId}
-                        currentUserId={currentOrganization?.id as number}
+                        //@ts-ignore
+                        currentUserId={userId}
                       />
                       {/* <DrawerFooter className="border-t">
                         <form id="chat-box">

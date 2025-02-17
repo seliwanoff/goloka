@@ -278,7 +278,7 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
       <SwitchPrimitive.Root
         id="switch"
         checked={localChecked}
-        onCheckedChange={handleToggle}
+        // onCheckedChange={handleToggle}
         className="relative h-6 w-10 rounded-full bg-gray-300 transition"
       >
         <SwitchPrimitive.Thumb className="block h-4 w-4 translate-x-1 transform rounded-full shadow-md transition-transform data-[state=checked]:translate-x-5 data-[state=checked]:bg-blue-500" />
@@ -1075,7 +1075,7 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
                       <Link
                         key={item.title}
                         onClick={item.action}
-                        href={item.href || "javascript:void()"}
+                        href={item.href || "javascript:void"}
                         className="transit flex items-center gap-3 text-gray-500 hover:text-gray-800"
                       >
                         <div

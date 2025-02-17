@@ -22,6 +22,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
   modelId,
   currentUserId,
 }) => {
+  // console.log(curr)
   const [message, setMessage] = useState("");
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -45,7 +46,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
       setImageFiles([]);
     }
   };
-
+  // console.log(currentUserId);
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const newFiles = Array.from(e.target.files);
@@ -116,11 +117,11 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
             key={msg.local_id || msg.id}
             className={`flex ${
               msg.sender_id === currentUserId
-                ? "items-end justify-start gap-4"
-                : "justify-end"
+                ? "justify-end"
+                : "items-end justify-start gap-4"
             }`}
           >
-            {msg.sender_id === currentUserId && (
+            {msg.sender_id !== currentUserId && (
               <Image
                 src={profileImg}
                 alt="chat-user"
@@ -130,8 +131,8 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
             <div
               className={`max-w-xs rounded-2xl p-4 ${
                 msg.sender_id === currentUserId
-                  ? "bg-[#3365E3]" // White background for sent messages
-                  : "bg-[#F5F5F5]" // Red background for received messages
+                  ? "bg-[#F5F5F5]" // White background for sent messages
+                  : "bg-[#3365E3]" // Red background for received messages
               }`}
             >
               {msg.message && <p className="text-black">{msg.message}</p>}
@@ -179,8 +180,8 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
                 <span
                   className={`text-xs ${
                     msg.sender_id === currentUserId
-                      ? "inline-block w-full text-left text-[#fff]"
-                      : "inline-block w-full text-right text-[#9A96A4]"
+                      ? "inline-block w-full text-right text-[#9A96A4]"
+                      : "inline-block w-full text-left text-[#fff]"
                   }}`}
                 >
                   {new Date(msg.created_at).toLocaleTimeString([], {
@@ -190,7 +191,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
                 </span>
               </div>
             </div>
-            {msg.sender_id !== currentUserId && renderMessageStatus(msg)}
+            {msg.sender_id === currentUserId && renderMessageStatus(msg)}
           </div>
         ))}
         {/* Ref to scroll to the bottom of messages */}
