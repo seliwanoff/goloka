@@ -113,111 +113,148 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
     <>
       {/* Add overflow-y-auto and max-h to enable scrolling */}
       <div className="flex max-h-[calc(100vh-200px)] w-full flex-col space-y-8 overflow-y-auto p-4 pb-20 md:self-stretch md:pb-4">
-        {sortedMessages.map((msg) => (
-          <div
-            key={msg.local_id || msg.id}
-            className={`flex ${
-              msg.sender_id === currentUserId
-                ? "justify-end"
-                : "items-end justify-start gap-4"
-            }`}
-          >
-            {msg.sender_id && msg.sender_id !== currentUserId && (
-              <Image
-                src={profileImg}
-                alt="chat-user"
-                className="h-12 w-12 rounded-full object-cover object-center"
-              />
-            )}
-            {msg.sender_id && (
-              <div
-                className={`max-w-xs rounded-2xl p-4 ${
-                  msg.sender_id === currentUserId
-                    ? "bg-[#F5F5F5]"
-                    : "bg-[#3365E3]"
-                }`}
-              >
-                {msg.message && <p className="text-black">{msg.message}</p>}
+        {(() => {
+          let lastDisplayedDate = ""; // Track the last date to avoid duplicate labels
 
-                {/* Attached files section */}
-                {msg.image_paths && msg.image_paths.length > 0 && (
-                  <div className={`mt-2 ${msg.message ? "border-t pt-2" : ""}`}>
-                    {msg.image_paths.map((imageUrl, index) => {
-                      const fileName =
-                        typeof imageUrl === "string"
-                          ? imageUrl.split("/").pop()
-                          : (imageUrl as any)?.name || `Image ${index + 1}`;
+          return sortedMessages.map((msg, index) => {
+            const msgDate = new Date(msg.created_at);
+            const today = new Date();
+            const yesterday = new Date();
+            yesterday.setDate(today.getDate() - 1);
 
-                      return (
-                        <div
-                          key={index}
-                          className="mb-1 flex items-center gap-2"
-                        >
-                          <Paperclip className="h-4 w-4" />
-                          <span className="max-w-[200px] truncate text-sm">
-                            {fileName}
-                          </span>
-                        </div>
-                      );
-                    })}
+            let dateLabel = msgDate.toDateString(); // Default full date format
 
-                    {msg.image_paths.map((imageUrl, index) => {
-                      const src =
-                        typeof imageUrl === "string"
-                          ? imageUrl
-                          : URL.createObjectURL(imageUrl as File);
+            if (msgDate.toDateString() === today.toDateString()) {
+              dateLabel = "Today";
+            } else if (msgDate.toDateString() === yesterday.toDateString()) {
+              dateLabel = "Yesterday";
+            }
 
-                      return (
-                        <Image
-                          key={index}
-                          src={src}
-                          alt={`Attached image ${index + 1}`}
-                          width={200}
-                          height={200}
-                          className="mt-2 rounded-lg"
-                        />
-                      );
-                    })}
+            const shouldShowDateLabel = dateLabel !== lastDisplayedDate;
+            lastDisplayedDate = dateLabel;
+
+            return (
+              <React.Fragment key={msg.local_id || msg.id}>
+                {/* Show date separator if it's a new date */}
+                {shouldShowDateLabel && (
+                  <div className="my-4 text-center text-sm font-semibold text-gray-500">
+                    {dateLabel}
                   </div>
                 )}
 
-                <div className="mt-1 flex items-center justify-between">
-                  <span
-                    className={`text-xs ${
-                      msg.sender_id === currentUserId
-                        ? "inline-block w-full text-right text-[#9A96A4]"
-                        : "inline-block w-full text-left text-[#fff]"
-                    }}`}
-                  >
-                    {msg.created_at &&
-                    !isNaN(new Date(msg.created_at).getTime())
-                      ? (() => {
-                          const msgTime = new Date(msg.created_at);
-                          msgTime.setHours(msgTime.getHours() + 1);
+                {/* Chat Message */}
+                <div
+                  className={`flex ${
+                    msg.sender_id === currentUserId
+                      ? "justify-end"
+                      : "items-end justify-start gap-4"
+                  }`}
+                >
+                  {msg.sender_id && msg.sender_id !== currentUserId && (
+                    <Image
+                      src={profileImg}
+                      alt="chat-user"
+                      className="h-12 w-12 rounded-full object-cover object-center"
+                    />
+                  )}
+                  {msg.sender_id && (
+                    <div
+                      className={`max-w-xs rounded-2xl p-4 ${
+                        msg.sender_id === currentUserId
+                          ? "bg-[#F5F5F5]"
+                          : "bg-[#3365E3]"
+                      }`}
+                    >
+                      {msg.message && (
+                        <p className="text-black">{msg.message}</p>
+                      )}
 
-                          const now = new Date();
-                          const isNow =
-                            now.getFullYear() === msgTime.getFullYear() &&
-                            now.getMonth() === msgTime.getMonth() &&
-                            now.getDate() === msgTime.getDate() &&
-                            now.getHours() === msgTime.getHours() &&
-                            now.getMinutes() === msgTime.getMinutes();
+                      {/* Attached files section */}
+                      {msg.image_paths && msg.image_paths.length > 0 && (
+                        <div
+                          className={`mt-2 ${msg.message ? "border-t pt-2" : ""}`}
+                        >
+                          {msg.image_paths.map((imageUrl, index) => {
+                            const fileName =
+                              typeof imageUrl === "string"
+                                ? imageUrl.split("/").pop()
+                                : (imageUrl as any)?.name ||
+                                  `Image ${index + 1}`;
 
-                          return isNow
-                            ? "now"
-                            : msgTime.toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              });
-                        })()
-                      : null}
-                  </span>
+                            return (
+                              <div
+                                key={index}
+                                className="mb-1 flex items-center gap-2"
+                              >
+                                <Paperclip className="h-4 w-4" />
+                                <span className="max-w-[200px] truncate text-sm">
+                                  {fileName}
+                                </span>
+                              </div>
+                            );
+                          })}
+
+                          {msg.image_paths.map((imageUrl, index) => {
+                            const src =
+                              typeof imageUrl === "string"
+                                ? imageUrl
+                                : URL.createObjectURL(imageUrl as File);
+
+                            return (
+                              <Image
+                                key={index}
+                                src={src}
+                                alt={`Attached image ${index + 1}`}
+                                width={200}
+                                height={200}
+                                className="mt-2 rounded-lg"
+                              />
+                            );
+                          })}
+                        </div>
+                      )}
+
+                      <div className="mt-1 flex items-center justify-between">
+                        <span
+                          className={`text-xs ${
+                            msg.sender_id === currentUserId
+                              ? "inline-block w-full text-right text-[#9A96A4]"
+                              : "inline-block w-full text-left text-[#fff]"
+                          }`}
+                        >
+                          {msg.created_at &&
+                          !isNaN(new Date(msg.created_at).getTime())
+                            ? (() => {
+                                const msgTime = new Date(msg.created_at);
+                                msgTime.setHours(msgTime.getHours() + 1);
+
+                                const now = new Date();
+                                const isNow =
+                                  now.getFullYear() === msgTime.getFullYear() &&
+                                  now.getMonth() === msgTime.getMonth() &&
+                                  now.getDate() === msgTime.getDate() &&
+                                  now.getHours() === msgTime.getHours() &&
+                                  now.getMinutes() === msgTime.getMinutes();
+
+                                return isNow
+                                  ? "Now"
+                                  : msgTime.toLocaleTimeString([], {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    });
+                              })()
+                            : null}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  {msg.sender_id === currentUserId && renderMessageStatus(msg)}
                 </div>
-              </div>
-            )}
-            {msg.sender_id === currentUserId && renderMessageStatus(msg)}
-          </div>
-        ))}
+              </React.Fragment>
+            );
+          });
+        })()}
+
         {/* Ref to scroll to the bottom of messages */}
         <div ref={messagesEndRef} />
       </div>
