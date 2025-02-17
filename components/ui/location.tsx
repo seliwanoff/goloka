@@ -2,7 +2,7 @@ import { FC, useEffect, useState } from "react";
 import { CircleEllipsis, Eye, LocateIcon } from "lucide-react";
 
 interface LocationFileProps {
-  imageUrl: string;
+  imageUrl?: any;
   onClick: () => void; // Define onClick as a function
 }
 

@@ -37,7 +37,7 @@ export const useOrganizationStore = create<OrganizationStore>()(
         if (userData) {
           const { domain, country } = userData;
 
-          console.log("Country Data:", country);
+          //  console.log("Country Data:", country);
 
           localStorage.setItem("organization_domain", domain || "");
           localStorage.setItem("symbol", country?.["currency-symbol"] || "");

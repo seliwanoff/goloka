@@ -16,13 +16,16 @@ export const useChatMessages = (params: ChatParams) => {
   const queryClient = useQueryClient();
   const [messages, setMessages] = useState<Chat[]>([]);
 
+  // console.log(currentUser);
+  //console.log(params);
+
   // Fetch chat messages
   const { data, isLoading, error } = useQuery({
     queryKey: ["chatMessages", params.model_type, params.model_id],
     queryFn: () => getChatMessages(params),
     enabled: !!params.model_type && !!params.model_id,
   });
-  console.log({ data });
+  // console.log({ data });
   // Create chat message mutation
   // const createMessageMutation = useMutation({
   //   mutationFn: (chatData: CreateChatParams) => createChatMessage(chatData),
@@ -94,71 +97,76 @@ export const useChatMessages = (params: ChatParams) => {
   //     );
   //   },
   // });
-const createMessageMutation = useMutation({
-  mutationFn: (chatData: CreateChatParams) => createChatMessage(chatData),
-  onMutate: async (newMessage) => {
-    await queryClient.cancelQueries({
-      queryKey: ["chatMessages", params.model_type, params.model_id],
-    });
+  const createMessageMutation = useMutation({
+    mutationFn: (chatData: CreateChatParams) => createChatMessage(chatData),
+    onMutate: async (newMessage) => {
+      await queryClient.cancelQueries({
+        queryKey: ["chatMessages", params.model_type, params.model_id],
+      });
 
-    const previousMessages = queryClient.getQueryData<{ data: Chat[] }>([
-      "chatMessages",
-      params.model_type,
-      params.model_id,
-    ]);
+      const previousMessages = queryClient.getQueryData<{ data: Chat[] }>([
+        "chatMessages",
+        params.model_type,
+        params.model_id,
+      ]);
+      console.log(params);
+      queryClient.setQueryData(
+        ["chatMessages", params.model_type, params.model_id],
+        (old: { data: Chat[] } | undefined) => ({
+          data: [
+            ...(old?.data || []),
+            {
+              ...newMessage,
+              id: undefined,
+              local_id: newMessage.local_id,
+              sender_id: currentUser?.id || params.currentUserId,
+              created_at: new Date().toISOString(),
+              // Add a temporary status for visual feedback
+              __temp_status: "sending",
+            },
+          ],
+        }),
+      );
 
-    queryClient.setQueryData(
-      ["chatMessages", params.model_type, params.model_id],
-      (old: { data: Chat[] } | undefined) => ({
-        data: [
-          ...(old?.data || []),
-          {
-            ...newMessage,
-            id: undefined,
-            local_id: newMessage.local_id,
-             sender_id: currentUser?.id,
-            created_at: new Date().toISOString(),
-            // Add a temporary status for visual feedback
-            __temp_status: "sending",
-          },
-        ],
-      }),
-    );
+      return { previousMessages };
+    },
+    onSuccess: (response, variables, context) => {
+      //  console.log(response);
+      queryClient.setQueryData(
+        ["chatMessages", params.model_type, params.model_id],
+        (old: { data: Chat[] } | undefined) => ({
+          data: (old?.data || []).map((msg) =>
+            msg.local_id === variables.local_id
+              ? {
+                  //@ts-ignore
+                  ...response.data,
+                  __temp_status: "success",
+                }
+              : msg,
+          ),
+        }),
+      );
+      queryClient.invalidateQueries({
+        queryKey: ["chatMessages", params.model_type, params.model_id],
+      });
+    },
 
-    return { previousMessages };
-  },
-  onSuccess: (response, variables, context) => {
-    queryClient.setQueryData(
-      ["chatMessages", params.model_type, params.model_id],
-      (old: { data: Chat[] } | undefined) => ({
-        data: (old?.data || []).map((msg) =>
-          msg.local_id === variables.local_id
-            ? {
-                //@ts-ignore
-                ...response.data,
-                __temp_status: "success",
-              }
-            : msg,
-        ),
-      }),
-    );
-  },
-  onError: (error, variables, context) => {
-    queryClient.setQueryData(
-      ["chatMessages", params.model_type, params.model_id],
-      (old: { data: Chat[] } | undefined) => ({
-        data: (old?.data || []).map((msg) =>
-          msg.local_id === variables.local_id
-            ? {
-                ...msg,
-                __temp_status: "error",
-              }
-            : msg,
-        ),
-      }),
-    );
-  },
-});
+    onError: (error, variables, context) => {
+      queryClient.setQueryData(
+        ["chatMessages", params.model_type, params.model_id],
+        (old: { data: Chat[] } | undefined) => ({
+          data: (old?.data || []).map((msg) =>
+            msg.local_id === variables.local_id
+              ? {
+                  ...msg,
+                  __temp_status: "error",
+                }
+              : msg,
+          ),
+        }),
+      );
+    },
+  });
   useEffect(() => {
     //@ts-ignore
     if (data?.data) {

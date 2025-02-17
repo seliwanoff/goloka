@@ -28,6 +28,7 @@ export interface CreateChatParams {
 export interface ChatParams {
   model_type: string;
   model_id: number;
+  currentUserId?: number;
 }
 
 // export interface CreateChatParams {

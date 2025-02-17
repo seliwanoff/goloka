@@ -74,10 +74,14 @@ const WithdrawFunds = () => {
   }, [amount, setValue]);
 
   const onCreateWithdrawal = async (data: any) => {
-    setStep((prev: number) => prev + 1);
-    const { amount } = data;
-    setAcrtualAmount(numericValue);
-    setAmount(totalPayment);
+    if (numericValue >= 500) {
+      setStep((prev: number) => prev + 1);
+      const { amount } = data;
+      setAcrtualAmount(numericValue);
+      setAmount(totalPayment);
+    } else {
+      toast.error("Minimum fund amount is 500");
+    }
 
     /***
     setIsSubmitting(true);
@@ -163,9 +167,9 @@ const WithdrawFunds = () => {
                   {...register("amount")}
                   id="amount"
                   name="amount"
-                  placeholder={`${USER_CURRENCY_SYMBOL} ${watch("amount") || "0"}`}
+                  placeholder={`${USER_CURRENCY_SYMBOL}${watch("amount") || "0"}`}
                   autoComplete="off"
-                  value={`${USER_CURRENCY_SYMBOL} ${watch("amount") || ""}`}
+                  value={`${USER_CURRENCY_SYMBOL} ${watch("amount")}`}
                   onChange={calculateAmount}
                   className={cn(
                     "form-input h-14 rounded-[6px] border border-[#E0E0E0] bg-[#F8F8F8] px-4 py-[22px] text-center text-[18px] leading-[38.41px] text-[#09091A] outline-0 placeholder:text-[#828282] focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0",

@@ -13,7 +13,7 @@ export default function AudioPlayer({ src }: AudioPlayerProps) {
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
-console.log(src)
+  //console.log(src)
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
