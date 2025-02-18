@@ -92,6 +92,7 @@ import {
 import ReArrangeQuestion from "@/components/lib/modals/rearrange_modal";
 import EditQuestionModal from "@/components/lib/modals/Edit_question_modal";
 import { updateQuestion } from "@/services/campaign/question";
+import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
 //import ConfirmFunding from "@/components/wallet_comps/confirm_funding";
 
 const SkeletonBox = ({ className }: { className?: string }) => (
@@ -167,7 +168,11 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
   // const { step } = useStepper();
   const [activeTab, setActiveTab] = useState("campaigns");
   const { user } = useRemoteUserStore();
-  const USER_CURRENCY_SYMBOL = user?.country?.["currency-symbol"];
+  const currentOrganization = useOrganizationStore(
+    (state) => state.organization,
+  );
+  const USER_CURRENCY_SYMBOL =
+    currentOrganization && currentOrganization["symbol"];
   const [pageSize, setPageSize] = useState<number>(10);
   const [campaignGroupList, setCampaignGroupList] = useState<[]>([]);
   const [filteredData, setFilteredData] = useState<any[]>(
