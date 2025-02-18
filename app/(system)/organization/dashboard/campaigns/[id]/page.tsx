@@ -26,7 +26,6 @@ import {
   Workflow,
 } from "lucide-react";
 import { ArchiveMinus, EyeSlash, Note } from "iconsax-react";
-// import Map from "@/public/assets/images/tasks/tasks.png";
 import Link from "next/link";
 
 import { useStepper } from "@/context/TaskStepperContext.tsx";
