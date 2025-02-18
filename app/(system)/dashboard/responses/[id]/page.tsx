@@ -271,6 +271,7 @@ const ResponseDetails = () => {
                       <div className="mt-24">
                         <ChatWidget
                           modelType="response"
+                          status={res?.status}
                           modelId={+responseId}
                           currentUserId={currentUser?.id as number}
                         />
@@ -333,6 +334,7 @@ const ResponseDetails = () => {
                       <ChatWidget
                         modelType="response"
                         modelId={+responseId}
+                        status={res?.status}
                         currentUserId={currentUser?.id as number}
                       />
                       {/* <DrawerFooter className="border-t">
