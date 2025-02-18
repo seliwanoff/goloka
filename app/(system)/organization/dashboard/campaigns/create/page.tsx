@@ -209,53 +209,59 @@ const CreateNewCampaign = () => {
   };
   const handleCreateCampaign = async (e: any) => {
     e.preventDefault();
-    setIsLoading(true);
+    if (parseFloat(paymentRate) >= 500) {
+      setIsLoading(true);
 
-    const formattedStartsAt = formatDate(startDate);
-    const formattedEndsAt = formatDate(endDate);
-    const formData = new FormData();
+      const formattedStartsAt = formatDate(startDate);
+      const formattedEndsAt = formatDate(endDate);
+      const formData = new FormData();
 
-    // Append basic fields
-    formData.append("title", title);
-    formData.append("description", description);
-    formData.append("campaign_group_id", selectedCampaignGroupId);
-    formData.append("type", "survey");
-    formData.append("number_of_responses", responseNumber.toString());
-    formData.append("payment_rate_for_response", paymentRate.toString());
-    formData.append("starts_at", formattedStartsAt);
-    formData.append("ends_at", formattedEndsAt);
-    formData.append("allows_multiple_responses", isAllow ? "1" : "0");
+      // Append basic fields
+      formData.append("title", title);
+      formData.append("description", description);
+      formData.append("campaign_group_id", selectedCampaignGroupId);
+      formData.append("type", "survey");
+      formData.append("number_of_responses", responseNumber.toString());
+      formData.append("payment_rate_for_response", paymentRate.toString());
+      formData.append("starts_at", formattedStartsAt);
+      formData.append("ends_at", formattedEndsAt);
+      formData.append("allows_multiple_responses", isAllow ? "1" : "0");
 
-    if (file) {
-      formData.append("images[0]", file, file.name);
-    }
+      if (file) {
+        formData.append("images[0]", file, file.name);
+      }
 
-    selectedStates.forEach((state: any, index: number) => {
-      formData.append(`state_ids[${index}]`, state);
-    });
-    selectedLgs.forEach((lga: any, index: number) => {
-      formData.append(`lga_ids[${index}]`, lga.id);
-    });
+      selectedStates.forEach((state: any, index: number) => {
+        formData.append(`state_ids[${index}]`, state);
+      });
+      selectedLgs.forEach((lga: any, index: number) => {
+        formData.append(`lga_ids[${index}]`, lga.id);
+      });
 
-    try {
-      const response = await axiosInstance.post(
-        `/organizations/${organizationDetails.domain}/campaigns/create`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
+      try {
+        const response = await axiosInstance.post(
+          `/organizations/${organizationDetails.domain}/campaigns/create`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
           },
-        },
-      );
+        );
 
-      setOpen(true);
-      //console.log(response);
-      setCampaignId(response.data.campaign.id);
-    } catch (error) {
-      console.error("Error creating campaign:", error);
-      toast.error("Failed to add campaign. Please try again.");
-    } finally {
-      setIsLoading(false);
+        setOpen(true);
+        //console.log(response);
+        setCampaignId(response.data.campaign.id);
+      } catch (error) {
+        console.error("Error creating campaign:", error);
+        toast.error("Failed to add campaign. Please try again.");
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      toast.error(
+        `Payment rate must be atleast ${currentOrganization && currentOrganization?.symbol}500`,
+      );
     }
   };
 
