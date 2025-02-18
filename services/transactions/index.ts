@@ -68,6 +68,22 @@ export const getTrxId = async (
     },
   });
 
+export const getTrxOrgId = async (
+  Id: string,
+): Promise<UseQueryResult<AxiosResponse<any>>> =>
+  await queryClient.fetchQuery({
+    queryKey: ["Trx by TrxId"],
+    queryFn: async () => {
+      try {
+        return await fetchData(
+          `/organizations/${organizationDetails.domain}/transactions/${Id}`,
+        );
+      } catch (error) {
+        return null;
+      }
+    },
+  });
+
 export const getAllOrganizationTransaction = async (
   params: GetTransactions,
 ) => {
