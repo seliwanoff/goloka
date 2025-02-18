@@ -259,11 +259,7 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
 
   const [selectedStatus, setSeletctedStatus] = useState("");
   const [step, setStep] = useState(1);
-  const [area, setArea] = useState(["4"]);
-  const [location, setLocation] = useState([""]);
-  const [line, setLine] = useState(["2"]);
-  const [lines] = useState(["", ""]);
-  const [areas] = useState(["", "", "", ""]);
+
   const { show, setShow, setCoordinates, setMethod } = useGoogleMap();
   const { shows, setShows, setType, setUrl } = useMediaViewer();
   const currentOrganization = useOrganizationStore(
@@ -1129,35 +1125,11 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
                         //@ts-ignore
                         currentUserId={userId}
                       />
-                      {/* <DrawerFooter className="border-t">
-                        <form id="chat-box">
-                          <div className="flex items-center gap-6">
-                            <Input
-                              type="text"
-                              name="message"
-                              id="message"
-                              aria-label="Message"
-                              placeholder="Input your message"
-                              className="form-input h-[50px] rounded-full border border-[#DAD8DF] bg-[#F5F5F5] focus:ring-main-100 focus:ring-offset-0 focus-visible:outline-none"
-                            />
-                            <Button className="h-[50px] items-center gap-2 rounded-full bg-main-100 px-5 font-medium text-white">
-                              <span className="">
-                                <Send2 size="24" />
-                              </span>
-                              Send
-                            </Button>
-                          </div>
-                        </form>
-                      </DrawerFooter> */}
                     </DrawerContent>
                   </Drawer>
                 </>
               )}
             </div>
-
-            {/* ####################################### */}
-            {/* -- Tasks section */}
-            {/* ####################################### */}
 
             <div className="flex flex-col gap-[10px] rounded-[16px] bg-white p-6">
               {renderTable(activeTab, currentPageData)}

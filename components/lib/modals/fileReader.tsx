@@ -28,7 +28,7 @@ const FileReaderModal: React.FC<GoogleMapLocationModalProps> = ({
           "overflow-hidden rounded-lg focus-visible:outline-none",
           width,
         )}
-        style={{ width: "80vw", height: "80vh", padding: "20px" }} // Ensure width applies
+        style={{ width: "80vw", padding: "20px" }} // Ensure width applies
       >
         <DialogHeader className="absolute left-0 top-0 z-10 w-full space-y-0 border-b border-[#F2F2F2] bg-white p-5 text-left">
           <DialogTitle

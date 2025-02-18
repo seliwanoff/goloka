@@ -87,7 +87,7 @@ const Dashboard = () => {
   const getCurrentOrganizationStat = async () => {
     try {
       const response = await getOrganizationStat();
-      console.log(response);
+      //  console.log(response);
       //@ts-ignore
       setDashStat(response);
     } catch (e) {
@@ -109,9 +109,7 @@ const Dashboard = () => {
   };
 
   const getRegisteredUsersService = async (orgData: any) => {
-    //  console.log(orgData);
     const response = await getUseServices();
-    // console.log(getCurrentUser());
     const currentUsers = await getCurrentUser();
     //@ts-ignore
     const contributor = response.services.contributor
@@ -126,6 +124,7 @@ const Dashboard = () => {
     const organizations = response.services.organizations.map((org: any) => ({
       ...org,
       account_type: "organization",
+      image: org.profile_photo_url,
     }));
 
     const mergedData = contributor
