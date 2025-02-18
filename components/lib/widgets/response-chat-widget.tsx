@@ -119,7 +119,9 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
           let lastDisplayedDate = ""; // Track the last date to avoid duplicate labels
 
           return sortedMessages.map((msg, index) => {
-            const msgDate = new Date(msg.created_at);
+            const msgDate = new Date(
+              (msg.created_at && msg.created_at) || new Date(),
+            );
             const today = new Date();
             const yesterday = new Date();
             yesterday.setDate(today.getDate() - 1);
@@ -168,7 +170,15 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
                       }`}
                     >
                       {msg.message && (
-                        <p className="text-black">{msg.message}</p>
+                        <p
+                          className={` ${
+                            msg.sender_id === currentUserId
+                              ? "text-black"
+                              : "text-white"
+                          }`}
+                        >
+                          {msg.message}
+                        </p>
                       )}
 
                       {/* Attached files section */}

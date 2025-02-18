@@ -647,15 +647,16 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
           </div>
         )}
 
-        {task?.data?.status === "paused" && (
-          <div
-            className="flex cursor-pointer justify-center gap-2 rounded-full border border-blue-600 px-8 py-3 font-poppins text-base text-blue-600"
-            onClick={() => handleStatusCampaign("draft")}
-          >
-            <Note size={20} />
-            Draft
-          </div>
-        )}
+        {task?.data?.status !== "completed" &&
+          task?.data?.status !== "running" && (
+            <div
+              className="flex cursor-pointer justify-center gap-2 rounded-full border border-blue-600 px-8 py-3 font-poppins text-base text-blue-600"
+              onClick={() => handleStatusCampaign("draft")}
+            >
+              <Note size={20} />
+              Draft
+            </div>
+          )}
         {task?.data?.status === "draft" && (
           <div
             className="flex w-full cursor-pointer justify-center gap-2 rounded-full border border-blue-600 px-8 py-3 font-poppins text-base text-blue-600"

@@ -56,7 +56,6 @@ import {
 import Map from "@/components/map/map";
 import { useUserStore } from "@/stores/currentUserStore";
 
-
 interface QuestionOptions {
   id: number;
   label: string;
