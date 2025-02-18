@@ -56,7 +56,6 @@ import {
 import Map from "@/components/map/map";
 import { useUserStore } from "@/stores/currentUserStore";
 
-
 interface QuestionOptions {
   id: number;
   label: string;
@@ -272,6 +271,7 @@ const ResponseDetails = () => {
                       <div className="mt-24">
                         <ChatWidget
                           modelType="response"
+                          status={res?.status}
                           modelId={+responseId}
                           currentUserId={currentUser?.id as number}
                         />
@@ -334,6 +334,7 @@ const ResponseDetails = () => {
                       <ChatWidget
                         modelType="response"
                         modelId={+responseId}
+                        status={res?.status}
                         currentUserId={currentUser?.id as number}
                       />
                       {/* <DrawerFooter className="border-t">
