@@ -22,12 +22,12 @@ const MediaViewer: FC<MediaViewerProps> = ({ type, url }) => {
             url={url}
             controls
             width="100%"
-            height="auto"
+            height="50%"
             playing={false} // Autoplay off
             light={false} // Show thumbnail preview
             pip // Enable Picture-in-Picture mode
             config={{
-              file: { attributes: { controlsList: "nodownload" } }, // Disable video download
+              file: { attributes: { controlsList: "download" } }, // Disable video download
             }}
             className="rounded-md object-center shadow-lg"
           />
