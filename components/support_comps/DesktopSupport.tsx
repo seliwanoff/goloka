@@ -70,11 +70,13 @@ const supportTabContent = [
     label: <ContactTab />,
     value: "contact",
   },
+  /***
   {
     title: "Help center",
     label: <HelpTab />,
     value: "help",
   },
+  */
   // {
   //   title: "Chat with Goloka",
   //   label: <ChatTab />,
