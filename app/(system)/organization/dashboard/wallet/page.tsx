@@ -39,6 +39,7 @@ import TransferSuccessful from "@/components/wallet_comps/transfer_successful";
 import TopUpSuccessful from "@/components/wallet_comps/top_up_success";
 import { useTopUpStores } from "@/stores/topUpstore";
 import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
+import InvoiceModalOrganization from "@/components/lib/modals/invoice_modal_organization";
 
 const WalletPage = () => {
   const { user, isAuthenticated } = useRemoteUserStore();
@@ -226,6 +227,10 @@ const WalletPage = () => {
           </div>
         </div>
       </section>
+
+      <div className="col-span-2 md:col-span-1 md:place-self-end">
+        <InvoiceModalOrganization />
+      </div>
     </>
   );
 };

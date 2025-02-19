@@ -42,8 +42,8 @@ const LocationFile: FC<LocationFileProps> = ({ imageUrl, onClick }) => {
     >
       <LocateIcon />
       <div className="flex flex-1 flex-col overflow-hidden">
-        <span className="truncate text-sm font-medium text-gray-900">
-          Click to view
+        <span className="max-w-[300px] overflow-hidden truncate text-ellipsis text-nowrap text-sm font-medium text-gray-900">
+          {imageUrl?.address || "Click to view"}
         </span>
       </div>
       <button

@@ -110,7 +110,6 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
   const { setOpen: setOpenc } = useShowOverlay();
 
   const handleLocationClick = () => {
-    console.log("Opening location modal"); // Debug log
     setOpenc(true);
   };
   const currentOrganization = useOrganizationStore(
@@ -134,36 +133,6 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
   // const { token } = useAblyToken();
   const [lastMessage, setLastMessage] = useState<any>(null);
 
-  // useEffect(() => {
-  //   if (ablyClient && channelName) {
-  //     console.log("Setting up channel subscription for:", channelName);
-
-  //     const channel = ablyClient.channels.get(channelName);
-
-  //     // Log channel state changes
-  //     channel.on("attached", () => {
-  //       console.log("Successfully attached to channel:", channelName);
-  //     });
-
-  //     channel.on("error", (error) => {
-  //       console.error("Channel error:", error);
-  //     });
-
-  //     // Subscribe to new notification events
-  //     channel.subscribe("new-notification", (message) => {
-  //       console.log("New notification received:", message);
-  //       refetch();
-  //     });
-
-  //     // Cleanup subscription on unmount
-  //     return () => {
-  //       console.log("Cleaning up channel subscription");
-  //       channel.unsubscribe();
-  //       channel.detach();
-  //     };
-  //   }
-  // }, [ablyClient, channelName, refetch]);
-
   useEffect(() => {
     if (ablyClient && channelName) {
       const channel = ablyClient.channels.get(channelName);
@@ -185,7 +154,6 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
   const initiateLogout = () => {
     try {
       const res = userLogout();
-      console.log(res, "res");
       localStorage.removeItem("whoami");
       localStorage.removeItem("organization_domain");
       localStorage.removeItem("organization_currency");
@@ -203,7 +171,6 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
 
   const getRegisteredUsersService = async () => {
     const response = await getUseServices();
-    // console.log(getCurrentUser());
     const currentUsers = await getCurrentUser();
     //@ts-ignore
     const contributor = response.services.contributor
@@ -219,6 +186,7 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
     const organizations = response.services.organizations?.map((org: any) => ({
       ...org,
       account_type: "organization",
+      image: org?.profile_photo_url,
     }));
 
     const mergedData = contributor
@@ -240,21 +208,6 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
       getCurrentOrganization(org);
       window.location.href = "/organization/dashboard/root";
     }
-
-    /***
-    useOrganizationStore.getState().setOrganization({
-      id: org.id,
-      name: org.name,
-      email: "",
-      country: org.country,
-      current_role: "",
-      email_verified_at: "",
-      pin_status: false,
-      domain: org.domain,
-      currency: org.country["currency-code"],
-      symbol: org.country["currency-symbol"],
-    });
-    */
   };
 
   //console.log(currentOrganization);
@@ -263,7 +216,7 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
       org?.id !== currentOrganization?.id && org?.id !== currentUser?.id,
   );
 
-  //console.log(currentUser);
+  //console.log(filteredOrganizations);
 
   const profileImage = useMemo(() => {
     if (
@@ -280,7 +233,6 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
     return null;
   }, [currentOrganization, currentUser]);
 
-  // console.log(currentUser);
   const initials = useMemo(
     () =>
       getInitials(
