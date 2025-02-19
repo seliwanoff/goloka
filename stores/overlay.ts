@@ -38,6 +38,11 @@ interface OpenOrganizationState {
   setOpenOrganization: (value: boolean) => void;
 }
 
+interface OpenContributorState {
+  openContributor: boolean;
+  setOpenContributor: (value: boolean) => void;
+}
+
 interface CampaignGroupState {
   fetchData: boolean;
   show: boolean;
@@ -157,6 +162,11 @@ const useTransferOverlay = create<TransferState>((set) => ({
 const useCreateOrganizationOverlay = create<OpenOrganizationState>((set) => ({
   openOrganization: false,
   setOpenOrganization: (value) => set({ openOrganization: value }),
+}));
+
+const useCreateContributorOverlay = create<OpenContributorState>((set) => ({
+  openContributor: false,
+  setOpenContributor: (value) => set({ openContributor: value }),
 }));
 
 const useAddBeneficiaryOverlay = create<AddBeneState>((set) => ({
@@ -280,4 +290,5 @@ export {
   useMediaViewer,
   useRearrageQuestion,
   useEditAQuestion,
+  useCreateContributorOverlay,
 };
