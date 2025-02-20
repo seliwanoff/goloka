@@ -6,7 +6,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 // import { AblyProvider } from "@ably-labs/react-hooks";
 // import { ably } from "@/lib/ably";
 export const metadata: Metadata = {
-  title: "Goloka | Write with ease",
+  title: "Goloka | Real Time Market Intelligence",
   description: "Goloka is your personal writer",
 };
 

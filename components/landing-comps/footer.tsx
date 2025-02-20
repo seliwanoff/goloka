@@ -62,13 +62,13 @@ const Footer = (props: Props) => {
               <h3 className="text-base font-semibold text-[#333]">Legal</h3>
               <ul className="mt-4 space-y-2 text-sm font-medium text-[#4F4F4F] md:text-base">
                 <li>
-                  <Link href="/privacy">Privacy</Link>
+                  <Link href="/compliance/privacy-policy">Privacy</Link>
                 </li>
                 <li>
-                  <Link href="/terms-and-conditions">Terms and conditions</Link>
+                  <Link href="/compliance/terms-and-conditions">Terms and conditions</Link>
                 </li>
                 <li>
-                  <Link href="/security">Security</Link>
+                  <Link aria-disabled href="/security">Security</Link>
                 </li>
               </ul>
             </div>
