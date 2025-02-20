@@ -30,7 +30,7 @@ type FormValues = {
 
 const SignIn: React.FC<PageProps> = ({}) => {
   const [eye1, setEye1] = useState(false);
-  const { login, googleLogin } = useAuth();
+  const { googleLogin, isNavigating } = useAuth();
   const router = useRouter();
   const {
     register,
@@ -38,53 +38,6 @@ const SignIn: React.FC<PageProps> = ({}) => {
     formState: { errors },
   } = useForm<FormValues>();
 
-  // const handleGoogleSuccess = async (credentialResponse: any) => {
-  //   console.log(credentialResponse, " hthhthththt");
-  //   try {
-  //     const res = await fetch(
-  //       "https://staging.goloka.io/api/login/google/auth",
-  //       {
-  //         method: "POST",
-  //         headers: {
-  //           Accept: "application/json",
-  //         },
-  //         body: new URLSearchParams({
-  //           id_token: credentialResponse.credential,
-  //           platform: "web",
-  //         }),
-  //       },
-  //     );
-
-  //     const data = await res.json();
-
-  //     if (!res.ok) {
-  //       throw new Error(data.message || "Google sign-in failed");
-  //     }
-
-  //     // Store tokens
-  //     localStorage.setItem(
-  //       "access_token",
-  //       JSON.stringify(data.tokens.access_token),
-  //     );
-  //     localStorage.setItem(
-  //       "refresh_token",
-  //       JSON.stringify(data.tokens.refresh_token),
-  //     );
-  //     localStorage.setItem(
-  //       "token_type",
-  //       JSON.stringify(data.tokens.token_type),
-  //     );
-
-  //     toast.success("Google sign in successful");
-  //     router.replace("/dashboard/root");
-  //   } catch (error: any) {
-  //     console.error("Google sign-in error:", error);
-  //     toast.error(error.message || "Failed to sign in with Google");
-  //   }
-  // };
-  // const handleGoogleError = () => {
-  //   toast.error("Google sign-in was unsuccessful. Please try again.");
-  // };
   const handleToggle1 = () => {
     setEye1((prev: boolean) => !prev);
   };
@@ -94,14 +47,14 @@ const SignIn: React.FC<PageProps> = ({}) => {
   );
 
   const handleGoogleSuccess = (credentialResponse: any) => {
-    // console.log(credentialResponse, "credentialResponse");
+    console.log(credentialResponse);
     if (credentialResponse.credential) {
       googleLogin(credentialResponse.credential);
     }
   };
-const handleGoogleError = () => {
-  toast.error("Google sign-in was unsuccessful. Please try again.");
-};
+  const handleGoogleError = () => {
+    toast.error("Google sign-in was unsuccessful. Please try again.");
+  };
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     setIsLoading(true);
@@ -230,45 +183,27 @@ const handleGoogleError = () => {
             >
               {isLoading ? <FaSpinner className="animate-spin" /> : "Login"}
             </Button>
-            {/* <Button
-              type="button"
-              onClick={() => login()}
-              className="h-12 w-full gap-2 rounded-full border border-main-100 bg-main-100 bg-opacity-15 text-base font-light text-white hover:bg-current"
-            >
-              <FcGoogle size={20} />
-              <span className="text-neutral-600">Login with Google</span>
-            </Button> */}
-
-            {/* <Button
-              type="button"
-              onClick={() => initiateGoogleLogin()}
-              className="h-12 w-full gap-2 rounded-full border border-main-100 bg-main-100 bg-opacity-15 text-base font-light text-white hover:bg-current"
-              disabled={isLoading}
-            >
-              <FcGoogle size={20} />
-              <span className="text-neutral-600">Login with Google</span>
-            </Button> */}
-
-            <div className="flex justify-center w-full">
-  <div className="w-full">
-    <GoogleLogin
-      onSuccess={handleGoogleSuccess}
-      onError={handleGoogleError}
-      type="standard"
-      theme="outline"
-      size="large"
-      shape="pill"
-      width="100%"
-      text="continue_with"
-      // custom_style={{
-      //   height: '48px',
-      //   backgroundColor: 'rgba(var(--main-100), 0.15)',
-      //   border: '1px solid var(--main-100)',
-      //   borderRadius: '9999px',
-      // }}
-    />
-  </div>
-</div>
+            {isNavigating && <LoadingOverlay />}
+            <div className="flex w-full justify-center">
+              <div className="w-full">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={handleGoogleError}
+                  type="standard"
+                  theme="outline"
+                  size="large"
+                  shape="pill"
+                  width="100%"
+                  text="signin_with"
+                  // custom_style={{
+                  //   height: '48px',
+                  //   backgroundColor: 'rgba(var(--main-100), 0.15)',
+                  //   border: '1px solid var(--main-100)',
+                  //   borderRadius: '9999px',
+                  // }}
+                />
+              </div>
+            </div>
           </div>
 
           <p className="my-8 text-center">
@@ -284,3 +219,11 @@ const handleGoogleError = () => {
 };
 
 export default SignIn;
+const LoadingOverlay = () => (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div className="rounded-lg bg-white p-4 shadow-lg">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <p className="mt-2 text-sm text-gray-600">Please wait...</p>
+    </div>
+  </div>
+);
