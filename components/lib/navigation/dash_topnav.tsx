@@ -65,12 +65,16 @@ import { getNotifications } from "@/services/response";
 import { getUseServices } from "@/services/organization";
 import { ResponseCookies } from "next/dist/compiled/@edge-runtime/cookies";
 import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
-import { useCreateOrganizationOverlay } from "@/stores/overlay";
+import {
+  useCreateContributorOverlay,
+  useCreateOrganizationOverlay,
+} from "@/stores/overlay";
 import CreateOrganization from "../modals/create_orgnaization_modal";
 import { getCurrentUser } from "@/services/user";
 import { useAblyToken } from "@/stores/ably/useAblyToken";
 import { useShowOverlay } from "@/stores/location";
 import Tooltip from "../tootip";
+import CreateContributor from "../modals/create_contributor_modal";
 
 type ComponentProps = {};
 
@@ -90,6 +94,8 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
   const router = useRouter();
   const params = { per_page: 10, page: 1 };
   const { setOpenOrganization } = useCreateOrganizationOverlay();
+
+  const { setOpenContributor } = useCreateContributorOverlay();
 
   const {
     data: notification,
@@ -250,6 +256,10 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
     <>
       {/*** Organization creation */}
       <CreateOrganization />
+
+      {/*** Contributor Creation */}
+
+      <CreateContributor />
       <Toaster richColors position={"top-right"} />
       <div className="absolute left-0 top-0 z-[50] flex h-[72px] w-full items-center justify-between bg-white px-4 py-2 shadow-sm sm:z-0 lg:px-8">
         <div className="flex gap-4">
@@ -468,15 +478,20 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                   ) **/
                   }
                 </div>
-                {organizations?.length > 0 &&
-                  firstSegment !== "organization" && (
-                    <Button
-                      className="mt-8 w-full rounded-full bg-main-100 text-white hover:bg-blue-700"
-                      onClick={() => setOpenOrganization(true)}
-                    >
-                      Create account
-                    </Button>
-                  )}
+
+                {
+                  //@ts-ignore
+                  organizations[0]?.account_type !== "contributor" &&
+                    firstSegment === "organization" && (
+                      <Button
+                        className="mt-8 w-full rounded-full bg-main-100 text-white hover:bg-blue-700"
+                        onClick={() => setOpenContributor(true)}
+                      >
+                        Create contributor
+                      </Button>
+                    )
+                }
+
                 <Separator className="my-4" />
 
                 {/* links */}
