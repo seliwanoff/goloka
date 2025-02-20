@@ -75,8 +75,6 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
   const handleGoogleSuccess = (credentialResponse: any) => {
     if (credentialResponse.credential) {
       const res = googleLogin(credentialResponse.credential);
-
-   
     }
   };
   const handleGoogleError = () => {
@@ -363,11 +361,14 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
         </p>
         <p className="text-center">
           By Signing In, you agree to our{" "}
-          <Link href="/" className="text-main-100">
-            terms of services
+          <Link
+            href="/compliance/terms-and-conditions"
+            className="text-main-100"
+          >
+            terms and conditions
           </Link>{" "}
           and that you have read our{" "}
-          <Link href="/" className="text-main-100">
+          <Link href="/compliance/privacy-policy" className="text-main-100">
             privacy policy
           </Link>{" "}
         </p>

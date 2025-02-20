@@ -68,7 +68,7 @@ const Footer = (props: Props) => {
                   <Link href="/compliance/terms-and-conditions">Terms and conditions</Link>
                 </li>
                 <li>
-                  <Link aria-disabled href="/security">Security</Link>
+                  <Link aria-disabled href="#">Security</Link>
                 </li>
               </ul>
             </div>
