@@ -2,6 +2,8 @@ import { useMutation } from "@tanstack/react-query";
 import { authApi, AuthResponse, GoogleAuthResponse } from "@/services/auth";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { baseURL } from "@/lib/axiosInstance";
+
 
 export const useAuth = () => {
   const router = useRouter();
@@ -30,7 +32,25 @@ export const useAuth = () => {
   });
 
   const googleLoginMutation = useMutation({
-    mutationFn: (credential: string) => authApi.googleLogin(credential),
+    mutationFn: async (credential: string) => {
+      const response = await fetch(`${baseURL}/login/google/auth`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+        },
+        body: new URLSearchParams({
+          id_token: credential,
+          platform: "web",
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Google sign-in failed");
+      }
+
+      return response.json();
+    },
     onSuccess: (data) => {
       storeTokens(data.tokens);
       toast.success("Google sign in successful");

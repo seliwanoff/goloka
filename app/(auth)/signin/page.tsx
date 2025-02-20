@@ -19,7 +19,7 @@ import { GoogleLogin, useGoogleLogin } from "@react-oauth/google";
 import { useQuery } from "@tanstack/react-query";
 import { useRemoteUserStore } from "@/stores/remoteUser";
 import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
-
+import { useAuth } from "@/services/auth/hooks";
 
 type PageProps = {};
 
@@ -30,6 +30,7 @@ type FormValues = {
 
 const SignIn: React.FC<PageProps> = ({}) => {
   const [eye1, setEye1] = useState(false);
+  const { login, googleLogin } = useAuth();
   const router = useRouter();
   const {
     register,
@@ -91,13 +92,16 @@ const SignIn: React.FC<PageProps> = ({}) => {
   const currentOrganization = useOrganizationStore(
     (state) => state.organization,
   );
-  // console.log(currentOrganization);
 
-  // const login = useGoogleLogin({
-  //   onSuccess: handleGoogleSuccess,
-  //   onError: handleGoogleError,
-  //   flow: "auth-code",
-  // });
+  const handleGoogleSuccess = (credentialResponse: any) => {
+    // console.log(credentialResponse, "credentialResponse");
+    if (credentialResponse.credential) {
+      googleLogin(credentialResponse.credential);
+    }
+  };
+const handleGoogleError = () => {
+  toast.error("Google sign-in was unsuccessful. Please try again.");
+};
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     setIsLoading(true);
@@ -235,7 +239,17 @@ const SignIn: React.FC<PageProps> = ({}) => {
               <span className="text-neutral-600">Login with Google</span>
             </Button> */}
 
-            {/* <div className="flex justify-center w-full">
+            {/* <Button
+              type="button"
+              onClick={() => initiateGoogleLogin()}
+              className="h-12 w-full gap-2 rounded-full border border-main-100 bg-main-100 bg-opacity-15 text-base font-light text-white hover:bg-current"
+              disabled={isLoading}
+            >
+              <FcGoogle size={20} />
+              <span className="text-neutral-600">Login with Google</span>
+            </Button> */}
+
+            <div className="flex justify-center w-full">
   <div className="w-full">
     <GoogleLogin
       onSuccess={handleGoogleSuccess}
@@ -246,15 +260,15 @@ const SignIn: React.FC<PageProps> = ({}) => {
       shape="pill"
       width="100%"
       text="continue_with"
-      custom_style={{
-        height: '48px',
-        backgroundColor: 'rgba(var(--main-100), 0.15)',
-        border: '1px solid var(--main-100)',
-        borderRadius: '9999px',
-      }}
+      // custom_style={{
+      //   height: '48px',
+      //   backgroundColor: 'rgba(var(--main-100), 0.15)',
+      //   border: '1px solid var(--main-100)',
+      //   borderRadius: '9999px',
+      // }}
     />
   </div>
-</div> */}
+</div>
           </div>
 
           <p className="my-8 text-center">
