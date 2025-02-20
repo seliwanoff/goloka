@@ -7,7 +7,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 // import { ably } from "@/lib/ably";
 export const metadata: Metadata = {
   title: "Goloka | Real Time Market Intelligence",
-  description: "Goloka is your personal writer",
+  description: "Access real-time, on-the-ground data from anywhere in the world",
 };
 
 export default function RootLayout({

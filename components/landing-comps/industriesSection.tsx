@@ -29,12 +29,12 @@ const industries: IndustryItem[] = [
       "International Development: Streamline data collection to maximise impact in various communities.",
   },
   {
-    title: "Public Sector:",
+    title: "Public Sector",
     content:
       "Understand local communities on a global scale through directly sourced data insights.",
   },
   {
-    title: "AI Companies:",
+    title: "AI Companies",
     content:
       "Fuel machine learning models with high-quality, real-world training data collected from diverse locations. Goloka provides accurate, geotagged, and verified datasets, enabling AI firms to develop smarter, more adaptive algorithms for various applications, including computer vision, NLP, and geospatial analytics.",
   },
