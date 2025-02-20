@@ -572,10 +572,13 @@ export const supportTabs = [
     label: "Contact Goloka",
     value: "contact",
   },
+
+  /***
   {
     label: "Help center",
     value: "help",
   },
+
   // {
   //   label: "Chat with Goloka",
   //   value: "chat",
@@ -584,6 +587,7 @@ export const supportTabs = [
     label: "Report an issue",
     value: "report",
   },
+  */
 ];
 
 export const pushNotifications = [
@@ -747,6 +751,16 @@ export const personalFirstName = [
     placeholder: "Input full name",
   },
 ];
+export const organizationName = [
+  {
+    name: "firstName",
+    label: "Organization Name",
+    type: "text",
+    required: true,
+    err_message: "Input your full name",
+    placeholder: "Input full name",
+  },
+];
 
 export const personalInfo = [
   {
@@ -756,7 +770,7 @@ export const personalInfo = [
     err_message: "Input your email address",
     name: "email",
     placeholder: "Input email address",
-    disabled: true
+    disabled: true,
   },
   {
     label: "Phone number",
@@ -784,9 +798,87 @@ export const personalInfo = [
   },
 ];
 
+export const personalInfoCreate = [
+  {
+    label: "Email address",
+    type: "email",
+    required: true,
+    err_message: "Input your email address",
+    name: "email",
+    placeholder: "Input email address",
+    disabled: false,
+  },
+  {
+    label: "Phone number",
+    type: "phone",
+    required: true,
+    err_message: "Input your phone number",
+    name: "phoneNo",
+    placeholder: "Input phone number",
+  },
+  {
+    label: "Date of birth",
+    type: "date",
+    required: true,
+    err_message: "Pick your date of birth",
+    name: "dateOfBirth",
+    placeholder: "Pick date of birth",
+  },
+  {
+    label: "Gender",
+    type: "select",
+    required: true,
+    err_message: "Select your gender",
+    name: "gender",
+    placeholder: "Select your gender",
+  },
+];
+export const organizationInfo = [
+  {
+    label: "Campaigner ",
+    type: "text",
+    required: false,
+    err_message: "Input your campaigner",
+    name: "campaigner",
+    placeholder: "Input  campaigner",
+    disabled: true,
+  },
+  {
+    label: "Description",
+    type: "text",
+    required: true,
+    err_message: "Input your description",
+    name: "description",
+    placeholder: "Input  description",
+    disabled: false,
+  },
+  {
+    label: "Phone number",
+    type: "phone",
+    required: true,
+    err_message: "Input your phone number",
+    name: "phoneNo",
+    placeholder: "Input phone number",
+  },
+  /**   {
+    label: "Date of birth",
+    type: "date",
+    required: true,
+    err_message: "Pick your date of birth",
+    name: "dateOfBirth",
+    placeholder: "Pick date of birth",
+  },
+  {
+    label: "Gender",
+    type: "select",
+    required: true,
+    err_message: "Select your gender",
+    name: "gender",
+    placeholder: "Select your gender",
+  },
+  */
+];
 export const otherInfo = [
-
-
   {
     label: "Religion",
     type: "select",
