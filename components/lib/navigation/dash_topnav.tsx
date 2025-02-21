@@ -144,7 +144,7 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
       icon: UserRound,
       title: "View Profile",
       href:
-        firstSegment === "organisation"
+        firstSegment === "organization"
           ? "/organization/dashboard/settings"
           : "/dashboard/settings",
     },
