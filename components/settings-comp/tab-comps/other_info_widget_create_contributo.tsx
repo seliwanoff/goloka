@@ -35,11 +35,12 @@ const OtherContributorWidget: React.FC<any> = ({
   }, [defaultValues]);
 
   const isMultiSelect = (fieldName: string) => {
+    //  console.log(fieldName);
     return ["spokenLanguage"].includes(fieldName);
   };
   return (
     <div className="">
-      <div className="space-y-4 md:grid md:grid-cols-2 md:gap-x-[18px] md:gap-y-6 md:space-y-0">
+      <div className="flex flex-col gap-2">
         {otherInfo.map((data, index) => {
           if (data.type === "date") {
             return (

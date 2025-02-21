@@ -16,7 +16,11 @@ import { cn } from "@/lib/utils";
 import EditCampaignGroup from "../widgets/edit_group";
 import AddQuestionSection from "../widgets/add_question_section";
 
-const SectionName = () => {
+interface sectionNameProps {
+  status: any;
+}
+
+const SectionName = ({ status }: sectionNameProps) => {
   const { showSection, setShowSection } = useAddQuestionSectionOverlay();
 
   return (
@@ -34,10 +38,10 @@ const SectionName = () => {
                 "font-poppins text-lg font-medium leading-[21px] text-[#333]",
               )}
             >
-              Add section
+              {status === "update" ? "Update section" : "Add question"}
             </DialogTitle>
             <DialogDescription className="sr-only text-white">
-              Add section
+              {status === "update" ? "Update section" : "Add question"}
             </DialogDescription>
             <span
               onClick={() => setShowSection(false)}
@@ -47,7 +51,7 @@ const SectionName = () => {
             </span>
           </DialogHeader>
           <div className={cn("mt-16")} />
-          <AddQuestionSection />
+          <AddQuestionSection status={status} />
         </DialogContent>
       </Dialog>
     </>

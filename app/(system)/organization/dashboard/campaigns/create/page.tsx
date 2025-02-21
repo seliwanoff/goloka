@@ -466,10 +466,6 @@ const CreateNewCampaign = () => {
                     </SelectGroup>
                   </SelectContent>
                 </Select>
-
-                <span className="font-poppins text-sm font-normal leading-[21px] text-[#828282]">
-                  Leave empty to campaigns to be available all location
-                </span>
               </Label>
 
               {countryId && (
@@ -514,6 +510,9 @@ const CreateNewCampaign = () => {
                       </SelectGroup>
                     </SelectContent>
                   </Select>
+                  <span className="font-poppins text-sm font-normal leading-[21px] text-[#828282]">
+                    Leave empty to campaigns to be available all location
+                  </span>
                 </Label>
               )}
 
@@ -555,6 +554,9 @@ const CreateNewCampaign = () => {
                       </SelectGroup>
                     </SelectContent>
                   </Select>
+                  <span className="font-poppins text-sm font-normal leading-[21px] text-[#828282]">
+                    Leave empty to campaigns to be available all location
+                  </span>
                 </Label>
               )}
 
@@ -704,6 +706,7 @@ const CreateNewCampaign = () => {
               </div>
               <FileUpload
                 ref={null}
+                type="image"
                 value={null}
                 onFileUpload={(file: any) => {
                   setFile(file);

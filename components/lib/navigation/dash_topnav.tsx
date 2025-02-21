@@ -139,6 +139,25 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
   // const { token } = useAblyToken();
   const [lastMessage, setLastMessage] = useState<any>(null);
 
+  const UserBubbleLinks: { icon: LucideIcon; title: string; href: string }[] = [
+    {
+      icon: UserRound,
+      title: "View Profile",
+      href:
+        firstSegment === "organisation"
+          ? "/organization/dashboard/settings"
+          : "/dashboard/settings",
+    },
+    {
+      icon: Settings,
+      title: "Settings",
+      href:
+        firstSegment === "organisation"
+          ? "/organization/dashboard/settings"
+          : "/dashboard/settings",
+    },
+  ];
+
   useEffect(() => {
     if (ablyClient && channelName) {
       const channel = ablyClient.channels.get(channelName);
@@ -553,16 +572,3 @@ export default DashTopNav;
 // ~ =============================================>
 // toggle these to remove notification badges
 const messages: boolean = true;
-
-const UserBubbleLinks: { icon: LucideIcon; title: string; href: string }[] = [
-  {
-    icon: UserRound,
-    title: "View Profile",
-    href: "/dashboard/settings",
-  },
-  {
-    icon: Settings,
-    title: "Settings",
-    href: "/dashboard/settings",
-  },
-];
