@@ -1493,13 +1493,13 @@ const Create = () => {
       );
 
       if (response) {
-        toast.success("Question deleted successfully");
+        toast.success("Section deleted successfully");
         getAllQuestion();
-        setOpenQuestion(false);
+        setOpenQuestionSection(false);
       }
     } catch (e) {
       console.log(e);
-      toast.error("Error deleting question");
+      toast.error("Error deleting section");
     } finally {
       setIsSubmitting(false);
     }
@@ -1548,17 +1548,6 @@ const Create = () => {
                 Generate with AI
               </Button>
               */}
-              <Button
-                variant="outline"
-                className="items-center gap-2 rounded-[50px] bg-main-100 font-bold text-white"
-                onClick={saveQuestionBySave}
-              >
-                {isSubmitting ? (
-                  <FaSpinner className="animate-spin" />
-                ) : (
-                  "Save question"
-                )}
-              </Button>
             </div>
           </div>
           <div>
@@ -1668,6 +1657,18 @@ const Create = () => {
                   Add section
                 </Add>
               </div>
+
+              <Button
+                variant="outline"
+                className="items-center gap-2 rounded-[10px] bg-main-100 font-bold text-white"
+                onClick={saveQuestionBySave}
+              >
+                {isSubmitting ? (
+                  <FaSpinner className="animate-spin" />
+                ) : (
+                  "Save question"
+                )}
+              </Button>
             </div>
           </div>
         </div>

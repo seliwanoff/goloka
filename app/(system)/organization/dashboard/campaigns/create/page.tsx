@@ -511,7 +511,7 @@ const CreateNewCampaign = () => {
                     </SelectContent>
                   </Select>
                   <span className="font-poppins text-sm font-normal leading-[21px] text-[#828282]">
-                    Leave empty to campaigns to be available all location
+                    Leave empty for campaigns to be available in all location
                   </span>
                 </Label>
               )}
@@ -555,7 +555,7 @@ const CreateNewCampaign = () => {
                     </SelectContent>
                   </Select>
                   <span className="font-poppins text-sm font-normal leading-[21px] text-[#828282]">
-                    Leave empty to campaigns to be available all location
+                    Leave empty for campaigns to be available in all location
                   </span>
                 </Label>
               )}
