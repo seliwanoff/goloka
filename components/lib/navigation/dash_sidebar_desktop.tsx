@@ -198,7 +198,7 @@ const DashSideBarDesktop: React.FC<ComponentProps> = ({ navMenuList }) => {
                 className="mt-8 w-full rounded-full bg-main-100 text-white hover:bg-blue-700"
                 onClick={() => setOpenContributor(true)}
               >
-                Create Contributor
+                Create
               </Button>
             </div>
           )}

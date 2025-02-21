@@ -18,9 +18,10 @@ import AddQuestionSection from "../widgets/add_question_section";
 
 interface sectionNameProps {
   status: any;
+  question: any;
 }
 
-const SectionName = ({ status }: sectionNameProps) => {
+const SectionName = ({ status, question }: sectionNameProps) => {
   const { showSection, setShowSection } = useAddQuestionSectionOverlay();
 
   return (
@@ -38,10 +39,10 @@ const SectionName = ({ status }: sectionNameProps) => {
                 "font-poppins text-lg font-medium leading-[21px] text-[#333]",
               )}
             >
-              {status === "update" ? "Update section" : "Add question"}
+              {status === "update" ? "Update section" : "Add Section"}
             </DialogTitle>
             <DialogDescription className="sr-only text-white">
-              {status === "update" ? "Update section" : "Add question"}
+              {status === "update" ? "Update section" : "Add Section"}
             </DialogDescription>
             <span
               onClick={() => setShowSection(false)}
@@ -51,7 +52,7 @@ const SectionName = ({ status }: sectionNameProps) => {
             </span>
           </DialogHeader>
           <div className={cn("mt-16")} />
-          <AddQuestionSection status={status} />
+          <AddQuestionSection status={status} question={question} />
         </DialogContent>
       </Dialog>
     </>

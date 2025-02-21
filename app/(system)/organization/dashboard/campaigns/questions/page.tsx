@@ -135,10 +135,10 @@ const Create = () => {
     const hasData = questions.some((q) => q.content.trim() !== "");
 
     if (hasData) {
-      await saveQuestion();
+      await saveQuestion(); // Save questions only if there's valid content
     }
 
-    setShowSection(true);
+    setShowSection(true); // Proceed to show section if everything is valid
   };
 
   const handleAddQuestion = async () => {
@@ -1535,7 +1535,7 @@ const Create = () => {
         isSubmitting={isSubmitting}
       />
 
-      <section className="mx-auto mt-5 w-full max-w-[896px]">
+      <section className="relative mx-auto mt-5 w-full max-w-[896px]">
         <div className="flex flex-col gap-[12px]">
           <div className="flex items-center justify-between">
             <CustomBreadCrumbs />
@@ -1652,6 +1652,7 @@ const Create = () => {
                   imageSrc="/assets/images/questions/section.png"
                   onClick={() => {
                     handleSection(), setStatusQuestion("create");
+                    setSectionName("");
                   }}
                 >
                   Add section
@@ -1660,7 +1661,7 @@ const Create = () => {
 
               <Button
                 variant="outline"
-                className="items-center gap-2 rounded-[10px] bg-main-100 font-bold text-white"
+                className="fixed bottom-0 right-0 m-4 items-center gap-2 rounded-[50px] bg-main-100 font-bold text-white"
                 onClick={saveQuestionBySave}
               >
                 {isSubmitting ? (
@@ -1674,7 +1675,7 @@ const Create = () => {
         </div>
       </section>
 
-      <SectionName status={statusQuestion} />
+      <SectionName status={statusQuestion} question={groupedQuestions} />
     </>
   );
 };

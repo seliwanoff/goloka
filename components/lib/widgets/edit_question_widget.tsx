@@ -5,6 +5,8 @@ import { SmallAnswer } from "@/components/ui/small-input-answer";
 import { Label } from "@radix-ui/react-label";
 import { Note } from "iconsax-react";
 import { useEffect, useState } from "react";
+import * as SwitchPrimitive from "@radix-ui/react-switch";
+
 import {
   Select,
   SelectTrigger,
@@ -77,6 +79,7 @@ type Question = {
   content: string;
   value: any;
   answer?: any;
+  required: boolean;
 };
 interface EditQuestionWidgetProps {
   question: Question[]; // Ensure question is always an array
@@ -115,6 +118,7 @@ const EditQuestionWidget = ({
   const [file, setFile] = useState<File | null>(null);
   const [date, setDate] = useState<Date | null>(null);
   const [time, setTime] = useState<string | null>(null);
+  const [isChecked, setIschecked] = useState(false);
 
   const handleAnswerChange = (id: number, answer: string) => {
     setQuestions((prevQuestions) =>
@@ -127,6 +131,44 @@ const EditQuestionWidget = ({
       prevQuestions.map((q) => (q.id === id ? { ...q, type } : q)),
     );
   };
+
+  const handleUpdate = (id: string, required: boolean) => {
+    setIschecked(required);
+  };
+
+  const ToggleSwitch = ({
+    data,
+    onUpdate,
+  }: {
+    data: {
+      id: string;
+      required: boolean;
+      label: string;
+      type: string;
+      options: any[];
+    };
+    onUpdate: (id: string, required: boolean) => void;
+  }) => {
+    const [localChecked, setLocalChecked] = useState(data.required);
+
+    const handleToggle = async (checked: boolean) => {
+      setLocalChecked(checked);
+      //   console.log(data.options);
+      onUpdate(data.id, checked);
+    };
+
+    return (
+      <SwitchPrimitive.Root
+        id="switch"
+        checked={localChecked}
+        onCheckedChange={handleToggle}
+        className="relative h-6 w-10 rounded-full bg-gray-300 transition"
+      >
+        <SwitchPrimitive.Thumb className="block h-4 w-4 translate-x-1 transform rounded-full shadow-md transition-transform data-[state=checked]:translate-x-5 data-[state=checked]:bg-blue-500" />
+      </SwitchPrimitive.Root>
+    );
+  };
+
   const handleContentChange = (id: number, label: string) => {
     setQuestions((prevQuestions) =>
       prevQuestions.map((q) => (q.id === id ? { ...q, label } : q)),
@@ -166,14 +208,14 @@ const EditQuestionWidget = ({
 
   const handleOptionsChange = (updatedOptions: any) => {
     setOptions(updatedOptions);
-    console.log(updatedOptions);
+    // console.log(updatedOptions);
     handleAnswerChange(1, updatedOptions);
   };
-  console.log(options);
+  // console.log(options);
 
   const handleQuestion = async () => {
     setIsLoading(true);
-    console.log(questions);
+    // console.log(questions);
     try {
       const payload = {
         label: questions[0].label,
@@ -191,7 +233,7 @@ const EditQuestionWidget = ({
           questions[0].type === "url"
             ? "Enter your input"
             : "",
-        required: true,
+        required: isChecked ? "1" : "0",
         options:
           questions[0].type === "select" ||
           questions[0].type === "checkbox" ||
@@ -695,6 +737,14 @@ const EditQuestionWidget = ({
             question.value,
             question.options,
           )}
+          <div className="w-ful flex items-center gap-2">
+            <span>Required status</span>
+            <ToggleSwitch
+              key={question.id}
+              data={question}
+              onUpdate={handleUpdate}
+            />
+          </div>
 
           <Button
             className="mt-8 h-auto w-full rounded-full bg-main-100 py-3 text-white hover:bg-blue-700 hover:text-white"

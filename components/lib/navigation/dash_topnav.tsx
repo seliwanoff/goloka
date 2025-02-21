@@ -144,7 +144,7 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
       icon: UserRound,
       title: "View Profile",
       href:
-        firstSegment === "organisation"
+        firstSegment === "organization"
           ? "/organization/dashboard/settings"
           : "/dashboard/settings",
     },
@@ -497,19 +497,6 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                   ) **/
                   }
                 </div>
-
-                {
-                  //@ts-ignore
-                  organizations[0]?.account_type !== "contributor" &&
-                    firstSegment === "organization" && (
-                      <Button
-                        className="mt-8 w-full rounded-full bg-main-100 text-white hover:bg-blue-700"
-                        onClick={() => setOpenContributor(true)}
-                      >
-                        Create contributor
-                      </Button>
-                    )
-                }
 
                 <Separator className="my-4" />
 

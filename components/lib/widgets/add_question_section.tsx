@@ -23,9 +23,10 @@ const schema = yup.object().shape({
 
 interface sectionNameProps {
   status: any;
+  question: any;
 }
 
-const AddQuestionSection = ({ status }: sectionNameProps) => {
+const AddQuestionSection = ({ status, question }: sectionNameProps) => {
   const { title, id, setShow } = useEditCampaignOverlay(); // Initial values from overlay
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -54,11 +55,24 @@ const AddQuestionSection = ({ status }: sectionNameProps) => {
     //  setValue("description", description || "");
   }, [title, setValue]);
   const searchParams = useSearchParams();
-
+  // console.log(question);
   const questionId = searchParams.get("questionId") || 0;
 
   const onCreateSection = async (data: any) => {
     setIsSubmitting(true);
+    if (status === "create") {
+      const sectionExists = question.some(
+        (group: any) =>
+          group.name.trim().toLowerCase() === data.title.trim().toLowerCase(),
+      );
+
+      if (sectionExists) {
+        toast.error("Section already exists");
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
     try {
       status === "create"
         ? await createSection(questionId, data.title)
@@ -123,7 +137,7 @@ const AddQuestionSection = ({ status }: sectionNameProps) => {
             ) : status === "update" ? (
               "Update section"
             ) : (
-              "Add question"
+              "Add section"
             )}
           </Button>
         </div>

@@ -41,6 +41,17 @@ export const getOrganizationByDomain = async (): Promise<
   }
 };
 
+export const fetchOrganizationChart = async (): Promise<AxiosResponse<any>> => {
+  try {
+    return await fetchData(
+      `/organizations/${organizationDetails.domain}/analytics/stat-two`,
+    );
+  } catch (error) {
+    console.error("Error fetching campaign questions:", error);
+    throw error;
+  }
+};
+
 export const getUseServices = async (): Promise<AxiosResponse<any>> => {
   try {
     return await fetchData(`user/services`);
