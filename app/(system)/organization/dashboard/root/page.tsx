@@ -167,10 +167,10 @@ const Dashboard = () => {
       <div className="col-span-5 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">
-            Welcome to Goloka for Organization &nbsp;
             <span className="text-main-100">
-              {currentOrganization?.name || ""}
-            </span>
+              {currentOrganization?.name || ""},
+            </span>{" "}
+            welcome to Goloka for Organization
           </h1>
           <p className="text-gray-600">{data?.description || ""}</p>
         </div>

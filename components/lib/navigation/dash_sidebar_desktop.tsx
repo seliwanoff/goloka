@@ -39,7 +39,10 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { userLogout } from "@/services/auth";
-import { useCreateOrganizationOverlay } from "@/stores/overlay";
+import {
+  useCreateContributorOverlay,
+  useCreateOrganizationOverlay,
+} from "@/stores/overlay";
 import { getUseServices } from "@/services/organization";
 
 type ComponentProps = {
@@ -50,7 +53,12 @@ const DashSideBarDesktop: React.FC<ComponentProps> = ({ navMenuList }) => {
   const pathname = usePathname();
   const router = useRouter();
   const { setOpenOrganization } = useCreateOrganizationOverlay();
+
+  const { setOpenContributor } = useCreateContributorOverlay();
+
   const [organizations, setOrganizations] = useState([]);
+  const [contributor, setContributor] = useState<any>([]);
+  const firstSegment = pathname?.split("/")[1];
 
   // userLogout;
 
@@ -69,6 +77,9 @@ const DashSideBarDesktop: React.FC<ComponentProps> = ({ navMenuList }) => {
     const response = await getUseServices();
     //@ts-ignore
     setOrganizations(response.services.organizations);
+
+    //@ts-ignore
+    setContributor(response.services.contributor || null);
   };
 
   useEffect(() => {
@@ -167,6 +178,27 @@ const DashSideBarDesktop: React.FC<ComponentProps> = ({ navMenuList }) => {
                 onClick={() => setOpenOrganization(true)}
               >
                 Create account
+              </Button>
+            </div>
+          )}
+
+          {contributor === null && firstSegment === "organization" && (
+            <div className="mt-6 rounded-lg bg-[#F8F8F8] p-4">
+              <div className="mx-auto -mt-9 mb-5 flex h-12 w-12 items-center justify-center rounded-full border-4 border-white bg-main-100">
+                <People size="24" color="#FFF" />
+              </div>
+              <h3 className="text-center text-sm font-medium text-main-100">
+                Become a contributor
+              </h3>
+              <p className="mt-4 text-center text-xs leading-5 text-[#4F4F4F]">
+                Become a contributor on goloka to earn.
+              </p>
+
+              <Button
+                className="mt-8 w-full rounded-full bg-main-100 text-white hover:bg-blue-700"
+                onClick={() => setOpenContributor(true)}
+              >
+                Create Contributor
               </Button>
             </div>
           )}

@@ -20,7 +20,7 @@ import Avatar from "@/public/assets/images/avatar.png";
 import { useUserStore } from "@/stores/currentUserStore";
 import { useRemoteUserStore } from "@/stores/remoteUser";
 import { normalizeSpokenLanguages } from "../multiSelect";
-import { createContributor } from "@/services/contributor";
+import { createContributor, updateOrganization } from "@/services/contributor";
 import { toast } from "sonner";
 import { getCurrentUser } from "@/services/user";
 import { userInfo } from "os";
@@ -48,16 +48,11 @@ type FormValues = {
 // Update the schema to include profile_photo_url
 const schema = yup.object().shape({
   description: yup.string().required(),
-  campaigner: yup.string().required(),
+  campaigner: yup.string(),
   firstName: yup.string().required(),
-  dateOfBirth: yup.string().required(),
+
   phoneNo: yup.string(),
-  gender: yup.string().required(),
-  email: yup.string().email().required(),
-  primaryLanguage: yup.string().required(),
-  religion: yup.string().required(),
-  ethnicity: yup.string().required(),
-  spokenLanguage: yup.array().of(yup.string()).required(),
+
   profile_photo_url: yup.string(), // Add this field
 });
 
@@ -101,14 +96,6 @@ const OrganizationProfile: React.FC<ComponentProps> = ({}) => {
     const keyMapping: Record<string, string> = {
       name: "firstName",
 
-      birth_date: "dateOfBirth",
-      email: "email",
-      gender: "gender",
-      primary_language: "primaryLanguage",
-      religion: "religion",
-      ethnicity: "ethnicity",
-      spoken_languages: "spokenLanguage",
-      phone: "phoneNo",
       campaigner: "campaigner",
       description: "description",
       profile_photo_url: "profile_photo_url", // Add this mapping
@@ -171,33 +158,24 @@ const OrganizationProfile: React.FC<ComponentProps> = ({}) => {
       setIsLoading(true);
       const formData = new FormData();
 
-      // Add all form fields
       formData.append("name", data.firstName);
-      formData.append("birth_date", data.dateOfBirth);
-      formData.append("tel", data.phoneNo || "");
-      formData.append("gender", data.gender);
-      formData.append("religion", data.religion);
-      formData.append("ethnicity", data.ethnicity);
-      formData.append("primary_language", data.primaryLanguage);
-      formData.append("email", data.email);
+      formData.append("description", data.description);
+      formData.append("phone", data.phoneNo || "");
 
-      // Add spoken languages
-      data.spokenLanguage.forEach((lang, index) => {
-        formData.append(`spoken_languages[${index}]`, lang);
-      });
-
-      // Handle profile photo
       if (image) {
         formData.append("profile_photo", image);
       } else if (data.profile_photo_url) {
         formData.append("profile_photo_url", data.profile_photo_url);
       }
 
-      const response = await createContributor(formData);
+      const response = await updateOrganization(formData);
+
+      await getOrganisationInfo();
 
       if (!response) {
         throw new Error("Failed to submit the form. Please try again.");
       }
+
       //@ts-ignore
       toast.success(response?.message);
       setInitialValues(data);
@@ -357,7 +335,7 @@ const OrganizationProfile: React.FC<ComponentProps> = ({}) => {
             <Button
               type="submit"
               className="rounded-full bg-main-100 text-white"
-              disabled={!isFormDirty || isLoading}
+              disabled={isLoading}
             >
               {isLoading ? "Saving..." : "Save Changes"}
             </Button>

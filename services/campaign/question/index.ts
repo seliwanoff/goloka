@@ -1,5 +1,5 @@
 import { queryClient } from "@/components/layout/tanstackProvider";
-import { fetchData, postData } from "@/lib/api";
+import { deleteData, fetchData, postData } from "@/lib/api";
 
 import { UseQueryResult } from "@tanstack/react-query";
 import { AxiosResponse } from "axios";
@@ -37,6 +37,40 @@ export const createSection = async (
   }
 };
 
+export const updateSection = async (
+  id: any,
+  payload: any,
+  sectionId: any,
+): Promise<AxiosResponse<any>> => {
+  try {
+    return await postData(
+      `/organizations/${organizationDetails.domain}/campaigns/${id}/question-groups/${sectionId}/update`,
+      {
+        name: payload,
+      },
+    );
+  } catch (error) {
+    console.error("Error fetching campaign questions:", error);
+    throw error;
+  }
+};
+export const deleteSection = async (
+  id: any,
+  payload: any,
+  sectionId: any,
+): Promise<AxiosResponse<any>> => {
+  try {
+    return await deleteData(
+      `/organizations/${organizationDetails.domain}/campaigns/${id}/question-groups/${sectionId}/delete`,
+      {
+        name: payload,
+      },
+    );
+  } catch (error) {
+    console.error("Error fetching campaign questions:", error);
+    throw error;
+  }
+};
 export const getCampaignQuestion = async (
   id: any,
 ): Promise<AxiosResponse<any>> => {

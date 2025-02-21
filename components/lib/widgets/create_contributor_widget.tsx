@@ -28,6 +28,8 @@ import CustomSelectField from "@/components/settings-comp/select_field";
 import OtherPersonalInfo from "@/components/settings-comp/tab-comps/other_personal_info";
 import { FaSpinner } from "react-icons/fa";
 import OtherContributorWidget from "@/components/settings-comp/tab-comps/other_info_widget_create_contributo";
+import { useRouter } from "next/navigation";
+import { useCreateContributorOverlay } from "@/stores/overlay";
 
 type ComponentProps = {};
 
@@ -85,11 +87,13 @@ const generateAvatarFromInitials = (name: string) => {
 const CreateContributorWidget: React.FC<ComponentProps> = ({}) => {
   const { user: remoteUser } = useRemoteUserStore();
   const currentUser = useUserStore((state) => state.user);
-  const [isFormDirty, setIsFormDirty] = useState(false);
+  //const [isFormDirty, setIsFormDirty] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [initialValues, setInitialValues] = useState<FormValues | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const [users, setUsers] = useState([]);
+
+  const { setOpenContributor } = useCreateContributorOverlay();
   const mergedUserData = useMemo(() => {
     const safeGet = (obj: any, key: string) => {
       return obj && obj[key] !== undefined ? obj[key] : "";
@@ -130,6 +134,7 @@ const CreateContributorWidget: React.FC<ComponentProps> = ({}) => {
 
     return merged;
   }, [currentUser, remoteUser]);
+  const router = useRouter();
 
   // Update the initialAvatar logic to use profile_photo_url from form values
   const initialAvatar = useMemo(() => {
@@ -153,10 +158,10 @@ const CreateContributorWidget: React.FC<ComponentProps> = ({}) => {
   } = useForm<FormValues>({
     //@ts-ignore
     resolver: yupResolver(schema),
-    defaultValues: mergedUserData,
+    //   defaultValues: mergedUserData,
     mode: "onChange",
   });
-
+  //console.log(formState)
   // Update form submission to include profile_photo_url
   const onSubmit = async (data: FormValues) => {
     try {
@@ -165,7 +170,7 @@ const CreateContributorWidget: React.FC<ComponentProps> = ({}) => {
 
       // Add all form fields
       formData.append("name", data.firstName);
-      formData.append("birth_date", data.dateOfBirth);
+      formData.append("birth_date", new Date(data.dateOfBirth).toISOString());
       formData.append("tel", data.phoneNo || "");
       formData.append("gender", data.gender);
       formData.append("religion", data.religion);
@@ -193,12 +198,15 @@ const CreateContributorWidget: React.FC<ComponentProps> = ({}) => {
       //@ts-ignore
       toast.success(response?.message);
       setInitialValues(data);
-      setIsFormDirty(false);
+      setOpenContributor(false);
+      //  setIsFormDirty(false);
 
       // Cleanup old image URL
       if (imgUrl.startsWith("blob:")) {
         URL.revokeObjectURL(imgUrl);
       }
+      getCurrentOrganization(null);
+      window.location.href = "/dashboard/root";
     } catch (error) {
       console.error("Form submission error:", error);
       toast.error(
@@ -245,7 +253,7 @@ const CreateContributorWidget: React.FC<ComponentProps> = ({}) => {
       });
 
       const hasImageChange = image !== null;
-      setIsFormDirty(hasChanges || hasImageChange);
+      // setIsFormDirty(hasChanges || hasImageChange);
     }
   }, [formValues, initialValues, image]);
   // Ensure form values are set when user data is available
@@ -253,10 +261,7 @@ const CreateContributorWidget: React.FC<ComponentProps> = ({}) => {
     if (mergedUserData) {
       Object.entries(mergedUserData).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
-          setValue(key as keyof FormValues, value, {
-            shouldDirty: false,
-            shouldTouch: false,
-          });
+          setValue(key as keyof FormValues, value);
         }
       });
     }
@@ -299,7 +304,7 @@ const CreateContributorWidget: React.FC<ComponentProps> = ({}) => {
     };
   }, [imgUrl]);
 
-  console.log(users);
+  // console.log(users);
   return (
     <form
       className="scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 block max-h-[80vh] overflow-y-auto"
@@ -311,14 +316,6 @@ const CreateContributorWidget: React.FC<ComponentProps> = ({}) => {
       }}
     >
       <div className="rounded-2xl bg-white p-6">
-        {isLoading && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="rounded-lg bg-white p-4">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-main-100 border-t-transparent"></div>
-            </div>
-          </div>
-        )}
-
         <div className="my-8 flex items-center justify-center">
           <div className="relative sm:inline-block">
             <Image
@@ -398,7 +395,7 @@ const CreateContributorWidget: React.FC<ComponentProps> = ({}) => {
           <Button
             type="submit"
             className="mt-4 w-full rounded-full bg-main-100 text-white"
-            disabled={!isFormDirty || isLoading}
+            disabled={isLoading}
           >
             {isLoading ? <FaSpinner size={20} /> : "Create Contributor"}
           </Button>

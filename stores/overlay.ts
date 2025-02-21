@@ -23,6 +23,11 @@ interface AddWithdrawSTat {
 
 interface AddSectionState {
   showSection: boolean;
+  sectionId: any;
+  sectionName: string;
+  setSectionName: (value: any) => void;
+
+  setSectionId: (value: any) => void;
   setShowSection: (value: boolean) => void;
   isSectionAdded: boolean;
   setIsSectionAdded: (value: boolean) => void;
@@ -180,6 +185,10 @@ const useWithdrawalfundsOverlay = create<AddWithdrawSTat>((set) => ({
 
 const useAddQuestionSectionOverlay = create<AddSectionState>((set) => ({
   showSection: false,
+  sectionId: "",
+  sectionName: "",
+  setSectionName: (value) => set({ sectionName: value }),
+  setSectionId: (value) => set({ sectionId: value }),
   setShowSection: (value) => set({ showSection: value }),
   isSectionAdded: false,
   setIsSectionAdded: (value) => set({ isSectionAdded: value }),

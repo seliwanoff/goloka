@@ -13,7 +13,7 @@ import {
 } from "@/stores/overlay";
 import { Input } from "@/components/ui/input";
 
-import { createSection } from "@/services/campaign/question";
+import { createSection, updateSection } from "@/services/campaign/question";
 import { useSearchParams } from "next/navigation";
 
 const schema = yup.object().shape({
@@ -21,11 +21,16 @@ const schema = yup.object().shape({
   // description: yup.string().required("Description is required"),
 });
 
-const AddQuestionSection = () => {
+interface sectionNameProps {
+  status: any;
+}
+
+const AddQuestionSection = ({ status }: sectionNameProps) => {
   const { title, id, setShow } = useEditCampaignOverlay(); // Initial values from overlay
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { setShowSection, setIsSectionAdded } = useAddQuestionSectionOverlay();
+  const { setShowSection, setIsSectionAdded, sectionName, sectionId } =
+    useAddQuestionSectionOverlay();
 
   const {
     register,
@@ -41,9 +46,11 @@ const AddQuestionSection = () => {
     },
   });
 
+  // console.log("sectionName", sectionName);
+
   // Populate form with initial values
   useEffect(() => {
-    setValue("title", title || "");
+    setValue("title", sectionName || "");
     //  setValue("description", description || "");
   }, [title, setValue]);
   const searchParams = useSearchParams();
@@ -53,8 +60,12 @@ const AddQuestionSection = () => {
   const onCreateSection = async (data: any) => {
     setIsSubmitting(true);
     try {
-      await createSection(questionId, data.title);
-      toast.success("Section created!");
+      status === "create"
+        ? await createSection(questionId, data.title)
+        : await updateSection(questionId, data.title, sectionId);
+      toast.success(
+        status === "update" ? "Section Updated" : "Section created!",
+      );
       setShowSection(false);
       setIsSectionAdded(true);
       reset();
@@ -87,6 +98,7 @@ const AddQuestionSection = () => {
               id="title"
               name="title"
               placeholder="Input name"
+              // value={title}
               className={cn(
                 "form-input rounded-lg border border-[#D9DCE0] px-4 py-[18px] outline-0 placeholder:text-[#828282] focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0",
                 errors.title &&
@@ -108,8 +120,10 @@ const AddQuestionSection = () => {
           >
             {isSubmitting ? (
               <Loader className="animate-spin text-[#fff]" />
+            ) : status === "update" ? (
+              "Update section"
             ) : (
-              "Add section name"
+              "Add question"
             )}
           </Button>
         </div>
