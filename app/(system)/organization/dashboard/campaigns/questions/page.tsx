@@ -1535,7 +1535,7 @@ const Create = () => {
         isSubmitting={isSubmitting}
       />
 
-      <section className="mx-auto mt-5 w-full max-w-[896px]">
+      <section className="relative mx-auto mt-5 w-full max-w-[896px]">
         <div className="flex flex-col gap-[12px]">
           <div className="flex items-center justify-between">
             <CustomBreadCrumbs />
@@ -1660,7 +1660,7 @@ const Create = () => {
 
               <Button
                 variant="outline"
-                className="items-center gap-2 rounded-[10px] bg-main-100 font-bold text-white"
+                className="fixed bottom-0 right-0 m-4 items-center gap-2 rounded-[50px] bg-main-100 font-bold text-white"
                 onClick={saveQuestionBySave}
               >
                 {isSubmitting ? (
