@@ -135,10 +135,10 @@ const Create = () => {
     const hasData = questions.some((q) => q.content.trim() !== "");
 
     if (hasData) {
-      await saveQuestion();
+      await saveQuestion(); // Save questions only if there's valid content
     }
 
-    setShowSection(true);
+    setShowSection(true); // Proceed to show section if everything is valid
   };
 
   const handleAddQuestion = async () => {
@@ -1652,6 +1652,7 @@ const Create = () => {
                   imageSrc="/assets/images/questions/section.png"
                   onClick={() => {
                     handleSection(), setStatusQuestion("create");
+                    setSectionName("");
                   }}
                 >
                   Add section
@@ -1674,7 +1675,7 @@ const Create = () => {
         </div>
       </section>
 
-      <SectionName status={statusQuestion} />
+      <SectionName status={statusQuestion} question={groupedQuestions} />
     </>
   );
 };
