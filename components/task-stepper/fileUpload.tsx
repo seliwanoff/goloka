@@ -17,6 +17,7 @@ const extensionIcons: { [key: string]: string } = {
 
 interface FileUploadProps {
   value: any;
+  type?: string;
   ref: React.LegacyRef<HTMLInputElement> | undefined;
   onFileUpload?: (file: File | null, base64: string | null) => void;
   disabled?: boolean;
@@ -27,6 +28,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
   value,
   ref,
   disabled,
+  type,
 }) => {
   const [file, setFile] = useState<File | null>(null);
   const [fileBase64, setFileBase64] = useState<string | null>(null);
@@ -116,10 +118,15 @@ const FileUpload: React.FC<FileUploadProps> = ({
               <div className="mb-2 flex h-8 w-8 items-center justify-center self-center rounded-full border border-dashed border-slate-300 bg-slate-200">
                 <FilePlus2 />
               </div>
-              <span>Upload new file</span>
+              <span>
+                {" "}
+                {type === "image" ? "Upload cover image" : "Upload new file"}
+              </span>
             </div>
             <span className="text-xs text-slate-400">
-              Supported formats: PNG, JPG, JPEG, DOCS, PDF, CSV
+              {type === "image"
+                ? "Supported formats: PNG, JPG, JPEG"
+                : "Supported formats: PNG, JPG, JPEG, DOCS, PDF, CSV"}{" "}
             </span>
             <input
               ref={ref}

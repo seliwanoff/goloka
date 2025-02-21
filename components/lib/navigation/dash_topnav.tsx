@@ -139,6 +139,25 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
   // const { token } = useAblyToken();
   const [lastMessage, setLastMessage] = useState<any>(null);
 
+  const UserBubbleLinks: { icon: LucideIcon; title: string; href: string }[] = [
+    {
+      icon: UserRound,
+      title: "View Profile",
+      href:
+        firstSegment === "organization"
+          ? "/organization/dashboard/settings"
+          : "/dashboard/settings",
+    },
+    {
+      icon: Settings,
+      title: "Settings",
+      href:
+        firstSegment === "organisation"
+          ? "/organization/dashboard/settings"
+          : "/dashboard/settings",
+    },
+  ];
+
   useEffect(() => {
     if (ablyClient && channelName) {
       const channel = ablyClient.channels.get(channelName);
@@ -479,19 +498,6 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                   }
                 </div>
 
-                {
-                  //@ts-ignore
-                  organizations[0]?.account_type !== "contributor" &&
-                    firstSegment === "organization" && (
-                      <Button
-                        className="mt-8 w-full rounded-full bg-main-100 text-white hover:bg-blue-700"
-                        onClick={() => setOpenContributor(true)}
-                      >
-                        Create contributor
-                      </Button>
-                    )
-                }
-
                 <Separator className="my-4" />
 
                 {/* links */}
@@ -553,16 +559,3 @@ export default DashTopNav;
 // ~ =============================================>
 // toggle these to remove notification badges
 const messages: boolean = true;
-
-const UserBubbleLinks: { icon: LucideIcon; title: string; href: string }[] = [
-  {
-    icon: UserRound,
-    title: "View Profile",
-    href: "/dashboard/settings",
-  },
-  {
-    icon: Settings,
-    title: "Settings",
-    href: "/dashboard/settings",
-  },
-];

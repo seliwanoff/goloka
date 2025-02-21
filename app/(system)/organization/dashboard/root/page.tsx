@@ -54,6 +54,7 @@ import {
 import CampaignChart from "@/components/organization-comps/campaign_chart";
 import CampaignSummary from "@/components/organization-comps/campaign_summary";
 import {
+  fetchOrganizationChart,
   getOrganizationByDomain,
   getOrganizationStat,
   getUseServices,
@@ -83,6 +84,7 @@ const Dashboard = () => {
     (state) => state.organization,
   );
   const [data, setData] = useState<any>([]);
+  const [rawChartData, setRawChartData] = useState([]);
 
   const getCurrentOrganizationStat = async () => {
     try {
@@ -161,16 +163,34 @@ const Dashboard = () => {
   }, []);
   const router = useRouter();
 
+  const getChartData = async () => {
+    try {
+      const response = await fetchOrganizationChart();
+
+      console.log(response);
+      //@ts-ignore
+      setRawChartData(response);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  useEffect(() => {
+    getChartData();
+  }, []);
+
+  const USER_CURRENCY_SYMBOL =
+    currentOrganization && currentOrganization["symbol"];
   return (
     <div className="grid h-max grid-cols-5 gap-6 py-10">
       {/* Welcome section */}
       <div className="col-span-5 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">
-            Welcome to Goloka for Organization &nbsp;
             <span className="text-main-100">
-              {currentOrganization?.name || ""}
-            </span>
+              {currentOrganization?.name || ""},
+            </span>{" "}
+            welcome to Goloka for Organization
           </h1>
           <p className="text-gray-600">{data?.description || ""}</p>
         </div>
@@ -254,7 +274,7 @@ const Dashboard = () => {
           </div>
 
           <div className="flex flex-col items-center gap-10">
-            <CampaignChart />
+            <CampaignChart data={rawChartData} />
 
             <div className="ml-auto mt-5 flex w-[90%] items-start justify-between gap-2 text-sm">
               <div className="flex items-start gap-6">
@@ -262,9 +282,14 @@ const Dashboard = () => {
                   <span className="mt-1 inline-block h-2 w-2 rounded-full bg-blue-400"></span>
                   <div className="">
                     <span className="text-sm text-[#828282]">
-                      Total campagn
+                      Total campaigns
                     </span>
-                    <p className="font-semibold text-[#333333]">54</p>
+                    <p className="font-semibold text-[#333333]">
+                      {
+                        // @ts-ignore
+                        rawChartData.total_campaigns
+                      }
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-2">
@@ -273,20 +298,39 @@ const Dashboard = () => {
                     <span className="text-sm text-[#828282]">
                       Total response
                     </span>
-                    <p className="font-semibold text-[#333333]">569</p>
+
+                    <p className="font-semibold text-[#333333]">
+                      {
+                        // @ts-ignore
+                        rawChartData.total_responses
+                      }
+                    </p>
                   </div>
                 </div>
               </div>
               <div className="text-right">
                 <p className="text-sm text-[#828282]">Amount spent</p>
-                <h4 className="font-semibold text-[#333333]">$2500</h4>
+                <h4 className="font-semibold text-[#333333]">
+                  {" "}
+                  {USER_CURRENCY_SYMBOL}
+                  {
+                    // @ts-ignore
+                    rawChartData.amount_spent
+                  }
+                </h4>
               </div>
             </div>
           </div>
         </div>
         <div className="rounded-2xl bg-white p-[14px]">
           <h3 className="mb-10 text-base font-medium">Campaign summary</h3>
-          <CampaignSummary />
+
+          <CampaignSummary
+            data={
+              //@ts-ignore
+              rawChartData?.campaign_summary
+            }
+          />
         </div>
       </div>
       {/* RECENT RESPONSES */}

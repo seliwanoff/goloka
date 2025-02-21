@@ -19,9 +19,9 @@ const CustomSelectField = ({
   const findMatchingOption = (value: string) => {
     if (!value || !options) return "";
 
-    const normalizedValue = value.toLowerCase();
+    const normalizedValue = value?.toLowerCase();
     const matchingOption = options.find(
-      (opt: any) => opt.value.toLowerCase() === normalizedValue,
+      (opt: any) => opt.value?.toLowerCase() === normalizedValue,
     );
     return matchingOption ? matchingOption.value : "";
   };

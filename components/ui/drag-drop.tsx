@@ -11,6 +11,7 @@ type DraggableComponentProps = {
   children: React.ReactNode;
   className?: string;
   type?: string;
+  required?: any;
   data?: any;
   setSelectedQuestion: any;
   setClickedId?: any;
@@ -23,6 +24,7 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
   title,
   children,
   className,
+  required,
   type,
   data,
   setSelectedQuestion,
@@ -41,7 +43,10 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
           className={`relative mt-4 flex flex-col gap-8 rounded-lg bg-white ${type === "s" ? "pt-4" : "p-8"}`}
         >
           <div className="flex items-center justify-between">
-            <h3 className={`${className}`}>{title}</h3>
+            <h3 className={`${className}`}>
+              {title}{" "}
+              {required === 1 && <span className="text-red-800">*</span>}
+            </h3>
 
             <div className="flex items-center gap-2">
               <span

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SmallAnswer } from "@/components/ui/small-input-answer";
 import { Label } from "@radix-ui/react-label";
-import { Note } from "iconsax-react";
+import { Note, Trash } from "iconsax-react";
 import { useEffect, useState } from "react";
 import {
   Select,
@@ -38,6 +38,7 @@ import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { FaSpinner } from "react-icons/fa";
 import {
   createQuestion,
+  deleteSection,
   getCampaignQuestion,
   reOrdreQuestion,
   updateQuestion,
@@ -93,6 +94,9 @@ const Create = () => {
   const [campaigns, setCampaigns] = useState<any>([]);
   const [localChecked, setLocalChecked] = useState(false);
   const [openQuestion, setOpenQuestion] = useState<boolean>(false);
+  const [openQuestionSection, setOpenQuestionSection] =
+    useState<boolean>(false);
+
   const [clickedId, setClickedId] = useState<string | null>(null);
 
   const router = useRouter();
@@ -110,22 +114,31 @@ const Create = () => {
 
   const questionId = searchParams.get("questionId") || 0;
 
-  const { showSection, setShowSection, isSectionAdded } =
-    useAddQuestionSectionOverlay();
+  const [statusQuestion, setStatusQuestion] = useState("create");
+
+  const {
+    showSection,
+    setShowSection,
+    isSectionAdded,
+    setSectionId,
+    setSectionName,
+    sectionName,
+    sectionId,
+  } = useAddQuestionSectionOverlay();
 
   const handleOptionsChange = (updatedOptions: any) => {
     setOptions(updatedOptions);
-    console.log(updatedOptions);
+    //   console.log(updatedOptions);
     handleAnswerChange(1, updatedOptions);
   };
   const handleSection = async () => {
     const hasData = questions.some((q) => q.content.trim() !== "");
 
     if (hasData) {
-      await saveQuestion();
+      await saveQuestion(); // Save questions only if there's valid content
     }
 
-    setShowSection(true);
+    setShowSection(true); // Proceed to show section if everything is valid
   };
 
   const handleAddQuestion = async () => {
@@ -213,6 +226,7 @@ const Create = () => {
           <DraggableComponent
             key={item?.id}
             data={item}
+            required={item.required}
             setClickedId={setClickedId}
             id={item?.id.toString()}
             index={index}
@@ -277,8 +291,48 @@ const Create = () => {
   }) => (
     <div className="rounded-[18px] bg-white">
       <div className="flex flex-col">
-        <div className="w-fit rounded-br-[59px] rounded-tl-lg bg-main-100 px-8 py-2 font-poppins text-[18px] font-medium text-white">
-          Section {groupIndex + 1} of {totalSections}
+        <div className="flex items-center justify-between">
+          <div className="w-fit rounded-br-[59px] rounded-tl-lg bg-main-100 px-8 py-2 font-poppins text-[18px] font-medium text-white">
+            Section {groupIndex + 1} of {totalSections}
+          </div>
+
+          <div className="flex items-center gap-2 p-2">
+            <span
+              className="inline-flex cursor-pointer items-center gap-2 rounded-md bg-gray-200 px-4 py-2 text-gray-600"
+              onClick={() => {
+                //alert(group.name);
+                // handleSection();
+                // setShowQuestionEdit(true);
+                setShowSection(true);
+
+                setStatusQuestion("update");
+                setSectionId(group.id);
+                setSectionName(group.name);
+
+                //setSelectedQuestion(data);
+              }}
+            >
+              <Edit size={18} />
+              Edit
+            </span>
+
+            <span
+              className="inline-flex cursor-pointer items-center gap-2 rounded-md text-[#FF4C4C]"
+              onClick={() => {
+                //setClickedId(data.id);
+                setOpenQuestionSection(true);
+                setSectionId(group.id);
+                setSectionName(group.name);
+
+                // setSelectedQuestion(group.id);
+              }}
+            >
+              <Trash size={18} />
+            </span>
+            {/***
+              <BsThreeDots style={{ transform: "rotate(90deg)" }} />
+              */}
+          </div>
         </div>
 
         <div className="px-4 py-6">{group.name}</div>
@@ -430,7 +484,7 @@ const Create = () => {
 
         await createQuestion(questionId, payload);
         try {
-         // await submitCampaign(questionId);
+          // await submitCampaign(questionId);
           toast.success("Question saved successfully.");
         } catch (e) {
           console.log(e);
@@ -444,7 +498,6 @@ const Create = () => {
         setIsQuestionSaved(true);
       }
       router.push(`/organization/dashboard/campaigns/${questionId}`);
-
     } catch (error) {
       allQuestionsSaved = false;
       console.error("Error saving questions:", error);
@@ -1429,6 +1482,29 @@ const Create = () => {
     }
   };
 
+  const deletSectionMain = async () => {
+    //setClickedId(id);
+    setIsSubmitting(true);
+    try {
+      const response = await deleteSection(
+        questionId,
+        { name: SectionName },
+        sectionId,
+      );
+
+      if (response) {
+        toast.success("Section deleted successfully");
+        getAllQuestion();
+        setOpenQuestionSection(false);
+      }
+    } catch (e) {
+      console.log(e);
+      toast.error("Error deleting section");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <>
       {/*** EDIT QUESTION */}
@@ -1449,7 +1525,17 @@ const Create = () => {
         isSubmitting={isSubmitting}
       />
 
-      <section className="mx-auto mt-5 w-full max-w-[896px]">
+      <UpdateCampaignDialog
+        title={"Delete Section"}
+        content={"Are you sure you want to delete this section?"}
+        action={() => deletSectionMain()}
+        open={openQuestionSection}
+        setOpen={setOpenQuestionSection}
+        status="delete"
+        isSubmitting={isSubmitting}
+      />
+
+      <section className="relative mx-auto mt-5 w-full max-w-[896px]">
         <div className="flex flex-col gap-[12px]">
           <div className="flex items-center justify-between">
             <CustomBreadCrumbs />
@@ -1462,17 +1548,6 @@ const Create = () => {
                 Generate with AI
               </Button>
               */}
-              <Button
-                variant="outline"
-                className="items-center gap-2 rounded-[50px] bg-main-100 font-bold text-white"
-                onClick={saveQuestionBySave}
-              >
-                {isSubmitting ? (
-                  <FaSpinner className="animate-spin" />
-                ) : (
-                  "Save question"
-                )}
-              </Button>
             </div>
           </div>
           <div>
@@ -1575,17 +1650,32 @@ const Create = () => {
                 </Add>
                 <Add
                   imageSrc="/assets/images/questions/section.png"
-                  onClick={handleSection}
+                  onClick={() => {
+                    handleSection(), setStatusQuestion("create");
+                    setSectionName("");
+                  }}
                 >
                   Add section
                 </Add>
               </div>
+
+              <Button
+                variant="outline"
+                className="fixed bottom-0 right-0 m-4 items-center gap-2 rounded-[50px] bg-main-100 font-bold text-white"
+                onClick={saveQuestionBySave}
+              >
+                {isSubmitting ? (
+                  <FaSpinner className="animate-spin" />
+                ) : (
+                  "Save question"
+                )}
+              </Button>
             </div>
           </div>
         </div>
       </section>
 
-      <SectionName />
+      <SectionName status={statusQuestion} question={groupedQuestions} />
     </>
   );
 };
