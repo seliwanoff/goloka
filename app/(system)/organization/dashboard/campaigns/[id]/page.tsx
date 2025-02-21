@@ -252,7 +252,7 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
 
     const handleToggle = async (checked: boolean) => {
       setLocalChecked(checked);
-      console.log(data.options);
+      //  console.log(data.options);
 
       try {
         await updateQuestion(
