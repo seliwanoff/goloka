@@ -53,24 +53,46 @@ console.log(
   "Chart summary cof",
 );
 
-const CampaignSummary = () => {
+interface CampaignSummaryProps {
+  data: any[];
+}
+
+const CampaignSummary = ({ data }: CampaignSummaryProps) => {
+  //@ts-ignore
+  const chartDataSummary = Object?.keys(data || {}).map((key) => ({
+    type: key,
+    //@ts-ignore
+
+    summary: data[key],
+    fill: `var(--color-${key})`,
+  }));
+  // console.log(chartDataSummary, "chartDataSummary");
+
+  const allZeroSummary = chartDataSummary.every((item) => item.summary === 0);
+
   return (
     <>
-      <ChartContainer
-        config={chartConfigSummary}
-        className="mx-auto aspect-square max-h-[250px]"
-      >
-        <PieChart>
-          <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-          <Pie
-            data={chartDataSummary}
-            dataKey="summary"
-            nameKey="type"
-            innerRadius={60}
-            outerRadius={100}
-          />
-        </PieChart>
-      </ChartContainer>
+      {allZeroSummary ? (
+        <div className="flex h-[250px] items-center justify-center text-gray-500">
+          No Data Available
+        </div>
+      ) : (
+        <ChartContainer
+          config={chartConfigSummary}
+          className="mx-auto aspect-square max-h-[250px]"
+        >
+          <PieChart>
+            <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+            <Pie
+              data={chartDataSummary}
+              dataKey="summary"
+              nameKey="type"
+              innerRadius={60}
+              outerRadius={100}
+            />
+          </PieChart>
+        </ChartContainer>
+      )}
 
       <div className="mt-8 flex items-center justify-center gap-6 border-t border-neutral-300 pt-2">
         {labels.map((item, index) => {
