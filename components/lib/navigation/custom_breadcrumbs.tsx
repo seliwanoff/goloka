@@ -16,21 +16,23 @@ type ComponentProps = {};
 const CustomBreadCrumbs: React.FC<ComponentProps> = ({}) => {
   const pathname = usePathname();
   const [currentPath, setCurrentPath] = useState<string[]>([]);
+  const [displayPath, setDisplayPath] = useState<string[]>([]); // Only shows last 2 segments
 
   useEffect(() => {
     const paths = pathname.split("/").filter(Boolean);
-    setCurrentPath(paths.slice(-2));
+    setCurrentPath(paths); // Store full path as an array
+    setDisplayPath(paths.slice(-2)); // Display only last 2 segments
   }, [pathname]);
 
   return (
     <div className="hidden w-full py-1 lg:block">
       <Breadcrumb>
         <BreadcrumbList>
-          {currentPath.map((path, idx) => {
+          {displayPath.map((path, idx) => {
             const route = currentPath
-              // ~ ======= create routes for each item in bread crumb -->
-              .map((path, pathIdx) => (pathIdx <= idx ? path : ""))
-              .join("/");
+              .slice(0, currentPath.length - displayPath.length + idx + 1)
+              .join("/"); // Create correct route link
+
             return (
               <Fragment key={idx}>
                 <BreadcrumbItem>
@@ -38,15 +40,15 @@ const CustomBreadCrumbs: React.FC<ComponentProps> = ({}) => {
                     href={`/${route}`}
                     className={classMerge(
                       "cursor-pointer",
-                      idx + 1 === currentPath.length &&
+                      idx + 1 === displayPath.length &&
                         "font-semibold text-blue-600",
                     )}
                   >
                     {path}
                   </BreadcrumbLink>
                 </BreadcrumbItem>
-                {/* -- don't show separator for last item */}
-                {idx + 1 < currentPath.length && <BreadcrumbSeparator />}
+                {/* Don't show separator for last item */}
+                {idx + 1 < displayPath.length && <BreadcrumbSeparator />}
               </Fragment>
             );
           })}
