@@ -118,7 +118,7 @@ const CreateNewCampaign = () => {
 
   const getCampaignGroup = async () => {
     try {
-      const response = await getOrganizationCampaign();
+      const response = await getOrganizationCampaign({});
       // console.log(response);
       //  setOrganizationCampaign(response.data); // Assuming `data` contains the campaign groups
     } catch (error) {
