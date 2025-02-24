@@ -186,7 +186,7 @@ const SignIn: React.FC<PageProps> = ({}) => {
             {isNavigating && <LoadingOverlay />}
             <div className="flex w-full justify-center">
               <div className="w-full">
-                {/* <GoogleLogin
+                { <GoogleLogin
                   onSuccess={handleGoogleSuccess}
                   onError={handleGoogleError}
                   type="standard"
@@ -201,7 +201,7 @@ const SignIn: React.FC<PageProps> = ({}) => {
                   //   border: '1px solid var(--main-100)',
                   //   borderRadius: '9999px',
                   // }}
-                /> */}
+                /> }
               </div>
             </div>
           </div>
