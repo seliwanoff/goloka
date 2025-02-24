@@ -249,7 +249,7 @@ const EditMainCampaignWidget = () => {
       console.error("Error updating campaign:", error);
       toast.error("An error occurred while updating campaign");
       // Handle error (e.g., show error message)
-      getCampaign();
+      getCampaign({});
     } finally {
       setIsLoading(false);
       setShow(false);
@@ -303,7 +303,7 @@ const EditMainCampaignWidget = () => {
   };
   const getCampaignGroup = async () => {
     try {
-      const response = await getOrganizationCampaign();
+      const response = await getOrganizationCampaign({});
       if (response && response.data) {
         setOrganizationCampaign(response.data);
       } else {
