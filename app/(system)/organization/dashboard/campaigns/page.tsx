@@ -44,7 +44,7 @@ import {
 } from "@/stores/overlay";
 import EditCampaign from "@/components/lib/modals/edit_campaign";
 import { getCampaign, getOrganizationCampaign } from "@/services/campaign";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const renderTable = (tab: string, tdata: any[]) => {
   switch (tab.toLowerCase()) {
@@ -69,10 +69,14 @@ const Page = () => {
   const [pageSize, setPageSize] = useState<number>(10);
   const [campaignGroupList, setCampaignGroupList] = useState<[]>([]);
   const [totalCampaign, setTotalCampaig] = useState(0);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
 
   const [filteredData, setFilteredData] = useState<any[]>(
     activeTab === "campaigns" ? campaignList : campaignGroupList,
   );
+  const searchParams = useSearchParams();
+
   const pages = chunkArray(filteredData, pageSize);
 
   const currentPageData = pages[currentPage >= 2 ? 0 : currentPage - 1] || [];
@@ -83,10 +87,55 @@ const Page = () => {
   const { show } = useAddcampaignGroupOverlay();
 
   const { isShowEdit } = useEditCampaignOverlay();
+  const [searchTerm, setSearchTerm] = useState("");
+  const updateQueryParams = (key: string, value: string | null) => {
+    const queryParams = new URLSearchParams(window.location.search);
+
+    if (value) {
+      queryParams.set(key, value); // Add or update parameter
+    } else {
+      queryParams.delete(key); // Remove parameter if value is null
+    }
+
+    // Update the URL without reloading
+    window.history.replaceState(
+      null,
+      "",
+      `${window.location.pathname}?${queryParams.toString()}`,
+    );
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    updateQueryParams("search", value);
+  };
+
+  useEffect(() => {
+    setSearchTerm(searchParams.get("search") || "");
+
+    // Parse date params
+
+    // Parse date params
+    const startDateParam = searchParams.get("startDate");
+    const endDateParam = searchParams.get("endDate");
+
+    setStartDate(startDateParam ? new Date(startDateParam) : null);
+    setEndDate(endDateParam ? new Date(endDateParam) : null);
+  }, [searchParams]);
+
+  // console.log(startDate);
 
   const getCampaignGroup = async () => {
     try {
-      const response = await getOrganizationCampaign();
+      const response = await getOrganizationCampaign({
+        page: currentPage || undefined,
+        per_page: pageSize || undefined,
+        search: searchTerm || undefined,
+        status: activeStatus || undefined,
+        start_date: startDate ? format(startDate, "yyyy-MM-dd") : undefined,
+        end_date: endDate ? format(endDate, "yyyy-MM-dd") : undefined,
+      });
       if (response && response.data) {
         setCampaignGroupList(response.data);
         //@ts-ignore
@@ -104,7 +153,14 @@ const Page = () => {
 
   const getCampaignMain = async () => {
     try {
-      const response = await getCampaign(pageSize, currentPage);
+      const response = await getCampaign({
+        page: currentPage || undefined,
+        status: activeStatus || undefined,
+        per_page: pageSize || undefined,
+        search: searchTerm || undefined,
+        start_date: startDate ? format(startDate, "yyyy-MM-dd") : undefined,
+        end_date: endDate ? format(endDate, "yyyy-MM-dd") : undefined,
+      });
       if (response && response.data) {
         // console.log(response);
         setCampaignList(response.data);
@@ -122,7 +178,7 @@ const Page = () => {
   useEffect(() => {
     getCampaignGroup();
     getCampaignMain();
-  }, [show, isShowEdit, pageSize, currentPage]);
+  }, [show, isShowEdit, pageSize, currentPage, searchParams]);
 
   useEffect(() => {
     function filter(status: string) {
@@ -205,9 +261,11 @@ const Page = () => {
                 <div className="relative flex w-[250px] items-center justify-center md:w-[250px]">
                   <Search className="absolute left-3 text-gray-500" size={18} />
                   <Input
-                    placeholder="Search task, organization"
+                    placeholder="Search campaign"
                     type="text"
                     className="w-full rounded-full bg-gray-50 pl-10"
+                    value={searchTerm}
+                    onChange={handleSearchChange}
                   />
                 </div>
 
@@ -241,49 +299,107 @@ const Page = () => {
                   )}
 
                   {/* NUMBER */}
-                  <Popover>
-                    <PopoverTrigger className="rounded-full border px-3">
-                      <div className="inline-flex items-center gap-2">
-                        <span className="text-sm">No of question</span>{" "}
-                        <ChevronDown className="h-4 w-4 opacity-50" />
-                      </div>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[200px]">
-                      <Label htmlFor="number" className="mb-3 inline-block">
-                        Input number
-                      </Label>
-                      <Input
-                        name="number"
-                        id="number"
-                        type="tel"
-                        className="form-input w-full appearance-none rounded-lg border border-[#d9dec0] px-4 py-6 placeholder:text-[#828282] focus:border-0 focus:outline-none focus-visible:ring-0"
-                        placeholder="0"
-                      />
-                    </PopoverContent>
-                  </Popover>
 
                   {/* DATE */}
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
-                        variant={"outline"}
+                        variant="outline"
                         className={cn(
                           "w-min justify-start gap-3 rounded-full px-3 pr-1 text-center text-sm font-normal",
                         )}
                       >
-                        {date ? format(date, "PPP") : <span>Select date</span>}
+                        {startDate && endDate
+                          ? `${format(startDate, "PPP")} - ${format(endDate, "PPP")}`
+                          : "Select date range"}
                         <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F8F8F8]">
-                          <Calendar size={20} color="#828282" className="m-0" />
-                        </span>{" "}
+                          <Calendar size={20} color="#828282" />
+                        </span>
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <CalenderDate
-                        mode="single"
-                        selected={date}
-                        onSelect={setDate}
-                        initialFocus
-                      />
+                    <PopoverContent className="w-auto p-4">
+                      <div className="flex flex-col items-center gap-4">
+                        <CalenderDate
+                          mode="range"
+                          //@ts-ignore
+                          selected={{ from: startDate, to: endDate }}
+                          onSelect={(range) => {
+                            setStartDate(range?.from || null);
+                            setEndDate(range?.to || null);
+                          }}
+                          initialFocus
+                        />
+                        {/* <div className="flex w-full justify-between gap-4">
+                                    <Button
+                                      variant="outline"
+                                      className="w-full"
+                                      onClick={() => {
+                                        setStartDate(null);
+                                        setEndDate(null);
+                                      }}
+                                    >
+                                      Clear
+                                    </Button>
+                                    <Button
+                                      variant="secondary"
+                                      className="w-full"
+                                      onClick={() => {
+                                        // Update the URL with the selected dates
+                                        const params = new URLSearchParams(
+                                          window.location.search,
+                                        );
+                                        if (startDate)
+                                          params.set("startDate", startDate.toISOString());
+                                        if (endDate)
+                                          params.set("endDate", endDate.toISOString());
+                                        window.history.replaceState(
+                                          null,
+                                          "",
+                                          `${window.location.pathname}?${params.toString()}`,
+                                        );
+                                      }}
+                                    >
+                                      Done
+                                    </Button>
+                                  </div> */}
+                        <div className="flex w-full items-center justify-between">
+                          <button
+                            className="rounded-full bg-[#F8F8F8] px-2 py-1 text-sm text-blue-500"
+                            onClick={() => {
+                              updateQueryParams("startDate", null);
+                              updateQueryParams("endDate", null);
+                              setStartDate(null);
+                              setEndDate(null);
+                            }}
+                          >
+                            Clear
+                          </button>
+                          <button
+                            className="rounded-full bg-blue-500 px-2 py-1 text-sm text-[#F8F8F8]"
+                            // onClick={applyFilters}
+                            onClick={() => {
+                              // Update the URL with the selected dates
+                              const params = new URLSearchParams(
+                                window.location.search,
+                              );
+                              if (startDate)
+                                params.set(
+                                  "startDate",
+                                  startDate.toISOString(),
+                                );
+                              if (endDate)
+                                params.set("endDate", endDate.toISOString());
+                              window.history.replaceState(
+                                null,
+                                "",
+                                `${window.location.pathname}?${params.toString()}`,
+                              );
+                            }}
+                          >
+                            Done
+                          </button>
+                        </div>
+                      </div>
                     </PopoverContent>
                   </Popover>
                 </div>
@@ -304,7 +420,14 @@ const Page = () => {
               <div>
                 <Tabs
                   value={activeTab}
-                  onValueChange={(val) => setActiveTab(val)}
+                  onValueChange={(val) => {
+                    setActiveTab(val);
+                    setCurrentPage(1);
+                    setPageSize(10);
+                    setEndDate(null);
+                    setSearchTerm("");
+                    setStartDate(null);
+                  }}
                   className="w-full md:w-max"
                 >
                   <TabsList

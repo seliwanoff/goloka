@@ -45,83 +45,82 @@ import { useSearchParams } from "next/navigation";
 
 type ComponentProps = {};
 
-const Contributions: React.FC<ComponentProps> = ({ }) => {
-    const searchParams = useSearchParams();
+const Contributions: React.FC<ComponentProps> = ({}) => {
+  const searchParams = useSearchParams();
   const [openFilter, setOpenFilter] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
   const [date, setDate] = useState<Date>();
   const [currentPage, setCurrentPage] = useState<number>(1);
 
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [minPrice, setMinPrice] = useState<string>("");
+  const [maxPrice, setMaxPrice] = useState<string>("");
+  const [min_question, setMin_question] = useState<string>("");
+  const [max_question, setMax_question] = useState<string>("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [responseType, setResponseType] = useState("");
 
-    const [startDate, setStartDate] = useState<Date | null>(null);
-    const [endDate, setEndDate] = useState<Date | null>(null);
-    const [minPrice, setMinPrice] = useState<string>("");
-    const [maxPrice, setMaxPrice] = useState<string>("");
-    const [min_question, setMin_question] = useState<string>("");
-    const [max_question, setMax_question] = useState<string>("");
-    const [searchTerm, setSearchTerm] = useState("");
-    const [responseType, setResponseType] = useState("");
+  const generateFilteredSearchMessage = () => {
+    const filters: string[] = [];
 
-   const generateFilteredSearchMessage = () => {
-     const filters: string[] = [];
+    const searchTerm = searchParams.get("search");
+    const minPrice = searchParams.get("min_price");
+    const maxPrice = searchParams.get("max_price");
+    const minQuestion = searchParams.get("min_question");
+    const maxQuestion = searchParams.get("max_question");
+    const responseType = searchParams.get("response_type");
+    const startDateParam = searchParams.get("startDate");
+    const endDateParam = searchParams.get("endDate");
 
-     const searchTerm = searchParams.get("search");
-     const minPrice = searchParams.get("min_price");
-     const maxPrice = searchParams.get("max_price");
-     const minQuestion = searchParams.get("min_question");
-     const maxQuestion = searchParams.get("max_question");
-     const responseType = searchParams.get("response_type");
-     const startDateParam = searchParams.get("startDate");
-     const endDateParam = searchParams.get("endDate");
+    if (searchTerm) filters.push(`search term "${searchTerm}"`);
 
-     if (searchTerm) filters.push(`search term "${searchTerm}"`);
+    if (minPrice || maxPrice)
+      filters.push(
+        `price range ${minPrice || "0"} - ${maxPrice || "unlimited"}`,
+      );
 
-     if (minPrice || maxPrice)
-       filters.push(
-         `price range ${minPrice || "0"} - ${maxPrice || "unlimited"}`,
-       );
+    if (minQuestion || maxQuestion)
+      filters.push(
+        `question count ${minQuestion || "0"} - ${maxQuestion || "unlimited"}`,
+      );
 
-     if (minQuestion || maxQuestion)
-       filters.push(
-         `question count ${minQuestion || "0"} - ${maxQuestion || "unlimited"}`,
-       );
+    if (responseType) filters.push(`${responseType} response type`);
 
-     if (responseType) filters.push(`${responseType} response type`);
+    if (startDateParam && endDateParam) {
+      try {
+        const startDate = new Date(startDateParam);
+        const endDate = new Date(endDateParam);
 
-     if (startDateParam && endDateParam) {
-       try {
-         const startDate = new Date(startDateParam);
-         const endDate = new Date(endDateParam);
+        if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
+          filters.push(
+            `between ${format(startDate, "PP")} and ${format(endDate, "PP")}`,
+          );
+        }
+      } catch (error) {
+        // Silently handle invalid date parsing
+      }
+    }
 
-         if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
-           filters.push(
-             `between ${format(startDate, "PP")} and ${format(endDate, "PP")}`,
-           );
-         }
-       } catch (error) {
-         // Silently handle invalid date parsing
-       }
-     }
+    return filters.length > 0
+      ? `No tasks found for applied filters: ${filters.join(", ")}.`
+      : "No tasks found matching your search criteria.";
+  };
 
-     return filters.length > 0
-       ? `No tasks found for applied filters: ${filters.join(", ")}.`
-       : "No tasks found matching your search criteria.";
-   };
+  useEffect(() => {
+    setSearchTerm(searchParams.get("search") || "");
+    setMinPrice(searchParams.get("min_price") || "");
+    setMaxPrice(searchParams.get("max_price") || "");
+    setMin_question(searchParams.get("min_question") || "");
+    setMax_question(searchParams.get("max_question") || "");
+    setResponseType(searchParams.get("response_type") || "");
 
-   useEffect(() => {
-     setSearchTerm(searchParams.get("search") || "");
-     setMinPrice(searchParams.get("min_price") || "");
-     setMaxPrice(searchParams.get("max_price") || "");
-     setMin_question(searchParams.get("min_question") || "");
-     setMax_question(searchParams.get("max_question") || "");
-     setResponseType(searchParams.get("response_type") || "");
-
-     // Parse date params
-     const startDateParam = searchParams.get("startDate");
-     const endDateParam = searchParams.get("endDate");
-     setStartDate(startDateParam ? new Date(startDateParam) : null);
-     setEndDate(endDateParam ? new Date(endDateParam) : null);
-   }, [searchParams]);
+    // Parse date params
+    const startDateParam = searchParams.get("startDate");
+    const endDateParam = searchParams.get("endDate");
+    setStartDate(startDateParam ? new Date(startDateParam) : null);
+    setEndDate(endDateParam ? new Date(endDateParam) : null);
+  }, [searchParams]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -165,41 +164,38 @@ const Contributions: React.FC<ComponentProps> = ({ }) => {
     );
   };
 
-
-
-
-    const {
-      data: tasks,
-      isLoading,
-      isFetching,
-      refetch,
-      isError,
-    } = useQuery({
-      queryKey: ["Get task list", currentPage, searchParams.toString()],
-      queryFn: () =>
-        getAllContributedTask({
-          page: currentPage,
-          per_page: 9,
-          search: searchParams.get("search") || undefined,
-          //@ts-ignore
-          min_price: searchParams.get("min_price") || undefined,
-          //@ts-ignore
-          max_price: searchParams.get("max_price") || undefined,
-          //@ts-ignore
-          min_question: searchParams.get("min_question") || undefined,
-          //@ts-ignore
-          max_question: searchParams.get("max_question") || undefined,
-          allows_multiple_responses:
-            searchParams.get("response_type") === "multiple"
-              ? true
-              : searchParams.get("response_type") === "one-time"
-                ? false
-                : undefined,
-          campaign_start_date: searchParams.get("startDate") || undefined,
-          campaign_end_date: searchParams.get("endDate") || undefined,
-        }),
-    });
-  console.log(tasks, "tasks");
+  const {
+    data: tasks,
+    isLoading,
+    isFetching,
+    refetch,
+    isError,
+  } = useQuery({
+    queryKey: ["Get task list", currentPage, searchParams.toString()],
+    queryFn: () =>
+      getAllContributedTask({
+        page: currentPage,
+        per_page: 9,
+        search: searchParams.get("search") || undefined,
+        //@ts-ignore
+        min_price: searchParams.get("min_price") || undefined,
+        //@ts-ignore
+        max_price: searchParams.get("max_price") || undefined,
+        //@ts-ignore
+        min_question: searchParams.get("min_question") || undefined,
+        //@ts-ignore
+        max_question: searchParams.get("max_question") || undefined,
+        allows_multiple_responses:
+          searchParams.get("response_type") === "multiple"
+            ? true
+            : searchParams.get("response_type") === "one-time"
+              ? false
+              : undefined,
+        campaign_start_date: searchParams.get("startDate") || undefined,
+        campaign_end_date: searchParams.get("endDate") || undefined,
+      }),
+  });
+  // console.log(tasks, "tasks");
   //@ts-ignore
   const totalPages = tasks?.pagination?.total_pages || 1;
 

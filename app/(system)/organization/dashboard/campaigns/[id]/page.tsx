@@ -848,42 +848,7 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
                   </p>
                 </div>
               </div>
-              {/***
-              <div className="hidden items-center justify-center space-x-2 md:flex">
 
-                {task?.data?.responses && task.data.responses.length > 0 && (
-                  <Button
-                    onClick={onViewResponse}
-                    className="h-auto gap-3 rounded-full border border-main-100 bg-white px-6 py-3 text-sm text-main-100 hover:bg-main-100 hover:text-white"
-                  >
-                    <span>
-                      <Eye size={20} />
-                    </span>
-                    View Response
-                  </Button>
-                )}
-                <Button
-                  disabled={isContributeDisabled()}
-                  onClick={onContribute}
-                  className="h-auto gap-3 rounded-full bg-main-100 px-10 py-3 text-sm shadow-lg shadow-blue-50 hover:bg-blue-700"
-                >
-                  <span>
-                    {getButtonText() === "Continue" ? (
-                      <Workflow size={20} />
-                    ) : (
-                      <Note size={20} color="currentColor" />
-                    )}
-                  </span>
-                  {loading ? "Loading..." : getButtonText()}
-                </Button>
-                <BookmarkButton
-                  loading={isBookmarkLoading}
-                  //@ts-ignore
-                  isBookmarked={task?.data?.is_bookmarked}
-                  handleBookmark={handleBookmark}
-                />
-              </div>
-              */}
               <div>{<StatusPill status={task?.data?.status} />}</div>
             </div>
 
