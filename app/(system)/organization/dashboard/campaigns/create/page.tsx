@@ -129,7 +129,7 @@ const CreateNewCampaign = () => {
 
   const getCampaignGroup = async () => {
     try {
-      const response = await getOrganizationCampaign();
+      const response = await getOrganizationCampaign({});
       if (response && response.data) {
         setOrganizationCampaign(response.data);
       } else {

@@ -44,34 +44,10 @@ const WithdrawFunds = () => {
     resolver: yupResolver(schema),
   });
 
-  const amount = watch("amount");
+  // const amount = watch("amount") || 0;
   const currentOrganization = useOrganizationStore(
     (state) => state.organization,
   );
-
-  useEffect(() => {
-    if (amount?.length === 10) {
-      setLoading(true);
-      const fetchAccountName = async () => {
-        try {
-          const response = await resolveAccountInfo(amount, "");
-          if (response) {
-            //@ts-ignore
-            const accountName = response?.data?.account_name;
-            setValue("amount", accountName);
-
-            //  console.log(response, "hfhfh");
-            setLoading(false);
-            toast.success("Account Resolved Successfully");
-          }
-        } catch (error) {
-          console.error("Error resolving account info", error);
-        }
-      };
-
-      fetchAccountName();
-    }
-  }, [amount, setValue]);
 
   const onCreateWithdrawal = async (data: any) => {
     if (numericValue >= 500) {
@@ -169,7 +145,11 @@ const WithdrawFunds = () => {
                   name="amount"
                   placeholder={`${USER_CURRENCY_SYMBOL}${watch("amount") || "0"}`}
                   autoComplete="off"
-                  value={`${USER_CURRENCY_SYMBOL} ${watch("amount")}`}
+                  value={
+                    watch("amount")
+                      ? `${USER_CURRENCY_SYMBOL} ${watch("amount")}`
+                      : `${USER_CURRENCY_SYMBOL} `
+                  }
                   onChange={calculateAmount}
                   className={cn(
                     "form-input h-14 rounded-[6px] border border-[#E0E0E0] bg-[#F8F8F8] px-4 py-[22px] text-center text-[18px] leading-[38.41px] text-[#09091A] outline-0 placeholder:text-[#828282] focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0",
@@ -177,6 +157,7 @@ const WithdrawFunds = () => {
                       "border-red-600 focus:border-red-600 focus-visible:ring-red-600",
                   )}
                 />
+
                 {loading && (
                   <Loader className="absolute right-2 top-2 animate-spin text-blue-700" />
                 )}
@@ -208,7 +189,7 @@ const WithdrawFunds = () => {
             <div className="flex items-center justify-between gap-4">
               <Button
                 className="mt-4 h-auto w-full rounded-full border border-main-100 bg-white py-3 text-main-100 hover:bg-blue-950 hover:text-white"
-                type="submit"
+                type="button"
                 onClick={() => setOpen(false)}
               >
                 Back

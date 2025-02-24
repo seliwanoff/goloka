@@ -17,6 +17,15 @@ import { AxiosResponse } from "axios";
 import { ServerResponseOrNull } from "../misc";
 import { organizationDetails } from "@/helper";
 
+interface GetAllCampaignsParams {
+  per_page?: number;
+  page?: number;
+  search?: string;
+  end_date?: any;
+  start_date?: any;
+  status?: string;
+}
+
 // ~ =============================================>
 // ~ ======= Create a campaign response  -->
 // ~ =============================================>
@@ -79,12 +88,27 @@ export const removeBookmark = async (
     return null;
   }
 };
-export const getOrganizationCampaign = async (): Promise<
-  AxiosResponse<any>
-> => {
+export const getOrganizationCampaign = async (
+  params: GetAllCampaignsParams,
+): Promise<AxiosResponse<any>> => {
   try {
+    const query = new URLSearchParams();
+
+    // Add query parameters conditionally
+    const appendQuery = (key: string, value: any) => {
+      if (value !== undefined && value !== null) {
+        query.append(key, value.toString());
+      }
+    };
+
+    appendQuery("per_page", params.per_page);
+    appendQuery("start_date", params.start_date);
+    appendQuery("end_date", params.end_date);
+
+    appendQuery("page", params.page);
+    appendQuery("search", params.search);
     return await fetchData(
-      `/organizations/${organizationDetails.domain}/campaign-groups`,
+      `/organizations/${organizationDetails.domain}/campaign-groups?${query.toString()}`,
     );
   } catch (error) {
     console.error("Error fetching campaign questions:", error);
@@ -101,12 +125,24 @@ export const getGuestCampaign = async (): Promise<AxiosResponse<any>> => {
 };
 
 export const getCampaign = async (
-  page?: any,
-  currentPage?: any,
+  params: GetAllCampaignsParams,
 ): Promise<AxiosResponse<any>> => {
   try {
+    const query = new URLSearchParams();
+
+    // Add query parameters conditionally
+    const appendQuery = (key: string, value: any) => {
+      if (value !== undefined && value !== null) {
+        query.append(key, value.toString());
+      }
+    };
+    appendQuery("start_date", params.start_date);
+    appendQuery("end_date", params.end_date);
+    appendQuery("per_page", params.per_page);
+    appendQuery("page", params.page);
+    appendQuery("search", params.search);
     return await fetchData(
-      `/organizations/${organizationDetails.domain}/campaigns?per_page=${page}&page=${currentPage}`,
+      `/organizations/${organizationDetails.domain}/campaigns?${query.toString()}`,
     );
   } catch (error) {
     console.error("Error fetching campaign questions:", error);

@@ -159,7 +159,7 @@ const WalletPage = () => {
     <>
       <WithdrawFund />
 
-      <section className="pb-10 pt-[34px]">
+      <section className="pb-10 pt-[34px]" suppressHydrationWarning>
         {/* ####################################### */}
         {/* -- stats card section */}
         {/* ####################################### */}
