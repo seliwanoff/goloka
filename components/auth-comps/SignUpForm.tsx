@@ -333,7 +333,7 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
           </Button> */}
           <div className="flex w-full justify-center">
             <div className="w-full">
-              {<GoogleLogin
+              <GoogleLogin
                 onSuccess={handleGoogleSuccess}
                 onError={handleGoogleError}
                 type="standard"
@@ -348,7 +348,7 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
                 //   border: '1px solid var(--main-100)',
                 //   borderRadius: '9999px',
                 // }}
-              /> }
+              />
             </div>
           </div>
         </div>
