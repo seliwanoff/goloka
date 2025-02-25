@@ -209,59 +209,81 @@ const CreateNewCampaign = () => {
   };
   const handleCreateCampaign = async (e: any) => {
     e.preventDefault();
-    if (parseFloat(paymentRate) >= 500) {
-      setIsLoading(true);
 
-      const formattedStartsAt = formatDate(startDate);
-      const formattedEndsAt = formatDate(endDate);
-      const formData = new FormData();
-
-      // Append basic fields
-      formData.append("title", title);
-      formData.append("description", description);
-      formData.append("campaign_group_id", selectedCampaignGroupId);
-      formData.append("type", "survey");
-      formData.append("number_of_responses", responseNumber.toString());
-      formData.append("payment_rate_for_response", paymentRate.toString());
-      formData.append("starts_at", formattedStartsAt);
-      formData.append("ends_at", formattedEndsAt);
-      formData.append("allows_multiple_responses", isAllow ? "1" : "0");
-
-      if (file) {
-        formData.append("images[0]", file, file.name);
-      }
-
-      selectedStates.forEach((state: any, index: number) => {
-        formData.append(`state_ids[${index}]`, state);
-      });
-      selectedLgs.forEach((lga: any, index: number) => {
-        formData.append(`lga_ids[${index}]`, lga.id);
-      });
-
-      try {
-        const response = await axiosInstance.post(
-          `/organizations/${organizationDetails.domain}/campaigns/create`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          },
-        );
-
-        setOpen(true);
-        //console.log(response);
-        setCampaignId(response.data.campaign.id);
-      } catch (error) {
-        console.error("Error creating campaign:", error);
-        toast.error("Failed to add campaign. Please try again.");
-      } finally {
-        setIsLoading(false);
-      }
-    } else {
-      toast.error(
-        `Payment rate must be atleast ${currentOrganization && currentOrganization?.symbol}500`,
+    // Validate required fields except LG and State
+    if (!title) {
+      return toast.error("Please enter a campaign title.");
+    }
+    if (!description) {
+      return toast.error("Please provide a campaign description.");
+    }
+    if (!selectedCampaignGroupId) {
+      return toast.error("Please select a campaign group.");
+    }
+    if (!responseNumber || Number(responseNumber) <= 0) {
+      return toast.error("Please enter a valid number of responses.");
+    }
+    if (!paymentRate || parseFloat(paymentRate) < 500) {
+      return toast.error(
+        `Payment rate must be at least ${currentOrganization?.symbol}500.`,
       );
+    }
+    if (!startDate) {
+      return toast.error("Please select a start date.");
+    }
+    if (!endDate) {
+      return toast.error("Please select an end date.");
+    }
+    if (!file) {
+      return toast.error("Please upload campaign image.");
+    }
+    setIsLoading(true);
+
+    // Format dates
+    const formattedStartsAt = formatDate(startDate);
+    const formattedEndsAt = formatDate(endDate);
+    const formData = new FormData();
+
+    // Append basic fields
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("campaign_group_id", selectedCampaignGroupId);
+    formData.append("type", "survey");
+    formData.append("number_of_responses", responseNumber.toString());
+    formData.append("payment_rate_for_response", paymentRate.toString());
+    formData.append("starts_at", formattedStartsAt);
+    formData.append("ends_at", formattedEndsAt);
+    formData.append("allows_multiple_responses", isAllow ? "1" : "0");
+
+    if (file) {
+      formData.append("images[0]", file, file.name);
+    }
+
+    selectedStates.forEach((state: any, index: number) => {
+      formData.append(`state_ids[${index}]`, state);
+    });
+    selectedLgs.forEach((lga: any, index: number) => {
+      formData.append(`lga_ids[${index}]`, lga.id);
+    });
+
+    try {
+      const response = await axiosInstance.post(
+        `/organizations/${organizationDetails.domain}/campaigns/create`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
+
+      setOpen(true);
+      setCampaignId(response.data.campaign.id);
+    } catch (error) {
+      console.error("Error creating campaign:", error);
+      toast.error("Failed to add campaign. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 

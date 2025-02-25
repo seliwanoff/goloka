@@ -43,21 +43,15 @@ import {
   useEditCampaignOverlay,
 } from "@/stores/overlay";
 import EditCampaign from "@/components/lib/modals/edit_campaign";
-import { getCampaign, getOrganizationCampaign } from "@/services/campaign";
+import {
+  duplicateCampaign,
+  getCampaign,
+  getOrganizationCampaign,
+} from "@/services/campaign";
 import { useRouter, useSearchParams } from "next/navigation";
-
-const renderTable = (tab: string, tdata: any[]) => {
-  switch (tab.toLowerCase()) {
-    case "campaigns":
-      return <CampaignTable tdata={tdata} />;
-
-    case "campaign-groups":
-      return <CampaignGroupTable tdata={tdata} />;
-
-    default:
-      break;
-  }
-};
+import { BiDuplicate } from "react-icons/bi";
+import UpdateCampaignDialog from "@/components/lib/modals/confirm_update_campaign_modal";
+import { toast } from "sonner";
 
 const Page = () => {
   const [openFilter, setOpenFilter] = useState<boolean>(false);
@@ -78,11 +72,17 @@ const Page = () => {
   const searchParams = useSearchParams();
 
   const pages = chunkArray(filteredData, pageSize);
+  const [openQuestion, setOpenQuestion] = useState<boolean>(false);
+
+  const [openSumit, setOpenSubmit] = useState<boolean>(false);
+  const [isSubmittingCampaign, setisSubmititngCampaign] =
+    useState<boolean>(false);
 
   const currentPageData = pages[currentPage >= 2 ? 0 : currentPage - 1] || [];
   // console.log(currentPageData);
   const [activeStatus, setActiveStatus] = useState<string>("all");
   const { setShowCreate } = useAddcampaignGroupOverlay();
+  const [duplicatedId, setCampaignDuplicatedId] = useState("");
 
   const { show } = useAddcampaignGroupOverlay();
 
@@ -179,7 +179,7 @@ const Page = () => {
     getCampaignGroup();
     getCampaignMain();
   }, [show, isShowEdit, pageSize, currentPage, searchParams]);
-
+  const router = useRouter();
   useEffect(() => {
     function filter(status: string) {
       return campaignList?.filter(
@@ -205,6 +205,33 @@ const Page = () => {
     }
   }, [activeStatus, pageSize, currentPage]);
 
+  const handleSubmitCampaign = async () => {
+    // setisSubmititng(true);
+
+    setisSubmititngCampaign(true);
+    try {
+      const response = await duplicateCampaign(duplicatedId as string);
+      //@ts-ignore
+      // queryClient.invalidateQueries(["get Campaign", campaignId as string]);
+
+      if (response) {
+        //console.log(response);
+        toast.success("Campaign duplicated sucessfully");
+        //   getQuestionByCampaignId();
+        setOpenQuestion(false);
+        //@ts-ignore
+        router.push(`campaigns/${response.campaign.id}`);
+      }
+    } catch (e) {
+      //   console.log(e);
+      /**@ts-ignore **/
+      toast.error(e?.response?.data.message || "Error duplicating campaign");
+    } finally {
+      setisSubmititngCampaign(false);
+      setOpenSubmit(false);
+    }
+  };
+
   useEffect(() => {
     if (activeTab === "campaigns") {
       setFilteredData(campaignList);
@@ -212,7 +239,95 @@ const Page = () => {
       setFilteredData(campaignGroupList);
     }
   }, [activeTab, campaignList, campaignGroupList, pageSize, currentPage]);
+  const CampaignTable = ({ tdata }: { tdata: any[] }) => {
+    const router = useRouter();
 
+    // console.log(tdata);
+    return (
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Campaign Title</TableHead>
+            <TableHead className="">Campaign Group</TableHead>
+            <TableHead className="table-cell">Locations</TableHead>
+            <TableHead className="">Responses</TableHead>
+            <TableHead className=" ">Last updated </TableHead>
+            <TableHead className="">Status</TableHead>
+            <TableHead className=""></TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {tdata?.map((data, index) => (
+            <TableRow
+              key={index}
+              className="cursor-pointer"
+              onClick={() => router.push(`campaigns/${data.id}`)}
+            >
+              <TableCell>{data?.title}</TableCell>
+              <TableCell className="">{data?.campaign_group}</TableCell>
+              <TableCell className="table-cell">
+                {data?.locations?.label}
+              </TableCell>
+              <TableCell className="">
+                <div className="flex items-center gap-1">
+                  {data?.number_of_responses}
+                  {data.number_of_pending_responses > 0 && (
+                    <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[red] text-center font-poppins text-[12px] text-white">
+                      {data?.number_of_pending_responses}
+                    </span>
+                  )}
+                </div>
+              </TableCell>
+              <TableCell className="">{data?.created_at}</TableCell>
+              <TableCell className="">
+                <StatusPill status={data?.status} />
+              </TableCell>
+              <TableCell className="" onClick={(e) => e.stopPropagation()}>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <span
+                      className="cursor-pointer rounded-full p-2 hover:bg-gray-100"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <BsThreeDots size={18} />
+                    </span>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-40 rounded-lg p-2 shadow-lg">
+                    <div className="flex flex-col gap-2">
+                      <button
+                        className="flex items-center gap-2 rounded p-2 hover:bg-gray-100"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCampaignDuplicatedId(data.id);
+                          setOpenSubmit(true);
+                          //console.log("Edit", data.id);
+                        }}
+                      >
+                        <BiDuplicate size={16} /> <span>Duplicate</span>
+                      </button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    );
+  };
+
+  const renderTable = (tab: string, tdata: any[]) => {
+    switch (tab.toLowerCase()) {
+      case "campaigns":
+        return <CampaignTable tdata={tdata} />;
+
+      case "campaign-groups":
+        return <CampaignGroupTable tdata={tdata} />;
+
+      default:
+        break;
+    }
+  };
   return (
     <>
       {/*** Edit Campaign */}
@@ -222,6 +337,15 @@ const Page = () => {
 
       <CreateCampaingGroup />
 
+      <UpdateCampaignDialog
+        title={"Duplicate Campaign"}
+        content={"Are you sure you want to duplicate this campaign?"}
+        action={handleSubmitCampaign}
+        open={openSumit}
+        setOpen={setOpenSubmit}
+        isSubmitting={isSubmittingCampaign}
+        status="duplicate"
+      />
       {/*** DELETE MODAL */}
 
       <section className="mt-5">
@@ -486,62 +610,6 @@ const getStatusColor = (status: string) => {
     case "draft":
       return "bg-gray-500/5 border-gray-500 text-gray-500";
   }
-};
-
-const CampaignTable = ({ tdata }: { tdata: any[] }) => {
-  const router = useRouter();
-
-  // console.log(tdata);
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Campaign Title</TableHead>
-          <TableHead className="">Campaign Group</TableHead>
-          <TableHead className="table-cell">Locations</TableHead>
-          <TableHead className="">Responses</TableHead>
-          <TableHead className=" ">Last updated </TableHead>
-          <TableHead className="">Status</TableHead>
-          <TableHead className=""></TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {tdata?.map((data, index) => (
-          <TableRow
-            key={index}
-            className="cursor-pointer"
-            onClick={() => router.push(`campaigns/${data.id}`)}
-          >
-            <TableCell>{data?.title}</TableCell>
-            <TableCell className="">{data?.campaign_group}</TableCell>
-            <TableCell className="table-cell">
-              {data?.locations?.label}
-            </TableCell>
-            <TableCell className="">
-              <div className="flex items-center gap-1">
-                {data?.number_of_responses}
-                {data.number_of_pending_responses > 0 && (
-                  <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[red] text-center font-poppins text-[12px] text-white">
-                    {" "}
-                    {data?.number_of_pending_responses}
-                  </span>
-                )}
-              </div>
-            </TableCell>
-            <TableCell className=" ">{data?.created_at}</TableCell>
-            <TableCell className="">
-              <StatusPill status={data?.status} />
-            </TableCell>
-            <TableCell className="">
-              <span className="cursor-pointer">
-                <BsThreeDots />
-              </span>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
 };
 
 const CampaignGroupTable = ({ tdata }: { tdata: any[] }) => {
