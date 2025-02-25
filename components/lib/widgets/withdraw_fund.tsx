@@ -50,15 +50,13 @@ const WithdrawFunds = () => {
   );
 
   const onCreateWithdrawal = async (data: any) => {
-    if (numericValue >= 500) {
-      setStep((prev: number) => prev + 1);
-      const { amount } = data;
-      setAcrtualAmount(numericValue);
-      setAmount(totalPayment);
-    } else {
-      toast.error("Minimum fund amount is 500");
+    if (numericValue < 500) {
+      return toast.error("Minimum fund amount is 500");
     }
-
+    setStep((prev: number) => prev + 1);
+    const { amount } = data;
+    setAcrtualAmount(numericValue);
+    setAmount(totalPayment);
     /***
     setIsSubmitting(true);
 
@@ -95,6 +93,12 @@ const WithdrawFunds = () => {
     const parts = numericValue.split(".");
     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ","); // Add commas
     return parts.join(".");
+  };
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Remove any non-digit characters (including currency symbol and spaces)
+    const rawValue = e.target.value.replace(/[^0-9]/g, "");
+    setValue("amount", rawValue); // Set the clean numeric value in the form state
+    calculateAmount(e); // Call existing amount calculation logic
   };
   const calculateAmount = (e: React.ChangeEvent<HTMLInputElement>) => {
     let rawValue = e.target.value
@@ -145,12 +149,14 @@ const WithdrawFunds = () => {
                   name="amount"
                   placeholder={`${USER_CURRENCY_SYMBOL}${watch("amount") || "0"}`}
                   autoComplete="off"
-                  value={
-                    watch("amount")
-                      ? `${USER_CURRENCY_SYMBOL} ${watch("amount")}`
-                      : `${USER_CURRENCY_SYMBOL} `
-                  }
-                  onChange={calculateAmount}
+                  value={watch("amount") || ""}
+                  onChange={(e) => {
+                    const value = e.target.value
+                      //@ts-ignore
+                      .replace(USER_CURRENCY_SYMBOL, "")
+                      .trim();
+                    calculateAmount(e);
+                  }}
                   className={cn(
                     "form-input h-14 rounded-[6px] border border-[#E0E0E0] bg-[#F8F8F8] px-4 py-[22px] text-center text-[18px] leading-[38.41px] text-[#09091A] outline-0 placeholder:text-[#828282] focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0",
                     errors.amount &&

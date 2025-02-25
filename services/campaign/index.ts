@@ -239,6 +239,19 @@ export const submitCampaign = async (id: any): Promise<AxiosResponse<any>> => {
   }
 };
 
+export const duplicateCampaign = async (
+  id: any,
+): Promise<AxiosResponse<any>> => {
+  try {
+    return await postData(
+      `/organizations/${organizationDetails.domain}/campaigns/${id}/duplicate`,
+    );
+  } catch (error) {
+    console.error("Error fetching duplicating campaign:", error);
+    throw error;
+  }
+};
+
 export const updateCampaignByStatus = async (
   id: any,
   status: string,
