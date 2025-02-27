@@ -20,6 +20,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useRemoteUserStore } from "@/stores/remoteUser";
 import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
 import { useAuth } from "@/services/auth/hooks";
+import { getOTP } from "@/services/misc";
 
 type PageProps = {};
 
@@ -56,54 +57,126 @@ const SignIn: React.FC<PageProps> = ({}) => {
     toast.error("Google sign-in was unsuccessful. Please try again.");
   };
 
-  const onSubmit: SubmitHandler<FormValues> = async (data) => {
-    setIsLoading(true);
+  // const onSubmit: SubmitHandler<FormValues> = async (data) => {
+  //   setIsLoading(true);
 
-    try {
-      const { email, password } = data;
-      // console.log(data);
+  //   try {
+  //     const { email, password } = data;
+  //     // console.log(data);
 
-      const response = await userSignIn(email, password);
+  //     const response = await userSignIn(email, password);
 
-      if (!response) {
-        throw new Error(
-          "Failed to sign in. Please check your credentials and try again.",
-        );
-      }
-      //@ts-ignore
-      // setUser(remoteUser.data);
+  //     if (!response) {
+  //       throw new Error(
+  //         "Failed to sign in. Please check your credentials and try again.",
+  //       );
+  //     }
+  //     //@ts-ignore
+  //     // setUser(remoteUser.data);
 
-      //@ts-ignore
-      const { access_token, token_type, refresh_token } = response.tokens;
+  //     //@ts-ignore
+  //     const { access_token, token_type, refresh_token } = response.tokens;
 
-      //const {}
+  //     //const {}
 
-      const storeTokens = () => {
-        localStorage.setItem("access_token", JSON.stringify(access_token));
-        localStorage.setItem("refresh_token", JSON.stringify(refresh_token));
-        localStorage.setItem("token_type", JSON.stringify(token_type));
-      };
+  //     const storeTokens = () => {
+  //       localStorage.setItem("access_token", JSON.stringify(access_token));
+  //       localStorage.setItem("refresh_token", JSON.stringify(refresh_token));
+  //       localStorage.setItem("token_type", JSON.stringify(token_type));
+  //     };
 
-      // Redirect to the dashboard
-      storeTokens();
-      //  console.log(response);
-      toast.success("Sign in successful");
-      //@ts-ignore
-      if (response.user.current_role === "campaigner") {
-        router.replace("/organization/dashboard/root");
-      } else {
-        router.replace("/dashboard/root");
-      }
-    } catch (error: any) {
-      console.error("Sign-in error:", error);
-      toast.error(
-        error?.response?.data?.message ||
-          "Failed to sign in. Please try again.",
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  //     // Redirect to the dashboard
+  //     storeTokens();
+  //     //  console.log(response);
+  //     toast.success("Sign in successful");
+  //     //@ts-ignore
+  //     if (response.user.current_role === "campaigner") {
+  //       router.replace("/organization/dashboard/root");
+  //     } else {
+  //       router.replace("/dashboard/root");
+  //     }
+  //   } catch (error: any) {
+  //     console.error("Sign-in error:", error);
+  //     toast.error(
+  //       error?.response?.data?.message ||
+  //         "Failed to sign in. Please try again.",
+  //     );
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
+ const onSubmit: SubmitHandler<FormValues> = async (data) => {
+   setIsLoading(true);
+
+   try {
+     const { email, password } = data;
+
+
+     toast.loading("Signing you in...");
+
+     const response = await userSignIn(email, password);
+
+     if (!response) {
+       throw new Error(
+         "Failed to sign in. Please check your credentials and try again.",
+       );
+     }
+
+     //@ts-ignore
+     const { access_token, token_type, refresh_token } = response.tokens;
+
+     // Store tokens immediately
+     localStorage.setItem("access_token", JSON.stringify(access_token));
+     localStorage.setItem("refresh_token", JSON.stringify(refresh_token));
+     localStorage.setItem("token_type", JSON.stringify(token_type));
+
+     //@ts-ignore
+
+     if (response?.user?.email_verified_at !== null) {
+
+       toast.dismiss();
+       toast.success("Sign in successful, verification needed");
+
+       // in parallel with navigation preparation to prevent any bulls***T
+       const otpPromise = getOTP({});
+
+       //@ts-ignore
+       const redirectUrl = `/signup?step=2&email=${encodeURIComponent(response?.user?.email)}`;
+       router.prefetch(redirectUrl);
+
+       const otpResponse = await otpPromise;
+       if (otpResponse) {
+         router.push(redirectUrl);
+       }
+       return;
+     }
+
+     //  parallel
+     toast.dismiss();
+     toast.success("Sign in successful");
+
+     const redirectPath =
+     //@ts-ignore
+       response.user.current_role === "campaigner"
+         ? "/organization/dashboard/root"
+         : "/dashboard/root";
+
+
+     router.prefetch(redirectPath);
+
+
+     router.replace(redirectPath);
+   } catch (error: any) {
+     toast.dismiss();
+     console.error("Sign-in error:", error);
+     toast.error(
+       error?.response?.data?.message || "Failed to sign in. Please try again.",
+     );
+   } finally {
+     setIsLoading(false);
+   }
+ };
 
   return (
     <div className="w-full max-w-2xl">
@@ -217,10 +290,14 @@ const SignIn: React.FC<PageProps> = ({}) => {
 
 export default SignIn;
 const LoadingOverlay = () => (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-    <div className="rounded-lg bg-white p-4 shadow-lg">
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      <p className="mt-2 text-sm text-gray-600">Please wait...</p>
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm transition-all">
+    <div className="rounded-lg bg-white p-6 shadow-lg">
+      <div className="flex items-center space-x-4">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-main-100 border-t-transparent" />
+        <p className="text-sm font-medium text-gray-700">
+          Preparing your dashboard...
+        </p>
+      </div>
     </div>
   </div>
 );
