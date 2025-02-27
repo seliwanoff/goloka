@@ -327,12 +327,9 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
               "Sign up"
             )}
           </Button>
-          {/* <Button className="h-12 w-full gap-2 rounded-full border border-main-100 bg-main-100 bg-opacity-15 text-base font-light text-white hover:bg-current">
-            <FcGoogle size={20} />{" "}
-            <span className="text-neutral-600">Sign up with Google</span>
-          </Button> */}
-          <div className="flex w-full justify-center">
-            <div className="w-full">
+
+          <div className="mt-4 flex w-full justify-center">
+            <div className="h-12 w-full">
               <GoogleLogin
                 onSuccess={handleGoogleSuccess}
                 onError={handleGoogleError}
@@ -341,13 +338,8 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
                 size="large"
                 shape="pill"
                 width="100%"
-                text="signin_with"
-                // custom_style={{
-                //   height: '48px',
-                //   backgroundColor: 'rgba(var(--main-100), 0.15)',
-                //   border: '1px solid var(--main-100)',
-                //   borderRadius: '9999px',
-                // }}
+                text="signup_with"
+                logo_alignment="center"
               />
             </div>
           </div>

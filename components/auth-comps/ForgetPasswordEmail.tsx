@@ -53,7 +53,7 @@ const ForgetPasswordEmail: React.FC<PageProps> = ({ setStep }) => {
   };
 
   return (
-    <div className="">
+    <div className="bg-white">
       <h2 className="mb-2 text-2xl font-semibold text-[#333333]">
         Forgot Password
       </h2>

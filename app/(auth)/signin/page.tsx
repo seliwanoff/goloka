@@ -106,7 +106,7 @@ const SignIn: React.FC<PageProps> = ({}) => {
   };
 
   return (
-    <div className="mx-auto w-full max-w-lg px-4 sm:px-6 lg:px-8">
+    <div className="w-full max-w-2xl">
       <div className="w-full rounded-lg bg-white p-8">
         {/* HEADING */}
         <div className="mb-8 text-center">
@@ -184,8 +184,10 @@ const SignIn: React.FC<PageProps> = ({}) => {
               {isLoading ? <FaSpinner className="animate-spin" /> : "Login"}
             </Button>
             {isNavigating && <LoadingOverlay />}
-            <div className="flex w-full justify-center">
-              <div className="w-full">
+            <div className="mt-4 flex w-full justify-center">
+              <div className="h-12 w-full">
+                {" "}
+                {/* Added h-12 to match your button height */}
                 <GoogleLogin
                   onSuccess={handleGoogleSuccess}
                   onError={handleGoogleError}
@@ -195,12 +197,7 @@ const SignIn: React.FC<PageProps> = ({}) => {
                   shape="pill"
                   width="100%"
                   text="signin_with"
-                  // custom_style={{
-                  //   height: '48px',
-                  //   backgroundColor: 'rgba(var(--main-100), 0.15)',
-                  //   border: '1px solid var(--main-100)',
-                  //   borderRadius: '9999px',
-                  // }}
+                  logo_alignment="center"
                 />
               </div>
             </div>
