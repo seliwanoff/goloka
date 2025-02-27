@@ -103,8 +103,8 @@ const Map: React.FC<MapProps> = ({ location }) => {
         scaledSize: new google.maps.Size(40, 40),
       };
 
-      location.states.forEach((state) => {
-        state.lgas.forEach((lga) => {
+      location?.states?.forEach((state) => {
+        state?.lgas?.forEach((lga) => {
           const marker = new Marker({
             position: {
               lat: parseFloat(lga.lat),

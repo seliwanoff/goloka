@@ -79,6 +79,8 @@ const Page = () => {
   const [pageSize, setPageSize] = useState<number>(10);
   const [campaignGroupList, setCampaignGroupList] = useState<[]>([]);
   const [totalCampaign, setTotalCampaig] = useState(0);
+  const [totalCampaignGroup, setTotalCampaigGroup] = useState(0);
+
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
 
@@ -148,16 +150,16 @@ const Page = () => {
         page: currentPage || undefined,
         per_page: pageSize || undefined,
         search: searchTerm || undefined,
-        status: activeStatus || undefined,
+        status: activeStatus == "all" ? undefined : activeStatus || undefined,
         start_date: startDate ? format(startDate, "yyyy-MM-dd") : undefined,
         end_date: endDate ? format(endDate, "yyyy-MM-dd") : undefined,
       });
       if (response && response.data) {
         setCampaignGroupList(response.data);
         //@ts-ignore
-        setTotalCampaig(
+        setTotalCampaigGroup(
           //@ts-ignore
-          response?.pagination?.total_items || response.data || 0,
+          response?.pagination?.total_items || response.data.length || 0,
         );
       } else {
         console.warn("Response is null or does not contain data");
@@ -600,7 +602,9 @@ const Page = () => {
           <div className="mt-6">
             <Pagination
               // @ts-ignore
-              totalPages={totalCampaign}
+              totalPages={
+                activeTab === "campaigns" ? totalCampaign : totalCampaignGroup
+              }
               currentPage={currentPage}
               onPageChange={setCurrentPage}
               pageSize={pageSize}

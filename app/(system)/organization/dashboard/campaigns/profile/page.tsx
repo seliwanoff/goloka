@@ -91,7 +91,7 @@ const ProfilePage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState<number>(10);
   const pages = chunkArray(filteredData, pageSize);
-  const currentPageData = pages[currentPage - 1] || [];
+  const currentPageData = pages[currentPage >= 2 ? 0 : currentPage - 1] || [];
   const [activeStatus, setActiveStatus] = useState<string>("all");
   const { setShow } = useEditCampaignOverlay();
   const [open, setOpen] = useState(false);
@@ -132,6 +132,7 @@ const ProfilePage: React.FC = () => {
     setSearchTerm(value);
     updateQueryParams("search", value);
   };
+  // console.log(currentPage);
 
   useEffect(() => {
     setSearchTerm(searchParams.get("search") || "");
@@ -177,20 +178,19 @@ const ProfilePage: React.FC = () => {
         page: currentPage || undefined,
         per_page: pageSize || undefined,
         search: searchTerm || undefined,
-        status: activeStatus || undefined,
+        status: activeStatus == "all" ? undefined : activeStatus || undefined,
         start_date: startDate ? format(startDate, "yyyy-MM-dd") : undefined,
         end_date: endDate ? format(endDate, "yyyy-MM-dd") : undefined,
       });
-      // console.log(response);
+      //  console.log(response);
       if (response && response.data) {
         setCampaign(response.data);
         setCampaignList(response?.data?.campaigns);
-        /**
+
         setTotalCampaig(
           //@ts-ignore
-          response?.pagination?.total_items || response.data || 0,
+          response?.data.pagination?.total_items || 0,
         );
-        */
       } else {
         console.warn("Response is null or does not contain data");
       }
@@ -202,9 +202,8 @@ const ProfilePage: React.FC = () => {
   };
   useEffect(() => {
     getCampaign();
-  }, [searchParams, activeStatus]);
+  }, [searchParams, activeStatus, currentPage, pageSize]);
   const router = useRouter();
-
   useEffect(() => {
     if (activeTab === "campaigns") {
       setFilteredData(campaignList);
@@ -490,7 +489,7 @@ const ProfilePage: React.FC = () => {
           <div className="mt-6">
             <Pagination
               // @ts-ignore
-              totalPages={campaignList.length}
+              totalPages={totalCampaign}
               currentPage={currentPage}
               onPageChange={setCurrentPage}
               // RowSize={pageSize}
