@@ -4,13 +4,28 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { chunkArray, cn } from "@/lib/utils";
 import { Eye, Note } from "iconsax-react";
 import React, { useEffect, useState } from "react";
-import { ChevronDown, Edit, Search } from "lucide-react";
+import {
+  ChevronDown,
+  Edit,
+  EllipsisVertical,
+  OctagonAlert,
+  Search,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import {
   Select,
   SelectContent,
@@ -52,6 +67,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { BiDuplicate } from "react-icons/bi";
 import UpdateCampaignDialog from "@/components/lib/modals/confirm_update_campaign_modal";
 import { toast } from "sonner";
+import ChatWidget from "@/components/support_comps/chat-widget";
 
 const Page = () => {
   const [openFilter, setOpenFilter] = useState<boolean>(false);
