@@ -13,6 +13,7 @@ import Pattern from "@/public/assets/images/campaign/newmasked.png";
 
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 type ComponentProps = {
   title: string;
   content: string;
@@ -24,6 +25,7 @@ const SuccessDialog: React.FC<ComponentProps> = ({
   action,
 }) => {
   const { open, setOpen } = useOpenSuccessModalOverlay();
+  const router = useRouter();
 
   return (
     <>
@@ -81,7 +83,7 @@ const SuccessDialog: React.FC<ComponentProps> = ({
 
             <span
               className="block cursor-pointer text-center font-poppins text-[16px] font-medium text-[#3365E3]"
-              onClick={() => setOpen(false)}
+              onClick={() => router.push("/organization/dashboard/campaigns")}
             >
               I will do it later
             </span>

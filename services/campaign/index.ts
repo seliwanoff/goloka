@@ -184,10 +184,27 @@ export const updateCampaign = async (
   }
 };
 
-export const getCampaignById = async (id: any): Promise<AxiosResponse<any>> => {
+export const getCampaignById = async (
+  id: any,
+  params: GetAllCampaignsParams,
+): Promise<AxiosResponse<any>> => {
   try {
+    const query = new URLSearchParams();
+
+    // Add query parameters conditionally
+    const appendQuery = (key: string, value: any) => {
+      if (value !== undefined && value !== null) {
+        query.append(key, value.toString());
+      }
+    };
+    appendQuery("start_date", params.start_date);
+    appendQuery("end_date", params.end_date);
+    appendQuery("per_page", params.per_page);
+    appendQuery("page", params.page);
+    appendQuery("status", params.status);
+    appendQuery("search", params.search);
     return await fetchData(
-      `/organizations/${organizationDetails.domain}/campaign-groups/${id}`,
+      `/organizations/${organizationDetails.domain}/campaign-groups/${id}&${query.toString()}`,
     );
   } catch (error) {
     console.error("Error fetching campaign questions:", error);
