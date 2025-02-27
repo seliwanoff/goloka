@@ -133,7 +133,7 @@ const SignIn: React.FC<PageProps> = ({}) => {
 
      //@ts-ignore
 
-     if (response?.user?.email_verified_at !== null) {
+     if (response?.user?.email_verified_at === null) {
 
        toast.dismiss();
        toast.success("Sign in successful, verification needed");
