@@ -25,6 +25,7 @@ import { format } from "date-fns";
 import { Calendar as CalenderDate } from "@/components/ui/calendar";
 import { Calendar, Setting4 } from "iconsax-react";
 import DeleteDialog from "@/components/lib/modals/delete_modal";
+import { BiDuplicate } from "react-icons/bi";
 
 import {
   Table,
@@ -44,18 +45,34 @@ import {
   useEditCampaignOverlay,
 } from "@/stores/overlay";
 import EditCampaign from "@/components/lib/modals/edit_campaign";
-import { deleteCampaign, getCampaignById } from "@/services/campaign";
+import {
+  deleteCampaign,
+  duplicateCampaign,
+  getCampaignById,
+} from "@/services/campaign";
 import { useSearchParams } from "next/navigation";
 import { Skeleton } from "@/components/task-stepper/skeleton";
 import { toast } from "sonner";
+import UpdateCampaignDialog from "@/components/lib/modals/confirm_update_campaign_modal";
 
 type ProfileProps = {
   campaignData: any;
 };
-const renderTable = (tab: string, tdata: any[]) => {
+const renderTable = (
+  tab: string,
+  tdata: any[],
+  setCampaignDuplicatedId: any,
+  setOpenQuestion: any,
+) => {
   switch (tab.toLowerCase()) {
     case "campaigns":
-      return <CampaignTable tdata={tdata} />;
+      return (
+        <CampaignTable
+          tdata={tdata}
+          setCampaignDuplicatedId={setCampaignDuplicatedId}
+          setOpenSubmit={setOpenQuestion}
+        />
+      );
 
     case "campaign-groups":
       return <CampaignGroupTable tdata={tdata} />;
@@ -67,22 +84,68 @@ const renderTable = (tab: string, tdata: any[]) => {
 
 const ProfilePage: React.FC = () => {
   const [openFilter, setOpenFilter] = useState<boolean>(false);
+  const [campaignList, setCampaignList] = useState<any[]>([]);
   const [filteredData, setFilteredData] = useState<any[]>(campaignList);
   const [activeTab, setActiveTab] = useState("campaigns");
   const [date, setDate] = useState<Date>();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState<number>(10);
   const pages = chunkArray(filteredData, pageSize);
-  const currentPageData = pages[currentPage - 1] || [];
+  const currentPageData = pages[currentPage >= 2 ? 0 : currentPage - 1] || [];
   const [activeStatus, setActiveStatus] = useState<string>("all");
   const { setShow } = useEditCampaignOverlay();
   const [open, setOpen] = useState(false);
   const [campaign, setCampaign] = useState([]);
   const [isLoading, setisloading] = useState(false);
+  const [openSumit, setOpenSubmit] = useState<boolean>(false);
+  const [duplicatedId, setCampaignDuplicatedId] = useState("");
+  const [isSubmittingCampaign, setisSubmititngCampaign] =
+    useState<boolean>(false);
 
   const searchParams = useSearchParams();
+  const [totalCampaign, setTotalCampaig] = useState(0);
 
   const campaignId = searchParams.get("campaignId") || 0;
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  const updateQueryParams = (key: string, value: string | null) => {
+    const queryParams = new URLSearchParams(window.location.search);
+
+    if (value) {
+      queryParams.set(key, value); // Add or update parameter
+    } else {
+      queryParams.delete(key); // Remove parameter if value is null
+    }
+
+    // Update the URL without reloading
+    window.history.replaceState(
+      null,
+      "",
+      `${window.location.pathname}?${queryParams.toString()}`,
+    );
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    updateQueryParams("search", value);
+  };
+  // console.log(currentPage);
+
+  useEffect(() => {
+    setSearchTerm(searchParams.get("search") || "");
+
+    // Parse date params
+
+    // Parse date params
+    const startDateParam = searchParams.get("startDate");
+    const endDateParam = searchParams.get("endDate");
+
+    setStartDate(startDateParam ? new Date(startDateParam) : null);
+    setEndDate(endDateParam ? new Date(endDateParam) : null);
+  }, [searchParams]);
 
   useEffect(() => {
     function filter(status: string) {
@@ -111,11 +174,23 @@ const ProfilePage: React.FC = () => {
   const getCampaign = async () => {
     setisloading(true);
     try {
-      const response = await getCampaignById(campaignId);
-      console.log(response);
+      const response = await getCampaignById(campaignId, {
+        page: currentPage || undefined,
+        per_page: pageSize || undefined,
+        search: searchTerm || undefined,
+        status: activeStatus == "all" ? undefined : activeStatus || undefined,
+        start_date: startDate ? format(startDate, "yyyy-MM-dd") : undefined,
+        end_date: endDate ? format(endDate, "yyyy-MM-dd") : undefined,
+      });
+      //  console.log(response);
       if (response && response.data) {
         setCampaign(response.data);
-        //   setCampaignList(response.data);
+        setCampaignList(response?.data?.campaigns);
+
+        setTotalCampaig(
+          //@ts-ignore
+          response?.data.pagination?.total_items || 0,
+        );
       } else {
         console.warn("Response is null or does not contain data");
       }
@@ -127,16 +202,13 @@ const ProfilePage: React.FC = () => {
   };
   useEffect(() => {
     getCampaign();
-  }, []);
+  }, [searchParams, activeStatus, currentPage, pageSize]);
   const router = useRouter();
-
   useEffect(() => {
     if (activeTab === "campaigns") {
       setFilteredData(campaignList);
-    } else if (activeTab === "campaign-groups") {
-      setFilteredData(campaignGroupList);
     }
-  }, [activeTab]);
+  });
 
   const deleteGroup = async () => {
     try {
@@ -149,6 +221,36 @@ const ProfilePage: React.FC = () => {
     }
 
     console.log("delete");
+  };
+  const handleSubmitCampaign = async () => {
+    // setisSubmititng(true);
+
+    setisSubmititngCampaign(true);
+    try {
+      const response = await duplicateCampaign(duplicatedId as string);
+      //@ts-ignore
+      // queryClient.invalidateQueries(["get Campaign", campaignId as string]);
+
+      if (response) {
+        //console.log(response);
+        toast.success("Campaign duplicated sucessfully");
+        //   getQuestionByCampaignId();
+        getCampaign();
+        setOpenSubmit(false);
+        //@ts-ignore
+        router.push(
+          //@ts-ignore
+          `/organization/dashboard/campaigns/${response.campaign.id}`,
+        );
+      }
+    } catch (e) {
+      //   console.log(e);
+      /**@ts-ignore **/
+      toast.error(e?.response?.data.message || "Error duplicating campaign");
+    } finally {
+      setisSubmititngCampaign(false);
+      setOpenSubmit(false);
+    }
   };
 
   return (
@@ -167,7 +269,15 @@ const ProfilePage: React.FC = () => {
         }
         action={deleteGroup}
       />
-
+      <UpdateCampaignDialog
+        title={"Duplicate Campaign"}
+        content={"Are you sure you want to duplicate this campaign?"}
+        action={handleSubmitCampaign}
+        open={openSumit}
+        setOpen={setOpenSubmit}
+        isSubmitting={isSubmittingCampaign}
+        status="duplicate"
+      />
       <section className="mt-5">
         {/* HEADING */}
         <div className="mb-8 flex items-center justify-between">
@@ -209,15 +319,18 @@ const ProfilePage: React.FC = () => {
                 Campaign
               </h2>
               <div className="flex justify-between gap-4 lg:justify-start">
-                {/* -- search section */}
+                {/*
                 <div className="relative flex w-[250px] items-center justify-center md:w-[250px]">
                   <Search className="absolute left-3 text-gray-500" size={18} />
                   <Input
                     placeholder="Search campaign"
                     type="text"
                     className="w-full rounded-full bg-gray-50 pl-10"
+                    value={searchTerm}
+                    onChange={handleSearchChange}
                   />
                 </div>
+                */}
 
                 <div className="hidden lg:flex lg:gap-4">
                   {/* Status */}
@@ -248,14 +361,16 @@ const ProfilePage: React.FC = () => {
                     <></>
                   )}
 
-                  {/* NUMBER */}
+                  {/*
                   <Popover>
+
                     <PopoverTrigger className="rounded-full border px-3">
                       <div className="inline-flex items-center gap-2">
                         <span className="text-sm">No of question</span>{" "}
                         <ChevronDown className="h-4 w-4 opacity-50" />
                       </div>
                     </PopoverTrigger>
+
                     <PopoverContent className="w-[200px]">
                       <Label htmlFor="number" className="mb-3 inline-block">
                         Input number
@@ -269,31 +384,79 @@ const ProfilePage: React.FC = () => {
                       />
                     </PopoverContent>
                   </Popover>
+                    */}
 
-                  {/* DATE */}
+                  {/*
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
-                        variant={"outline"}
+                        variant="outline"
                         className={cn(
                           "w-min justify-start gap-3 rounded-full px-3 pr-1 text-center text-sm font-normal",
                         )}
                       >
-                        {date ? format(date, "PPP") : <span>Select date</span>}
+                        {startDate && endDate
+                          ? `${format(startDate, "PPP")} - ${format(endDate, "PPP")}`
+                          : "Select date range"}
                         <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F8F8F8]">
-                          <Calendar size={20} color="#828282" className="m-0" />
-                        </span>{" "}
+                          <Calendar size={20} color="#828282" />
+                        </span>
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <CalenderDate
-                        mode="single"
-                        selected={date}
-                        onSelect={setDate}
-                        initialFocus
-                      />
+                    <PopoverContent className="w-auto p-4">
+                      <div className="flex flex-col items-center gap-4">
+                        <CalenderDate
+                          mode="range"
+                          //@ts-ignore
+                          selected={{ from: startDate, to: endDate }}
+                          onSelect={(range) => {
+                            setStartDate(range?.from || null);
+                            setEndDate(range?.to || null);
+                          }}
+                          initialFocus
+                        />
+
+                        <div className="flex w-full items-center justify-between">
+                          <button
+                            className="rounded-full bg-[#F8F8F8] px-2 py-1 text-sm text-blue-500"
+                            onClick={() => {
+                              updateQueryParams("startDate", null);
+                              updateQueryParams("endDate", null);
+                              setStartDate(null);
+                              setEndDate(null);
+                            }}
+                          >
+                            Clear
+                          </button>
+                          <button
+                            className="rounded-full bg-blue-500 px-2 py-1 text-sm text-[#F8F8F8]"
+                            // onClick={applyFilters}
+                            onClick={() => {
+                              // Update the URL with the selected dates
+                              const params = new URLSearchParams(
+                                window.location.search,
+                              );
+                              if (startDate)
+                                params.set(
+                                  "startDate",
+                                  startDate.toISOString(),
+                                );
+                              if (endDate)
+                                params.set("endDate", endDate.toISOString());
+                              window.history.replaceState(
+                                null,
+                                "",
+                                `${window.location.pathname}?${params.toString()}`,
+                              );
+                            }}
+                          >
+                            Done
+                          </button>
+                        </div>
+                      </div>
                     </PopoverContent>
                   </Popover>
+                  */}
                 </div>
 
                 {/* -- filter icon */}
@@ -313,17 +476,25 @@ const ProfilePage: React.FC = () => {
           </div>
 
           {/* TABLE DATA */}
-          <div className="">{renderTable(activeTab, currentPageData)}</div>
+          <div className="">
+            {renderTable(
+              activeTab,
+              currentPageData,
+              setCampaignDuplicatedId,
+              setOpenSubmit,
+            )}
+          </div>
 
           {/* Pagination */}
           <div className="mt-6">
             <Pagination
               // @ts-ignore
-              totalPages={pages?.length}
+              totalPages={totalCampaign}
               currentPage={currentPage}
               onPageChange={setCurrentPage}
-              RowSize={pageSize}
+              // RowSize={pageSize}
               onRowSizeChange={setPageSize}
+              pageSize={pageSize}
             />
           </div>
         </div>
@@ -347,7 +518,11 @@ const getStatusColor = (status: string) => {
   }
 };
 
-const CampaignTable = ({ tdata }: { tdata: any[] }) => {
+const CampaignTable = ({
+  tdata,
+  setCampaignDuplicatedId,
+  setOpenSubmit,
+}: any) => {
   return (
     <Table>
       <TableHeader>
@@ -362,22 +537,57 @@ const CampaignTable = ({ tdata }: { tdata: any[] }) => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {tdata?.map((data, index) => (
-          <TableRow key={index}>
+        {tdata?.map((data: any, index: any) => (
+          <TableRow
+            key={index}
+            className="cursor-pointer"
+            // onClick={() => router.push(`campaigns/${data.id}`)}
+          >
             <TableCell>{data?.title}</TableCell>
-            <TableCell className="">{data?.group}</TableCell>
+            <TableCell className="">{data?.campaign_group}</TableCell>
             <TableCell className="table-cell">
-              {data?.locations?.join(", ")}
+              {data?.locations?.label}
             </TableCell>
-            <TableCell className="">{data?.title}</TableCell>
-            <TableCell className=" ">{data?.lastUpdated}</TableCell>
+            <TableCell className="">
+              <div className="flex items-center gap-1">
+                {data?.number_of_responses}
+                {data.number_of_pending_responses > 0 && (
+                  <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[red] text-center font-poppins text-[12px] text-white">
+                    {data?.number_of_pending_responses}
+                  </span>
+                )}
+              </div>
+            </TableCell>
+            <TableCell className="">{data?.created_at}</TableCell>
             <TableCell className="">
               <StatusPill status={data?.status} />
             </TableCell>
-            <TableCell className="">
-              <span className="cursor-pointer">
-                <BsThreeDots />
-              </span>
+            <TableCell className="" onClick={(e) => e.stopPropagation()}>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <span
+                    className="cursor-pointer rounded-full p-2 hover:bg-gray-100"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <BsThreeDots size={18} />
+                  </span>
+                </PopoverTrigger>
+                <PopoverContent className="w-40 rounded-lg p-2 shadow-lg">
+                  <div className="flex flex-col gap-2">
+                    <button
+                      className="flex items-center gap-2 rounded p-2 hover:bg-gray-100"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCampaignDuplicatedId(data.id);
+                        setOpenSubmit(true);
+                        //console.log("Edit", data.id);
+                      }}
+                    >
+                      <BiDuplicate size={16} /> <span>Duplicate</span>
+                    </button>
+                  </div>
+                </PopoverContent>
+              </Popover>
             </TableCell>
           </TableRow>
         ))}
@@ -481,7 +691,7 @@ const tabs = [
     value: "campaign-groups",
   },
 ];
-
+/***
 const campaignList = [
   {
     title: "Agriculture & Food Security",
@@ -694,3 +904,4 @@ const campaignGroupList = [
     lastUpdated: "Tue 28th June",
   },
 ];
+*/

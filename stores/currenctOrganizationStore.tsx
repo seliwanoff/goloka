@@ -15,6 +15,8 @@ interface OrganizationData {
   domain?: string;
   currency?: string;
   symbol?: string;
+  image?: any;
+  profile_photo_url?: any;
 }
 
 interface OrganizationStore {
@@ -34,9 +36,9 @@ export const useOrganizationStore = create<OrganizationStore>()(
         set({ organization: userData });
 
         if (userData) {
-          const { domain, country } = userData;
+          const { domain, country, image } = userData;
 
-          console.log("Country Data:", country);
+          console.log("Country Data:", image);
 
           localStorage.setItem("organization_domain", domain || "");
           localStorage.setItem("symbol", country?.["currency-symbol"] || "");
@@ -64,6 +66,7 @@ export const useOrganizationStore = create<OrganizationStore>()(
             ? {
                 id: organization.id,
                 name: organization.name,
+                image: organization?.profile_photo_url,
                 email: organization.email,
                 domain: organization.domain || "",
                 symbol: organization.symbol || "",

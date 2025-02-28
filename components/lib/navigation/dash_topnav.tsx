@@ -27,6 +27,7 @@ import {
   LucideIcon,
   LucideX,
   OctagonAlert,
+  MapPin,
 } from "lucide-react";
 // import { getCurrentUser } from "@/services/user_service";
 import { useQuery } from "@tanstack/react-query";
@@ -45,6 +46,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+
 import { ArrowLeft } from "iconsax-react";
 import { useMediaQuery } from "@react-hook/media-query";
 import { Close } from "@radix-ui/react-dialog";
@@ -63,9 +65,16 @@ import { getNotifications } from "@/services/response";
 import { getUseServices } from "@/services/organization";
 import { ResponseCookies } from "next/dist/compiled/@edge-runtime/cookies";
 import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
-import { useCreateOrganizationOverlay } from "@/stores/overlay";
+import {
+  useCreateContributorOverlay,
+  useCreateOrganizationOverlay,
+} from "@/stores/overlay";
 import CreateOrganization from "../modals/create_orgnaization_modal";
 import { getCurrentUser } from "@/services/user";
+import { useAblyToken } from "@/stores/ably/useAblyToken";
+import { useShowOverlay } from "@/stores/location";
+import Tooltip from "../tootip";
+import CreateContributor from "../modals/create_contributor_modal";
 
 type ComponentProps = {};
 
@@ -78,12 +87,15 @@ const data = {
 };
 
 const DashTopNav: React.FC<ComponentProps> = ({}) => {
+  const { ablyClient, token, channelName, connectionError } = useAblyToken();
   const [open, setOpen] = useState(false);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [organizations, setOrganizations] = useState([]);
   const router = useRouter();
   const params = { per_page: 10, page: 1 };
   const { setOpenOrganization } = useCreateOrganizationOverlay();
+
+  const { setOpenContributor } = useCreateContributorOverlay();
 
   const {
     data: notification,
@@ -101,7 +113,11 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
   const user = { data };
   const currentUser = useUserStore((state) => state.user);
   const [isPageLoaded, setIsPageLoaded] = useState(false);
+  const { setOpen: setOpenc } = useShowOverlay();
 
+  const handleLocationClick = () => {
+    setOpenc(true);
+  };
   const currentOrganization = useOrganizationStore(
     (state) => state.organization,
   );
@@ -120,10 +136,49 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
     [FirstName],
   );
 
+  // const { token } = useAblyToken();
+  const [lastMessage, setLastMessage] = useState<any>(null);
+
+  const UserBubbleLinks: { icon: LucideIcon; title: string; href: string }[] = [
+    {
+      icon: UserRound,
+      title: "View Profile",
+      href:
+        firstSegment === "organization"
+          ? "/organization/dashboard/settings"
+          : "/dashboard/settings",
+    },
+    {
+      icon: Settings,
+      title: "Settings",
+      href:
+        firstSegment === "organisation"
+          ? "/organization/dashboard/settings"
+          : "/dashboard/settings",
+    },
+  ];
+
+  useEffect(() => {
+    if (ablyClient && channelName) {
+      const channel = ablyClient.channels.get(channelName);
+      //@ts-ignore
+      const onMessage = (message: Ably.Types.Message) => {
+        //console.log("New notification received:", message.data);
+        refetch();
+      };
+
+      channel.subscribe("new-notification", onMessage);
+
+      return () => {
+        channel.unsubscribe("new-notification", onMessage);
+        channel.detach();
+      };
+    }
+  }, [ablyClient, channelName, refetch]);
+
   const initiateLogout = () => {
     try {
       const res = userLogout();
-      console.log(res, "res");
       localStorage.removeItem("whoami");
       localStorage.removeItem("organization_domain");
       localStorage.removeItem("organization_currency");
@@ -136,15 +191,11 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
       console.log(error, "error");
     }
   };
-  // console.log(document.readyState);
-
-  // console.log(currentUser);
 
   const notificationData = formatNotifications(notification);
 
   const getRegisteredUsersService = async () => {
     const response = await getUseServices();
-    // console.log(getCurrentUser());
     const currentUsers = await getCurrentUser();
     //@ts-ignore
     const contributor = response.services.contributor
@@ -153,27 +204,21 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
           ...response.services.contributor,
           account_type: "contributor",
           name: currentUsers && currentUsers.data.name,
+          image: currentUsers && currentUsers.data.profile.profile_photo_path,
         }
       : null;
     //@ts-ignore
-    const organizations = response.services.organizations.map((org: any) => ({
+    const organizations = response.services.organizations?.map((org: any) => ({
       ...org,
       account_type: "organization",
+      image: org?.profile_photo_url,
     }));
 
     const mergedData = contributor
-      ? [contributor, ...organizations]
+      ? [contributor, ...(organizations || [])]
       : organizations;
 
     setOrganizations(mergedData);
-    // console.log(currentOrganization);
-    /***
-    if (currentOrganization == null && document.readyState === "complete") {
-      getCurrentOrganization(mergedData[1]);
-    }
-    **/
-
-    console.log(document.readyState);
   };
 
   useEffect(() => {
@@ -182,32 +227,37 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
   const handleCurrentOrgnization = (org: any) => {
     if (org.account_type === "contributor") {
       getCurrentUser();
+      getCurrentOrganization({ ...org, id: null });
       window.location.href = "/dashboard/root";
     } else {
       getCurrentOrganization(org);
       window.location.href = "/organization/dashboard/root";
     }
-
-    /***
-    useOrganizationStore.getState().setOrganization({
-      id: org.id,
-      name: org.name,
-      email: "",
-      country: org.country,
-      current_role: "",
-      email_verified_at: "",
-      pin_status: false,
-      domain: org.domain,
-      currency: org.country["currency-code"],
-      symbol: org.country["currency-symbol"],
-    });
-    */
   };
 
   //console.log(currentOrganization);
-  const filteredOrganizations = organizations?.filter(
-    (org: any) => org.id !== currentOrganization?.id,
+  const filteredOrganizations = organizations.filter(
+    (org: any) =>
+      org?.id !== currentOrganization?.id && org?.id !== currentUser?.id,
   );
+
+  //console.log(filteredOrganizations);
+
+  const profileImage = useMemo(() => {
+    if (
+      currentOrganization &&
+      firstSegment === "organization" &&
+      currentOrganization.image
+    ) {
+      return currentOrganization.image;
+    }
+    if (currentUser) {
+      //@ts-ignore
+      return currentUser?.profile.profile_photo_path;
+    }
+    return null;
+  }, [currentOrganization, currentUser]);
+
   const initials = useMemo(
     () =>
       getInitials(
@@ -217,11 +267,18 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
       ),
     [currentOrganization, currentUser],
   );
+  if (connectionError) {
+    console.error("Ably connection error:", connectionError);
+  }
 
   return (
     <>
       {/*** Organization creation */}
       <CreateOrganization />
+
+      {/*** Contributor Creation */}
+
+      <CreateContributor />
       <Toaster richColors position={"top-right"} />
       <div className="absolute left-0 top-0 z-[50] flex h-[72px] w-full items-center justify-between bg-white px-4 py-2 shadow-sm sm:z-0 lg:px-8">
         <div className="flex gap-4">
@@ -241,6 +298,14 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
 
         {/* -- activity section */}
         <div className="flex items-center justify-center gap-4">
+          <Tooltip message="Update Location">
+            <button
+              onClick={handleLocationClick}
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 text-blue-600 transition-all hover:bg-blue-100 hover:text-blue-700"
+            >
+              <MapPin className="h-5 w-5" />
+            </button>
+          </Tooltip>
           {/* notification icon */}
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
@@ -279,7 +344,10 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
 
               {/* SHEET CONTENT */}
               <div className="no-scrollbar h-full overflow-y-auto pb-11 pt-10">
-                <DashNotificationPopOver notificationList={notificationData} />
+                <DashNotificationPopOver
+                  notificationList={notificationData}
+                  ablyClient={ablyClient}
+                />
               </div>
             </SheetContent>
           </Sheet>
@@ -292,7 +360,15 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                   className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-white`}
                   style={{ backgroundColor }}
                 >
-                  {initials}
+                  {profileImage ? (
+                    <img
+                      src={profileImage}
+                      alt="Profile"
+                      className="h-full w-full rounded-full"
+                    />
+                  ) : (
+                    initials
+                  )}
                 </div>
 
                 <div className="hidden flex-col items-start justify-center lg:flex">
@@ -302,12 +378,12 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                     {
                       INDIVIDUAL: (
                         <p className="-mt-1 text-sm font-light">
-                          Individual Accounts
+                          Contributor Account
                         </p>
                       ),
                       ORGANISATION: (
                         <p className="-mt-1 text-sm font-light">
-                          Organisation accounts
+                          Organisation Account
                         </p>
                       ),
                     }[
@@ -327,33 +403,42 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                     scrollbarWidth: "thin",
                   }}
                 >
-                  {filteredOrganizations?.length > 0 ? (
-                    filteredOrganizations?.map((org: any, index) => (
-                      <div
-                        className="flex cursor-pointer items-center gap-5"
-                        onClick={() => handleCurrentOrgnization(org)}
-                        key={index}
-                      >
-                        <div
-                          className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-white`}
-                          style={{ backgroundColor }}
-                        >
-                          {getInitials(org.name)}
-                        </div>
-                        <div className="flex flex-col justify-center">
-                          <p className="text-base font-semibold">
-                            <p className="max-w-[200px] overflow-hidden text-ellipsis text-nowrap text-base font-semibold">
-                              {org.name}
-                            </p>
+                  {
+                    filteredOrganizations?.length > 0
+                      ? filteredOrganizations?.map((org: any, index) => (
+                          <div
+                            className="flex cursor-pointer items-center gap-5"
+                            onClick={() => handleCurrentOrgnization(org)}
+                            key={index}
+                          >
+                            <div
+                              className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-white`}
+                              style={{ backgroundColor }}
+                            >
+                              {org.image ? (
+                                <img
+                                  src={org.image}
+                                  alt="profile"
+                                  className="object-cover33 h-full w-full rounded-full"
+                                />
+                              ) : (
+                                getInitials(org.name)
+                              )}
+                            </div>
+                            <div className="flex flex-col justify-center">
+                              <p className="text-base font-semibold">
+                                <p className="max-w-[200px] overflow-hidden text-ellipsis text-nowrap text-base font-semibold">
+                                  {org.name}
+                                </p>
 
-                            <p className="mt-1 max-w-[200px] overflow-hidden text-ellipsis text-nowrap text-xs font-medium text-gray-600">
-                              {org.account_type === "contributor"
-                                ? "Individual accounts"
-                                : "Organisation accounts"}
-                            </p>
-                          </p>
+                                <p className="mt-1 max-w-[200px] overflow-hidden text-ellipsis text-nowrap text-xs font-medium text-gray-600">
+                                  {org.account_type === "contributor"
+                                    ? "Contributor Account"
+                                    : "Organisation Acount"}
+                                </p>
+                              </p>
 
-                          {/**
+                              {/**
                         {
                           // @ts-ignore
                           {
@@ -370,10 +455,11 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                           }[user.data.account_type || "INDIVIDUAL"]
                         }
                           */}
-                        </div>
-                      </div>
-                    ))
-                  ) : (
+                            </div>
+                          </div>
+                        ))
+                      : "" /**(
+                     {/***
                     <div className="flex items-center gap-4">
                       <div
                         className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-white`}
@@ -382,6 +468,7 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                         {getInitials(user.data.name)}
                       </div>
 
+
                       <div className="hidden flex-col items-start justify-center lg:flex">
                         <p className="text-base font-semibold">{FirstName}</p>
                         {
@@ -389,12 +476,12 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                           {
                             INDIVIDUAL: (
                               <p className="-mt-1 text-sm font-light">
-                                Individual Accounts
+                                Contributor Account
                               </p>
                             ),
                             ORGANISATION: (
                               <p className="-mt-1 text-sm font-light">
-                                Organisation accounts
+                                Organisation Accountp
                               </p>
                             ),
                           }[
@@ -404,18 +491,13 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
                           ]
                         }
                       </div>
+
                     </div>
-                  )}
+
+                  ) **/
+                  }
                 </div>
-                {organizations?.length > 0 &&
-                  firstSegment !== "organization" && (
-                    <Button
-                      className="mt-8 w-full rounded-full bg-main-100 text-white hover:bg-blue-700"
-                      onClick={() => setOpenOrganization(true)}
-                    >
-                      Create account
-                    </Button>
-                  )}
+
                 <Separator className="my-4" />
 
                 {/* links */}
@@ -477,16 +559,3 @@ export default DashTopNav;
 // ~ =============================================>
 // toggle these to remove notification badges
 const messages: boolean = true;
-
-const UserBubbleLinks: { icon: LucideIcon; title: string; href: string }[] = [
-  {
-    icon: UserRound,
-    title: "View Profile",
-    href: "/dashboard/settings",
-  },
-  {
-    icon: Settings,
-    title: "Settings",
-    href: "/dashboard/settings",
-  },
-];

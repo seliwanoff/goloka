@@ -12,9 +12,8 @@ import { useWithdrawalfundsOverlay } from "@/stores/overlay";
 import { toast } from "sonner";
 import { walletFunding } from "@/services/organization/withdraw";
 import { resolveAccountInfo } from "@/services/contributor";
-import { calculateTotalPrice } from "@/helper";
+import { calculateTotalPrice, numberWithCommas } from "@/helper";
 import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
-
 
 import {
   useWithdrawStepper,
@@ -26,11 +25,13 @@ const schema = yup.object().shape({
 });
 const WithdrawFunds = () => {
   const { setOpen } = useWithdrawalfundsOverlay();
-  const { setStep, setAmount } = useWithdrawStepperOrganization();
+  const { setStep, setAmount, actualAmount, setAcrtualAmount } =
+    useWithdrawStepperOrganization();
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [totalPayment, setTotalPayment] = useState(0)
-  const [difference, setDifference] = useState(0)
+  const [totalPayment, setTotalPayment] = useState(0);
+  const [difference, setDifference] = useState(0);
+  const [numericValue, setNumericValue] = useState(0);
   const {
     control,
     register,
@@ -43,40 +44,19 @@ const WithdrawFunds = () => {
     resolver: yupResolver(schema),
   });
 
-  const amount = watch("amount");
+  // const amount = watch("amount") || 0;
   const currentOrganization = useOrganizationStore(
     (state) => state.organization,
   );
 
-  useEffect(() => {
-    if (amount?.length === 10) {
-      setLoading(true);
-      const fetchAccountName = async () => {
-        try {
-          const response = await resolveAccountInfo(amount, "");
-          if (response) {
-            //@ts-ignore
-            const accountName = response?.data?.account_name;
-            setValue("amount", accountName);
-
-            console.log(response, "hfhfh");
-            setLoading(false);
-            toast.success("Account Resolved Successfully");
-          }
-        } catch (error) {
-          console.error("Error resolving account info", error);
-        }
-      };
-
-      fetchAccountName();
-    }
-  }, [amount, setValue]);
-
   const onCreateWithdrawal = async (data: any) => {
+    if (numericValue < 500) {
+      return toast.error("Minimum fund amount is 500");
+    }
     setStep((prev: number) => prev + 1);
     const { amount } = data;
+    setAcrtualAmount(numericValue);
     setAmount(totalPayment);
-
     /***
     setIsSubmitting(true);
 
@@ -103,52 +83,49 @@ const WithdrawFunds = () => {
   };
 
   const USER_CURRENCY_SYMBOL =
-  currentOrganization && currentOrganization["symbol"];
-
+    currentOrganization && currentOrganization["symbol"];
 
   const formatNumberWithCommas = (value: string) => {
-    // Remove non-numeric characters except for decimals
     let numericValue = value.replace(/[^\d.]/g, "");
 
-    // Prevent multiple decimal points
     numericValue = numericValue.replace(/^(\d*\.)(.*)\./g, "$1$2");
 
-    // Format with commas
     const parts = numericValue.split(".");
     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ","); // Add commas
     return parts.join(".");
   };
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Remove any non-digit characters (including currency symbol and spaces)
+    const rawValue = e.target.value.replace(/[^0-9]/g, "");
+    setValue("amount", rawValue); // Set the clean numeric value in the form state
+    calculateAmount(e); // Call existing amount calculation logic
+  };
   const calculateAmount = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let rawValue = e.target.value.replace(USER_CURRENCY_SYMBOL || "", "").trim(); // Remove currency symbol
+    let rawValue = e.target.value
+      .replace(USER_CURRENCY_SYMBOL || "", "")
+      .trim();
 
-    // Remove non-numeric characters except for decimals
     rawValue = rawValue.replace(/[^\d.]/g, "");
 
-    // Prevent multiple decimal points
     rawValue = rawValue.replace(/^(\d*\.)(.*)\./g, "$1$2");
 
     const formattedValue = formatNumberWithCommas(rawValue);
 
-    // Update the form state
     setValue("amount", formattedValue, { shouldValidate: true });
 
-    // Convert to a number for calculation
     const numericValue = parseFloat(rawValue) || 0; // Default to 0 if NaN
 
-    // Call calculateTotalPrice only if numericValue is valid
     if (!isNaN(numericValue)) {
       const totalPrice = calculateTotalPrice(numericValue);
-      console.log(totalPrice, "totalPrice");
+      // console.log(totalPrice, "totalPrice");
 
       setTotalPayment(totalPrice);
+      setNumericValue(numericValue);
 
-      // Calculate the difference
-      const difference = totalPrice -numericValue
-      setDifference(difference)
-     // console.log(difference, "difference");
+      const difference = totalPrice - numericValue;
+      setDifference(difference);
     }
   };
-
 
   return (
     <>
@@ -170,38 +147,55 @@ const WithdrawFunds = () => {
                   {...register("amount")}
                   id="amount"
                   name="amount"
-                  placeholder="Enter amount"
+                  placeholder={`${USER_CURRENCY_SYMBOL}${watch("amount") || "0"}`}
                   autoComplete="off"
-                  value={`${USER_CURRENCY_SYMBOL} ${watch("amount") || ""}`}
-                  onChange={calculateAmount}
+                  value={watch("amount") || ""}
+                  onChange={(e) => {
+                    const value = e.target.value
+                      //@ts-ignore
+                      .replace(USER_CURRENCY_SYMBOL, "")
+                      .trim();
+                    calculateAmount(e);
+                  }}
                   className={cn(
                     "form-input h-14 rounded-[6px] border border-[#E0E0E0] bg-[#F8F8F8] px-4 py-[22px] text-center text-[18px] leading-[38.41px] text-[#09091A] outline-0 placeholder:text-[#828282] focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0",
                     errors.amount &&
                       "border-red-600 focus:border-red-600 focus-visible:ring-red-600",
                   )}
                 />
+
                 {loading && (
                   <Loader className="absolute right-2 top-2 animate-spin text-blue-700" />
                 )}
               </div>
             </div>
 
-            <div className="flex justify-between items-center">
-              <div className="flex  flex-col gap-2">
-                <span className="font-poppins font-medium text-[#09091A] text-left">{USER_CURRENCY_SYMBOL}{difference}</span>
-                <span className="text-gray-600 text-[12px] font-poppins text-left ">Transaction charges</span>
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-2">
+                <span className="text-left font-poppins font-medium text-[#09091A]">
+                  {USER_CURRENCY_SYMBOL}
+                  {numberWithCommas(difference)}
+                </span>
+                <span className="text-left font-poppins text-[12px] text-gray-600">
+                  Transaction charges
+                </span>
               </div>
 
-              <div className="flex  flex-col gap-2">
-                <span className="font-poppins font-medium text-[#09091A] text-right">{USER_CURRENCY_SYMBOL}{totalPayment}</span>
-                <span className="text-gray-600 text-[12px] font-poppins text-right ">Total payment</span>
+              <div className="flex flex-col gap-2">
+                <span className="text-right font-poppins font-medium text-[#09091A]">
+                  {USER_CURRENCY_SYMBOL}
+                  {numberWithCommas(totalPayment)}
+                </span>
+                <span className="text-right font-poppins text-[12px] text-gray-600">
+                  Total payment
+                </span>
               </div>
             </div>
 
             <div className="flex items-center justify-between gap-4">
               <Button
                 className="mt-4 h-auto w-full rounded-full border border-main-100 bg-white py-3 text-main-100 hover:bg-blue-950 hover:text-white"
-                type="submit"
+                type="button"
                 onClick={() => setOpen(false)}
               >
                 Back

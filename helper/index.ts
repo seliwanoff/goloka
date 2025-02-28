@@ -169,7 +169,7 @@ const DECIMAL_FEE = 0.0150;
 const FEE_CAP = 2000;
 const FLAT_FEE = 100;
 
-const calculateFor2500Below = (amount) => {
+const calculateFor2500Below = (amount:any) => {
     const applicableFees = DECIMAL_FEE * amount;
 
     if(applicableFees>FEE_CAP){
@@ -179,7 +179,7 @@ const calculateFor2500Below = (amount) => {
     }
 }
 
-const calculateFor2500Above = (amount) => {
+const calculateFor2500Above = (amount:any) => {
     const applicableFees = (DECIMAL_FEE * amount)+FLAT_FEE;
 
     if(applicableFees>FEE_CAP){
@@ -189,7 +189,7 @@ const calculateFor2500Above = (amount) => {
     }
 }
 
-export const calculateTotalPrice = (amount) => {
+export const calculateTotalPrice = (amount:any) => {
     const amt = amount;
     if(amt<100){
         return Math.round(amt+1);

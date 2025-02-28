@@ -16,6 +16,10 @@ import { useRemoteUserStore } from "@/stores/remoteUser";
 import { normalizeSpokenLanguages } from "../multiSelect";
 import { createContributor } from "@/services/contributor";
 import { toast } from "sonner";
+import { getCurrentUser } from "@/services/user";
+import { userInfo } from "os";
+import { getCurrentOrganization } from "@/services/auth";
+import { getOrganizationByDomain } from "@/services/organization";
 
 type ComponentProps = {};
 
@@ -77,7 +81,7 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [initialValues, setInitialValues] = useState<FormValues | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
-
+  const [users, setUsers] = useState([]);
   const mergedUserData = useMemo(() => {
     const safeGet = (obj: any, key: string) => {
       return obj && obj[key] !== undefined ? obj[key] : "";
@@ -102,6 +106,7 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
       const targetKey = keyMapping[sourceKey];
       let value =
         safeGet(remoteUser, sourceKey) || safeGet(currentUser, sourceKey);
+      //safeGet(users, sourceKey);
 
       if (value !== undefined && value !== null) {
         if (sourceKey === "birth_date") {
@@ -198,12 +203,8 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
     }
   };
 
-
-
   const [imgUrl, setImgUrl] = useState<string>(initialAvatar);
   const [image, setImage] = useState<File | null>(null);
-
-
 
   // Watch all form fields
   const formValues = watch();
@@ -253,7 +254,6 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
     }
   }, [mergedUserData, setValue]);
 
-
   const handleChange = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
@@ -283,8 +283,6 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
     [],
   );
 
-
-
   React.useEffect(() => {
     return () => {
       if (imgUrl.startsWith("blob:")) {
@@ -292,6 +290,22 @@ const PersonalInfo: React.FC<ComponentProps> = ({}) => {
       }
     };
   }, [imgUrl]);
+
+  const getUserInfo = async () => {
+    try {
+      const userResponse = await getOrganizationByDomain();
+      //@ts-ignore
+      setUsers(userResponse && userResponse);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  useEffect(() => {
+    getUserInfo();
+  }, []);
+
+  console.log(users);
   return (
     <form
       className="block max-w-4xl"

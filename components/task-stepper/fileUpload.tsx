@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 import { FilePlus2, X } from "lucide-react";
 import Image from "next/image";
 
-const MAX_FILE_SIZE_MB = 10;
-
 const extensionIcons: { [key: string]: string } = {
   pdf: "/resource-icons/pdf.jpg",
   doc: "/resource-icons/word.jpg",
@@ -19,6 +17,7 @@ const extensionIcons: { [key: string]: string } = {
 
 interface FileUploadProps {
   value: any;
+  type?: string;
   ref: React.LegacyRef<HTMLInputElement> | undefined;
   onFileUpload?: (file: File | null, base64: string | null) => void;
   disabled?: boolean;
@@ -29,6 +28,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
   value,
   ref,
   disabled,
+  type,
 }) => {
   const [file, setFile] = useState<File | null>(null);
   const [fileBase64, setFileBase64] = useState<string | null>(null);
@@ -40,16 +40,6 @@ const FileUpload: React.FC<FileUploadProps> = ({
     const selectedFile = event.target.files?.[0];
 
     if (!selectedFile) return;
-
-    // File size validation
-    if (selectedFile.size / 1024 / 1024 > MAX_FILE_SIZE_MB) {
-      setError(
-        `File size is too high, you can only upload files less than ${MAX_FILE_SIZE_MB}MB`,
-      );
-      setFile(null);
-      setProgress(0);
-      return;
-    }
 
     setError(null);
     setFile(selectedFile);
@@ -103,9 +93,6 @@ const FileUpload: React.FC<FileUploadProps> = ({
     }
   }, [value]);
 
-  // const getFileExtension = (fileName: string) => {
-  //   return fileName.split(".").pop()?.toLowerCase() || "";
-  // };
   const getFileExtension = (fileName: string) => {
     const extension = fileName.split(".").pop()?.toLowerCase();
     // Check if extension is found and return it, otherwise return an empty string
@@ -117,11 +104,6 @@ const FileUpload: React.FC<FileUploadProps> = ({
     // If the extension is not found or invalid, return the 'file' icon
     return extensionIcons[extension] || extensionIcons.file;
   };
-
-  // const getFileIcon = (fileName: string) => {
-  //   const extension = getFileExtension(fileName);
-  //   return extensionIcons[extension] || extensionIcons.file;
-  // };
 
   return (
     <div className="w-full space-y-4">
@@ -136,11 +118,15 @@ const FileUpload: React.FC<FileUploadProps> = ({
               <div className="mb-2 flex h-8 w-8 items-center justify-center self-center rounded-full border border-dashed border-slate-300 bg-slate-200">
                 <FilePlus2 />
               </div>
-              <span>Upload new file</span>
+              <span>
+                {" "}
+                {type === "image" ? "Upload cover image" : "Upload new file"}
+              </span>
             </div>
             <span className="text-xs text-slate-400">
-              PNG, JPG, JPEG, DOCS, PDF, CSV. File size should not be more than
-              10MB
+              {type === "image"
+                ? "Supported formats: PNG, JPG, JPEG"
+                : "Supported formats: PNG, JPG, JPEG, DOCS, PDF, CSV"}{" "}
             </span>
             <input
               ref={ref}

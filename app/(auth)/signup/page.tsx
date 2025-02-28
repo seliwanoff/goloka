@@ -6,6 +6,8 @@ import PrimaryGoal from "@/components/auth-comps/PrimaryGoal";
 import SignUpForm from "@/components/auth-comps/SignUpForm";
 import UpdateLocationModal from "@/components/contributor/UpdateLocationModal";
 import { useShowOverlay } from "@/stores/overlay";
+import { toast } from "sonner";
+import { googleSignUp } from "@/services/misc";
 
 type PageProps = {};
 
@@ -15,6 +17,7 @@ const SignUpContent: React.FC<PageProps> = ({}) => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+ 
   const handleStepChange = (newStep: number, email?: string) => {
     if (newStep === 2 && email) {
       router.push(`/signup?step=2&email=${encodeURIComponent(email)}`);

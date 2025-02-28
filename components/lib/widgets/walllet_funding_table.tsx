@@ -32,6 +32,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { useRemoteUserStore } from "@/stores/remoteUser";
+import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
 
 interface Transaction {
   invoiceid: string;
@@ -52,7 +53,12 @@ const WalletFundungTable = () => {
   const { open, setOpen, setId } = useInvoiceOverlay();
   const [currentPage, setCurrentPage] = useState<number>(1);
   const { user, isAuthenticated } = useRemoteUserStore();
-  const USER_CURRENCY_SYMBOL = user?.country?.["currency-symbol"];
+
+  const currentOrganization = useOrganizationStore(
+    (state) => state.organization,
+  );
+  const USER_CURRENCY_SYMBOL =
+    currentOrganization && currentOrganization["symbol"];
   const {
     data: trnsactions,
     isLoading,

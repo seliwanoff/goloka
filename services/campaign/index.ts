@@ -17,6 +17,15 @@ import { AxiosResponse } from "axios";
 import { ServerResponseOrNull } from "../misc";
 import { organizationDetails } from "@/helper";
 
+interface GetAllCampaignsParams {
+  per_page?: number;
+  page?: number;
+  search?: string;
+  end_date?: any;
+  start_date?: any;
+  status?: string;
+}
+
 // ~ =============================================>
 // ~ ======= Create a campaign response  -->
 // ~ =============================================>
@@ -79,12 +88,27 @@ export const removeBookmark = async (
     return null;
   }
 };
-export const getOrganizationCampaign = async (): Promise<
-  AxiosResponse<any>
-> => {
+export const getOrganizationCampaign = async (
+  params: GetAllCampaignsParams,
+): Promise<AxiosResponse<any>> => {
   try {
+    const query = new URLSearchParams();
+
+    // Add query parameters conditionally
+    const appendQuery = (key: string, value: any) => {
+      if (value !== undefined && value !== null) {
+        query.append(key, value.toString());
+      }
+    };
+
+    appendQuery("per_page", params.per_page);
+    appendQuery("start_date", params.start_date);
+    appendQuery("end_date", params.end_date);
+
+    appendQuery("page", params.page);
+    appendQuery("search", params.search);
     return await fetchData(
-      `/organizations/${organizationDetails.domain}/campaign-groups`,
+      `/organizations/${organizationDetails.domain}/campaign-groups?${query.toString()}`,
     );
   } catch (error) {
     console.error("Error fetching campaign questions:", error);
@@ -100,10 +124,25 @@ export const getGuestCampaign = async (): Promise<AxiosResponse<any>> => {
   }
 };
 
-export const getCampaign = async (): Promise<AxiosResponse<any>> => {
+export const getCampaign = async (
+  params: GetAllCampaignsParams,
+): Promise<AxiosResponse<any>> => {
   try {
+    const query = new URLSearchParams();
+
+    // Add query parameters conditionally
+    const appendQuery = (key: string, value: any) => {
+      if (value !== undefined && value !== null) {
+        query.append(key, value.toString());
+      }
+    };
+    appendQuery("start_date", params.start_date);
+    appendQuery("end_date", params.end_date);
+    appendQuery("per_page", params.per_page);
+    appendQuery("page", params.page);
+    appendQuery("search", params.search);
     return await fetchData(
-      `/organizations/${organizationDetails.domain}/campaigns`,
+      `/organizations/${organizationDetails.domain}/campaigns?${query.toString()}`,
     );
   } catch (error) {
     console.error("Error fetching campaign questions:", error);
@@ -130,10 +169,42 @@ export const updateCampaignGroupById = async (
   }
 };
 
-export const getCampaignById = async (id: any): Promise<AxiosResponse<any>> => {
+export const updateCampaign = async (
+  id: number,
+  payload: any,
+): Promise<AxiosResponse<any>> => {
   try {
+    return await postData(
+      `/organizations/${organizationDetails.domain}/campaigns/${id}/update`,
+      payload,
+    );
+  } catch (error) {
+    console.error("Error fetching campaign questions:", error);
+    throw error;
+  }
+};
+
+export const getCampaignById = async (
+  id: any,
+  params: GetAllCampaignsParams,
+): Promise<AxiosResponse<any>> => {
+  try {
+    const query = new URLSearchParams();
+
+    // Add query parameters conditionally
+    const appendQuery = (key: string, value: any) => {
+      if (value !== undefined && value !== null) {
+        query.append(key, value.toString());
+      }
+    };
+    appendQuery("start_date", params.start_date);
+    appendQuery("end_date", params.end_date);
+    appendQuery("per_page", params.per_page);
+    appendQuery("page", params.page);
+    appendQuery("status", params.status);
+    appendQuery("search", params.search);
     return await fetchData(
-      `/organizations/${organizationDetails.domain}/campaign-groups/${id}`,
+      `/organizations/${organizationDetails.domain}/campaign-groups/${id}&${query.toString()}`,
     );
   } catch (error) {
     console.error("Error fetching campaign questions:", error);
@@ -152,7 +223,18 @@ export const getCampaignByIdDetails = async (
     throw error;
   }
 };
-
+export const getResponseDetails = async (
+  id: any,
+): Promise<AxiosResponse<any>> => {
+  try {
+    return await fetchData(
+      `/organizations/${organizationDetails.domain}/responses/${id}`,
+    );
+  } catch (error) {
+    console.error("Error fetching campaign questions:", error);
+    throw error;
+  }
+};
 export const deleteCampaign = async (id: any): Promise<AxiosResponse<any>> => {
   try {
     return await deleteData(
@@ -167,6 +249,36 @@ export const submitCampaign = async (id: any): Promise<AxiosResponse<any>> => {
   try {
     return await postData(
       `/organizations/${organizationDetails.domain}/campaigns/${id}/submit`,
+    );
+  } catch (error) {
+    console.error("Error fetching campaign questions:", error);
+    throw error;
+  }
+};
+
+export const duplicateCampaign = async (
+  id: any,
+): Promise<AxiosResponse<any>> => {
+  try {
+    return await postData(
+      `/organizations/${organizationDetails.domain}/campaigns/${id}/duplicate`,
+    );
+  } catch (error) {
+    console.error("Error fetching duplicating campaign:", error);
+    throw error;
+  }
+};
+
+export const updateCampaignByStatus = async (
+  id: any,
+  status: string,
+): Promise<AxiosResponse<any>> => {
+  try {
+    return await postData(
+      `/organizations/${organizationDetails.domain}/campaigns/${id}/status`,
+      {
+        status: status,
+      },
     );
   } catch (error) {
     console.error("Error fetching campaign questions:", error);

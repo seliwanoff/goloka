@@ -3,19 +3,28 @@ import Image from "next/image";
 import { Danger, Send2 } from "iconsax-react";
 import profileImg from "@/public/assets/images/chat-user-profile.png";
 import { useChatMessages } from "@/stores/useChatMessage";
-import { Check, CheckCheck, Loader2, LoaderCircle, Paperclip } from "lucide-react";
+import {
+  Check,
+  CheckCheck,
+  Loader2,
+  LoaderCircle,
+  Paperclip,
+} from "lucide-react";
 
 interface ChatWidgetProps {
   modelType: string;
   modelId: number;
   currentUserId: number;
+  status?: any;
 }
 
 const ChatWidget: React.FC<ChatWidgetProps> = ({
   modelType,
   modelId,
   currentUserId,
+  status,
 }) => {
+  //console.log(status);
   const [message, setMessage] = useState("");
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -23,6 +32,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
   const { messages, isLoading, error, sendMessage } = useChatMessages({
     model_type: modelType,
     model_id: modelId,
+    currentUserId: currentUserId,
   });
 
   // Scroll to bottom whenever messages change
@@ -39,7 +49,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
       setImageFiles([]);
     }
   };
-
+  // console.log(currentUserId);
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const newFiles = Array.from(e.target.files);
@@ -67,7 +77,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
     switch (msg.__temp_status) {
       case "sending":
         return <LoaderCircle className="h-3 w-3 animate-spin text-gray-400" />;
-        // return <Loader2 className="h-3 w-3 animate-spin text-gray-400" />;
+      // return <Loader2 className="h-3 w-3 animate-spin text-gray-400" />;
       case "success":
         return (
           <div className="flex">
@@ -104,94 +114,159 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
   return (
     <>
       {/* Add overflow-y-auto and max-h to enable scrolling */}
-      <div className="flex max-h-[calc(100vh-200px)] flex-col space-y-8 overflow-y-auto p-4 pb-20 md:self-stretch md:pb-4">
-        {sortedMessages.map((msg) => (
-          <div
-            key={msg.local_id || msg.id}
-            className={`flex ${
-              msg.sender_id === currentUserId
-                ? "justify-end"
-                : "items-end justify-start gap-4"
-            }`}
-          >
-            {msg.sender_id !== currentUserId && (
-              <Image
-                src={profileImg}
-                alt="chat-user"
-                className="h-12 w-12 rounded-full object-cover object-center"
-              />
-            )}
-            <div
-              className={`max-w-xs rounded-2xl p-4 ${
-                msg.sender_id === currentUserId
-                  ? "bg-[#005eb5]" // Changed to blue for sent messages
-                  : "bg-[#3e84fc]" // Changed to gray for received messages
-              }`}
-            >
-              {msg.message && <p className="text-white">{msg.message}</p>}
+      <div className="flex max-h-[calc(100vh-200px)] w-full flex-col space-y-8 overflow-y-auto p-4 pb-20 md:self-stretch md:pb-4">
+        {(() => {
+          let lastDisplayedDate = ""; // Track the last date to avoid duplicate labels
 
-              {/* Attached files section */}
-              {msg.image_paths && msg.image_paths.length > 0 && (
-                <div className={`mt-2 ${msg.message ? "border-t pt-2" : ""}`}>
-                  {msg.image_paths.map((imageUrl, index) => {
-                    // Safely handle different possible formats of image paths
-                    const fileName =
-                      typeof imageUrl === "string"
-                        ? imageUrl.split("/").pop()
-                        : (imageUrl as any)?.name || `Image ${index + 1}`;
+          return sortedMessages.map((msg, index) => {
+            const msgDate = new Date(
+              (msg.created_at && msg.created_at) || new Date(),
+            );
+            const today = new Date();
+            const yesterday = new Date();
+            yesterday.setDate(today.getDate() - 1);
 
-                    return (
-                      <div key={index} className="mb-1 flex items-center gap-2">
-                        <Paperclip className="h-4 w-4" />
-                        <span className="max-w-[200px] truncate text-sm">
-                          {fileName}
+            let dateLabel = msgDate.toDateString(); // Default full date format
+
+            if (msgDate.toDateString() === today.toDateString()) {
+              dateLabel = "Today";
+            } else if (msgDate.toDateString() === yesterday.toDateString()) {
+              dateLabel = "Yesterday";
+            }
+
+            const shouldShowDateLabel = dateLabel !== lastDisplayedDate;
+            lastDisplayedDate = dateLabel;
+
+            return (
+              <React.Fragment key={msg.local_id || msg.id}>
+                {/* Show date separator if it's a new date */}
+                {shouldShowDateLabel && (
+                  <div className="my-4 text-center text-sm font-semibold text-gray-500">
+                    {dateLabel}
+                  </div>
+                )}
+
+                {/* Chat Message */}
+                <div
+                  className={`flex ${
+                    msg.sender_id === currentUserId
+                      ? "justify-end"
+                      : "items-end justify-start gap-4"
+                  }`}
+                >
+                  {msg.sender_id && msg.sender_id !== currentUserId && (
+                    <Image
+                      src={profileImg}
+                      alt="chat-user"
+                      className="h-12 w-12 rounded-full object-cover object-center"
+                    />
+                  )}
+                  {msg.sender_id && (
+                    <div
+                      className={`max-w-xs rounded-2xl p-4 ${
+                        msg.sender_id === currentUserId
+                          ? "bg-[#F5F5F5]"
+                          : "bg-[#3365E3]"
+                      }`}
+                    >
+                      {msg.message && (
+                        <p
+                          className={` ${
+                            msg.sender_id === currentUserId
+                              ? "text-black"
+                              : "text-white"
+                          }`}
+                        >
+                          {msg.message}
+                        </p>
+                      )}
+
+                      {/* Attached files section */}
+                      {msg.image_paths && msg.image_paths.length > 0 && (
+                        <div
+                          className={`mt-2 ${msg.message ? "border-t pt-2" : ""}`}
+                        >
+                          {msg.image_paths.map((imageUrl, index) => {
+                            const fileName =
+                              typeof imageUrl === "string"
+                                ? imageUrl.split("/").pop()
+                                : (imageUrl as any)?.name ||
+                                  `Image ${index + 1}`;
+
+                            return (
+                              <div
+                                key={index}
+                                className="mb-1 flex items-center gap-2"
+                              >
+                                <Paperclip className="h-4 w-4" />
+                                <span className="max-w-[200px] truncate text-sm">
+                                  {fileName}
+                                </span>
+                              </div>
+                            );
+                          })}
+
+                          {msg.image_paths.map((imageUrl, index) => {
+                            const src =
+                              typeof imageUrl === "string"
+                                ? imageUrl
+                                : URL.createObjectURL(imageUrl as File);
+
+                            return (
+                              <Image
+                                key={index}
+                                src={src}
+                                alt={`Attached image ${index + 1}`}
+                                width={200}
+                                height={200}
+                                className="mt-2 rounded-lg"
+                              />
+                            );
+                          })}
+                        </div>
+                      )}
+
+                      <div className="mt-1 flex items-center justify-between">
+                        <span
+                          className={`text-xs ${
+                            msg.sender_id === currentUserId
+                              ? "inline-block w-full text-right text-[#9A96A4]"
+                              : "inline-block w-full text-left text-[#fff]"
+                          }`}
+                        >
+                          {msg.created_at &&
+                          !isNaN(new Date(msg.created_at).getTime())
+                            ? (() => {
+                                const msgTime = new Date(msg.created_at);
+                                msgTime.setHours(msgTime.getHours() + 1);
+
+                                const now = new Date();
+                                const isNow =
+                                  now.getFullYear() === msgTime.getFullYear() &&
+                                  now.getMonth() === msgTime.getMonth() &&
+                                  now.getDate() === msgTime.getDate() &&
+                                  now.getHours() === msgTime.getHours() &&
+                                  now.getMinutes() === msgTime.getMinutes();
+
+                                return isNow
+                                  ? "Now"
+                                  : msgTime.toLocaleTimeString([], {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    });
+                              })()
+                            : null}
                         </span>
                       </div>
-                    );
-                  })}
-
-                  {msg.image_paths.map((imageUrl, index) => {
-                    // Safely handle image URL
-                    const src =
-                      typeof imageUrl === "string"
-                        ? imageUrl
-                        : URL.createObjectURL(imageUrl as File);
-
-                    return (
-                      <Image
-                        key={index}
-                        src={src}
-                        alt={`Attached image ${index + 1}`}
-                        width={200}
-                        height={200}
-                        className="mt-2 rounded-lg"
-                      />
-                    );
-                  })}
+                    </div>
+                  )}
+                  {msg.sender_id === currentUserId && renderMessageStatus(msg)}
                 </div>
-              )}
+              </React.Fragment>
+            );
+          });
+        })()}
 
-              <div
-                className={`mt-1 flex items-center ${
-                  msg.sender_id === currentUserId
-                    ? "justify-between text-[#fff]"
-                    : "justify-between text-[#ffff]"
-                }`}
-              >
-                <span className="text-xs">
-                  {new Date(msg.created_at).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </span>
-              </div>
-            </div>
-            <span>
-              {" "}
-              {msg.sender_id === currentUserId && renderMessageStatus(msg)}
-            </span>
-          </div>
-        ))}
         {/* Ref to scroll to the bottom of messages */}
         <div ref={messagesEndRef} />
       </div>
@@ -224,8 +299,9 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
             className="form-input h-[50px] flex-1 rounded-full border border-[#DAD8DF] bg-[#F5F5F5] focus:ring-main-100 focus:ring-offset-0 focus-visible:outline-none"
           />
           <button
+            disabled={status === "rejected"}
             type="submit"
-            className="flex h-[50px] items-center gap-2 rounded-full bg-main-100 px-5 font-medium text-white"
+            className={`flex h-[50px] items-center gap-2 rounded-full px-5 font-medium text-white ${status === "rejected" ? "cursor-not-allowed bg-gray-400" : "bg-main-100"}`}
           >
             <Send2 size="24" />
             Send

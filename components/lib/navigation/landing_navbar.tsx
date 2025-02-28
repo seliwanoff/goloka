@@ -44,7 +44,7 @@ const LandingNavbar: React.FC<ComponentProps> = ({}) => {
     };
   });
 
-  const isHomePage = pathname === "/"
+  const isHomePage = pathname === "/";
   return (
     <div
       style={{ zIndex: 100 }}
@@ -77,12 +77,13 @@ const LandingNavbar: React.FC<ComponentProps> = ({}) => {
           <nav className="hidden items-center gap-6 md:flex">
             {navLinks.map((link) => (
               <Link
+                aria-disabled
                 href={link.href}
                 key={link.href}
                 className={classMerge(
-                  "transit text-base font-medium text-[#4F4F4F] hover:text-main-100",
+                  "transit text-base font-medium text-[#fff] hover:text-[#fff]",
                   pathname.includes(link.href)
-                    ? "hover:text-primary-400 text-primary"
+                    ? "text-[#fff] hover:text-[#fff]"
                     : "",
                 )}
               >
@@ -90,14 +91,26 @@ const LandingNavbar: React.FC<ComponentProps> = ({}) => {
               </Link>
             ))}
           </nav>
-
-          <Button
-            variant={scrollValue > 0 ? "default" : "secondary"}
-            className="mr-16 hidden rounded-full bg-main-100 px-6 text-white hover:bg-blue-700 md:block"
-            onClick={() => router.push("/signin")}
-          >
-            Get Started
-          </Button>
+          <div className="flex items-center gap-4">
+            <Link href="/signin">
+              <Button
+                variant={"outline"}
+                className="hidden rounded-full border border-main-100 px-9 text-main-100 hover:bg-blue-700 hover:text-[#fff] md:block"
+                // onClick={() => router.push("/signin")}
+              >
+                Login
+              </Button>
+            </Link>
+            <Link href="/signup">
+              <Button
+                variant={scrollValue > 0 ? "default" : "secondary"}
+                className="hidden rounded-full bg-main-100 px-6 text-white hover:bg-blue-700 md:block"
+                // onClick={() => router.push("/signup")}
+              >
+                Sign up
+              </Button>
+            </Link>
+          </div>
         </>
       )}
 
@@ -134,19 +147,23 @@ const LandingNavbar: React.FC<ComponentProps> = ({}) => {
           <PopoverContent className="flex flex-col gap-4">
             {navLinks.map((link) => (
               <Link
+                aria-disabled
                 href={link.href}
                 key={link.text}
                 className={classMerge(
-                  "transit text-sm font-normal",
+                  "transit hidden text-sm font-normal",
                   pathname.includes(link.href)
                     ? "hover:text-primary-400 text-primary"
-                    : "text-gray-600 hover:text-black",
+                    : "text-[#fff] hover:text-[#fff]",
                 )}
               >
                 {link.text}
               </Link>
             ))}
-            <Button className="mt-3" onClick={() => router.push("/signin")}>
+            <Button
+              className="mt-3 bg-main-100 px-6 text-white hover:bg-blue-700 md:block"
+              onClick={() => router.push("/signin")}
+            >
               Get Started
             </Button>
           </PopoverContent>
@@ -159,9 +176,9 @@ const LandingNavbar: React.FC<ComponentProps> = ({}) => {
 export default LandingNavbar;
 
 const navLinks: { text: string; href: string }[] = [
-  // { text: "Products", href: "/" },
-  // { text: "Solution", href: "/" },
-  { text: "Case study", href: "/case-studies" },
-  { text: "Pricing", href: "/pricing" },
-  { text: "Blog", href: "/blog" },
+  { text: "Products", href: "/" },
+  { text: "Solution", href: "/" },
+  { text: "Case study", href: "/" },
+  { text: "Pricing", href: "/" },
+  { text: "Blog", href: "/" },
 ];

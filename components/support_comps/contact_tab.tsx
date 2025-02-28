@@ -15,7 +15,11 @@ const ContactTab = () => {
 
       <div className="mt-10 space-y-[18px]">
         {contactInfo.map((info: any, index: number) => (
-          <div key={index} className="grid max-w-96 grid-cols-[42px_1fr_20px] items-center justify-between gap-3 rounded-lg border border-[#E0E0E0] bg-[#FCFCFC] p-3">
+          <div
+            key={index}
+            onClick={info.buttonAction}
+            className="grid max-w-96 cursor-pointer grid-cols-[42px_1fr_20px] items-center justify-between gap-3 rounded-lg border border-[#E0E0E0] bg-[#FCFCFC] p-3"
+          >
             <span className="flex h-[42px] w-[42px] items-center justify-center rounded-full bg-[#F2F2F2]">
               {info.icon}
             </span>
@@ -40,17 +44,26 @@ export default ContactTab;
 const contactInfo = [
   {
     icon: <CallOutgoing size={24} />,
-    title: "0908-749-3044",
+    title: "+234(811)6665321",
     description: "We are available to speak with you",
+    buttonLabel: "Call Now",
+    buttonAction: () => {
+      window.open("tel:+2348116665321", "_self");
+      alert("calling");
+    },
   },
   {
     icon: <Sms size={24} />,
     title: "Send us a mail",
     description: "Send us mail and we will get back soon",
+    buttonLabel: "Email Us",
+    buttonAction: () => window.open("mailto:hello@goloka.io"),
   },
   {
     icon: <Whatsapp size={42} color="#60D669" variant="Bold" />,
     title: "WhatsApp",
-    description: "Relate to us like your best buddy ",
+    description: "Relate to us like your best buddy",
+    buttonLabel: "Chat Now",
+    buttonAction: () => window.open("https://wa.me/2348116665321", "_blank"),
   },
 ];

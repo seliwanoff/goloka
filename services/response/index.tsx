@@ -14,6 +14,7 @@ import {
 import { UseQueryResult } from "@tanstack/react-query";
 import { ServerResponseOrNull } from "../contributor";
 import { AxiosResponse } from "axios";
+import { organizationDetails } from "@/helper";
 
 export const getDashboardStats = async (): Promise<
   ServerResponseOrNull<any>
@@ -131,6 +132,37 @@ export const getAResponse = async (
     },
   });
 
+export const getCampaignQuestions = async (
+  Id: string,
+): Promise<UseQueryResult<AxiosResponse<any[]>>> =>
+  await queryClient.fetchQuery({
+    queryKey: ["get a campaign"],
+    queryFn: async () => {
+      try {
+        return await fetchData(
+          `/organizations/${organizationDetails.domain}/campaigns/${Id}/questions`,
+        );
+      } catch (error) {
+        return null;
+      }
+    },
+  });
+
+export const getAllResponseByCampaign = async (
+  id: any,
+): Promise<UseQueryResult<AxiosResponse<any[]>>> =>
+  await queryClient.fetchQuery({
+    queryKey: ["get all response"],
+    queryFn: async () => {
+      try {
+        return await fetchData(
+          `/organizations/${organizationDetails.domain}/campaigns/${id}`,
+        );
+      } catch (error) {
+        return null;
+      }
+    },
+  });
 
 // ~ =============================================>
 // ~ ======= submitResponse  -->
@@ -170,5 +202,38 @@ export const getNotifications = async (params: NotificationParams) => {
   } catch (error) {
     console.error("Error fetching Notifications:", error);
     throw new Error("Failed to fetch Notificatios. Please try again later.");
+  }
+};
+
+export const deleteQuestionCampaign = async (
+  campaignId: string,
+  id: string,
+): Promise<AxiosResponse<any>> => {
+  try {
+    return await deleteData<AxiosResponse<any>>(
+      `/organizations/${organizationDetails.domain}/campaigns/${campaignId}/questions/${id}/delete`,
+    );
+  } catch (error) {
+    console.error("Error fetching campaign questions:", error);
+    throw error;
+  }
+};
+
+export const updateResponseStatus = async (
+  campaignId: string,
+  status: string,
+  message?: string,
+): Promise<AxiosResponse<any>> => {
+  try {
+    return await postData<AxiosResponse<any>>(
+      `/organizations/${organizationDetails.domain}/responses/${campaignId}/status-update`,
+      {
+        status: status,
+        message: message,
+      },
+    );
+  } catch (error) {
+    console.error("Error fetching campaign questions:", error);
+    throw error;
   }
 };

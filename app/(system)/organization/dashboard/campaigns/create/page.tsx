@@ -64,6 +64,7 @@ const CreateNewCampaign = () => {
   const [endDate, setEndDate] = useState<Date | null>(null);
   const { show, setShowCreate } = useAddcampaignGroupOverlay();
   const [file, setFile] = useState<File | null>(null);
+  const [isAllow, setIsAllow] = useState<boolean>(true);
 
   const [organizationCampaign, setOrganizationCampaign] = useState([]);
 
@@ -128,7 +129,7 @@ const CreateNewCampaign = () => {
 
   const getCampaignGroup = async () => {
     try {
-      const response = await getOrganizationCampaign();
+      const response = await getOrganizationCampaign({});
       if (response && response.data) {
         setOrganizationCampaign(response.data);
       } else {
@@ -208,8 +209,37 @@ const CreateNewCampaign = () => {
   };
   const handleCreateCampaign = async (e: any) => {
     e.preventDefault();
+
+    // Validate required fields except LG and State
+    if (!title) {
+      return toast.error("Please enter a campaign title.");
+    }
+    if (!description) {
+      return toast.error("Please provide a campaign description.");
+    }
+    if (!selectedCampaignGroupId) {
+      return toast.error("Please select a campaign group.");
+    }
+    if (!responseNumber || Number(responseNumber) <= 0) {
+      return toast.error("Please enter a valid number of responses.");
+    }
+    if (!paymentRate || parseFloat(paymentRate) < 500) {
+      return toast.error(
+        `Payment rate must be at least ${currentOrganization?.symbol}500.`,
+      );
+    }
+    if (!startDate) {
+      return toast.error("Please select a start date.");
+    }
+    if (!endDate) {
+      return toast.error("Please select an end date.");
+    }
+    if (!file) {
+      return toast.error("Please upload campaign image.");
+    }
     setIsLoading(true);
 
+    // Format dates
     const formattedStartsAt = formatDate(startDate);
     const formattedEndsAt = formatDate(endDate);
     const formData = new FormData();
@@ -223,7 +253,7 @@ const CreateNewCampaign = () => {
     formData.append("payment_rate_for_response", paymentRate.toString());
     formData.append("starts_at", formattedStartsAt);
     formData.append("ends_at", formattedEndsAt);
-    formData.append("allows_multiple_responses", "1");
+    formData.append("allows_multiple_responses", isAllow ? "1" : "0");
 
     if (file) {
       formData.append("images[0]", file, file.name);
@@ -248,7 +278,6 @@ const CreateNewCampaign = () => {
       );
 
       setOpen(true);
-      //console.log(response);
       setCampaignId(response.data.campaign.id);
     } catch (error) {
       console.error("Error creating campaign:", error);
@@ -459,10 +488,6 @@ const CreateNewCampaign = () => {
                     </SelectGroup>
                   </SelectContent>
                 </Select>
-
-                <span className="font-poppins text-sm font-normal leading-[21px] text-[#828282]">
-                  Leave empty to campaigns to be available all location
-                </span>
               </Label>
 
               {countryId && (
@@ -507,6 +532,9 @@ const CreateNewCampaign = () => {
                       </SelectGroup>
                     </SelectContent>
                   </Select>
+                  <span className="font-poppins text-sm font-normal leading-[21px] text-[#828282]">
+                    Leave empty for campaigns to be available in all location
+                  </span>
                 </Label>
               )}
 
@@ -548,6 +576,9 @@ const CreateNewCampaign = () => {
                       </SelectGroup>
                     </SelectContent>
                   </Select>
+                  <span className="font-poppins text-sm font-normal leading-[21px] text-[#828282]">
+                    Leave empty for campaigns to be available in all location
+                  </span>
                 </Label>
               )}
 
@@ -560,12 +591,18 @@ const CreateNewCampaign = () => {
                 <Input
                   name="question"
                   id="question"
-                  type="number"
+                  type="text"
+                  value={paymentRate}
                   autoComplete="off"
                   placeholder="Payment rate"
-                  onChange={(e) => setPaymentRate(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const sanitizedValue = value.replace(/\D/g, "");
+                    setPaymentRate(sanitizedValue);
+                  }}
                   className="h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
                 />
+
                 <span className="font-poppins text-sm font-normal leading-[21px] text-[#828282]">
                   This is amount you are willing to pay for each response
                 </span>
@@ -577,16 +614,30 @@ const CreateNewCampaign = () => {
                 </span>
                 <Input
                   name="question"
-                  type="number"
-                  autoComplete="off"
                   id="question"
-                  onChange={(e) => setResponseNumber(e.target.value)}
-                  placeholder="input number of response"
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  placeholder="Input number of response"
+                  value={responseNumber}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const sanitizedValue = value.replace(/\D/g, "");
+                    setResponseNumber(sanitizedValue);
+                  }}
                   className="h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
                 />
-                <span className="font-poppins text-sm font-normal leading-[21px] text-[#828282]">
-                  <Checkbox /> Accept multiple response from an individual
-                  response
+
+                <span className="mt-2 inline-flex gap-2 font-poppins text-sm font-normal leading-[21px] text-[#828282]">
+                  <Input
+                    type="checkbox"
+                    checked={isAllow}
+                    className="h-3 w-1 cursor-pointer"
+                    onChange={(e: any) => {
+                      setIsAllow(e.target.checked);
+                    }}
+                  />
+                  Accept multiple response from an individual response
                 </span>
               </Label>
 
@@ -677,6 +728,7 @@ const CreateNewCampaign = () => {
               </div>
               <FileUpload
                 ref={null}
+                type="image"
                 value={null}
                 onFileUpload={(file: any) => {
                   setFile(file);

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SmallAnswer } from "@/components/ui/small-input-answer";
 import { Label } from "@radix-ui/react-label";
-import { Note } from "iconsax-react";
+import { Note, Trash } from "iconsax-react";
 import { useEffect, useState } from "react";
 import {
   Select,
@@ -38,6 +38,7 @@ import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { FaSpinner } from "react-icons/fa";
 import {
   createQuestion,
+  deleteSection,
   getCampaignQuestion,
   reOrdreQuestion,
   updateQuestion,
@@ -45,18 +46,26 @@ import {
 } from "@/services/campaign/question";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
-import { useAddQuestionSectionOverlay } from "@/stores/overlay";
+import {
+  useAddQuestionSectionOverlay,
+  useEditAQuestion,
+} from "@/stores/overlay";
 import SectionName from "@/components/lib/modals/section_name_modal";
 import RadioGroupWrapper from "@/components/question/boolean";
 import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import DraggableComponent from "@/components/ui/drag-drop";
 import { AxiosResponse } from "axios";
+import * as SwitchPrimitive from "@radix-ui/react-switch";
+
 import {
   getCampaignById,
   getCampaignByIdDetails,
   submitCampaign,
 } from "@/services/campaign";
 import RadioSelection from "@/components/ui/radio-select";
+import EditQuestionModal from "@/components/lib/modals/Edit_question_modal";
+import UpdateCampaignDialog from "@/components/lib/modals/confirm_update_campaign_modal";
+import { deleteQuestionCampaign } from "@/services/response";
 type FormValues = {
   fullname: string;
   email: string;
@@ -83,6 +92,13 @@ const Create = () => {
   const [isQuestionSaved, setIsQuestionSaved] = useState(false);
   const [isAddQuestion, setIsAddQuestion] = useState(false);
   const [campaigns, setCampaigns] = useState<any>([]);
+  const [localChecked, setLocalChecked] = useState(false);
+  const [openQuestion, setOpenQuestion] = useState<boolean>(false);
+  const [openQuestionSection, setOpenQuestionSection] =
+    useState<boolean>(false);
+
+  const [clickedId, setClickedId] = useState<string | null>(null);
+
   const router = useRouter();
   const {
     register,
@@ -93,24 +109,36 @@ const Create = () => {
   } = useForm<FormValues>();
   const searchParams = useSearchParams();
 
+  const { setShowQuestionEdit } = useEditAQuestion();
+  const [selectedQuestion, setSelectedQuestion] = useState([]);
+
   const questionId = searchParams.get("questionId") || 0;
 
-  const { showSection, setShowSection, isSectionAdded } =
-    useAddQuestionSectionOverlay();
+  const [statusQuestion, setStatusQuestion] = useState("create");
+
+  const {
+    showSection,
+    setShowSection,
+    isSectionAdded,
+    setSectionId,
+    setSectionName,
+    sectionName,
+    sectionId,
+  } = useAddQuestionSectionOverlay();
 
   const handleOptionsChange = (updatedOptions: any) => {
     setOptions(updatedOptions);
-    console.log(updatedOptions);
+    //   console.log(updatedOptions);
     handleAnswerChange(1, updatedOptions);
   };
   const handleSection = async () => {
     const hasData = questions.some((q) => q.content.trim() !== "");
 
     if (hasData) {
-      await saveQuestion();
+      await saveQuestion(); // Save questions only if there's valid content
     }
 
-    setShowSection(true);
+    setShowSection(true); // Proceed to show section if everything is valid
   };
 
   const handleAddQuestion = async () => {
@@ -197,8 +225,13 @@ const Create = () => {
         .map((item, index) => (
           <DraggableComponent
             key={item?.id}
+            data={item}
+            required={item.required}
+            setClickedId={setClickedId}
             id={item?.id.toString()}
             index={index}
+            setOpenQuestion={setOpenQuestion}
+            setSelectedQuestion={setSelectedQuestion}
             title={` ${item?.label}`} // Display order and label
             className="font-semibold text-[#071E3B]"
           >
@@ -233,7 +266,11 @@ const Create = () => {
                 key={item.id}
                 id={item.id.toString()}
                 index={index}
+                data={item}
+                setSelectedQuestion={setSelectedQuestion}
                 title={`${item.label}`}
+                setClickedId={setClickedId}
+                setOpenQuestion={setOpenQuestion}
                 className="p-2 font-semibold text-[#071E3B]"
               >
                 {renderQuestionInput(item.type, index, item.options, "preview")}
@@ -254,8 +291,48 @@ const Create = () => {
   }) => (
     <div className="rounded-[18px] bg-white">
       <div className="flex flex-col">
-        <div className="w-fit rounded-br-[59px] rounded-tl-lg bg-main-100 px-8 py-2 font-poppins text-[18px] font-medium text-white">
-          Section {groupIndex + 1} of {totalSections}
+        <div className="flex items-center justify-between">
+          <div className="w-fit rounded-br-[59px] rounded-tl-lg bg-main-100 px-8 py-2 font-poppins text-[18px] font-medium text-white">
+            Section {groupIndex + 1} of {totalSections}
+          </div>
+
+          <div className="flex items-center gap-2 p-2">
+            <span
+              className="inline-flex cursor-pointer items-center gap-2 rounded-md bg-gray-200 px-4 py-2 text-gray-600"
+              onClick={() => {
+                //alert(group.name);
+                // handleSection();
+                // setShowQuestionEdit(true);
+                setShowSection(true);
+
+                setStatusQuestion("update");
+                setSectionId(group.id);
+                setSectionName(group.name);
+
+                //setSelectedQuestion(data);
+              }}
+            >
+              <Edit size={18} />
+              Edit
+            </span>
+
+            <span
+              className="inline-flex cursor-pointer items-center gap-2 rounded-md text-[#FF4C4C]"
+              onClick={() => {
+                //setClickedId(data.id);
+                setOpenQuestionSection(true);
+                setSectionId(group.id);
+                setSectionName(group.name);
+
+                // setSelectedQuestion(group.id);
+              }}
+            >
+              <Trash size={18} />
+            </span>
+            {/***
+              <BsThreeDots style={{ transform: "rotate(90deg)" }} />
+              */}
+          </div>
         </div>
 
         <div className="px-4 py-6">{group.name}</div>
@@ -287,7 +364,7 @@ const Create = () => {
               question.type === "url"
                 ? "Enter your input"
                 : "",
-            required: true,
+            required: localChecked,
             options:
               question.type === "select" ||
               question.type === "checkbox" ||
@@ -310,13 +387,17 @@ const Create = () => {
                           )
                         : null,
 
-            attributes: null,
+            attributes:
+              question.type === "file"
+                ? JSON.stringify([".docx, .pdf, .doc, .xlsx"])
+                : null,
           };
 
           await createQuestion(questionId, payload);
           setQuestions([
-            { id: 1, type: "text", content: "", group: " ", answer: " " },
+            { id: 1, type: "text", content: "", group: "", answer: "" },
           ]);
+          setLocalChecked(false);
           //setIsQuestionSaved(true);
           getAllQuestion();
         }
@@ -332,6 +413,12 @@ const Create = () => {
     }
   };
 
+  const handleUpdate = (id: number, required: boolean) => {
+    setQuestions((prevQuestions) =>
+      prevQuestions.map((q) => (q.id === id ? { ...q, required } : q)),
+    );
+  };
+
   const saveQuestionBySave = async () => {
     setIsSubmitting(true);
 
@@ -344,8 +431,8 @@ const Create = () => {
 
     if (!isAnyQuestionAvailable) {
       try {
-        await submitCampaign(questionId);
-        router.push("/organization/dashboard/campaigns");
+        //   await submitCampaign(questionId);
+        router.push(`/organization/dashboard/campaigns/${questionId}`);
       } catch (e: any) {
         //console.log(e?.response?.data?.message);
         toast.error(e?.response?.data?.message);
@@ -373,7 +460,7 @@ const Create = () => {
           ].includes(question.type)
             ? "Enter your input"
             : "",
-          required: true,
+          required: localChecked,
           options: ["select", "checkbox", "radio"].includes(question.type)
             ? JSON.stringify(
                 [...questions[0].answer].map((item: any) => item.value),
@@ -397,7 +484,7 @@ const Create = () => {
 
         await createQuestion(questionId, payload);
         try {
-          await submitCampaign(questionId);
+          // await submitCampaign(questionId);
           toast.success("Question saved successfully.");
         } catch (e) {
           console.log(e);
@@ -410,7 +497,7 @@ const Create = () => {
         ]);
         setIsQuestionSaved(true);
       }
-      router.push("/organization/dashboard/campaigns");
+      router.push(`/organization/dashboard/campaigns/${questionId}`);
     } catch (error) {
       allQuestionsSaved = false;
       console.error("Error saving questions:", error);
@@ -504,6 +591,29 @@ const Create = () => {
   useEffect(() => {
     getAllQuestion();
   }, [isQuestionSaved, showSection]);
+
+  const ToggleSwitch = ({
+    // data,
+    onUpdate,
+  }: {
+    // data: { id: string; required: boolean };
+    onUpdate: (id: number, required: boolean) => void;
+  }) => {
+    const handleToggle = async (checked: boolean) => {
+      setLocalChecked(checked); // Optimistically update UI
+    };
+
+    return (
+      <SwitchPrimitive.Root
+        id="switch"
+        checked={localChecked}
+        onCheckedChange={handleToggle}
+        className="relative h-6 w-10 rounded-full bg-gray-300 transition"
+      >
+        <SwitchPrimitive.Thumb className="block h-4 w-4 translate-x-1 transform rounded-full shadow-md transition-transform data-[state=checked]:translate-x-5 data-[state=checked]:bg-blue-500" />
+      </SwitchPrimitive.Root>
+    );
+  };
   const renderQuestionInput = (
     type: string,
     id: number,
@@ -1342,7 +1452,7 @@ const Create = () => {
   const getCampaign = async () => {
     try {
       const response = await getCampaignByIdDetails(questionId);
-      console.log(response);
+      //  console.log(response);
       setCampaigns(response.data);
     } catch (e) {
       console.log(e);
@@ -1352,30 +1462,92 @@ const Create = () => {
   useEffect(() => {
     getCampaign();
   }, []);
+
+  const deletQuestion = async (id: any) => {
+    //setClickedId(id);
+    setIsSubmitting(true);
+    try {
+      const response = await deleteQuestionCampaign(questionId as string, id);
+
+      if (response) {
+        toast.success("Question deleted successfully");
+        getAllQuestion();
+        setOpenQuestion(false);
+      }
+    } catch (e) {
+      console.log(e);
+      toast.error("Error deleting question");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const deletSectionMain = async () => {
+    //setClickedId(id);
+    setIsSubmitting(true);
+    try {
+      const response = await deleteSection(
+        questionId,
+        { name: SectionName },
+        sectionId,
+      );
+
+      if (response) {
+        toast.success("Section deleted successfully");
+        getAllQuestion();
+        setOpenQuestionSection(false);
+      }
+    } catch (e) {
+      console.log(e);
+      toast.error("Error deleting section");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <>
-      <section className="mx-auto mt-5 w-full max-w-[896px]">
+      {/*** EDIT QUESTION */}
+
+      <EditQuestionModal
+        questions={selectedQuestion}
+        id={questionId}
+        action={getAllQuestion}
+      />
+
+      <UpdateCampaignDialog
+        title={"Delete Question"}
+        content={"Are you sure you want to delete this question?"}
+        action={() => deletQuestion(clickedId)}
+        open={openQuestion}
+        setOpen={setOpenQuestion}
+        status="delete"
+        isSubmitting={isSubmitting}
+      />
+
+      <UpdateCampaignDialog
+        title={"Delete Section"}
+        content={"Are you sure you want to delete this section?"}
+        action={() => deletSectionMain()}
+        open={openQuestionSection}
+        setOpen={setOpenQuestionSection}
+        status="delete"
+        isSubmitting={isSubmitting}
+      />
+
+      <section className="relative mx-auto mt-5 w-full max-w-[896px]">
         <div className="flex flex-col gap-[12px]">
           <div className="flex items-center justify-between">
             <CustomBreadCrumbs />
             <div className="flex items-center gap-6">
+              {/***
               <Button
                 variant="outline"
                 className="rounded-[50px] border-main-100 font-bold text-main-100"
               >
                 Generate with AI
               </Button>
-              <Button
-                variant="outline"
-                className="items-center gap-2 rounded-[50px] bg-main-100 font-bold text-white"
-                onClick={saveQuestionBySave}
-              >
-                {isSubmitting ? (
-                  <FaSpinner className="animate-spin" />
-                ) : (
-                  "Save question"
-                )}
-              </Button>
+              */}
             </div>
           </div>
           <div>
@@ -1456,54 +1628,15 @@ const Create = () => {
                     </Select>
                   </Label>
                 </div>
-                {/***
-                <Label htmlFor="questionType" className="w-full">
-                  <div className="flex items-center justify-between">
-                    <span className="mb-2 inline-block text-base font-extralight text-[#4F4F4F]">
-                      Question group
-                    </span>
-                  </div>
 
-                  <Select
-                    value={selectedQuestionGroupId}
-                    onValueChange={(value: any) => {
-                      handleGroupChange(question.id, value);
-
-                      const selected = questtonGroup.find(
-                        (item: any) => item.id === parseInt(value),
-                      ) as { id: number; name: string } | undefined;
-
-                      setSelectedQuestionGroup(selected?.name || "");
-                      setSelectedQuestionGroupId(selected?.id);
-                    }}
-                  >
-                    <SelectTrigger className="h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0">
-                      <SelectValue
-                        placeholder="Select question group"
-                        className="text-neutral-40 placeholder:text-neutral-40 text-sm font-light"
-                      >
-                        {selectedQuestionGroup}
-                      </SelectValue>
-                    </SelectTrigger>
-
-                    <SelectContent className="max-w-full">
-                      <SelectGroup>
-                        <SelectLabel>Question group</SelectLabel>
-                        {questtonGroup.map((item: any) => (
-                          <SelectItem
-                            key={item.id}
-                            value={item.id.toString()}
-                            className="flex items-center gap-2"
-                          >
-                            {item.name}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </Label>
-                */}
                 {renderQuestionInput(question.type, question.id)}
+
+                <div className="flex items-center gap-2">
+                  <span className="text-base font-extralight text-[#4F4F4F]">
+                    Is question required?
+                  </span>
+                  <ToggleSwitch key={1} onUpdate={handleUpdate} />
+                </div>
               </div>
             ))}
 
@@ -1517,17 +1650,32 @@ const Create = () => {
                 </Add>
                 <Add
                   imageSrc="/assets/images/questions/section.png"
-                  onClick={handleSection}
+                  onClick={() => {
+                    handleSection(), setStatusQuestion("create");
+                    setSectionName("");
+                  }}
                 >
                   Add section
                 </Add>
               </div>
+
+              <Button
+                variant="outline"
+                className="fixed bottom-0 right-0 m-4 items-center gap-2 rounded-[50px] bg-main-100 font-bold text-white"
+                onClick={saveQuestionBySave}
+              >
+                {isSubmitting ? (
+                  <FaSpinner className="animate-spin" />
+                ) : (
+                  "Save question"
+                )}
+              </Button>
             </div>
           </div>
         </div>
       </section>
 
-      <SectionName />
+      <SectionName status={statusQuestion} question={groupedQuestions} />
     </>
   );
 };

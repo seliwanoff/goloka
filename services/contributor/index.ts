@@ -92,6 +92,20 @@ export const createContributor = async (
   });
 };
 
+export const updateOrganization = async (
+  data: any,
+): Promise<UseQueryResult<ServerResponse<any>>> => {
+  return queryClient.fetchQuery({
+    queryKey: ["update Organization"],
+    queryFn: async () => {
+      return await postData<ServerResponse<any>>(
+        `organizations/${organizationDetails.domain}/update`,
+        data,
+      );
+    },
+  });
+};
+
 // ~ =============================================>
 // ~ ======= Create a contributor Response  -->
 // ~ =============================================>

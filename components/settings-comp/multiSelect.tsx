@@ -31,6 +31,7 @@ const CustomMultiSelect = ({
   options,
   defaultValue,
 }: any) => {
+  // console.log(defaultValue);
   return (
     <div>
       <label
@@ -68,7 +69,7 @@ const CustomMultiSelect = ({
                           <X
                             className="h-3 w-3 cursor-pointer hover:text-red-500"
                             onClick={(e) => {
-                              e.stopPropagation();
+                              //  e.stopPropagation();
                               const newValues = currentValues.filter(
                                 (v) => v !== val,
                               );
@@ -102,7 +103,7 @@ const CustomMultiSelect = ({
                             let newValues;
                             if (isSelected) {
                               newValues = currentValues.filter(
-                                (v) => v !== option.value
+                                (v) => v !== option.value,
                               );
                             } else {
                               newValues = [...currentValues, option.value];
@@ -111,13 +112,13 @@ const CustomMultiSelect = ({
                           }}
                         >
                           <div
-                            className="flex w-full items-center justify-between cursor-pointer"
+                            className="flex w-full cursor-pointer items-center justify-between"
                             onClick={(e) => {
                               e.preventDefault();
                               let newValues;
                               if (isSelected) {
                                 newValues = currentValues.filter(
-                                  (v) => v !== option.value
+                                  (v) => v !== option.value,
                                 );
                               } else {
                                 newValues = [...currentValues, option.value];

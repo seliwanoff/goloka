@@ -35,6 +35,14 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { useMediaQuery } from "@react-hook/media-query";
+import RadioSelection from "@/components/ui/radio-select";
+import RadioGroupWrapper from "@/components/question/boolean";
+import AudioRecorder from "@/components/task-stepper/customAudioRecorder";
+import AudioPlayer from "@/components/task-stepper/audioPlayer";
+import FileItem from "@/components/ui/FileItem";
+import LocationFile from "@/components/ui/location";
+import GoogleMapLocationModal from "@/components/lib/modals/google_map_response";
+import FileReaderModal from "@/components/lib/modals/fileReader";
 
 import { Dot, EllipsisVertical, MoveLeft, OctagonAlert, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -55,7 +63,11 @@ import {
 } from "@/components/ui/popover";
 import Map from "@/components/map/map";
 import { useUserStore } from "@/stores/currentUserStore";
-
+import MultipleChoices from "@/components/ui/multiple-choices";
+import CheckboxList from "@/components/task-stepper/checkboxOption";
+import DynamicSelect from "@/components/task-stepper/dropdownOption";
+import Link from "next/link";
+import { useGoogleMap, useMediaViewer } from "@/stores/overlay";
 
 interface QuestionOptions {
   id: number;
@@ -103,6 +115,276 @@ const ResponseDetails = () => {
   });
 
   const res = response?.data;
+  const { shows, setShows, setType, setUrl } = useMediaViewer();
+  const { show, setShow, setCoordinates, setMethod } = useGoogleMap();
+
+  const handleFileClick = (url: any, type: any) => {
+    //alert(`Clicked on`);
+    setType(type);
+    setUrl(url);
+    setShows(true);
+  };
+  const renderQuestionInput = (
+    type: string,
+    value: any,
+    preview?: any,
+    id?: number,
+    options?: any,
+  ) => {
+    //  console.log(preview);
+    switch (type) {
+      case "text":
+        return (
+          <div className="text-[14px]]font-poppins text-[#333333]">
+            {JSON.parse(value)}
+          </div>
+        );
+      case "line":
+        return (
+          <LocationFile
+            imageUrl={JSON.parse(value)}
+            onClick={() => {
+              setMethod("line");
+              setCoordinates(JSON.parse(value));
+              setShow(true);
+            }}
+          />
+        );
+      case "location":
+        return (
+          <LocationFile
+            imageUrl={JSON.parse(value)}
+            onClick={() => {
+              setCoordinates([JSON.parse(value)]);
+              setShow(true);
+            }}
+          />
+        );
+      case "area":
+        return (
+          <LocationFile
+            imageUrl={JSON.parse(value)}
+            onClick={() => {
+              setMethod("polygon");
+              setCoordinates(JSON.parse(value));
+              setShow(true);
+            }}
+          />
+        );
+      case "textarea":
+        return (
+          <div className="text-[14px]] w-full font-poppins text-[#333333]">
+            {JSON.parse(value)}
+          </div>
+        );
+      case "select":
+        return (
+          <MultipleChoices
+            label="Select option"
+            placeholder="Type something..."
+            preview={preview}
+            initialOptions={(() => {
+              try {
+                const parsedValue = value ? JSON.parse(value) : [];
+
+                // Ensure parsedValue is always an array
+                const normalizedArray = Array.isArray(parsedValue)
+                  ? parsedValue
+                  : [parsedValue]; // Wrap single object in array
+
+                return normalizedArray.map((option) =>
+                  typeof option === "object" && option !== null
+                    ? { ...option, value: option.value }
+                    : { value: option },
+                );
+              } catch (error) {
+                console.error("Error parsing options:", error);
+                return [];
+              }
+            })()}
+          />
+        );
+      case "radio":
+        return (
+          <RadioSelection
+            initialOptions={(() => {
+              try {
+                const parsedValue = value ? JSON.parse(value) : [];
+
+                const normalizedArray = Array.isArray(parsedValue)
+                  ? parsedValue
+                  : [parsedValue];
+
+                return normalizedArray.map((option) =>
+                  typeof option === "object" && option !== null
+                    ? { ...option, value: option.value }
+                    : { value: option },
+                );
+              } catch (error) {
+                console.error("Error parsing options:", error);
+                return [];
+              }
+            })()}
+            preview={preview}
+          />
+        );
+      case "checkbox":
+        return (
+          <CheckboxList
+            initialOptions={(() => {
+              try {
+                const parsedValue = value ? JSON.parse(value) : [];
+                return Array.isArray(parsedValue)
+                  ? parsedValue.map((option) =>
+                      typeof option === "object" && option !== null
+                        ? { ...option, value: option.value }
+                        : { value: option },
+                    )
+                  : [];
+              } catch (error) {
+                console.error("Error parsing options:", error);
+                return [];
+              }
+            })()}
+            preview={preview}
+          />
+        );
+      case "MultipleDrop":
+        return (
+          <DynamicSelect
+            label=" "
+            name="country"
+            control={""}
+            initialOptions={(() => {
+              try {
+                return options ? options : [];
+              } catch (error) {
+                console.error("Error parsing options:", error);
+                return [];
+              }
+            })()}
+            placeholder="Enter option"
+            onChange={(value: any) => {
+              console.log(value);
+
+              // handleAnswerChange(id, value);
+            }}
+            rules={{ required: "Country is required" }}
+            // errors={errors}
+          />
+        );
+      case "video":
+        return (
+          <FileItem
+            imageUrl=""
+            fileName="video"
+            fileSize="20"
+            onClick={() => handleFileClick(JSON.parse(value), "video")}
+          />
+        );
+      case "photo":
+        return (
+          <FileItem
+            imageUrl={JSON.parse(value)}
+            fileName="photo"
+            fileSize="20"
+            onClick={() => handleFileClick(JSON.parse(value), "image")}
+          />
+        );
+
+      case "file":
+        return (
+          <FileItem
+            imageUrl={JSON.parse(value)}
+            fileName="file"
+            fileSize="20"
+            onClick={() => handleFileClick(JSON.parse(value), "document")}
+          />
+        );
+      case "email":
+        return (
+          <div className="text-[14px]] font-poppins text-[#333333]">
+            {JSON.parse(value)}
+          </div>
+        );
+      case "url":
+        return (
+          <Link
+            href={`${JSON.parse(value)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {JSON.parse(value)}
+          </Link>
+        );
+      case "password":
+        return (
+          <div className="text-[14px]] font-poppins text-[#333333]">
+            {JSON.parse(value)}
+          </div>
+        );
+      case "tel":
+        return (
+          <div className="text-[14px]] font-poppins text-[#333333]">
+            {JSON.parse(value)}
+          </div>
+        );
+      case "number":
+        return (
+          <div className="text-[14px]] font-poppins text-[#333333]">
+            {JSON.parse(value)}
+          </div>
+        );
+      case "audio":
+        return <AudioPlayer src={JSON.parse(value)} />;
+      case "boolean":
+        return (
+          <RadioGroupWrapper
+            options={(() => {
+              try {
+                const parsedOptions = options ? JSON.parse(options) : [];
+                return Array.isArray(parsedOptions)
+                  ? parsedOptions.map((option) =>
+                      typeof option === "object" && option !== null
+                        ? {
+                            ...option,
+                            value: option.value ?? option.label ?? option,
+                          }
+                        : { label: option, value: option },
+                    )
+                  : [
+                      { label: "True", value: "true" },
+                      { label: "False", value: "false" },
+                    ];
+              } catch (error) {
+                console.error("Error parsing options:", error);
+                return [
+                  { label: "True", value: "true" },
+                  { label: "False", value: "false" },
+                ];
+              }
+            })()}
+            selectedValue={JSON.parse(value)}
+            onChange={() => alert()}
+          />
+        );
+      case "time":
+        return (
+          <div className="text-[14px]] w-full font-poppins text-[#333333]">
+            {JSON.parse(value)}
+          </div>
+        );
+      case "date":
+        return (
+          <div className="text-[14px]] w-full font-poppins text-[#333333]">
+            {JSON.parse(value)}
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
 
   const {
     data: task,
@@ -153,6 +435,10 @@ const ResponseDetails = () => {
     <>
       <section className="space-y-4 py-8 pt-[34px]">
         <CustomBreadCrumbs />
+
+        <GoogleMapLocationModal />
+
+        <FileReaderModal />
 
         <div className="flex items-center justify-between rounded-lg bg-white p-5">
           <div className="grid grid-cols-[56px_1fr] items-center gap-4">
@@ -272,6 +558,7 @@ const ResponseDetails = () => {
                       <div className="mt-24">
                         <ChatWidget
                           modelType="response"
+                          status={res?.status}
                           modelId={+responseId}
                           currentUserId={currentUser?.id as number}
                         />
@@ -334,6 +621,7 @@ const ResponseDetails = () => {
                       <ChatWidget
                         modelType="response"
                         modelId={+responseId}
+                        status={res?.status}
                         currentUserId={currentUser?.id as number}
                       />
                       {/* <DrawerFooter className="border-t">
@@ -381,9 +669,12 @@ const ResponseDetails = () => {
                     </div>
                     <div className="text-sm">
                       <h3 className="mb-1.5 text-sm text-[#828282]">Answer</h3>
-                      <p className="text-sm text-[#333333]">
-                        {formatValue(answer.value)}
-                      </p>
+                      {answer?.question?.type &&
+                        renderQuestionInput(
+                          answer.question.type,
+                          JSON.stringify(answer?.value),
+                          "preview",
+                        )}
                     </div>
                   </div>
                 ))}
@@ -401,13 +692,21 @@ const ResponseDetails = () => {
                   </TableHeader>
                   <TableBody>
                     {answers?.map((answer: AnswerItem, index: number) => (
-                      <TableRow key={`${answer.id}-${index}`}>
+                      <TableRow
+                        key={index}
+                        className="cursor-pointer"
+                        // onClick={() => router.push(`campaigns/${data.id}`)}
+                      >
                         <TableCell className="w-1/2 text-sm">
-                          {answer.question.label}
+                          {answer?.question.label}
                         </TableCell>
                         <TableCell className="w-1/2 text-sm">
-                          {/* Render the value using the enhanced formatValue function */}
-                          {formatValue(answer.value)}
+                          {answer?.question?.type &&
+                            renderQuestionInput(
+                              answer.question.type,
+                              JSON.stringify(answer?.value),
+                              "preview",
+                            )}
                         </TableCell>
                       </TableRow>
                     ))}

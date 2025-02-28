@@ -54,7 +54,9 @@ import {
 import CampaignChart from "@/components/organization-comps/campaign_chart";
 import CampaignSummary from "@/components/organization-comps/campaign_summary";
 import {
+  fetchOrganizationChart,
   getOrganizationByDomain,
+  getOrganizationStat,
   getUseServices,
 } from "@/services/organization";
 import { getCurrentUser } from "@/services/user";
@@ -76,15 +78,29 @@ const Dashboard = () => {
   const [pageSize, setPageSize] = useState<number>(10);
   const pages = chunkArray(filteredData, pageSize);
   const currentPageData = pages[currentPage - 1] || [];
+
+  const [dashStat, setDashStat] = useState([]);
   const currentOrganization = useOrganizationStore(
     (state) => state.organization,
   );
   const [data, setData] = useState<any>([]);
+  const [rawChartData, setRawChartData] = useState([]);
+
+  const getCurrentOrganizationStat = async () => {
+    try {
+      const response = await getOrganizationStat();
+      //  console.log(response);
+      //@ts-ignore
+      setDashStat(response);
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   const getOrgaization = async () => {
     try {
       const response = await getOrganizationByDomain();
-      console.log(response);
+      // console.log(response);
       setData(response.data);
       getRegisteredUsersService(response.data);
       //  getCurrentOrganization(response.data);
@@ -95,9 +111,7 @@ const Dashboard = () => {
   };
 
   const getRegisteredUsersService = async (orgData: any) => {
-    console.log(orgData);
     const response = await getUseServices();
-    // console.log(getCurrentUser());
     const currentUsers = await getCurrentUser();
     //@ts-ignore
     const contributor = response.services.contributor
@@ -112,6 +126,7 @@ const Dashboard = () => {
     const organizations = response.services.organizations.map((org: any) => ({
       ...org,
       account_type: "organization",
+      image: org.profile_photo_url,
     }));
 
     const mergedData = contributor
@@ -119,31 +134,63 @@ const Dashboard = () => {
       : organizations;
 
     setOrganizations(mergedData);
-    // console.log(currentOrganization);
-    //console.log(data.id);
-    if (orgData?.id === undefined && document.readyState === "complete") {
-      getCurrentOrganization(mergedData[1]);
+    //console.log(orgData);
+    if (orgData) {
+      getCurrentOrganization(orgData);
+      /***
+      if (orgData?.id === undefined && document.readyState === "complete") {
+        getCurrentOrganization(
+          mergedData[0]?.account_type === "organization"
+            ? mergedData[0]
+            : mergedData[1],
+        );
+        window.location.reload();
+      }
+        */
+    } else {
+      getCurrentOrganization(
+        mergedData[0]?.account_type === "organization"
+          ? mergedData[0]
+          : mergedData[1],
+      );
       window.location.reload();
     }
-
-    //console.log(document.readyState);
   };
 
   useEffect(() => {
     getOrgaization();
+    getCurrentOrganizationStat();
   }, []);
   const router = useRouter();
 
+  const getChartData = async () => {
+    try {
+      const response = await fetchOrganizationChart();
+
+      console.log(response);
+      //@ts-ignore
+      setRawChartData(response);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  useEffect(() => {
+    getChartData();
+  }, []);
+
+  const USER_CURRENCY_SYMBOL =
+    currentOrganization && currentOrganization["symbol"];
   return (
     <div className="grid h-max grid-cols-5 gap-6 py-10">
       {/* Welcome section */}
       <div className="col-span-5 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">
-            Welcome to Goloka for Organization &nbsp;
             <span className="text-main-100">
-              {currentOrganization?.name || ""}
-            </span>
+              {currentOrganization?.name || ""},
+            </span>{" "}
+            welcome to Goloka for Organization
           </h1>
           <p className="text-gray-600">{data?.description || ""}</p>
         </div>
@@ -170,9 +217,7 @@ const Dashboard = () => {
               textColor="text-white"
               icon={Wallet3}
               value={`${(currentOrganization && currentOrganization.symbol) || "₦"}${numberWithCommas(data.wallet_balance) || 0}`}
-              footer={
-                <span className="font-medium">₦5,250 Pending balance</span>
-              }
+              footer={""}
               isAnalytics={false}
               increase={true}
               percents={40}
@@ -183,8 +228,10 @@ const Dashboard = () => {
               bg="bg-[#FEC53D] bg-opacity-[12%]"
               fg="text-[#FEC53D]"
               icon={TrendUp}
-              value={0}
-              footer="126 ongoing"
+              //@ts-ignore
+              value={dashStat?.campaign_stats?.total_campaign_count || 0}
+              //@ts-ignore
+              footer={`${dashStat?.campaign_stats?.running_campaign_count || 0} running campaign`}
               isAnalytics={false}
               increase={true}
               percents={40}
@@ -195,11 +242,13 @@ const Dashboard = () => {
               bg="bg-main-100 bg-opacity-[12%]"
               fg="text-main-100"
               icon={Note}
-              value={0}
+              //@ts-ignore
+              value={dashStat?.response_stats?.count || 0}
               footer="vs last month"
               isAnalytics={true}
               increase={true}
-              percents={40}
+              //@ts-ignore
+              percents={dashStat?.response_stats?.percentage_increase || 0}
             />
 
             <DashboardWidget
@@ -225,7 +274,7 @@ const Dashboard = () => {
           </div>
 
           <div className="flex flex-col items-center gap-10">
-            <CampaignChart />
+            <CampaignChart data={rawChartData} />
 
             <div className="ml-auto mt-5 flex w-[90%] items-start justify-between gap-2 text-sm">
               <div className="flex items-start gap-6">
@@ -233,9 +282,14 @@ const Dashboard = () => {
                   <span className="mt-1 inline-block h-2 w-2 rounded-full bg-blue-400"></span>
                   <div className="">
                     <span className="text-sm text-[#828282]">
-                      Total campagn
+                      Total campaigns
                     </span>
-                    <p className="font-semibold text-[#333333]">54</p>
+                    <p className="font-semibold text-[#333333]">
+                      {
+                        // @ts-ignore
+                        rawChartData.total_campaigns
+                      }
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-2">
@@ -244,29 +298,49 @@ const Dashboard = () => {
                     <span className="text-sm text-[#828282]">
                       Total response
                     </span>
-                    <p className="font-semibold text-[#333333]">569</p>
+
+                    <p className="font-semibold text-[#333333]">
+                      {
+                        // @ts-ignore
+                        rawChartData.total_responses
+                      }
+                    </p>
                   </div>
                 </div>
               </div>
               <div className="text-right">
                 <p className="text-sm text-[#828282]">Amount spent</p>
-                <h4 className="font-semibold text-[#333333]">$2500</h4>
+                <h4 className="font-semibold text-[#333333]">
+                  {" "}
+                  {USER_CURRENCY_SYMBOL}
+                  {
+                    // @ts-ignore
+                    rawChartData.amount_spent
+                  }
+                </h4>
               </div>
             </div>
           </div>
         </div>
         <div className="rounded-2xl bg-white p-[14px]">
           <h3 className="mb-10 text-base font-medium">Campaign summary</h3>
-          <CampaignSummary />
+
+          <CampaignSummary
+            data={
+              //@ts-ignore
+              rawChartData?.campaign_summary
+            }
+          />
         </div>
       </div>
       {/* RECENT RESPONSES */}
 
       {/* TABLE */}
+
+      {/***
       <div className="col-span-5 w-full rounded-2xl bg-white p-[14px]">
-        {/* OPTIONS */}
+
         <div className="mb-5 flex justify-between gap-4 lg:justify-start">
-          {/* -- search section */}
           <div className="relative flex w-[250px] items-center justify-center md:w-[300px]">
             <Search className="absolute left-3 text-gray-500" size={18} />
             <Input
@@ -277,7 +351,6 @@ const Dashboard = () => {
           </div>
 
           <div className="hidden lg:flex lg:gap-4">
-            {/* PRICE */}
             <Select>
               <SelectTrigger className="w-min rounded-full focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0">
                 <SelectValue placeholder="Price" />
@@ -289,7 +362,6 @@ const Dashboard = () => {
               </SelectContent>
             </Select>
 
-            {/* NUMBER */}
             <Popover>
               <PopoverTrigger className="rounded-full border px-3">
                 <div className="inline-flex items-center gap-2">
@@ -311,7 +383,6 @@ const Dashboard = () => {
               </PopoverContent>
             </Popover>
 
-            {/* DATE */}
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -336,7 +407,6 @@ const Dashboard = () => {
               </PopoverContent>
             </Popover>
 
-            {/* RESPONSE */}
             <Select>
               <SelectTrigger className="w-max rounded-full focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0">
                 <SelectValue placeholder="Response type" />
@@ -351,7 +421,6 @@ const Dashboard = () => {
             </Select>
           </div>
 
-          {/* -- filter icon */}
           <div
             onClick={() => setOpenFilter(true)}
             className="inline-flex cursor-pointer items-center justify-center gap-3 rounded-full border bg-white p-1 pr-3 lg:hidden"
@@ -406,7 +475,7 @@ const Dashboard = () => {
                               <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#FF4C4C] text-xs text-white">
                                 {res?.unread_messages_count}
                               </span>
-                            )} */}
+                            )}
                           </div>
                         </div>
                       </TableCell>
@@ -419,7 +488,7 @@ const Dashboard = () => {
                             <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#FF4C4C] text-xs text-white">
                               {res?.unread_messages_count}
                             </span>
-                          )} */}
+                          )}
                         </div>{" "}
                       </TableCell>
 
@@ -466,15 +535,16 @@ const Dashboard = () => {
               totalPages={pages?.length}
               currentPage={currentPage}
               onPageChange={setCurrentPage}
-              RowSize={pageSize}
+              pageSize={pageSize}
               onRowSizeChange={setPageSize}
             />
           </div>
         </div>
         {/* <div className="mx-auto hidden py-10 lg:hidden">
             <DataTable columns={columns} data={responsesTableData} />
-          </div> */}
+          </div>
       </div>
+      */}
     </div>
   );
 };

@@ -39,6 +39,7 @@ import TransferSuccessful from "@/components/wallet_comps/transfer_successful";
 import TopUpSuccessful from "@/components/wallet_comps/top_up_success";
 import { useTopUpStores } from "@/stores/topUpstore";
 import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
+import InvoiceModalOrganization from "@/components/lib/modals/invoice_modal_organization";
 
 const WalletPage = () => {
   const { user, isAuthenticated } = useRemoteUserStore();
@@ -116,14 +117,20 @@ const WalletPage = () => {
         setValidated(true);
         setIsPolling(false);
         setOpen(true);
-        setStep((prev: number) => prev + 1);
+        setStep(2);
         setAmount(amount);
         setReference(ref || "");
         setDate(response.data.created_at);
+        // refetchUser()
+        const url = new URL(window.location.href);
+        url.search = ""; // Clear the query string
+        window.history.replaceState({}, "", url.toString());
       }
     } catch (err: any) {
       console.error("Error during validation:", err);
-      toast.error(err.message || "An error occurred during validation.");
+      // toast.error(err.message || "An error occurred during validation.");
+    } finally {
+      await getOrgaization();
     }
   }, [trxref, ref]);
 
@@ -154,7 +161,7 @@ const WalletPage = () => {
     <>
       <WithdrawFund />
 
-      <section className="pb-10 pt-[34px]">
+      <section className="pb-10 pt-[34px]" suppressHydrationWarning>
         {/* ####################################### */}
         {/* -- stats card section */}
         {/* ####################################### */}
@@ -171,7 +178,7 @@ const WalletPage = () => {
             <p className="text-sm font-medium text-white">
               Minimum withdrawal:{" "}
               <span className="font-semibold">
-                {USER_CURRENCY_SYMBOL || ""} 100
+                {USER_CURRENCY_SYMBOL || ""} 500
               </span>
             </p>{" "}
           </div>
@@ -222,6 +229,10 @@ const WalletPage = () => {
           </div>
         </div>
       </section>
+
+      <div className="col-span-2 md:col-span-1 md:place-self-end">
+        <InvoiceModalOrganization />
+      </div>
     </>
   );
 };

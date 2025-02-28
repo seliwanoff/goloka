@@ -4,13 +4,28 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { chunkArray, cn } from "@/lib/utils";
 import { Eye, Note } from "iconsax-react";
 import React, { useEffect, useState } from "react";
-import { ChevronDown, Edit, Search } from "lucide-react";
+import {
+  ChevronDown,
+  Edit,
+  EllipsisVertical,
+  OctagonAlert,
+  Search,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import {
   Select,
   SelectContent,
@@ -43,21 +58,16 @@ import {
   useEditCampaignOverlay,
 } from "@/stores/overlay";
 import EditCampaign from "@/components/lib/modals/edit_campaign";
-import { getCampaign, getOrganizationCampaign } from "@/services/campaign";
-import { useRouter } from "next/navigation";
-
-const renderTable = (tab: string, tdata: any[]) => {
-  switch (tab.toLowerCase()) {
-    case "campaigns":
-      return <CampaignTable tdata={tdata} />;
-
-    case "campaign-groups":
-      return <CampaignGroupTable tdata={tdata} />;
-
-    default:
-      break;
-  }
-};
+import {
+  duplicateCampaign,
+  getCampaign,
+  getOrganizationCampaign,
+} from "@/services/campaign";
+import { useRouter, useSearchParams } from "next/navigation";
+import { BiDuplicate } from "react-icons/bi";
+import UpdateCampaignDialog from "@/components/lib/modals/confirm_update_campaign_modal";
+import { toast } from "sonner";
+import ChatWidget from "@/components/support_comps/chat-widget";
 
 const Page = () => {
   const [openFilter, setOpenFilter] = useState<boolean>(false);
@@ -68,24 +78,89 @@ const Page = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState<number>(10);
   const [campaignGroupList, setCampaignGroupList] = useState<[]>([]);
+  const [totalCampaign, setTotalCampaig] = useState(0);
+  const [totalCampaignGroup, setTotalCampaigGroup] = useState(0);
+
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
 
   const [filteredData, setFilteredData] = useState<any[]>(
     activeTab === "campaigns" ? campaignList : campaignGroupList,
   );
+  const searchParams = useSearchParams();
+
   const pages = chunkArray(filteredData, pageSize);
-  const currentPageData = pages[currentPage - 1] || [];
+  const [openQuestion, setOpenQuestion] = useState<boolean>(false);
+
+  const [openSumit, setOpenSubmit] = useState<boolean>(false);
+  const [isSubmittingCampaign, setisSubmititngCampaign] =
+    useState<boolean>(false);
+
+  const currentPageData = pages[currentPage >= 2 ? 0 : currentPage - 1] || [];
+  // console.log(currentPageData);
   const [activeStatus, setActiveStatus] = useState<string>("all");
   const { setShowCreate } = useAddcampaignGroupOverlay();
+  const [duplicatedId, setCampaignDuplicatedId] = useState("");
 
   const { show } = useAddcampaignGroupOverlay();
 
   const { isShowEdit } = useEditCampaignOverlay();
+  const [searchTerm, setSearchTerm] = useState("");
+  const updateQueryParams = (key: string, value: string | null) => {
+    const queryParams = new URLSearchParams(window.location.search);
+
+    if (value) {
+      queryParams.set(key, value); // Add or update parameter
+    } else {
+      queryParams.delete(key); // Remove parameter if value is null
+    }
+
+    // Update the URL without reloading
+    window.history.replaceState(
+      null,
+      "",
+      `${window.location.pathname}?${queryParams.toString()}`,
+    );
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    updateQueryParams("search", value);
+  };
+
+  useEffect(() => {
+    setSearchTerm(searchParams.get("search") || "");
+
+    // Parse date params
+
+    // Parse date params
+    const startDateParam = searchParams.get("startDate");
+    const endDateParam = searchParams.get("endDate");
+
+    setStartDate(startDateParam ? new Date(startDateParam) : null);
+    setEndDate(endDateParam ? new Date(endDateParam) : null);
+  }, [searchParams]);
+
+  // console.log(startDate);
 
   const getCampaignGroup = async () => {
     try {
-      const response = await getOrganizationCampaign();
+      const response = await getOrganizationCampaign({
+        page: currentPage || undefined,
+        per_page: pageSize || undefined,
+        search: searchTerm || undefined,
+        status: activeStatus == "all" ? undefined : activeStatus || undefined,
+        start_date: startDate ? format(startDate, "yyyy-MM-dd") : undefined,
+        end_date: endDate ? format(endDate, "yyyy-MM-dd") : undefined,
+      });
       if (response && response.data) {
         setCampaignGroupList(response.data);
+        //@ts-ignore
+        setTotalCampaigGroup(
+          //@ts-ignore
+          response?.pagination?.total_items || response.data.length || 0,
+        );
       } else {
         console.warn("Response is null or does not contain data");
       }
@@ -93,11 +168,22 @@ const Page = () => {
       console.error("Error fetching campaign groups:", error);
     }
   };
+
   const getCampaignMain = async () => {
     try {
-      const response = await getCampaign();
+      const response = await getCampaign({
+        page: currentPage || undefined,
+        status: activeStatus || undefined,
+        per_page: pageSize || undefined,
+        search: searchTerm || undefined,
+        start_date: startDate ? format(startDate, "yyyy-MM-dd") : undefined,
+        end_date: endDate ? format(endDate, "yyyy-MM-dd") : undefined,
+      });
       if (response && response.data) {
+        // console.log(response);
         setCampaignList(response.data);
+        //@ts-ignore
+        setTotalCampaig(response?.pagination?.total_items);
       } else {
         console.warn("Response is null or does not contain data");
       }
@@ -105,11 +191,13 @@ const Page = () => {
       console.error("Error fetching campaign groups:", error);
     }
   };
+
+  // console.log(campaignList);
   useEffect(() => {
     getCampaignGroup();
     getCampaignMain();
-  }, [show, isShowEdit]);
-
+  }, [show, isShowEdit, pageSize, currentPage, searchParams]);
+  const router = useRouter();
   useEffect(() => {
     function filter(status: string) {
       return campaignList?.filter(
@@ -133,7 +221,34 @@ const Page = () => {
       default:
         setFilteredData(campaignList);
     }
-  }, [activeStatus]);
+  }, [activeStatus, pageSize, currentPage]);
+
+  const handleSubmitCampaign = async () => {
+    // setisSubmititng(true);
+
+    setisSubmititngCampaign(true);
+    try {
+      const response = await duplicateCampaign(duplicatedId as string);
+      //@ts-ignore
+      // queryClient.invalidateQueries(["get Campaign", campaignId as string]);
+
+      if (response) {
+        //console.log(response);
+        toast.success("Campaign duplicated sucessfully");
+        //   getQuestionByCampaignId();
+        setOpenQuestion(false);
+        //@ts-ignore
+        router.push(`campaigns/${response.campaign.id}`);
+      }
+    } catch (e) {
+      //   console.log(e);
+      /**@ts-ignore **/
+      toast.error(e?.response?.data.message || "Error duplicating campaign");
+    } finally {
+      setisSubmititngCampaign(false);
+      setOpenSubmit(false);
+    }
+  };
 
   useEffect(() => {
     if (activeTab === "campaigns") {
@@ -141,8 +256,96 @@ const Page = () => {
     } else if (activeTab === "campaign-groups") {
       setFilteredData(campaignGroupList);
     }
-  }, [activeTab, campaignList, campaignGroupList]);
+  }, [activeTab, campaignList, campaignGroupList, pageSize, currentPage]);
+  const CampaignTable = ({ tdata }: { tdata: any[] }) => {
+    const router = useRouter();
 
+    // console.log(tdata);
+    return (
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Campaign Title</TableHead>
+            <TableHead className="">Campaign Group</TableHead>
+            <TableHead className="table-cell">Locations</TableHead>
+            <TableHead className="">Responses</TableHead>
+            <TableHead className=" ">Last updated </TableHead>
+            <TableHead className="">Status</TableHead>
+            <TableHead className=""></TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {tdata?.map((data, index) => (
+            <TableRow
+              key={index}
+              className="cursor-pointer"
+              onClick={() => router.push(`campaigns/${data.id}`)}
+            >
+              <TableCell>{data?.title}</TableCell>
+              <TableCell className="">{data?.campaign_group}</TableCell>
+              <TableCell className="table-cell">
+                {data?.locations?.label}
+              </TableCell>
+              <TableCell className="">
+                <div className="flex items-center gap-1">
+                  {data?.number_of_responses}
+                  {data.number_of_pending_responses > 0 && (
+                    <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[red] text-center font-poppins text-[12px] text-white">
+                      {data?.number_of_pending_responses}
+                    </span>
+                  )}
+                </div>
+              </TableCell>
+              <TableCell className="">{data?.created_at}</TableCell>
+              <TableCell className="">
+                <StatusPill status={data?.status} />
+              </TableCell>
+              <TableCell className="" onClick={(e) => e.stopPropagation()}>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <span
+                      className="cursor-pointer rounded-full p-2 hover:bg-gray-100"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <BsThreeDots size={18} />
+                    </span>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-40 rounded-lg p-2 shadow-lg">
+                    <div className="flex flex-col gap-2">
+                      <button
+                        className="flex items-center gap-2 rounded p-2 hover:bg-gray-100"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCampaignDuplicatedId(data.id);
+                          setOpenSubmit(true);
+                          //console.log("Edit", data.id);
+                        }}
+                      >
+                        <BiDuplicate size={16} /> <span>Duplicate</span>
+                      </button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    );
+  };
+
+  const renderTable = (tab: string, tdata: any[]) => {
+    switch (tab.toLowerCase()) {
+      case "campaigns":
+        return <CampaignTable tdata={tdata} />;
+
+      case "campaign-groups":
+        return <CampaignGroupTable tdata={tdata} />;
+
+      default:
+        break;
+    }
+  };
   return (
     <>
       {/*** Edit Campaign */}
@@ -152,6 +355,15 @@ const Page = () => {
 
       <CreateCampaingGroup />
 
+      <UpdateCampaignDialog
+        title={"Duplicate Campaign"}
+        content={"Are you sure you want to duplicate this campaign?"}
+        action={handleSubmitCampaign}
+        open={openSumit}
+        setOpen={setOpenSubmit}
+        isSubmitting={isSubmittingCampaign}
+        status="duplicate"
+      />
       {/*** DELETE MODAL */}
 
       <section className="mt-5">
@@ -191,9 +403,11 @@ const Page = () => {
                 <div className="relative flex w-[250px] items-center justify-center md:w-[250px]">
                   <Search className="absolute left-3 text-gray-500" size={18} />
                   <Input
-                    placeholder="Search task, organization"
+                    placeholder="Search campaign"
                     type="text"
                     className="w-full rounded-full bg-gray-50 pl-10"
+                    value={searchTerm}
+                    onChange={handleSearchChange}
                   />
                 </div>
 
@@ -227,49 +441,107 @@ const Page = () => {
                   )}
 
                   {/* NUMBER */}
-                  <Popover>
-                    <PopoverTrigger className="rounded-full border px-3">
-                      <div className="inline-flex items-center gap-2">
-                        <span className="text-sm">No of question</span>{" "}
-                        <ChevronDown className="h-4 w-4 opacity-50" />
-                      </div>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[200px]">
-                      <Label htmlFor="number" className="mb-3 inline-block">
-                        Input number
-                      </Label>
-                      <Input
-                        name="number"
-                        id="number"
-                        type="tel"
-                        className="form-input w-full appearance-none rounded-lg border border-[#d9dec0] px-4 py-6 placeholder:text-[#828282] focus:border-0 focus:outline-none focus-visible:ring-0"
-                        placeholder="0"
-                      />
-                    </PopoverContent>
-                  </Popover>
 
                   {/* DATE */}
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
-                        variant={"outline"}
+                        variant="outline"
                         className={cn(
                           "w-min justify-start gap-3 rounded-full px-3 pr-1 text-center text-sm font-normal",
                         )}
                       >
-                        {date ? format(date, "PPP") : <span>Select date</span>}
+                        {startDate && endDate
+                          ? `${format(startDate, "PPP")} - ${format(endDate, "PPP")}`
+                          : "Select date range"}
                         <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F8F8F8]">
-                          <Calendar size={20} color="#828282" className="m-0" />
-                        </span>{" "}
+                          <Calendar size={20} color="#828282" />
+                        </span>
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <CalenderDate
-                        mode="single"
-                        selected={date}
-                        onSelect={setDate}
-                        initialFocus
-                      />
+                    <PopoverContent className="w-auto p-4">
+                      <div className="flex flex-col items-center gap-4">
+                        <CalenderDate
+                          mode="range"
+                          //@ts-ignore
+                          selected={{ from: startDate, to: endDate }}
+                          onSelect={(range) => {
+                            setStartDate(range?.from || null);
+                            setEndDate(range?.to || null);
+                          }}
+                          initialFocus
+                        />
+                        {/* <div className="flex w-full justify-between gap-4">
+                                    <Button
+                                      variant="outline"
+                                      className="w-full"
+                                      onClick={() => {
+                                        setStartDate(null);
+                                        setEndDate(null);
+                                      }}
+                                    >
+                                      Clear
+                                    </Button>
+                                    <Button
+                                      variant="secondary"
+                                      className="w-full"
+                                      onClick={() => {
+                                        // Update the URL with the selected dates
+                                        const params = new URLSearchParams(
+                                          window.location.search,
+                                        );
+                                        if (startDate)
+                                          params.set("startDate", startDate.toISOString());
+                                        if (endDate)
+                                          params.set("endDate", endDate.toISOString());
+                                        window.history.replaceState(
+                                          null,
+                                          "",
+                                          `${window.location.pathname}?${params.toString()}`,
+                                        );
+                                      }}
+                                    >
+                                      Done
+                                    </Button>
+                                  </div> */}
+                        <div className="flex w-full items-center justify-between">
+                          <button
+                            className="rounded-full bg-[#F8F8F8] px-2 py-1 text-sm text-blue-500"
+                            onClick={() => {
+                              updateQueryParams("startDate", null);
+                              updateQueryParams("endDate", null);
+                              setStartDate(null);
+                              setEndDate(null);
+                            }}
+                          >
+                            Clear
+                          </button>
+                          <button
+                            className="rounded-full bg-blue-500 px-2 py-1 text-sm text-[#F8F8F8]"
+                            // onClick={applyFilters}
+                            onClick={() => {
+                              // Update the URL with the selected dates
+                              const params = new URLSearchParams(
+                                window.location.search,
+                              );
+                              if (startDate)
+                                params.set(
+                                  "startDate",
+                                  startDate.toISOString(),
+                                );
+                              if (endDate)
+                                params.set("endDate", endDate.toISOString());
+                              window.history.replaceState(
+                                null,
+                                "",
+                                `${window.location.pathname}?${params.toString()}`,
+                              );
+                            }}
+                          >
+                            Done
+                          </button>
+                        </div>
+                      </div>
                     </PopoverContent>
                   </Popover>
                 </div>
@@ -290,7 +562,14 @@ const Page = () => {
               <div>
                 <Tabs
                   value={activeTab}
-                  onValueChange={(val) => setActiveTab(val)}
+                  onValueChange={(val) => {
+                    setActiveTab(val);
+                    setCurrentPage(1);
+                    setPageSize(10);
+                    setEndDate(null);
+                    setSearchTerm("");
+                    setStartDate(null);
+                  }}
                   className="w-full md:w-max"
                 >
                   <TabsList
@@ -319,13 +598,16 @@ const Page = () => {
           <div className="">{renderTable(activeTab, currentPageData)}</div>
 
           {/* Pagination */}
+
           <div className="mt-6">
             <Pagination
               // @ts-ignore
-              totalPages={currentPageData?.length}
+              totalPages={
+                activeTab === "campaigns" ? totalCampaign : totalCampaignGroup
+              }
               currentPage={currentPage}
               onPageChange={setCurrentPage}
-              RowSize={pageSize}
+              pageSize={pageSize}
               onRowSizeChange={setPageSize}
             />
           </div>
@@ -348,62 +630,6 @@ const getStatusColor = (status: string) => {
     case "draft":
       return "bg-gray-500/5 border-gray-500 text-gray-500";
   }
-};
-
-const CampaignTable = ({ tdata }: { tdata: any[] }) => {
-  const router = useRouter();
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Campaign Title</TableHead>
-          <TableHead className="">Campaign Group</TableHead>
-          <TableHead className="table-cell">Locations</TableHead>
-          <TableHead className="">Responses</TableHead>
-          <TableHead className=" ">Last updated </TableHead>
-          <TableHead className="">Status</TableHead>
-          <TableHead className=""></TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {tdata?.map((data, index) => (
-          <TableRow
-            key={index}
-            className="cursor-pointer"
-            onClick={() =>
-              router.push(`campaigns/questions?questionId=${data.id}`)
-            }
-          >
-            <TableCell>{data?.title}</TableCell>
-            <TableCell className="">{data?.campaign_group}</TableCell>
-            <TableCell className="table-cell">
-              {data?.locations?.label}
-            </TableCell>
-            <TableCell className="">
-              <div className="flex gap-1 items-center">
-              {data?.number_of_responses}
-{
-  data.number_of_pending_responses > 0 &&
-
-              <span className="w-4 h-4 bg-[red] text-[12px] font-poppins rounded-full text-center text-white inline-flex justify-center items-center"> {data?.number_of_pending_responses}</span>
-}
-              </div>
-
-              </TableCell>
-            <TableCell className=" ">{data?.created_at}</TableCell>
-            <TableCell className="">
-              <StatusPill status={data?.status} />
-            </TableCell>
-            <TableCell className="">
-              <span className="cursor-pointer">
-                <BsThreeDots />
-              </span>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
 };
 
 const CampaignGroupTable = ({ tdata }: { tdata: any[] }) => {
