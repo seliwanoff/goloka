@@ -216,7 +216,7 @@ const EditMainCampaignWidget = () => {
     formData.append("number_of_responses", formResponse.toString());
     formData.append(
       "payment_rate_for_response",
-      payment_rate_for_response.toString(),
+      formRate.toString(),
     );
     
     formData.append("starts_at", formattedStartsAt);
