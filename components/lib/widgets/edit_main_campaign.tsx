@@ -42,6 +42,7 @@ import { getCountry, getState, getLgs } from "@/services/misc";
 import { useQuery } from "@tanstack/react-query";
 import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
 import FileUpload from "@/components/task-stepper/fileUpload";
+import FileUploadPreview from "@/components/task-stepper/fileUploadPreview";
 
 const schema = yup.object().shape({
   title: yup.string().required("Title is required"),
@@ -74,6 +75,7 @@ const EditMainCampaignWidget = () => {
     allow_multiple_responses: allow_multiple_responses,
     type: type,
     groupdId,
+    image,
   } = useEditMainCampaignOverlay(); // Initial values from overlay
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -202,8 +204,11 @@ const EditMainCampaignWidget = () => {
 
   const onUpdateCampaignGroup = async () => {
     // e.preventDefault();
-    setIsLoading(true);
 
+    if (Number(formRate) < 500) {
+      return toast.error("Payment rate should be atleast 500");
+    }
+    setIsLoading(true);
     const formattedStartsAt = formatDate(startDate);
     const formattedEndsAt = formatDate(endDate);
     const formData = new FormData();
@@ -731,11 +736,11 @@ const EditMainCampaignWidget = () => {
           </Label>
         </div>
         <div className="mt-6">
-          <FileUpload
+          <FileUploadPreview
             ref={null}
-            value={file}
+            value={file || image}
             onFileUpload={(file: any) => {
-              setFile(file);
+              setFile(file || image);
               console.log(file);
             }}
           />

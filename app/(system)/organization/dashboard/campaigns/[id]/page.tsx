@@ -243,6 +243,7 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
     setStartDate,
     number_of_responses,
     payment_rate_for_response,
+    setImage,
 
     setLgids,
   } = useEditMainCampaignOverlay();
@@ -573,12 +574,13 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
   };
 
   const currentPageData = pages[currentPage - 1] || [];
+
   const {
     data: task,
     isLoading,
     refetch,
   } = useQuery({
-    queryKey: ["Get task"],
+    queryKey: ["Get task", show],
     queryFn: async () => await getCampaignByIdDetails(campaignId as string),
   });
   // console.log(responseId, "responseId");
@@ -810,13 +812,14 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
         )}
 
         {task?.data?.status !== "completed" &&
-          task?.data?.status !== "running" && (
+          task?.data?.status !== "running" &&
+          task?.data?.status !== "draft" && (
             <div
-              className="flex cursor-pointer justify-center gap-2 rounded-full border border-blue-600 px-8 py-3 font-poppins text-base text-blue-600"
+              className="flex w-fit cursor-pointer justify-center gap-2 text-nowrap rounded-full border border-blue-600 px-8 py-3 font-poppins text-base text-blue-600"
               onClick={() => handleStatusCampaign("draft")}
             >
               <Note size={20} />
-              Draft
+              Change to draft
             </div>
           )}
         {task?.data?.status === "draft" && (
@@ -843,6 +846,7 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
                 task?.data.payment_rate_for_response,
               );
               setStartDate(task?.data.starts_at);
+              setImage(task.data.image_path[0]);
               setId(task?.data.id);
               setEndDate(task?.data.ends_at);
               setNumberOfresponse(task?.data.number_of_responses);

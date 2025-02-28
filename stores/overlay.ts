@@ -132,6 +132,8 @@ interface EditCampaignMainState {
   allow_multiple_responses: boolean;
   setAllowMultipleResponses: (value: boolean) => void;
   type: string;
+  image: string;
+  setImage: (value: string) => void;
   setType: (value: string) => void;
 }
 const useShowOverlay = create<StoreState>((set) => ({
@@ -280,6 +282,8 @@ const useEditMainCampaignOverlay = create<EditCampaignMainState>((set) => ({
     set({ allow_multiple_responses: value }),
   type: "",
   setType: (value) => set({ type: value }),
+  image: "",
+  setImage: (value) => set({ image: value }),
 }));
 export {
   useShowOverlay,
