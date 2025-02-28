@@ -155,6 +155,8 @@ const WalletPage = () => {
   useEffect(() => {
     getOrgaization();
   }, []);
+
+
   return (
     <>
       <WithdrawFund />
