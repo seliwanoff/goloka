@@ -214,7 +214,9 @@ const EditMainCampaignWidget = () => {
     formData.append("campaign_group_id", selectedCampaignGroupId);
     formData.append("type", "survey");
     formData.append("number_of_responses", formResponse.toString());
+
     formData.append("payment_rate_for_response", formRate.toString());
+
     formData.append("starts_at", formattedStartsAt);
     formData.append("ends_at", formattedEndsAt);
     formData.append(
@@ -620,9 +622,8 @@ const EditMainCampaignWidget = () => {
             onChange={(e) => setValue("rate", e.target.value)}
             type="text"
             autoComplete="off"
-            // disabled={true}
             placeholder="Payment rate"
-            // onChange={(e) => setPaymentRate(e.target.value)}
+            //onChange={(e) => setPaymentRate(e.target.value)}
             className="h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
           />
           <span className="font-poppins text-sm font-normal leading-[21px] text-[#828282]">
@@ -640,9 +641,8 @@ const EditMainCampaignWidget = () => {
             type="text"
             autoComplete="off"
             id="response"
-            //   disabled={true}
             onChange={(e) => setValue("response", e.target.value)}
-            //  onChange={(e) => setResponseNumber(e.target.value)}
+            // onChange={(e) => setResponseNumber(e.target.value)}
             placeholder="input number of response"
             className="h-12 w-full rounded-md border bg-transparent placeholder:text-sm placeholder:font-extralight placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-main-100 focus-visible:ring-offset-0"
           />

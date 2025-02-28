@@ -20,18 +20,14 @@ const Verify: React.FC<PageProps> = ({ setStep }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
-  const [timerKey, setTimerKey] = useState(0); // Add this to force timer reset
+  const [timerKey, setTimerKey] = useState(0);
   const searchParams = useSearchParams();
 
   const handleOtpChange = useCallback((otpArray: string[]) => {
     setOtpValues(otpArray);
     setError("");
-    setHasSubmitted(false); // Reset submission state when OTP changes
+    setHasSubmitted(false);
   }, []);
-
-
-
-
 
   const handleOtpSubmit = useCallback(async () => {
     if (isSubmitting || otpValues.join("").length !== 6) {
@@ -81,16 +77,22 @@ const Verify: React.FC<PageProps> = ({ setStep }) => {
     }
   };
 
+const handleNotMyEmail = () => {
+  const url = new URL(window.location.href);
+  url.searchParams.delete("email");
+  window.history.replaceState({}, "", url);
+  setStep(1);
+  toast.info("Returning to sign-in page");
+};
 
-
-   useEffect(() => {
-     const emailParam = searchParams.get("email");
-     if (!emailParam) {
-       setStep(1);
-     } else {
-       setEmail(decodeURIComponent(emailParam));
-     }
-   }, [searchParams, setStep]);
+  useEffect(() => {
+    const emailParam = searchParams.get("email");
+    if (!emailParam) {
+      setStep(1);
+    } else {
+      setEmail(decodeURIComponent(emailParam));
+    }
+  }, [searchParams, setStep]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -110,7 +112,6 @@ const Verify: React.FC<PageProps> = ({ setStep }) => {
     };
   }, [timerKey]);
 
-  // Only trigger submit once when OTP is complete
   useEffect(() => {
     const isComplete = otpValues.every((val) => val !== "");
     if (isComplete && !isSubmitting && !hasSubmitted) {
@@ -119,14 +120,14 @@ const Verify: React.FC<PageProps> = ({ setStep }) => {
   }, [otpValues, handleOtpSubmit, isSubmitting, hasSubmitted]);
 
   return (
-    <div className="flex w-full flex-col gap-8">
-      <div>
+    <div className="flex w-full flex-col gap-4">
+      <div className="flex flex-col items-center justify-center mb-2">
         <h2 className="mb-1 text-2xl font-semibold text-[#333333]">
           Verify your account
         </h2>
-        <p className="text-[#828282]">
+        <p className="text-[#828282] text-center">
           Enter verification code sent to <br />
-          <span className="font-medium text-[#4F4F4F]">{email}</span>
+          <span className="font-medium text-[#4F4F4F] text-center">{email}</span>
         </p>
       </div>
 
@@ -169,6 +170,29 @@ const Verify: React.FC<PageProps> = ({ setStep }) => {
           "Verify Account"
         )}
       </Button>
+      <div className="flex items-center justify-center">
+      <button
+        onClick={handleNotMyEmail}
+        className="mt-2 flex items-center text-sm font-medium text-main-100 transition-colors duration-200 hover:underline"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="mr-1 h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M10 19l-7-7m0 0l7-7m-7 7h18"
+          />
+        </svg>
+        Not my email?
+      </button>
+
+      </div>
     </div>
   );
 };
@@ -182,119 +206,6 @@ interface OtpInputProps {
   errorMessage?: string;
 }
 
-// const OtpInput: React.FC<OtpInputProps> = ({
-//   length,
-//   otp,
-//   onChange,
-//   errorMessage,
-// }) => {
-//   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-
-//   const handlePaste = useCallback(
-//     (e: React.ClipboardEvent<HTMLInputElement>) => {
-//       e.preventDefault();
-//       const pasteData = e.clipboardData.getData("Text").trim();
-//       if (/^[0-9a-zA-Z]+$/.test(pasteData)) {
-//         const otpArray = Array(length).fill("");
-//         [...pasteData].slice(0, length).forEach((char, index) => {
-//           otpArray[index] = char;
-//         });
-//         onChange(otpArray);
-//         // Focus the next empty input or the last input
-//         const nextEmptyIndex =
-//           otpArray.findIndex((val) => val === "") ?? length - 1;
-//         inputRefs.current[nextEmptyIndex]?.focus();
-//       }
-//     },
-//     [length, onChange],
-//   );
-
-//   const handleChange = useCallback(
-//     (value: string, index: number) => {
-//       if (/^[0-9a-zA-Z]$/.test(value) || value === "") {
-//         const newOtp = [...otp];
-//         newOtp[index] = value;
-//         onChange(newOtp);
-
-//         // Automatically move focus to next input when typing
-//         if (value !== "" && index < length - 1) {
-//           inputRefs.current[index + 1]?.focus();
-//         }
-//       }
-//     },
-//     [length, onChange, otp],
-//   );
-
-//   const handleKeyDown = useCallback(
-//     (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
-//       if (e.key === "Backspace") {
-//         if (otp[index] === "") {
-//           // If current input is empty, move to previous input and clear it
-//           if (index > 0) {
-//             const newOtp = [...otp];
-//             newOtp[index - 1] = "";
-//             onChange(newOtp);
-//             inputRefs.current[index - 1]?.focus();
-//           }
-//         } else {
-//           // Clear current input
-//           const newOtp = [...otp];
-//           newOtp[index] = "";
-//           onChange(newOtp);
-//         }
-//       } else if (e.key === "ArrowLeft" && index > 0) {
-//         inputRefs.current[index - 1]?.focus();
-//       } else if (e.key === "ArrowRight" && index < length - 1) {
-//         inputRefs.current[index + 1]?.focus();
-//       }
-//     },
-//     [length, onChange, otp],
-//   );
-
-//   const handleClick = useCallback(
-//     (index: number) => {
-//       // When clicking an input, if previous inputs are empty, focus the first empty input
-//       for (let i = 0; i < index; i++) {
-//         if (!otp[i]) {
-//           inputRefs.current[i]?.focus();
-//           return;
-//         }
-//       }
-//     },
-//     [otp],
-//   );
-
-//   return (
-//     <div className="flex flex-col items-center">
-//       <div className="flex space-x-2">
-//         {Array.from({ length }).map((_, index) => (
-//           <input
-//             key={index}
-//             ref={(el) => (inputRefs.current[index] = el)}
-//             type="text"
-//             inputMode="numeric"
-//             maxLength={1}
-//             value={otp[index] || ""}
-//             onChange={(e) => handleChange(e.target.value, index)}
-//             onKeyDown={(e) => handleKeyDown(e, index)}
-//             onClick={() => handleClick(index)}
-//             onPaste={handlePaste}
-//             className={`h-[55px] w-[53px] rounded-md border text-center outline-none focus:border-[#C0CFF6] focus:bg-[#F5F8FF] ${
-//               otp[index]
-//                 ? "border-[#C0CFF6] bg-[#F5F8FF]"
-//                 : "border-[#E7E7E7] bg-[#F9F9F9]"
-//             } ${errorMessage ? "border-red-500" : ""}`}
-//           />
-//         ))}
-//       </div>
-//       {errorMessage && (
-//         <p className="mt-2 text-xs text-red-500">{errorMessage}</p>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default OtpInput;
 const OtpInput: React.FC<OtpInputProps> = ({
   length,
   otp,
@@ -309,9 +220,8 @@ const OtpInput: React.FC<OtpInputProps> = ({
       const pasteData = e.clipboardData.getData("Text").trim();
 
       if (/^[0-9a-zA-Z]+$/.test(pasteData)) {
-        const otpArray = [...otp]; // Preserve existing values
+        const otpArray = [...otp];
 
-        // Start pasting from the current input position
         [...pasteData]
           .slice(0, length - currentIndex)
           .forEach((char, index) => {
@@ -320,7 +230,6 @@ const OtpInput: React.FC<OtpInputProps> = ({
 
         onChange(otpArray);
 
-        // Focus the next empty input or the last input
         const nextEmptyIndex = otpArray.findIndex(
           (val, idx) => idx >= currentIndex && val === "",
         );
@@ -336,10 +245,9 @@ const OtpInput: React.FC<OtpInputProps> = ({
     (value: string, index: number) => {
       if (/^[0-9a-zA-Z]$/.test(value) || value === "") {
         const newOtp = [...otp];
-        newOtp[index] = value; // Replace existing value
+        newOtp[index] = value;
         onChange(newOtp);
 
-        // Automatically move focus to next input when typing
         if (value !== "" && index < length - 1) {
           inputRefs.current[index + 1]?.focus();
         }
@@ -351,15 +259,12 @@ const OtpInput: React.FC<OtpInputProps> = ({
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
       if (e.key === "Backspace") {
-        e.preventDefault(); // Prevent default backspace behavior
-
+        e.preventDefault();
         const newOtp = [...otp];
         if (otp[index] !== "") {
-          // If current input has value, clear it
           newOtp[index] = "";
           onChange(newOtp);
         } else if (index > 0) {
-          // If current input is empty, move to previous input and clear it
           newOtp[index - 1] = "";
           onChange(newOtp);
           inputRefs.current[index - 1]?.focus();
@@ -381,10 +286,8 @@ const OtpInput: React.FC<OtpInputProps> = ({
   );
 
   const handleClick = useCallback((index: number) => {
-    // Allow clicking any input directly
     inputRefs.current[index]?.focus();
 
-    // Optional: Select the content of the clicked input
     inputRefs.current[index]?.select();
   }, []);
 

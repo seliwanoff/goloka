@@ -34,7 +34,7 @@ const HeroSection: React.FC<ComponentProps> = () => {
           </p>
 
           <div className="w-full lg:w-auto">
-            <Link href="/signin" className="block w-full lg:inline-block">
+            <Link href="/signup" className="block w-full lg:inline-block">
               <Button className="mx-auto w-full max-w-sm rounded-full bg-main-100 px-7 py-3.5 text-sm font-light text-white hover:bg-blue-700 lg:w-auto">
                 Get Started
               </Button>

@@ -23,6 +23,8 @@ import { FaSpinner } from "react-icons/fa";
 import { getCountry, getOTP } from "@/services/misc";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { GoogleLogin } from "@react-oauth/google";
+import { useAuth } from "@/services/auth/hooks";
 
 type PageProps = {
   setStep: (step: number, email?: string) => void;
@@ -36,6 +38,7 @@ type FormValues = {
 };
 
 const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
+  const { googleLogin } = useAuth();
   const [eye1, setEye1] = useState(false);
   const [eye2, setEye2] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -69,72 +72,78 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
   const handleToggle2 = () => {
     setEye2((prev: boolean) => !prev);
   };
-
-
-const onSubmit: SubmitHandler<FormValues> = async (data) => {
-  // Prevent duplicate submissions
-  if (isSubmitting || isLoading) return;
-
-  try {
-    setIsLoading(true);
-
-    const userData = {
-      name: data.fullname,
-      email: data.email,
-      country_id: countryId,
-      password: data.password,
-      password_confirmation: data.password2,
-      platform: "web",
-    };
-    //@ts-ignore
-    const response = await createUser(userData);
-
-    if (!response) {
-      toast.error("Error creating user, Please try again");
-      return;
+  const handleGoogleSuccess = (credentialResponse: any) => {
+    if (credentialResponse.credential) {
+      const res = googleLogin(credentialResponse.credential);
     }
-    //@ts-ignore
-    const { access_token, token_type, refresh_token } = response.tokens;
+  };
+  const handleGoogleError = () => {
+    toast.error("Google sign-in was unsuccessful. Please try again.");
+  };
 
-    // Store tokens
-    localStorage.setItem("access_token", JSON.stringify(access_token));
-    localStorage.setItem("refresh_token", JSON.stringify(refresh_token));
-    localStorage.setItem("token_type", JSON.stringify(token_type));
+  const onSubmit: SubmitHandler<FormValues> = async (data) => {
+    // Prevent duplicate submissions
+    if (isSubmitting || isLoading) return;
 
-    // Get OTP
-    const otpResponse = await getOTP({});
+    try {
+      setIsLoading(true);
 
-    if (otpResponse) {
+      const userData = {
+        name: data.fullname,
+        email: data.email,
+        country_id: countryId,
+        password: data.password,
+        password_confirmation: data.password2,
+        platform: "web",
+      };
       //@ts-ignore
-      toast.success(response.message);
-      setStep(2, data.email);
-    }
-  } catch (error: any) {
-    // Handle validation errors
-    if (error?.response?.status === 422) {
-      const { errors } = error.response.data;
+      const response = await createUser(userData);
 
-      // Display individual error messages
-      Object.entries(errors).forEach(([field, messages]) => {
-        // Handle array of error messages
-        if (Array.isArray(messages)) {
-          messages.forEach((message) => {
-            toast.error(message);
-          });
-        }
+      if (!response) {
+        toast.error("Error creating user, Please try again");
+        return;
+      }
+      //@ts-ignore
+      const { access_token, token_type, refresh_token } = response.tokens;
 
-      });
-    } else {
-      // Handle other types of errors
-      toast.error(
-        error?.response?.data?.message || "An error occurred during signup",
-      );
+      // Store tokens
+      localStorage.setItem("access_token", JSON.stringify(access_token));
+      localStorage.setItem("refresh_token", JSON.stringify(refresh_token));
+      localStorage.setItem("token_type", JSON.stringify(token_type));
+
+      // Get OTP
+      const otpResponse = await getOTP({});
+
+      if (otpResponse) {
+        //@ts-ignore
+        toast.success(response.message);
+        setStep(2, data.email);
+      }
+    } catch (error: any) {
+      // Handle validation errors
+      if (error?.response?.status === 422) {
+        const { errors } = error.response.data;
+
+        // Display individual error messages
+        Object.entries(errors).forEach(([field, messages]) => {
+          // Handle array of error messages
+          if (Array.isArray(messages)) {
+            messages.forEach((message) => {
+              toast.error(message);
+            });
+          }
+        });
+      } else {
+        // Handle other types of errors
+        toast.error(
+          error?.response?.data?.message || "An error occurred during signup",
+        );
+      }
+      console.error("Signup error:", error?.response);
+    } finally {
+      setIsLoading(false);
     }
-    console.error("Signup error:", error?.response);
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   return (
     <div className="relative md:w-[70%] lg:w-[80%]">
@@ -318,10 +327,22 @@ const onSubmit: SubmitHandler<FormValues> = async (data) => {
               "Sign up"
             )}
           </Button>
-          <Button className="h-12 w-full gap-2 rounded-full border border-main-100 bg-main-100 bg-opacity-15 text-base font-light text-white hover:bg-current">
-            <FcGoogle size={20} />{" "}
-            <span className="text-neutral-600">Sign up with Google</span>
-          </Button>
+
+          <div className="mt-4 flex w-full justify-center">
+            <div className="h-12 w-full">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                type="standard"
+                theme="outline"
+                size="large"
+                shape="pill"
+                width="100%"
+                text="signup_with"
+                logo_alignment="center"
+              />
+            </div>
+          </div>
         </div>
 
         <p className="my-3 text-center">
@@ -332,11 +353,14 @@ const onSubmit: SubmitHandler<FormValues> = async (data) => {
         </p>
         <p className="text-center">
           By Signing In, you agree to our{" "}
-          <Link href="/" className="text-main-100">
-            terms of services
+          <Link
+            href="/compliance/terms-and-conditions"
+            className="text-main-100"
+          >
+            terms and conditions
           </Link>{" "}
           and that you have read our{" "}
-          <Link href="/" className="text-main-100">
+          <Link href="/compliance/privacy-policy" className="text-main-100">
             privacy policy
           </Link>{" "}
         </p>
