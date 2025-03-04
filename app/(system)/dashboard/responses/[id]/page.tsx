@@ -67,7 +67,8 @@ import MultipleChoices from "@/components/ui/multiple-choices";
 import CheckboxList from "@/components/task-stepper/checkboxOption";
 import DynamicSelect from "@/components/task-stepper/dropdownOption";
 import Link from "next/link";
-import { useGoogleMap, useMediaViewer } from "@/stores/overlay";
+import { useGoogleMap, useMediaViewer, useShowReport } from "@/stores/overlay";
+import ReportModal from "@/components/lib/modals/report_modal";
 
 interface QuestionOptions {
   id: number;
@@ -117,6 +118,7 @@ const ResponseDetails = () => {
   const res = response?.data;
   const { shows, setShows, setType, setUrl } = useMediaViewer();
   const { show, setShow, setCoordinates, setMethod } = useGoogleMap();
+  const { setShowReport, setReportId } = useShowReport();
 
   const handleFileClick = (url: any, type: any) => {
     //alert(`Clicked on`);
@@ -399,6 +401,8 @@ const ResponseDetails = () => {
     enabled: !!res?.campaign_id,
     retry: false,
   });
+  //@ts-ignore
+  console.log(res?.campaign_id);
 
   // Optional: Handle loading states
   if (isResponseLoading || isTaskLoading) {
@@ -417,10 +421,6 @@ const ResponseDetails = () => {
       </div>
     );
   }
-
-  console.log("Response:", res);
-  console.log("Task:", task);
-  console.log("remoteUser:", currentUser);
 
   //@ts-ignore
   const answers = response?.data?.answers;
@@ -506,11 +506,11 @@ const ResponseDetails = () => {
             {/* MESSAGE CHAT SHEET */}
             <div className="col-span-2 md:col-span-1 md:place-self-end">
               {isDesktop ? (
-                <>
+                <div className="flex w-full gap-[7px]">
                   <Sheet open={open} onOpenChange={setOpen}>
-                    <SheetTrigger asChild className="relative flex justify-end">
+                    <SheetTrigger asChild className="flex gap-2">
                       <Button className="h-full w-[150px] gap-3 rounded-full bg-[#3365E314] py-3 font-medium text-main-100 hover:bg-[#3365E314]">
-                        Message{" "}
+                        Messages{" "}
                         <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#f10] text-xs font-normal text-white">
                           {/* @ts-ignore */}
                           {res?.unread_messages_count}
@@ -587,7 +587,28 @@ const ResponseDetails = () => {
                       </SheetFooter> */}
                     </SheetContent>
                   </Sheet>
-                </>
+
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <span className="mt-0 flex h-8 w-8 -translate-y-[calc(50%_-_20px)] cursor-pointer items-center justify-center rounded-full bg-[#F0F0F0] text-[#828282]">
+                        <EllipsisVertical size={20} className="rotate-90" />
+                      </span>
+                    </PopoverTrigger>
+                    <PopoverContent className="max-w-fit cursor-pointer rounded-md text-[#EB5757] shadow-lg hover:bg-slate-200">
+                      <div
+                        className="item-center flex gap-3 text-[#EB5757]"
+                        onClick={() => {
+                          setShowReport(true);
+                          //@ts-ignore
+                          setReportId(res?.campaign_id);
+                        }}
+                      >
+                        <OctagonAlert />
+                        <p className="text-[#EB5757]">Report user</p>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
               ) : (
                 <>
                   <Drawer open={open} onOpenChange={setOpen}>
@@ -790,6 +811,10 @@ const ResponseDetails = () => {
           </Tabs>
         </div>
       </section>
+
+      {/***** REPORT MODAL */}
+
+      <ReportModal />
     </>
   );
 };

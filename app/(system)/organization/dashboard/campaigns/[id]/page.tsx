@@ -30,7 +30,6 @@ import {
   X,
 } from "lucide-react";
 import { ArchiveMinus, EyeSlash, Note } from "iconsax-react";
-// import Map from "@/public/assets/images/tasks/tasks.png";
 import Link from "next/link";
 
 import { useStepper } from "@/context/TaskStepperContext.tsx";
@@ -119,6 +118,7 @@ import {
   useEditAQuestion,
   useEditMainCampaignOverlay,
   useRearrageQuestion,
+  useShowReport,
 } from "@/stores/overlay";
 import ReArrangeQuestion from "@/components/lib/modals/rearrange_modal";
 import EditQuestionModal from "@/components/lib/modals/Edit_question_modal";
@@ -127,6 +127,7 @@ import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
 import ChatWidget from "@/components/lib/widgets/response-chat-widget";
 import { useMediaQuery } from "@react-hook/media-query";
 import { getCurrentUser } from "@/services/user";
+import ReportModal from "@/components/lib/modals/report_modal";
 //import ConfirmFunding from "@/components/wallet_comps/confirm_funding";
 
 const SkeletonBox = ({ className }: { className?: string }) => (
@@ -204,6 +205,7 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
   const { user } = useRemoteUserStore();
 
   const [userId, setUserId] = useState("");
+  const { setShowReport, setReportId } = useShowReport();
 
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
@@ -244,6 +246,7 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
     setStartDate,
     number_of_responses,
     payment_rate_for_response,
+    setImage,
 
     setLgids,
   } = useEditMainCampaignOverlay();
@@ -574,12 +577,13 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
   };
 
   const currentPageData = pages[currentPage - 1] || [];
+
   const {
     data: task,
     isLoading,
     refetch,
   } = useQuery({
-    queryKey: ["Get task"],
+    queryKey: ["Get task", show],
     queryFn: async () => await getCampaignByIdDetails(campaignId as string),
   });
   // console.log(responseId, "responseId");
@@ -811,13 +815,14 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
         )}
 
         {task?.data?.status !== "completed" &&
-          task?.data?.status !== "running" && (
+          task?.data?.status !== "running" &&
+          task?.data?.status !== "draft" && (
             <div
-              className="flex cursor-pointer justify-center gap-2 rounded-full border border-blue-600 px-8 py-3 font-poppins text-base text-blue-600"
+              className="flex w-fit cursor-pointer justify-center gap-2 text-nowrap rounded-full border border-blue-600 px-8 py-3 font-poppins text-base text-blue-600"
               onClick={() => handleStatusCampaign("draft")}
             >
               <Note size={20} />
-              Draft
+              Change to draft
             </div>
           )}
         {task?.data?.status === "draft" && (
@@ -844,6 +849,7 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
                 task?.data.payment_rate_for_response,
               );
               setStartDate(task?.data.starts_at);
+              setImage(task.data.image_path[0]);
               setId(task?.data.id);
               setEndDate(task?.data.ends_at);
               setNumberOfresponse(task?.data.number_of_responses);
@@ -1011,8 +1017,31 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
 
               <div>{<StatusPill status={task?.data?.status} />}</div>
             </div>
+            <div className="flex items-center justify-end gap-2">
+              <MessageComponent />
 
-            <MessageComponent />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <span className="mt-0 flex h-8 w-8 -translate-y-[calc(50%_-_20px)] cursor-pointer items-center justify-center rounded-full bg-[#F0F0F0] text-[#828282]">
+                    <EllipsisVertical size={20} className="rotate-90" />
+                  </span>
+                </PopoverTrigger>
+                <PopoverContent className="max-w-fit cursor-pointer rounded-md text-[#EB5757] shadow-lg hover:bg-slate-200">
+                  <div
+                    className="item-center flex gap-3 text-[#EB5757]"
+                    onClick={() => {
+                      setShowReport(true);
+                      //@ts-ignore
+                      setReportId(campaignId);
+                    }}
+                  >
+                    <OctagonAlert />
+                    <p className="text-[#EB5757]">Report user</p>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+
             {/* -- Details */}
             <div className="grid h-[30%] gap-4">
               <div className="mb-4 h-full w-full rounded-2xl bg-white p-5 md:mb-0">
@@ -1238,6 +1267,10 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
           </>
         )}
       </section>
+
+      {/****  REPORT MODAL */}
+
+      <ReportModal />
     </>
   );
 };

@@ -15,7 +15,7 @@ const AuthLayout: React.FC<LayoutProps> = ({ children }) => {
 
       <div className="flex h-screen min-h-[300px] w-full items-center bg-white p-5">
         {/* -- content */}
-        <main className="relative flex h-max w-full items-center justify-center lg:w-1/2">
+        <main className="relative flex  w-full  justify-center lg:w-1/2">
           <div className="absolute -top-11 left-9 z-0 hidden h-full w-full lg:block">
             <Image
               src={BgPattern}
@@ -23,7 +23,7 @@ const AuthLayout: React.FC<LayoutProps> = ({ children }) => {
               className="scale-105"
             />
           </div>
-          <div className="z-50">{children}</div>
+          <div className="z-50 ">{children}</div>
         </main>
 
         {/* ####################################### */}

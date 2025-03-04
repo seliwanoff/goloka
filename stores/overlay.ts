@@ -54,7 +54,12 @@ interface CampaignGroupState {
   setShowCreate: (value: boolean) => void;
   setFecthed: (value: boolean) => void;
 }
-
+interface ReportState {
+  showReport: boolean;
+  reportId: string;
+  setReportId: (value: string) => void;
+  setShowReport: (value: boolean) => void;
+}
 interface RearrangeQuestion {
   showQuestion: boolean;
   setShowQuestion: (value: boolean) => void;
@@ -132,6 +137,8 @@ interface EditCampaignMainState {
   allow_multiple_responses: boolean;
   setAllowMultipleResponses: (value: boolean) => void;
   type: string;
+  image: string;
+  setImage: (value: string) => void;
   setType: (value: string) => void;
 }
 const useShowOverlay = create<StoreState>((set) => ({
@@ -198,6 +205,14 @@ const useAddcampaignGroupOverlay = create<CampaignGroupState>((set) => ({
   fetchData: false,
   setFecthed: (value) => set({ fetchData: value }),
   setShowCreate: (value) => set({ show: value }),
+}));
+
+const useShowReport = create<ReportState>((set) => ({
+  showReport: false,
+  reportId: "",
+  setReportId: (value) => set({ reportId: value }),
+
+  setShowReport: (value) => set({ showReport: value }),
 }));
 
 const useRearrageQuestion = create<RearrangeQuestion>((set) => ({
@@ -280,6 +295,8 @@ const useEditMainCampaignOverlay = create<EditCampaignMainState>((set) => ({
     set({ allow_multiple_responses: value }),
   type: "",
   setType: (value) => set({ type: value }),
+  image: "",
+  setImage: (value) => set({ image: value }),
 }));
 export {
   useShowOverlay,
@@ -300,4 +317,5 @@ export {
   useRearrageQuestion,
   useEditAQuestion,
   useCreateContributorOverlay,
+  useShowReport,
 };

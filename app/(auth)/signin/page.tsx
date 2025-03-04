@@ -19,7 +19,8 @@ import { GoogleLogin, useGoogleLogin } from "@react-oauth/google";
 import { useQuery } from "@tanstack/react-query";
 import { useRemoteUserStore } from "@/stores/remoteUser";
 import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
-
+import { useAuth } from "@/services/auth/hooks";
+import { getOTP } from "@/services/misc";
 
 type PageProps = {};
 
@@ -30,6 +31,7 @@ type FormValues = {
 
 const SignIn: React.FC<PageProps> = ({}) => {
   const [eye1, setEye1] = useState(false);
+  const { googleLogin, isNavigating } = useAuth();
   const router = useRouter();
   const {
     register,
@@ -37,53 +39,6 @@ const SignIn: React.FC<PageProps> = ({}) => {
     formState: { errors },
   } = useForm<FormValues>();
 
-  // const handleGoogleSuccess = async (credentialResponse: any) => {
-  //   console.log(credentialResponse, " hthhthththt");
-  //   try {
-  //     const res = await fetch(
-  //       "https://staging.goloka.io/api/login/google/auth",
-  //       {
-  //         method: "POST",
-  //         headers: {
-  //           Accept: "application/json",
-  //         },
-  //         body: new URLSearchParams({
-  //           id_token: credentialResponse.credential,
-  //           platform: "web",
-  //         }),
-  //       },
-  //     );
-
-  //     const data = await res.json();
-
-  //     if (!res.ok) {
-  //       throw new Error(data.message || "Google sign-in failed");
-  //     }
-
-  //     // Store tokens
-  //     localStorage.setItem(
-  //       "access_token",
-  //       JSON.stringify(data.tokens.access_token),
-  //     );
-  //     localStorage.setItem(
-  //       "refresh_token",
-  //       JSON.stringify(data.tokens.refresh_token),
-  //     );
-  //     localStorage.setItem(
-  //       "token_type",
-  //       JSON.stringify(data.tokens.token_type),
-  //     );
-
-  //     toast.success("Google sign in successful");
-  //     router.replace("/dashboard/root");
-  //   } catch (error: any) {
-  //     console.error("Google sign-in error:", error);
-  //     toast.error(error.message || "Failed to sign in with Google");
-  //   }
-  // };
-  // const handleGoogleError = () => {
-  //   toast.error("Google sign-in was unsuccessful. Please try again.");
-  // };
   const handleToggle1 = () => {
     setEye1((prev: boolean) => !prev);
   };
@@ -91,65 +46,140 @@ const SignIn: React.FC<PageProps> = ({}) => {
   const currentOrganization = useOrganizationStore(
     (state) => state.organization,
   );
-  // console.log(currentOrganization);
 
-  // const login = useGoogleLogin({
-  //   onSuccess: handleGoogleSuccess,
-  //   onError: handleGoogleError,
-  //   flow: "auth-code",
-  // });
-
-  const onSubmit: SubmitHandler<FormValues> = async (data) => {
-    setIsLoading(true);
-
-    try {
-      const { email, password } = data;
-      // console.log(data);
-
-      const response = await userSignIn(email, password);
-
-      if (!response) {
-        throw new Error(
-          "Failed to sign in. Please check your credentials and try again.",
-        );
-      }
-      //@ts-ignore
-      // setUser(remoteUser.data);
-
-      //@ts-ignore
-      const { access_token, token_type, refresh_token } = response.tokens;
-
-      //const {}
-
-      const storeTokens = () => {
-        localStorage.setItem("access_token", JSON.stringify(access_token));
-        localStorage.setItem("refresh_token", JSON.stringify(refresh_token));
-        localStorage.setItem("token_type", JSON.stringify(token_type));
-      };
-
-      // Redirect to the dashboard
-      storeTokens();
-      //  console.log(response);
-      toast.success("Sign in successful");
-      //@ts-ignore
-      if (response.user.current_role === "campaigner") {
-        router.replace("/organization/dashboard/root");
-      } else {
-        router.replace("/dashboard/root");
-      }
-    } catch (error: any) {
-      console.error("Sign-in error:", error);
-      toast.error(
-        error?.response?.data?.message ||
-          "Failed to sign in. Please try again.",
-      );
-    } finally {
-      setIsLoading(false);
+  const handleGoogleSuccess = (credentialResponse: any) => {
+    console.log(credentialResponse);
+    if (credentialResponse.credential) {
+      googleLogin(credentialResponse.credential);
     }
   };
+  const handleGoogleError = () => {
+    toast.error("Google sign-in was unsuccessful. Please try again.");
+  };
+
+  // const onSubmit: SubmitHandler<FormValues> = async (data) => {
+  //   setIsLoading(true);
+
+  //   try {
+  //     const { email, password } = data;
+  //     // console.log(data);
+
+  //     const response = await userSignIn(email, password);
+
+  //     if (!response) {
+  //       throw new Error(
+  //         "Failed to sign in. Please check your credentials and try again.",
+  //       );
+  //     }
+  //     //@ts-ignore
+  //     // setUser(remoteUser.data);
+
+  //     //@ts-ignore
+  //     const { access_token, token_type, refresh_token } = response.tokens;
+
+  //     //const {}
+
+  //     const storeTokens = () => {
+  //       localStorage.setItem("access_token", JSON.stringify(access_token));
+  //       localStorage.setItem("refresh_token", JSON.stringify(refresh_token));
+  //       localStorage.setItem("token_type", JSON.stringify(token_type));
+  //     };
+
+  //     // Redirect to the dashboard
+  //     storeTokens();
+  //     //  console.log(response);
+  //     toast.success("Sign in successful");
+  //     //@ts-ignore
+  //     if (response.user.current_role === "campaigner") {
+  //       router.replace("/organization/dashboard/root");
+  //     } else {
+  //       router.replace("/dashboard/root");
+  //     }
+  //   } catch (error: any) {
+  //     console.error("Sign-in error:", error);
+  //     toast.error(
+  //       error?.response?.data?.message ||
+  //         "Failed to sign in. Please try again.",
+  //     );
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
+ const onSubmit: SubmitHandler<FormValues> = async (data) => {
+   setIsLoading(true);
+
+   try {
+     const { email, password } = data;
+
+
+     toast.loading("Signing you in...");
+
+     const response = await userSignIn(email, password);
+
+     if (!response) {
+       throw new Error(
+         "Failed to sign in. Please check your credentials and try again.",
+       );
+     }
+
+     //@ts-ignore
+     const { access_token, token_type, refresh_token } = response.tokens;
+
+     // Store tokens immediately
+     localStorage.setItem("access_token", JSON.stringify(access_token));
+     localStorage.setItem("refresh_token", JSON.stringify(refresh_token));
+     localStorage.setItem("token_type", JSON.stringify(token_type));
+
+     //@ts-ignore
+
+     if (response?.user?.email_verified_at === null) {
+
+       toast.dismiss();
+       toast.success("Sign in successful, verification needed");
+
+       // in parallel with navigation preparation to prevent any bulls***T
+       const otpPromise = getOTP({});
+
+       //@ts-ignore
+       const redirectUrl = `/signup?step=2&email=${encodeURIComponent(response?.user?.email)}`;
+       router.prefetch(redirectUrl);
+
+       const otpResponse = await otpPromise;
+       if (otpResponse) {
+         router.push(redirectUrl);
+       }
+       return;
+     }
+
+     //  parallel
+     toast.dismiss();
+     toast.success("Sign in successful");
+
+     const redirectPath =
+     //@ts-ignore
+       response.user.current_role === "campaigner"
+         ? "/organization/dashboard/root"
+         : "/dashboard/root";
+
+
+     router.prefetch(redirectPath);
+
+
+     router.replace(redirectPath);
+   } catch (error: any) {
+     toast.dismiss();
+     console.error("Sign-in error:", error);
+     toast.error(
+       error?.response?.data?.message || "Failed to sign in. Please try again.",
+     );
+   } finally {
+     setIsLoading(false);
+   }
+ };
 
   return (
-    <div className="mx-auto w-full max-w-lg px-4 sm:px-6 lg:px-8">
+    <div className="w-full max-w-2xl">
       <div className="w-full rounded-lg bg-white p-8">
         {/* HEADING */}
         <div className="mb-8 text-center">
@@ -226,35 +256,24 @@ const SignIn: React.FC<PageProps> = ({}) => {
             >
               {isLoading ? <FaSpinner className="animate-spin" /> : "Login"}
             </Button>
-            {/* <Button
-              type="button"
-              onClick={() => login()}
-              className="h-12 w-full gap-2 rounded-full border border-main-100 bg-main-100 bg-opacity-15 text-base font-light text-white hover:bg-current"
-            >
-              <FcGoogle size={20} />
-              <span className="text-neutral-600">Login with Google</span>
-            </Button> */}
-
-            {/* <div className="flex justify-center w-full">
-  <div className="w-full">
-    <GoogleLogin
-      onSuccess={handleGoogleSuccess}
-      onError={handleGoogleError}
-      type="standard"
-      theme="outline"
-      size="large"
-      shape="pill"
-      width="100%"
-      text="continue_with"
-      custom_style={{
-        height: '48px',
-        backgroundColor: 'rgba(var(--main-100), 0.15)',
-        border: '1px solid var(--main-100)',
-        borderRadius: '9999px',
-      }}
-    />
-  </div>
-</div> */}
+            {isNavigating && <LoadingOverlay />}
+            <div className="mt-4 flex w-full justify-center">
+              <div className="h-12 w-full">
+                {" "}
+                {/* Added h-12 to match your button height */}
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={handleGoogleError}
+                  type="standard"
+                  theme="outline"
+                  size="large"
+                  shape="pill"
+                  width="100%"
+                  text="signin_with"
+                  logo_alignment="center"
+                />
+              </div>
+            </div>
           </div>
 
           <p className="my-8 text-center">
@@ -270,3 +289,15 @@ const SignIn: React.FC<PageProps> = ({}) => {
 };
 
 export default SignIn;
+const LoadingOverlay = () => (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm transition-all">
+    <div className="rounded-lg bg-white p-6 shadow-lg">
+      <div className="flex items-center space-x-4">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-main-100 border-t-transparent" />
+        <p className="text-sm font-medium text-gray-700">
+          Preparing your dashboard...
+        </p>
+      </div>
+    </div>
+  </div>
+);
