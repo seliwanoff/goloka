@@ -118,6 +118,7 @@ import {
   useEditAQuestion,
   useEditMainCampaignOverlay,
   useRearrageQuestion,
+  useShowReport,
 } from "@/stores/overlay";
 import ReArrangeQuestion from "@/components/lib/modals/rearrange_modal";
 import EditQuestionModal from "@/components/lib/modals/Edit_question_modal";
@@ -126,6 +127,7 @@ import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
 import ChatWidget from "@/components/lib/widgets/response-chat-widget";
 import { useMediaQuery } from "@react-hook/media-query";
 import { getCurrentUser } from "@/services/user";
+import ReportModal from "@/components/lib/modals/report_modal";
 //import ConfirmFunding from "@/components/wallet_comps/confirm_funding";
 
 const SkeletonBox = ({ className }: { className?: string }) => (
@@ -203,6 +205,7 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
   const { user } = useRemoteUserStore();
 
   const [userId, setUserId] = useState("");
+  const { setShowReport, setReportId } = useShowReport();
 
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
@@ -1014,8 +1017,31 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
 
               <div>{<StatusPill status={task?.data?.status} />}</div>
             </div>
+            <div className="flex items-center justify-end gap-2">
+              <MessageComponent />
 
-            <MessageComponent />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <span className="mt-0 flex h-8 w-8 -translate-y-[calc(50%_-_20px)] cursor-pointer items-center justify-center rounded-full bg-[#F0F0F0] text-[#828282]">
+                    <EllipsisVertical size={20} className="rotate-90" />
+                  </span>
+                </PopoverTrigger>
+                <PopoverContent className="max-w-fit cursor-pointer rounded-md text-[#EB5757] shadow-lg hover:bg-slate-200">
+                  <div
+                    className="item-center flex gap-3 text-[#EB5757]"
+                    onClick={() => {
+                      setShowReport(true);
+                      //@ts-ignore
+                      setReportId(campaignId);
+                    }}
+                  >
+                    <OctagonAlert />
+                    <p className="text-[#EB5757]">Report user</p>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+
             {/* -- Details */}
             <div className="grid h-[30%] gap-4">
               <div className="mb-4 h-full w-full rounded-2xl bg-white p-5 md:mb-0">
@@ -1241,6 +1267,10 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
           </>
         )}
       </section>
+
+      {/****  REPORT MODAL */}
+
+      <ReportModal />
     </>
   );
 };

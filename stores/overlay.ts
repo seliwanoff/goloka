@@ -54,7 +54,12 @@ interface CampaignGroupState {
   setShowCreate: (value: boolean) => void;
   setFecthed: (value: boolean) => void;
 }
-
+interface ReportState {
+  showReport: boolean;
+  reportId: string;
+  setReportId: (value: string) => void;
+  setShowReport: (value: boolean) => void;
+}
 interface RearrangeQuestion {
   showQuestion: boolean;
   setShowQuestion: (value: boolean) => void;
@@ -202,6 +207,14 @@ const useAddcampaignGroupOverlay = create<CampaignGroupState>((set) => ({
   setShowCreate: (value) => set({ show: value }),
 }));
 
+const useShowReport = create<ReportState>((set) => ({
+  showReport: false,
+  reportId: "",
+  setReportId: (value) => set({ reportId: value }),
+
+  setShowReport: (value) => set({ showReport: value }),
+}));
+
 const useRearrageQuestion = create<RearrangeQuestion>((set) => ({
   showQuestion: false,
 
@@ -304,4 +317,5 @@ export {
   useRearrageQuestion,
   useEditAQuestion,
   useCreateContributorOverlay,
+  useShowReport,
 };

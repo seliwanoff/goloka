@@ -6,7 +6,17 @@ import React, { useState, useEffect, useMemo } from "react";
 
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Button } from "@/components/ui/button";
-import { Dot, Eye, LoaderCircle, SquarePen, Workflow } from "lucide-react";
+import {
+  Dot,
+  EllipsisVertical,
+  Eye,
+  LoaderCircle,
+  MoveLeft,
+  OctagonAlert,
+  SquarePen,
+  Workflow,
+  X,
+} from "lucide-react";
 import { ArchiveMinus, Note } from "iconsax-react";
 // import Map from "@/public/assets/images/tasks/tasks.png";
 import Link from "next/link";
@@ -32,6 +42,37 @@ import { BookmarkButton } from "@/components/contributor/BookmarkButton";
 import { useRemoteUserStore } from "@/stores/remoteUser";
 import ResponseList from "@/components/response/responseListCard";
 import Map from "@/components/map/map";
+
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  // PopoverClose,
+} from "@/components/ui/popover";
+
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import { useShowReport } from "@/stores/overlay";
+import { useMediaQuery } from "@react-hook/media-query";
+import ChatWidget from "@/components/lib/widgets/response-chat-widget";
+import ReportModal from "@/components/lib/modals/report_modal";
 
 // Dynamically import the LocationMap component with SSR disabled
 const LocationMap = dynamic(() => import("@/components/map/locationmap"), {
@@ -110,6 +151,12 @@ const ContributionDetails: React.FC<PageProps> = ({}) => {
   const [responseId, setResponseId] = useState<string | null>(null);
   const { step } = useStepper();
   const USER_CURRENCY_SYMBOL = user?.country?.["currency-symbol"];
+
+  const { setShowReport, setReportId } = useShowReport();
+
+  const isDesktop = useMediaQuery("(min-width: 768px)");
+  const [open, setOpen] = useState<boolean>(false);
+
   const {
     data: task,
     isLoading,
@@ -134,7 +181,7 @@ const ContributionDetails: React.FC<PageProps> = ({}) => {
   //@ts-ignore
   const locations = useMemo(() => task?.data?.locations, [task]);
 
-  console.log(responses, "response");
+  const currentUser = useRemoteUserStore((state) => state.user);
 
   useEffect(() => {
     const stepperParam = searchParams.get("stepper");
@@ -375,6 +422,172 @@ const ContributionDetails: React.FC<PageProps> = ({}) => {
               </div>
             </div>
 
+            {/* MESSAGE CHAT SHEET */}
+            <div className="col-span-2 md:col-span-1 md:place-self-end">
+              {isDesktop ? (
+                <div className="flex w-full gap-[7px]">
+                  <Sheet open={open} onOpenChange={setOpen}>
+                    <SheetTrigger asChild className="flex gap-2">
+                      <Button className="h-full w-[150px] gap-3 rounded-full bg-[#3365E314] py-3 font-medium text-main-100 hover:bg-[#3365E314]">
+                        Messages{" "}
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#f10] text-xs font-normal text-white">
+                          {/* @ts-ignore */}0
+                        </span>
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent className="border-0 p-0 md:max-w-md lg:max-w-xl">
+                      <SheetHeader className="absolute right-0 top-0 z-10 w-full bg-main-100 p-5">
+                        <div className="flex items-center gap-5">
+                          <div
+                            onClick={() => setOpen(false)}
+                            className="cursor-pointer text-[#fff]"
+                          >
+                            <MoveLeft />
+                          </div>
+                          {/* <Image
+                            src={profileImg}
+                            alt="chat-user"
+                            className="h-12 w-12 rounded-full object-cover object-center"
+                          /> */}
+                          <SheetTitle className="font-normal text-white">
+                            Messages
+                          </SheetTitle>
+                          {/* <SheetDescription className="text-white">
+                            24
+                          </SheetDescription> */}
+                        </div>
+                        {/* CUSTOM CLOSE */}
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <span className="absolute right-4 mt-0 flex h-8 w-8 -translate-y-[calc(50%_-_20px)] cursor-pointer items-center justify-center rounded-full bg-white text-main-100">
+                              <EllipsisVertical size={20} />
+                            </span>
+                          </PopoverTrigger>
+                          <PopoverContent className="max-w-fit cursor-pointer rounded-md text-[#EB5757] shadow-lg hover:bg-slate-200">
+                            <div className="item-center flex gap-3 text-[#EB5757]">
+                              <OctagonAlert />
+                              <p className="text-[#EB5757]">Report user</p>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      </SheetHeader>
+
+                      {/* CHAT WIDGET */}
+                      <div className="mt-24">
+                        <ChatWidget
+                          modelType="campaign"
+                          status={""}
+                          modelId={+taskId}
+                          currentUserId={currentUser?.id as number}
+                        />
+                      </div>
+
+                      {/* CHAT MESSAGE INPUT */}
+                      {/* <SheetFooter className="absolute bottom-0 left-0 w-full border-t md:flex-row md:justify-start md:p-4">
+                        <form id="chat-box" className="block w-full">
+                          <div className="flex w-full items-center gap-6">
+                            <Input
+                              type="text"
+                              name="message"
+                              id="message"
+                              aria-label="Message"
+                              placeholder="Input your message"
+                              className="form-input h-[50px] rounded-full border border-[#DAD8DF] bg-[#F5F5F5] focus:ring-main-100 focus:ring-offset-0 focus-visible:outline-none"
+                            />
+                            <Button className="h-[50px] items-center gap-2 rounded-full bg-main-100 px-5 font-medium text-white">
+                              <span className="">
+                                <Send2 size="24" />
+                              </span>
+                              Send
+                            </Button>
+                          </div>
+                        </form>
+                      </SheetFooter> */}
+                    </SheetContent>
+                  </Sheet>
+
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <span className="mt-0 flex h-8 w-8 -translate-y-[calc(50%_-_20px)] cursor-pointer items-center justify-center rounded-full bg-[#F0F0F0] text-[#828282]">
+                        <EllipsisVertical size={20} className="rotate-90" />
+                      </span>
+                    </PopoverTrigger>
+                    <PopoverContent className="max-w-fit cursor-pointer rounded-md text-[#EB5757] shadow-lg hover:bg-slate-200">
+                      <div
+                        className="item-center flex gap-3 text-[#EB5757]"
+                        onClick={() => {
+                          setShowReport(true);
+                          //@ts-ignore
+                          setReportId(taskId);
+                        }}
+                      >
+                        <OctagonAlert />
+                        <p className="text-[#EB5757]">Report user</p>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              ) : (
+                <>
+                  <Drawer open={open} onOpenChange={setOpen}>
+                    <DrawerTrigger asChild>
+                      <Button className="h-full w-full gap-3 place-self-end rounded-full bg-[#3365E314] py-3 font-medium text-main-100 hover:bg-[#3365E314] focus-visible:ring-0 focus-visible:ring-offset-0 md:w-[150px]">
+                        Message{" "}
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#f10] text-xs font-normal text-white">
+                          {/* @ts-ignore */}0
+                        </span>
+                      </Button>
+                    </DrawerTrigger>
+                    <DrawerContent className="overflow-hidden border-0 focus-visible:outline-none">
+                      <DrawerHeader className="absolute left-0 top-0 z-10 w-full bg-main-100 p-5 text-left">
+                        <DrawerTitle className="font-normal text-white">
+                          {" "}
+                          Messages
+                        </DrawerTitle>
+                        <DrawerDescription className="text-white">
+                          24
+                        </DrawerDescription>
+                        <span
+                          onClick={() => setOpen(false)}
+                          className="absolute right-4 mt-0 flex h-8 w-8 translate-y-[24px] cursor-pointer items-center justify-center rounded-full bg-white text-main-100"
+                        >
+                          <X size={20} />
+                        </span>
+                      </DrawerHeader>
+                      <div className="mt-24" />
+                      {/* <ChatWidget /> */}
+                      <ChatWidget
+                        modelType="campaign"
+                        modelId={+taskId}
+                        status={""}
+                        currentUserId={currentUser?.id as number}
+                      />
+                      {/* <DrawerFooter className="border-t">
+                        <form id="chat-box">
+                          <div className="flex items-center gap-6">
+                            <Input
+                              type="text"
+                              name="message"
+                              id="message"
+                              aria-label="Message"
+                              placeholder="Input your message"
+                              className="form-input h-[50px] rounded-full border border-[#DAD8DF] bg-[#F5F5F5] focus:ring-main-100 focus:ring-offset-0 focus-visible:outline-none"
+                            />
+                            <Button className="h-[50px] items-center gap-2 rounded-full bg-main-100 px-5 font-medium text-white">
+                              <span className="">
+                                <Send2 size="24" />
+                              </span>
+                              Send
+                            </Button>
+                          </div>
+                        </form>
+                      </DrawerFooter> */}
+                    </DrawerContent>
+                  </Drawer>
+                </>
+              )}
+            </div>
+
             {/* -- Details */}
             <div className="grid h-[30%] gap-4 lg:grid-cols-[2fr_1.5fr]">
               <div className="mb-4 h-full w-full rounded-2xl bg-white p-5 md:mb-0">
@@ -510,6 +723,10 @@ const ContributionDetails: React.FC<PageProps> = ({}) => {
           </>
         )}
       </section>
+
+      {/*** REPORT  */}
+
+      <ReportModal />
     </>
   );
 };
