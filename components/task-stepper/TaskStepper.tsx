@@ -28,7 +28,7 @@ type QuestionGroup = {
   questions: Question[];
 };
 
-import React from "react";
+import React, { useEffect } from "react";
 
 import { useStepper } from "@/context/TaskStepperContext.tsx";
 import DynamicQuestion from "./task_question_1";
@@ -37,32 +37,52 @@ import { useSuccessModalStore } from "@/stores/misc";
 
 const TaskStepper = ({
   response,
+  reftechResponse,
   quest,
 }: {
+  reftechResponse: any;
   response: any;
   quest: { question_groups: QuestionGroup[]; ungrouped_questions: Question[] };
 }) => {
   const { isModalOpen, closeModal, isLastStepLoading } = useSuccessModalStore();
   const { step } = useStepper();
   const { question_groups, ungrouped_questions } = quest;
+
+  console.log(quest, "checking my quest quesstion");
   const allGroups = [
     ...question_groups,
     ...(ungrouped_questions.length > 0
       ? [{ order: question_groups.length + 1, questions: ungrouped_questions }]
       : []),
   ];
+
+  //console.log(allGroups, "my checking questions");
   const totalQuestions = allGroups.reduce((sum, group) => {
     return sum + (group.questions ? group.questions.length : 0);
   }, 0);
 
-  console.log(totalQuestions);
+  console.log(allGroups);
+
+  // console.log(step);
+
+  // const currentGroup = allGroups.find((group) => group.order === step);
 
   const currentGroup = allGroups.find((group) => group.order === step);
+
   const isLastStep = step === allGroups.length;
 
   // console.log(currentGroup, "currentGroupcurrentGroup");
-  console.log(response, "responseresponseresponseresponse");
+  //console.log(response, "responseresponseresponseresponse");
   const res = response?.data;
+
+  useEffect(() => {
+    if (response === undefined) {
+      console.log("Hello checking response");
+      reftechResponse();
+    }
+  }, []);
+
+  console.log(response);
   return currentGroup ? (
     <div>
       <DynamicQuestion

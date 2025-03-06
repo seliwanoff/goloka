@@ -27,7 +27,7 @@ import { Toaster } from "@/components/ui/sonner";
 
 import { getCampaignQuestion, getTaskById } from "@/services/contributor";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import moment from "moment";
 import {
   Sheet,
@@ -164,6 +164,12 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
     enabled: !!responseId,
   });
 
+  const queryClient = useQueryClient();
+
+  const reftechResponse = async () => {
+    //@ts-ignore
+    queryClient.invalidateQueries(["get a Response", responseId]);
+  };
   //@ts-ignore
   const locations = useMemo(() => task?.data?.locations, [task]);
   //@ts-ignore
@@ -177,6 +183,9 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
   useEffect(() => {
     const stepperParam = searchParams.get("stepper");
     const stepParam = searchParams.get("step");
+
+    const reId = searchParams.get("responseID") || "";
+    setResponseId(reId);
 
     if (stepperParam === "true" && !isStepper) {
       setIsStepper(true);
@@ -290,6 +299,8 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
     }
   };
 
+  useEffect(() => {});
+
   const onViewResponse = () => {
     //@ts-ignore
     if (task?.data?.responses && task.data.responses.length > 0) {
@@ -335,6 +346,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
   const WrappedTaskStepper = () => (
     <TaskStepper
       response={getResponse}
+      reftechResponse={reftechResponse}
       //@ts-ignore
       quest={quest}
       onStepChange={(newStep: any) => {

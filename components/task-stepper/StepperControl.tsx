@@ -33,9 +33,12 @@ const StepperControl: React.FC<StepperControlProps> = ({
 
   const handleNext = () => {
     next();
+    //updateUrlStep(step + 1);
+  };
+  const handleNext2 = () => {
+    next();
     updateUrlStep(step + 1);
   };
-
   const handlePrevious = () => {
     prevStep();
     updateUrlStep(step - 1);
@@ -54,43 +57,57 @@ const StepperControl: React.FC<StepperControlProps> = ({
       </Button>
 
       {/* Next/Submit Button with Loading Indicator */}
-      <Button
-        onClick={handleNext}
-        className={`cursor-pointer rounded-full px-14 py-3 text-sm font-medium text-white ${
-          isLoading ? "bg-gray-400" : "bg-main-100 hover:bg-blue-700"
-        }`}
-        disabled={isLoading} // Disable the button while loading
-      >
-        {isLoading ? (
-          <span className="flex items-center justify-center">
-            <svg
-              className="mr-2 h-5 w-5 animate-spin text-white"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8v8z"
-              ></path>
-            </svg>
-            Loading...
-          </span>
-        ) : isLastStep ? (
-          "Submit"
-        ) : (
-          "Next"
-        )}
-      </Button>
+
+      {!isLastStep && (
+        <Button
+          onClick={handleNext2}
+          className={`cursor-pointer rounded-full px-14 py-3 text-sm font-medium text-white ${
+            isLoading ? "bg-gray-400" : "bg-main-100 hover:bg-blue-700"
+          }`}
+          disabled={isLoading} // Disable the button while loading
+        >
+          Next
+        </Button>
+      )}
+      {isLastStep && (
+        <Button
+          onClick={handleNext}
+          className={`cursor-pointer rounded-full px-14 py-3 text-sm font-medium text-white ${
+            isLoading ? "bg-gray-400" : "bg-main-100 hover:bg-blue-700"
+          }`}
+          disabled={isLoading} // Disable the button while loading
+        >
+          {isLoading ? (
+            <span className="flex items-center justify-center">
+              <svg
+                className="mr-2 h-5 w-5 animate-spin text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v8z"
+                ></path>
+              </svg>
+              Loading...
+            </span>
+          ) : isLastStep ? (
+            "Submit"
+          ) : (
+            "Next"
+          )}
+        </Button>
+      )}
     </div>
   );
 };
