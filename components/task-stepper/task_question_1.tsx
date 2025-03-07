@@ -462,7 +462,14 @@ const DynamicQuestion = ({
       }
     } catch (error) {
       console.error("Submission error:", error);
-      toast.error(error instanceof Error ? error.message : "An error occurred");
+      //@ts-ignore
+      toast.error(
+        //@ts-ignore
+        error?.response.data.message
+          ? //@ts-ignore
+            error?.response.data.message
+          : "Please answer the required question(s)",
+      );
     } finally {
       setIsLoading(false);
       setLastStepLoading(false);
@@ -593,7 +600,7 @@ const DynamicQuestion = ({
             }
           }
         } catch (error) {
-          console.error("File processing error:", error);
+          //  console.error("File processing error:", error);
           toast.error(`Failed to process file for ${question.label}`);
         }
       } else {
@@ -642,7 +649,7 @@ const DynamicQuestion = ({
          */
     } catch (error) {
       console.error("Submission error:", error);
-      toast.error(error instanceof Error ? error.message : "An error occurred");
+      // toast.error(error instanceof Error ? error.message : "An error occurred");
     } finally {
       //@ts-ignore
       queryClient.invalidateQueries(["campaign questions"]);
