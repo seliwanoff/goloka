@@ -176,7 +176,7 @@ const DynamicQuestion = ({
     value: string | boolean | File | string[] | Location[] | null,
     quesId: string | number,
     type?: string,
-    areaNumber?:string
+    areaNumber?: string,
   ) => {
     if (type === "file" && value instanceof File) {
       const reader = new FileReader();
@@ -187,7 +187,7 @@ const DynamicQuestion = ({
         }));
       };
       reader.readAsDataURL(value);
-    //  onInputedAnswerMonitoring(quesId);
+      //  onInputedAnswerMonitoring(quesId);
     }
 
     // Special handling for area type
@@ -220,9 +220,11 @@ const DynamicQuestion = ({
         };
       });
 
-      console.log(value)
+      console.log(value);
+      //@ts-ignore
 
       if (value.length === 4) {
+        //@ts-ignore
         setQid(quesId);
       }
       //setQid(quesId)
@@ -235,10 +237,16 @@ const DynamicQuestion = ({
         ...prev,
         [quesId]: value,
       }));
-      if (value.length === 2 && type==='line') {
+      //@ts-ignore
+
+      if (value.length === 2 && type === "line") {
+        //@ts-ignore
+
         setQid(quesId);
       }
-      if (type === 'location') {
+      if (type === "location") {
+        //@ts-ignore
+
         setQid(quesId);
       }
       return;
@@ -432,8 +440,8 @@ const DynamicQuestion = ({
       }
         */
 
-      // Final submission handling
-      try {
+    // Final submission handling
+    try {
       if (isLastStep) {
         const submitResponse = await submitResponseEndpoint(
           responseId as string,
@@ -519,8 +527,6 @@ const DynamicQuestion = ({
 
       const promises: Promise<any>[] = [];
 
-
-
       // Handle file uploads
       let hasFileToUpload = false;
       if (["file", "photo", "video", "audio"].includes(question.type)) {
@@ -562,8 +568,7 @@ const DynamicQuestion = ({
                 "application/zip",
                 "application/x-rar-compressed",
                 "application/x-7z-compressed",
-              ]
-
+              ],
             };
 
             const isValidType =
@@ -587,7 +592,7 @@ const DynamicQuestion = ({
           console.error("File processing error:", error);
           toast.error(`Failed to process file for ${question.label}`);
         }
-      }else{
+      } else {
         if (formattedAnswer.answers.length > 0) {
           promises.push(
             createContributorAnswers(responseId as string, formattedAnswer),
@@ -600,7 +605,7 @@ const DynamicQuestion = ({
         promises.length > 0
           ? await Promise.all(promises)
           : [undefined, undefined];
-/***
+      /***
       if (hasFileToUpload && (!fileResponse || !fileResponse.success)) {
         throw new Error(fileResponse?.message || "File upload failed");
       }
@@ -922,8 +927,7 @@ const DynamicQuestion = ({
       case "line":
         return (
           <div className="col-span-2">
-
-<CustomAreaInput
+            <CustomAreaInput
               apiKey={KEY as string}
               questionId={ques.id}
               onLocationSelect={(locations) => {
@@ -933,7 +937,8 @@ const DynamicQuestion = ({
               }}
               defaultLocations={selectedValues[ques.id]}
               maxLocations={2}
-            />{/***
+            />
+            {/***
             <LocationSelector
               apiKey={KEY as string}
               questionId={ques.id}
@@ -955,8 +960,8 @@ const DynamicQuestion = ({
               questionId={ques.id}
               onLocationSelect={(locations) => {
                 //@ts-ignore
-                handleInputChange(locations, ques.id, "area",);
-               // setQid(ques.id);
+                handleInputChange(locations, ques.id, "area");
+                // setQid(ques.id);
               }}
               defaultLocations={selectedValues[ques.id]}
               maxLocations={4}
