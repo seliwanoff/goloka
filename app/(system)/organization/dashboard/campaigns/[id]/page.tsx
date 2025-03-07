@@ -210,6 +210,8 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const [openMessages, setOpenMessages] = useState(false);
+  const [openMessagesAdmin, setOpenMessagesAdmin] = useState(false);
+
   const currentOrganization = useOrganizationStore(
     (state) => state.organization,
   );
@@ -410,6 +412,119 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
         ) : (
           <>
             <Drawer open={open} onOpenChange={setOpen}>
+              <DrawerTrigger asChild>
+                <Button className="h-full w-full gap-3 place-self-end rounded-full bg-[#3365E314] py-3 font-medium text-main-100 hover:bg-[#3365E314] focus-visible:ring-0 focus-visible:ring-offset-0 md:w-[150px]">
+                  Message{" "}
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#f10] text-xs font-normal text-white">
+                    {/* @ts-ignore */}
+                    {/***res?.unread_messages_count () **/}
+                  </span>
+                </Button>
+              </DrawerTrigger>
+              <DrawerContent className="overflow-hidden border-0 focus-visible:outline-none">
+                <DrawerHeader className="absolute left-0 top-0 z-10 w-full bg-main-100 p-5 text-left">
+                  <DrawerTitle className="font-normal text-white">
+                    {" "}
+                    Messages
+                  </DrawerTitle>
+                  <DrawerDescription className="text-white">
+                    24
+                  </DrawerDescription>
+                  <span
+                    onClick={() => setOpen(false)}
+                    className="absolute right-4 mt-0 flex h-8 w-8 translate-y-[24px] cursor-pointer items-center justify-center rounded-full bg-white text-main-100"
+                  >
+                    <X size={20} />
+                  </span>
+                </DrawerHeader>
+                <div className="mt-24" />
+                {/* <ChatWidget /> */}
+                <ChatWidget
+                  modelType="response"
+                  modelId={+campaignId}
+                  status={task?.data?.status}
+                  //@ts-ignore
+                  currentUserId={userId}
+                />
+              </DrawerContent>
+            </Drawer>
+          </>
+        )}
+      </div>
+    );
+  };
+
+  const MessageComponentWithAdmin = () => {
+    return (
+      <div className="col-span-2 md:col-span-1 md:place-self-end">
+        {isDesktop ? (
+          <>
+            <Sheet open={openMessagesAdmin} onOpenChange={setOpenMessagesAdmin}>
+              <SheetTrigger asChild className="relative flex justify-end">
+                <Button className="h-full w-[180px] gap-3 rounded-full bg-[#3365E314] py-3 font-medium text-main-100 hover:bg-[#3365E314]">
+                  Chat with admin{" "}
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#f10] text-xs font-normal text-white">
+                    {/* @ts-ignore */}
+                    {/***res?.unread_messages_count **/}0{" "}
+                  </span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent className="border-0 p-0 md:max-w-md lg:max-w-xl">
+                <SheetHeader className="absolute right-0 top-0 z-10 w-full bg-main-100 p-5">
+                  <div className="flex items-center gap-5">
+                    <div
+                      onClick={() => setOpenMessages(false)}
+                      className="cursor-pointer text-[#fff]"
+                    >
+                      <MoveLeft />
+                    </div>
+                    {/* <Image
+                  src={profileImg}
+                  alt="chat-user"
+                  className="h-12 w-12 rounded-full object-cover object-center"
+                /> */}
+                    <SheetTitle className="font-normal text-white">
+                      Message
+                    </SheetTitle>
+                    {/* <SheetDescription className="text-white">
+                  24
+                </SheetDescription> */}
+                  </div>
+                  {/* CUSTOM CLOSE */}
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <span className="absolute right-4 mt-0 flex h-8 w-8 -translate-y-[calc(50%_-_20px)] cursor-pointer items-center justify-center rounded-full bg-white text-main-100">
+                        <EllipsisVertical size={20} />
+                      </span>
+                    </PopoverTrigger>
+                    <PopoverContent className="max-w-fit cursor-pointer rounded-md text-[#EB5757] shadow-lg hover:bg-slate-200">
+                      <div className="item-center flex gap-3 text-[#EB5757]">
+                        <OctagonAlert />
+                        <p className="text-[#EB5757]">Report user</p>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </SheetHeader>
+
+                {/* CHAT WIDGET */}
+                <div className="mt-24">
+                  <ChatWidget
+                    modelType="report"
+                    modelId={+campaignId}
+                    status={task?.data?.status}
+                    //@ts-ignore
+                    currentUserId={userId}
+                  />
+                </div>
+              </SheetContent>
+            </Sheet>
+          </>
+        ) : (
+          <>
+            <Drawer
+              open={openMessagesAdmin}
+              onOpenChange={setOpenMessagesAdmin}
+            >
               <DrawerTrigger asChild>
                 <Button className="h-full w-full gap-3 place-self-end rounded-full bg-[#3365E314] py-3 font-medium text-main-100 hover:bg-[#3365E314] focus-visible:ring-0 focus-visible:ring-offset-0 md:w-[150px]">
                   Message{" "}
@@ -1017,7 +1132,9 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
 
               <div>{<StatusPill status={task?.data?.status} />}</div>
             </div>
-            <div className="flex items-center justify-end gap-2">
+            <div className="flex w-full items-center justify-end gap-2">
+              <MessageComponentWithAdmin />
+
               <MessageComponent />
 
               <Popover>

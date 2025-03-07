@@ -47,6 +47,8 @@ const CustomAreaInput = ({
     [defaultLocations],
   );
 
+/// console.log(questionId)
+
   // State to store locations with potential address resolution
   const [locations, setLocations] = useState<Location[]>(() =>
     Array.from({ length: maxLocations }, (_, index) => {
@@ -75,6 +77,8 @@ const CustomAreaInput = ({
               const response = await fetch(
                 `https://maps.googleapis.com/maps/api/geocode/json?latlng=${loc.latitude},${loc.longitude}&key=${apiKey}`,
               );
+
+            //  console.log(response, 'Location response')
               const data = await response.json();
 
               if (data.results && data.results.length > 0) {
@@ -108,7 +112,7 @@ const CustomAreaInput = ({
       );
     };
 
-    if (memoizedDefaultLocations.length > 0 && !isAddressResolved) {
+   if (memoizedDefaultLocations.length > 0 && !isAddressResolved) {
       resolveAddressesForDefaultLocations();
     }
   }, [memoizedDefaultLocations, apiKey, isAddressResolved, onLocationSelect]);
@@ -200,6 +204,8 @@ const CustomAreaInput = ({
     [locations, updateLocations, apiKey],
   );
 
+
+ // console.log(locations,"locations")
   // Function to get current location
   const getCurrentLocation = () => {
     return new Promise<{ latitude: number; longitude: number }>(
@@ -213,6 +219,8 @@ const CustomAreaInput = ({
               });
             },
             (error) => {
+              alert("Geolocation is not supported by this browser.");
+
               console.error("Error getting location:", error);
               reject(error);
             },
@@ -243,8 +251,9 @@ const CustomAreaInput = ({
             <div className="flex w-full items-center space-x-2">
               <Autocomplete
                 apiKey={apiKey}
+disabled={true}
                 defaultValue={location.address || ""}
-                placeholder="Search for a location"
+                placeholder="Move to each point to get location"
                 className="w-full rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-3 text-gray-700 placeholder-gray-400 shadow-sm placeholder:text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 options={{
                   types: ["geocode"],
@@ -278,7 +287,13 @@ const CustomAreaInput = ({
                     <CommandList>
                       <CommandGroup>
                         <CommandItem
-                          onSelect={async () => {
+                          style={{ pointerEvents: "auto" }} // Force enable pointer events
+
+
+                          onSelect={async (event) => {
+                           // event.preventDefault(); // Prevents the popover from closing immediately
+
+                            console.log("Hello locations")
                             try {
                               const currentLocation =
                                 await getCurrentLocation();
