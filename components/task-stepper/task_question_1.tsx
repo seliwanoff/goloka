@@ -468,7 +468,7 @@ const DynamicQuestion = ({
         error?.response.data.message
           ? //@ts-ignore
             error?.response.data.message
-          : "Please answer the required question(s)",
+          : "Some required question(s) are missing answers",
       );
     } finally {
       setIsLoading(false);
