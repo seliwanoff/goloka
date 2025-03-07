@@ -75,7 +75,7 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({
         id: Date.now().toString(),
       };
     } catch (error) {
-      console.error("Error fetching location details:", error);
+      // console.error("Error fetching location details:", error);
       return {
         address: "Location",
         city: "",
@@ -104,6 +104,8 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({
             defaultLatitude,
             defaultLongitude,
           );
+          console.log(currentLocation);
+          console.log(locationDetails);
 
           if (isMounted) {
             // Avoid calling onLocationSelect if location is the same
@@ -113,7 +115,7 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({
               currentLocation.longitude !== locationDetails.longitude
             ) {
               setCurrentLocation(locationDetails);
-              onLocationSelect(locationDetails, questionId);
+              // onLocationSelect(locationDetails, questionId);
             }
           }
         } catch (error) {
@@ -124,7 +126,6 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({
 
     prefillDefaultLocation();
 
-    // Cleanup function to prevent state updates on unmounted component
     return () => {
       isMounted = false;
     };
@@ -133,7 +134,7 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({
     defaultLongitude,
     questionId,
     fetchLocationDetails,
-    onLocationSelect,
+    // onLocationSelect,
     currentLocation,
   ]);
 

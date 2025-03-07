@@ -48,20 +48,20 @@ const TaskStepper = ({
   const { step } = useStepper();
   const { question_groups, ungrouped_questions } = quest;
 
-  console.log(quest, "checking my quest quesstion");
   const allGroups = [
-    ...question_groups,
     ...(ungrouped_questions.length > 0
-      ? [{ order: question_groups.length + 1, questions: ungrouped_questions }]
+      ? [{ order: 1, questions: ungrouped_questions }]
       : []),
+    ...question_groups.map((group, index) => ({
+      ...group,
+      order: index + 2, // Start from 2 since ungrouped questions have order 1
+    })),
   ];
 
   //console.log(allGroups, "my checking questions");
   const totalQuestions = allGroups.reduce((sum, group) => {
     return sum + (group.questions ? group.questions.length : 0);
   }, 0);
-
-  console.log(allGroups);
 
   // console.log(step);
 
@@ -71,18 +71,14 @@ const TaskStepper = ({
 
   const isLastStep = step === allGroups.length;
 
-  // console.log(currentGroup, "currentGroupcurrentGroup");
-  //console.log(response, "responseresponseresponseresponse");
   const res = response?.data;
 
   useEffect(() => {
     if (response === undefined) {
-      console.log("Hello checking response");
       reftechResponse();
     }
   }, []);
 
-  console.log(response);
   return currentGroup ? (
     <div>
       <DynamicQuestion

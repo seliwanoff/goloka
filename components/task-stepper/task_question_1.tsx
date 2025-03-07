@@ -69,6 +69,7 @@ import { submitResponseEndpoint } from "@/services/response";
 
 import dynamic from "next/dynamic";
 import { useQueryClient } from "@tanstack/react-query";
+import VideoRecorder from "./inputs/videoRecorder";
 
 const AudioRecorder = dynamic(() => import("./customAudioRecorder"), {
   ssr: false,
@@ -244,6 +245,9 @@ const DynamicQuestion = ({
 
         setQid(quesId);
       }
+
+      console.log(type);
+      //@ts-ignore
       if (type === "location") {
         //@ts-ignore
 
@@ -744,6 +748,7 @@ const DynamicQuestion = ({
         );
       case "video":
         return (
+          /***
           <div className="col-span-2">
             <input
               //@ts-ignore
@@ -785,7 +790,6 @@ const DynamicQuestion = ({
                   </span>
                 </div>
               </button>
-              {/* Display the video preview or prefilled video */}
               {filePreviews[ques.id] || selectedValues[ques.id] ? (
                 <div className="relative h-32 w-32">
                   <video
@@ -813,6 +817,14 @@ const DynamicQuestion = ({
               ) : null}
             </div>
           </div>
+          */
+          <VideoRecorder
+            ques={ques}
+            handleInputChange={handleInputChange}
+            selectedValues={selectedValues}
+            setSelectedValues={setSelectedValues}
+            setQid={setQid}
+          />
         );
 
       case "checkbox":
@@ -916,8 +928,8 @@ const DynamicQuestion = ({
               questionId={ques.id}
               onLocationSelect={(location) => {
                 //@ts-ignore
-                handleInputChange(location, ques.id);
-                onInputedAnswerMonitoring(ques.id);
+                handleInputChange(location, ques.id, "location");
+                //  onInputedAnswerMonitoring(ques.id);
               }}
               defaultLatitude={selectedValues[ques.id]?.latitude}
               defaultLongitude={selectedValues[ques.id]?.longitude}

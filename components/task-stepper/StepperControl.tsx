@@ -29,7 +29,7 @@ const StepperControl: React.FC<StepperControlProps> = ({
     router.push(`${window.location.pathname}?${newSearchParams.toString()}`);
   };
 
-  console.log(isLastStep, "isLastStep");
+  //console.log(isLastStep, "isLastStep");
 
   const handleNext = () => {
     next();
