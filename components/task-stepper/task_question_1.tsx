@@ -176,6 +176,7 @@ const DynamicQuestion = ({
     value: string | boolean | File | string[] | Location[] | null,
     quesId: string | number,
     type?: string,
+    areaNumber?:string
   ) => {
     if (type === "file" && value instanceof File) {
       const reader = new FileReader();
@@ -186,7 +187,7 @@ const DynamicQuestion = ({
         }));
       };
       reader.readAsDataURL(value);
-      onInputedAnswerMonitoring(quesId);
+    //  onInputedAnswerMonitoring(quesId);
     }
 
     // Special handling for area type
@@ -218,6 +219,13 @@ const DynamicQuestion = ({
           [quesId]: value,
         };
       });
+
+      console.log(value)
+
+      if (value.length === 4) {
+        setQid(quesId);
+      }
+      //setQid(quesId)
       return;
     }
 
@@ -227,7 +235,12 @@ const DynamicQuestion = ({
         ...prev,
         [quesId]: value,
       }));
-
+      if (value.length === 2 && type==='line') {
+        setQid(quesId);
+      }
+      if (type === 'location') {
+        setQid(quesId);
+      }
       return;
     }
 
@@ -255,6 +268,8 @@ const DynamicQuestion = ({
 
   const handleNext = async () => {
     // Check for unchanged answers
+
+    /***
     const allQuestionsUnchanged = questions.every((ques) => {
       const defaultValue = response?.answers?.find(
         (ans) => ans.question.id === ques.id,
@@ -404,10 +419,9 @@ const DynamicQuestion = ({
         promises.push(uploadQuestionFile(responseId as string, formData));
       }
 
-      // Execute promises only if we have submissions
       const anySubmissions = promises.length > 0;
 
-      /***
+
       const [answerResponse, fileResponse] = anySubmissions
         ? await Promise.all(promises)
         : [undefined, undefined];
@@ -419,6 +433,7 @@ const DynamicQuestion = ({
         */
 
       // Final submission handling
+      try {
       if (isLastStep) {
         const submitResponse = await submitResponseEndpoint(
           responseId as string,
@@ -441,7 +456,6 @@ const DynamicQuestion = ({
       setLastStepLoading(false);
     }
   };
-  // console.log(selectedValues, "selectedValuesselectedValues");
   const onInputedAnswerMonitoring = async (myid: any) => {
     // Get the specific question by ID
 
@@ -505,11 +519,7 @@ const DynamicQuestion = ({
 
       const promises: Promise<any>[] = [];
 
-      if (formattedAnswer.answers.length > 0) {
-        promises.push(
-          createContributorAnswers(responseId as string, formattedAnswer),
-        );
-      }
+
 
       // Handle file uploads
       let hasFileToUpload = false;
@@ -540,7 +550,20 @@ const DynamicQuestion = ({
                 "video/webm",
               ],
               photo: ["image/jpeg", "image/png", "image/gif"],
-              file: [],
+              file: [
+                "application/pdf",
+                "application/msword", // .doc
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
+                "application/vnd.ms-excel", // .xls
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
+                "application/vnd.ms-powerpoint", // .ppt
+                "application/vnd.openxmlformats-officedocument.presentationml.presentation", // .pptx
+                "text/plain", // .txt
+                "application/zip",
+                "application/x-rar-compressed",
+                "application/x-7z-compressed",
+              ]
+
             };
 
             const isValidType =
@@ -564,6 +587,12 @@ const DynamicQuestion = ({
           console.error("File processing error:", error);
           toast.error(`Failed to process file for ${question.label}`);
         }
+      }else{
+        if (formattedAnswer.answers.length > 0) {
+          promises.push(
+            createContributorAnswers(responseId as string, formattedAnswer),
+          );
+        }
       }
 
       // Execute only if there's something to submit
@@ -571,10 +600,12 @@ const DynamicQuestion = ({
         promises.length > 0
           ? await Promise.all(promises)
           : [undefined, undefined];
-
+/***
       if (hasFileToUpload && (!fileResponse || !fileResponse.success)) {
         throw new Error(fileResponse?.message || "File upload failed");
       }
+
+      */
 
       // Final submission handling
 
@@ -891,6 +922,18 @@ const DynamicQuestion = ({
       case "line":
         return (
           <div className="col-span-2">
+
+<CustomAreaInput
+              apiKey={KEY as string}
+              questionId={ques.id}
+              onLocationSelect={(locations) => {
+                //@ts-ignore
+                handleInputChange(locations, ques.id, "line");
+                //setQid(ques.id);
+              }}
+              defaultLocations={selectedValues[ques.id]}
+              maxLocations={2}
+            />{/***
             <LocationSelector
               apiKey={KEY as string}
               questionId={ques.id}
@@ -901,6 +944,7 @@ const DynamicQuestion = ({
               }}
               defaultLocations={selectedValues[ques.id] || []}
             />
+            */}
           </div>
         );
       case "area":
@@ -911,11 +955,11 @@ const DynamicQuestion = ({
               questionId={ques.id}
               onLocationSelect={(locations) => {
                 //@ts-ignore
-                handleInputChange(locations, ques.id, "area");
-                setQid(ques.id);
+                handleInputChange(locations, ques.id, "area",);
+               // setQid(ques.id);
               }}
               defaultLocations={selectedValues[ques.id]}
-              maxLocations={2}
+              maxLocations={4}
             />
           </div>
         );
