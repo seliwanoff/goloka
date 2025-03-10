@@ -246,7 +246,7 @@ const DynamicQuestion = ({
         setQid(quesId);
       }
 
-      console.log(type);
+      //   console.log(type);
       //@ts-ignore
       if (type === "location") {
         //@ts-ignore
@@ -275,7 +275,36 @@ const DynamicQuestion = ({
     }
   }, [filePreviews[qId]]);
   const nextStepNext = async () => {
-    nextStep();
+    const requiredQuestions = questions.filter((q) => q.required === 1);
+    const missingRequiredQuestions = requiredQuestions.filter((q) => {
+      const value = selectedValues[q.id];
+      if (value === undefined || value === null || value === "") return true;
+      if (Array.isArray(value) && value.length === 0) return true;
+      if (["file", "photo", "video", "audio"].includes(q.type)) {
+        return !(
+          value &&
+          ((typeof value === "object" &&
+            "file" in value &&
+            value.file instanceof File) ||
+            value instanceof File ||
+            (typeof value === "string" && value.trim() !== ""))
+        );
+      }
+      return false;
+    });
+
+    //   console.log(missingRequiredQuestions, "missing required");
+
+    if (missingRequiredQuestions.length > 0) {
+      toast.warning(
+        `Please fill in all required questions: ${missingRequiredQuestions
+          .map((q) => q.label)
+          .join(", ")}`,
+      );
+      // ... focus handling logic
+    } else {
+      nextStep();
+    }
   };
 
   const handleNext = async () => {
@@ -294,6 +323,7 @@ const DynamicQuestion = ({
       nextStep();
       return;
     }
+      **/
 
     // Validation for required questions
     const requiredQuestions = questions.filter((q) => q.required === 1);
@@ -323,6 +353,7 @@ const DynamicQuestion = ({
       // ... focus handling logic
       return;
     }
+    /***
 
     questions.forEach((question) =>
       updateAnswer(question.id, selectedValues[question.id]),
@@ -596,6 +627,8 @@ const DynamicQuestion = ({
               );
               hasFileToUpload = true;
               promises.push(uploadQuestionFile(responseId as string, formData));
+              //@ts-ignore
+              //queryClient.invalidateQueries(["campaign questions"]);
             } else {
               toast.error(`Invalid file type for ${question.label}.`);
             }
@@ -653,7 +686,7 @@ const DynamicQuestion = ({
       // toast.error(error instanceof Error ? error.message : "An error occurred");
     } finally {
       //@ts-ignore
-      queryClient.invalidateQueries(["campaign questions"]);
+      // queryClient.invalidateQueries(["campaign questions"]);
       setIsLoading(false);
 
       // setIsLoading(false);
@@ -906,11 +939,20 @@ const DynamicQuestion = ({
                     cancelButton.style.border = "none";
                     cancelButton.style.borderRadius = "5px";
 
+                    // Create recording indicator
+                    const recordingIndicator = document.createElement("div");
+                    recordingIndicator.textContent = "Recording...";
+                    recordingIndicator.style.color = "red";
+                    recordingIndicator.style.fontWeight = "bold";
+                    recordingIndicator.style.marginTop = "10px";
+                    recordingIndicator.style.display = "none"; // Hidden by default
+
                     // Append elements to overlay
                     cameraOverlay.appendChild(video);
                     cameraOverlay.appendChild(startButton);
                     cameraOverlay.appendChild(stopButton);
                     cameraOverlay.appendChild(cancelButton);
+                    cameraOverlay.appendChild(recordingIndicator);
                     document.body.appendChild(cameraOverlay);
 
                     // Wait for video to be ready
@@ -921,8 +963,8 @@ const DynamicQuestion = ({
                       };
                     });
 
-                    // Initialize MediaRecorder
-                    let mediaRecorder: MediaRecorder;
+                    // Initialize MediaRecorder and recorded chunks
+                    let mediaRecorder: MediaRecorder | null = null;
                     let recordedChunks: Blob[] = [];
 
                     // Start recording
@@ -931,64 +973,69 @@ const DynamicQuestion = ({
                       mediaRecorder = new MediaRecorder(stream, {
                         mimeType: "video/webm",
                       });
+
+                      // Handle data availability
                       mediaRecorder.ondataavailable = (event) => {
                         if (event.data.size > 0) {
                           recordedChunks.push(event.data);
                         }
                       };
+
+                      // Handle recording stop
+                      mediaRecorder.onstop = () => {
+                        const recordedBlob = new Blob(recordedChunks, {
+                          type: "video/webm",
+                        });
+
+                        // Stop camera tracks
+                        stream.getTracks().forEach((track) => track.stop());
+
+                        // Remove overlay
+                        document.body.removeChild(cameraOverlay);
+
+                        // Convert to file
+                        const file = new File(
+                          [recordedBlob],
+                          "captured-video.webm",
+                          {
+                            type: "video/webm",
+                          },
+                        );
+
+                        // Check file size (10MB limit)
+                        if (file.size <= 10 * 1024 * 1024) {
+                          // Create URL for preview
+                          const previewUrl = URL.createObjectURL(file);
+
+                          // Update state
+                          setSelectedValues((prev) => ({
+                            ...prev,
+                            [ques.id]: file,
+                          }));
+                          setFilePreviews((prev) => ({
+                            ...prev,
+                            [ques.id]: previewUrl,
+                          }));
+
+                          setQid(ques.id);
+                        } else {
+                          alert("Video size exceeds 10MB limit");
+                        }
+                      };
+
                       mediaRecorder.start();
                       startButton.disabled = true;
                       stopButton.disabled = false;
+                      recordingIndicator.style.display = "block"; // Show recording indicator
                     };
 
                     // Stop recording
                     stopButton.onclick = () => {
-                      mediaRecorder.stop();
-                      startButton.disabled = false;
-                      stopButton.disabled = true;
-                    };
-
-                    // Handle recording completion
-
-                    //@ts-ignore
-                    mediaRecorder.onstop = () => {
-                      const recordedBlob = new Blob(recordedChunks, {
-                        type: "video/webm",
-                      });
-
-                      // Stop camera tracks
-                      stream.getTracks().forEach((track) => track.stop());
-
-                      // Remove overlay
-                      document.body.removeChild(cameraOverlay);
-
-                      // Convert to file
-                      const file = new File(
-                        [recordedBlob],
-                        "captured-video.webm",
-                        {
-                          type: "video/webm",
-                        },
-                      );
-
-                      // Check file size (10MB limit)
-                      if (file.size <= 10 * 1024 * 1024) {
-                        // Create URL for preview
-                        const previewUrl = URL.createObjectURL(file);
-
-                        // Update state
-                        setSelectedValues((prev) => ({
-                          ...prev,
-                          [ques.id]: file,
-                        }));
-                        setFilePreviews((prev) => ({
-                          ...prev,
-                          [ques.id]: previewUrl,
-                        }));
-
-                        setQid(ques.id);
-                      } else {
-                        alert("Video size exceeds 10MB limit");
+                      if (mediaRecorder) {
+                        mediaRecorder.stop();
+                        startButton.disabled = false;
+                        stopButton.disabled = true;
+                        recordingIndicator.style.display = "none"; // Hide recording indicator
                       }
                     };
 
@@ -1026,36 +1073,35 @@ const DynamicQuestion = ({
               </div>
 
               {/* Prefill the default value */}
-              {(filePreviews[ques.id] || selectedValues[ques.id]) &&
-                !isLoading && (
-                  <div className="relative h-32 w-32 overflow-hidden rounded-lg">
-                    <video
-                      src={
-                        filePreviews[ques.id] || // If a new file is selected
-                        (typeof selectedValues[ques.id] === "string" &&
-                          selectedValues[ques.id]) // If the default S3 URL is provided
-                      }
-                      controls
-                      className="h-full w-full object-cover"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSelectedValues((prev) => ({
-                          ...prev,
-                          [ques.id]: null,
-                        }));
-                        setFilePreviews((prev) => ({
-                          ...prev,
-                          [ques.id]: "",
-                        }));
-                      }}
-                      className="absolute right-2 top-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
-                    >
-                      ×
-                    </button>
-                  </div>
-                )}
+              {(filePreviews[ques.id] || selectedValues[ques.id]) && (
+                <div className="relative h-32 w-32 overflow-hidden rounded-lg">
+                  <video
+                    src={
+                      filePreviews[ques.id] || // If a new file is selected
+                      (typeof selectedValues[ques.id] === "string" &&
+                        selectedValues[ques.id]) // If the default S3 URL is provided
+                    }
+                    controls
+                    className="h-full w-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedValues((prev) => ({
+                        ...prev,
+                        [ques.id]: null,
+                      }));
+                      setFilePreviews((prev) => ({
+                        ...prev,
+                        [ques.id]: "",
+                      }));
+                    }}
+                    className="absolute right-2 top-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
+                  >
+                    ×
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         );
@@ -1157,6 +1203,18 @@ const DynamicQuestion = ({
       case "location":
         return (
           <div className="col-span-2">
+            <LocationSelector
+              apiKey={KEY as string}
+              questionId={ques.id}
+              onLocationSelect={(locations) => {
+                //@ts-ignore
+                handleInputChange(locations, ques.id, "location");
+                //setQid(ques.id);
+              }}
+              defaultLocations={selectedValues[ques.id] || []}
+            />
+
+            {/***
             <LocationDropdown
               questionId={ques.id}
               onLocationSelect={(location) => {
@@ -1167,6 +1225,7 @@ const DynamicQuestion = ({
               defaultLatitude={selectedValues[ques.id]?.latitude}
               defaultLongitude={selectedValues[ques.id]?.longitude}
             />
+            */}
           </div>
         );
       case "line":
@@ -1253,7 +1312,7 @@ const DynamicQuestion = ({
             <input
               //@ts-ignore
               ref={(el) => (inputRefs.current[ques.id] = el)}
-              type="text"
+              type="password"
               onBlur={() => onInputedAnswerMonitoring(ques.id)}
               value={selectedValues[ques.id] || ""}
               id={ques.name}

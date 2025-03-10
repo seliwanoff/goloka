@@ -126,7 +126,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
             <span className="text-xs text-slate-400">
               {type === "image"
                 ? "Supported formats: PNG, JPG, JPEG"
-                : "Supported formats: PNG, JPG, JPEG, DOCS, PDF, CSV"}{" "}
+                : "Supported formats: DOCS, PDF, CSV"}{" "}
             </span>
             <input
               ref={ref}

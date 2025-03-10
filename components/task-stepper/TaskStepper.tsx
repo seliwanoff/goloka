@@ -12,6 +12,7 @@ type Question = {
   name?: string;
   label: string;
   options?: string[];
+  value?: string;
   placeholder?: string;
   attributes?: {
     accept?: string;
@@ -28,12 +29,13 @@ type QuestionGroup = {
   questions: Question[];
 };
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 import { useStepper } from "@/context/TaskStepperContext.tsx";
 import DynamicQuestion from "./task_question_1";
 import SuccessModal from "./customSuccess";
 import { useSuccessModalStore } from "@/stores/misc";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const TaskStepper = ({
   response,
@@ -45,8 +47,12 @@ const TaskStepper = ({
   quest: { question_groups: QuestionGroup[]; ungrouped_questions: Question[] };
 }) => {
   const { isModalOpen, closeModal, isLastStepLoading } = useSuccessModalStore();
-  const { step } = useStepper();
+  const { step, setStep } = useStepper();
   const { question_groups, ungrouped_questions } = quest;
+
+  const [isFirstTime, setIsFirstTime] = useState(
+    localStorage.getItem("firstTime"),
+  );
 
   const allGroups = [
     ...(ungrouped_questions.length > 0
@@ -58,7 +64,6 @@ const TaskStepper = ({
     })),
   ];
 
-  //console.log(allGroups, "my checking questions");
   const totalQuestions = allGroups.reduce((sum, group) => {
     return sum + (group.questions ? group.questions.length : 0);
   }, 0);
@@ -72,6 +77,86 @@ const TaskStepper = ({
   const isLastStep = step === allGroups.length;
 
   const res = response?.data;
+
+  //  console.log(res);
+
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  //@ts-ignore
+  const local_id = searchParams.get("responseID") || "0";
+
+  console.log(step);
+
+  // Function to check if the page is being loaded for the first time
+  const isFirstLoad = () => {
+    const isFirstLoadFlag = localStorage.getItem("isFirstLoad");
+    const responseId = localStorage.getItem("responseId");
+    return isFirstLoadFlag === null && responseId === null;
+  };
+
+  const setFirstLoadFlag = () => {
+    localStorage.setItem("isFirstLoad", "isloading");
+    localStorage.setItem("responseId", local_id.toString());
+  };
+
+  // console.log(setFirstLoadFlag());
+
+  const isCurrentResponse = () => {
+    const responseId = localStorage.getItem("responseId");
+    return responseId === local_id.toString();
+  };
+
+  const findUnansweredQuestion = (answers: any) => {
+    for (const group of allGroups) {
+      const unansweredQuestion = group.questions.find((question) => {
+        const answer = answers.find(
+          (ans: any) => ans.question.id === question.id,
+        );
+        return !answer || !answer.value;
+      });
+
+      if (unansweredQuestion) {
+        return group.order;
+      }
+    }
+    return null; // Return null if all questions are answered
+  };
+
+  // Function to update the step and URL
+  const updateStepAndURL = (newStep: any) => {
+    if (step !== newStep) {
+      setStep(newStep);
+
+      // Update URL with the new step
+      const newSearchParams = new URLSearchParams(searchParams.toString());
+      newSearchParams.set("step", newStep.toString());
+      router.push(`${window.location.pathname}?${newSearchParams.toString()}`);
+    }
+  };
+  //console.log(isCurrentResponse());
+  // Run only on the first page load for the current response
+  useEffect(() => {
+    if (isFirstLoad()) {
+      setFirstLoadFlag();
+    }
+    if (localStorage.getItem("isFirstLoad") === "loaded") {
+      return;
+    }
+    if (isCurrentResponse()) {
+      const { answers } = response?.data || {};
+
+      if (!answers) return; // Exit if answers are not available
+
+      const groupOrderWithUnansweredQuestion = findUnansweredQuestion(answers);
+
+      if (groupOrderWithUnansweredQuestion !== null) {
+        updateStepAndURL(groupOrderWithUnansweredQuestion);
+      }
+
+      localStorage.setItem("isFirstLoad", "loaded");
+      localStorage.setItem("responseId", local_id.toString());
+    }
+  }, [isFirstLoad, local_id]);
 
   useEffect(() => {
     if (response === undefined) {
