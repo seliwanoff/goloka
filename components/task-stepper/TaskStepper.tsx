@@ -29,7 +29,7 @@ type QuestionGroup = {
   questions: Question[];
 };
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 import { useStepper } from "@/context/TaskStepperContext.tsx";
 import DynamicQuestion from "./task_question_1";
@@ -50,6 +50,10 @@ const TaskStepper = ({
   const { step, setStep } = useStepper();
   const { question_groups, ungrouped_questions } = quest;
 
+  const [isFirstTime, setIsFirstTime] = useState(
+    localStorage.getItem("firstTime"),
+  );
+
   const allGroups = [
     ...(ungrouped_questions.length > 0
       ? [{ order: 1, questions: ungrouped_questions }]
@@ -59,22 +63,7 @@ const TaskStepper = ({
       order: index + 2, // Start from 2 since ungrouped questions have order 1
     })),
   ];
-  /**
-  useEffect(() => {
-    for (const group of allGroups) {
-      const emptyQuestion = group.questions.find((question) => !question.value);
-      //  console.log(group);
-      if (emptyQuestion) {
-        // Set the step to the group's order (page number)
-        setStep(group.order);
-        break; // Stop after finding the first empty question
-      }
-    }
-  }, [allGroups, setStep]);
 
-  */
-
-  //console.log(allGroups, "my checking questions");
   const totalQuestions = allGroups.reduce((sum, group) => {
     return sum + (group.questions ? group.questions.length : 0);
   }, 0);
@@ -93,12 +82,31 @@ const TaskStepper = ({
 
   const router = useRouter();
   const searchParams = useSearchParams();
-  /***
-  useEffect(() => {
-    const { answers } = response?.data || {};
+  //@ts-ignore
+  const local_id = searchParams.get("responseID") || "0";
 
-    if (!answers) return; // Exit if answers are not available
+  console.log(step);
 
+  // Function to check if the page is being loaded for the first time
+  const isFirstLoad = () => {
+    const isFirstLoadFlag = localStorage.getItem("isFirstLoad");
+    const responseId = localStorage.getItem("responseId");
+    return isFirstLoadFlag === null && responseId === null;
+  };
+
+  const setFirstLoadFlag = () => {
+    localStorage.setItem("isFirstLoad", "isloading");
+    localStorage.setItem("responseId", local_id.toString());
+  };
+
+  // console.log(setFirstLoadFlag());
+
+  const isCurrentResponse = () => {
+    const responseId = localStorage.getItem("responseId");
+    return responseId === local_id.toString();
+  };
+
+  const findUnansweredQuestion = (answers: any) => {
     for (const group of allGroups) {
       const unansweredQuestion = group.questions.find((question) => {
         const answer = answers.find(
@@ -108,23 +116,47 @@ const TaskStepper = ({
       });
 
       if (unansweredQuestion) {
-        // Avoid unnecessary updates if the step is already correct
-        if (step !== group.order) {
-          setStep(group.order);
-
-          // Update URL with the new step
-          const newSearchParams = new URLSearchParams(searchParams.toString());
-          newSearchParams.set("step", group.order.toString());
-          router.push(
-            `${window.location.pathname}?${newSearchParams.toString()}`,
-          );
-        }
-        break; // Stop after finding the first unanswered question
+        return group.order;
       }
     }
-  }, [allGroups, response?.data, step, setStep, router, searchParams]);
+    return null; // Return null if all questions are answered
+  };
 
-  */
+  // Function to update the step and URL
+  const updateStepAndURL = (newStep: any) => {
+    if (step !== newStep) {
+      setStep(newStep);
+
+      // Update URL with the new step
+      const newSearchParams = new URLSearchParams(searchParams.toString());
+      newSearchParams.set("step", newStep.toString());
+      router.push(`${window.location.pathname}?${newSearchParams.toString()}`);
+    }
+  };
+
+  // Run only on the first page load for the current response
+  useEffect(() => {
+    if (isFirstLoad()) {
+      setFirstLoadFlag();
+    }
+    if (localStorage.getItem("isFirstLoad") === "loaded") {
+      return;
+    }
+    if (isCurrentResponse()) {
+      const { answers } = response?.data || {};
+
+      if (!answers) return; // Exit if answers are not available
+
+      const groupOrderWithUnansweredQuestion = findUnansweredQuestion(answers);
+
+      if (groupOrderWithUnansweredQuestion !== null) {
+        updateStepAndURL(groupOrderWithUnansweredQuestion);
+      }
+
+      localStorage.setItem("isFirstLoad", "loaded");
+      localStorage.setItem("responseId", local_id.toString());
+    }
+  }, [isFirstLoad, local_id]);
 
   useEffect(() => {
     if (response === undefined) {
