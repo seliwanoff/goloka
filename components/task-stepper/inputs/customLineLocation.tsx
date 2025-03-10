@@ -228,7 +228,7 @@ const LocationSelector = ({
           )}
         </div>
       ))}
-
+      {/***
       <Button
         variant="ghost"
         className="flex items-center space-x-2 place-self-end rounded-xl px-3 text-blue-500 hover:bg-blue-50 hover:text-blue-600"
@@ -237,6 +237,7 @@ const LocationSelector = ({
         <MapPin className="mr-2 h-4 w-4" />
         Add new location
       </Button>
+      */}
     </div>
   );
 };

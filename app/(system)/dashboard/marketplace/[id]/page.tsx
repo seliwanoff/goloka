@@ -293,7 +293,9 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
       }
     } catch (error) {
       console.error(error);
-      toast.error("An error occurred");
+      //@ts-ignore
+      toast.error(error?.response?.data?.message);
+      router.push(`/dashboard/responses`);
     } finally {
       setLoading(false);
     }

@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search } from "lucide-react";
+import { Edit, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Popover,
@@ -505,14 +505,28 @@ const ResponsesPage: React.FC<PageProps> = ({}) => {
                           </span>
                         </TableCell>
                         <TableCell className="hidden sm:table-cell">
-                          <span
-                            className="cursor-pointer"
-                            onClick={() =>
-                              router.push(`/dashboard/responses/${res?.id}`)
-                            }
-                          >
-                            <Eye size={20} />
-                          </span>
+                          <div className="flex items-center gap-4">
+                            <span
+                              className="cursor-pointer"
+                              onClick={() =>
+                                router.push(`/dashboard/responses/${res?.id}`)
+                              }
+                            >
+                              <Eye size={20} />
+                            </span>
+                            {res?.status === "draft" && (
+                              <span
+                                className="cursor-pointer"
+                                onClick={() =>
+                                  router.push(
+                                    `/dashboard/marketplace/${res?.campaign_id}?responseID=${res?.id}&stepper=true&step=1`,
+                                  )
+                                }
+                              >
+                                <Edit size={20} />
+                              </span>
+                            )}
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
