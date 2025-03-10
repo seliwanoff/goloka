@@ -290,6 +290,17 @@ const CustomAreaInput = ({
                     variant="ghost"
                     size="icon"
                     className="group relative h-10 w-10 rounded-full hover:bg-blue-50"
+                    onClick={async () => {
+                      try {
+                        const currentLocation = await getCurrentLocation();
+                        await handleCurrentLocation(
+                          location.id,
+                          currentLocation,
+                        );
+                      } catch (error) {
+                        console.error("Failed to get current location", error);
+                      }
+                    }}
                   >
                     <Navigation className="h-5 w-5 text-blue-500" />
                     <span className="pointer-events-none absolute left-1/2 top-full z-50 mt-1 -translate-x-1/2 transform whitespace-nowrap rounded bg-gray-700 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
@@ -297,6 +308,8 @@ const CustomAreaInput = ({
                     </span>
                   </Button>
                 </PopoverTrigger>
+
+                {/***
                 <PopoverContent className="w-auto p-2">
                   <Command>
                     <CommandList>
@@ -329,6 +342,7 @@ const CustomAreaInput = ({
                     </CommandList>
                   </Command>
                 </PopoverContent>
+                */}
               </Popover>
             </div>
           </div>

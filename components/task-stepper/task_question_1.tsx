@@ -479,6 +479,7 @@ const DynamicQuestion = ({
     // Get the specific question by ID
 
     // console.log(myid);
+    setIsLoading(true);
     const question = questions.find((q) => q.id === myid);
     if (!question) return;
 
@@ -653,6 +654,7 @@ const DynamicQuestion = ({
     } finally {
       //@ts-ignore
       queryClient.invalidateQueries(["campaign questions"]);
+      setIsLoading(false);
 
       // setIsLoading(false);
       //  setLastStepLoading(false);
@@ -825,6 +827,8 @@ const DynamicQuestion = ({
             </div>
           </div>
           */
+
+          /***
           <VideoRecorder
             ques={ques}
             handleInputChange={handleInputChange}
@@ -832,6 +836,228 @@ const DynamicQuestion = ({
             setSelectedValues={setSelectedValues}
             setQid={setQid}
           />
+           */
+
+          <div className="col-span-2">
+            <div className="flex flex-col gap-4">
+              <div
+                onClick={async () => {
+                  try {
+                    // Explicitly request camera access
+                    const stream = await navigator.mediaDevices.getUserMedia({
+                      video: {
+                        facingMode: "environment", // Prefer back/environment camera
+                        width: { ideal: 1920 }, // Ideal width
+                        height: { ideal: 1080 }, // Ideal height
+                      },
+                      audio: true, // Include audio if needed
+                    });
+
+                    // Create a modal or overlay to show camera preview
+                    const cameraOverlay = document.createElement("div");
+                    cameraOverlay.style.position = "fixed";
+                    cameraOverlay.style.top = "0";
+                    cameraOverlay.style.left = "0";
+                    cameraOverlay.style.width = "100%";
+                    cameraOverlay.style.height = "100%";
+                    cameraOverlay.style.backgroundColor = "black";
+                    cameraOverlay.style.zIndex = "1000";
+                    cameraOverlay.style.display = "flex";
+                    cameraOverlay.style.flexDirection = "column";
+                    cameraOverlay.style.alignItems = "center";
+                    cameraOverlay.style.justifyContent = "center";
+
+                    // Create video element for camera preview
+                    const video = document.createElement("video");
+                    video.style.maxWidth = "100%";
+                    video.style.maxHeight = "80%";
+                    video.style.objectFit = "contain";
+                    video.srcObject = stream;
+                    video.autoplay = true;
+
+                    // Create start recording button
+                    const startButton = document.createElement("button");
+                    startButton.textContent = "Start Recording";
+                    startButton.style.marginTop = "20px";
+                    startButton.style.padding = "10px 20px";
+                    startButton.style.backgroundColor = "white";
+                    startButton.style.color = "black";
+                    startButton.style.border = "none";
+                    startButton.style.borderRadius = "5px";
+
+                    // Create stop recording button
+                    const stopButton = document.createElement("button");
+                    stopButton.textContent = "Stop Recording";
+                    stopButton.style.marginTop = "10px";
+                    stopButton.style.padding = "10px 20px";
+                    stopButton.style.backgroundColor = "red";
+                    stopButton.style.color = "white";
+                    stopButton.style.border = "none";
+                    stopButton.style.borderRadius = "5px";
+                    stopButton.disabled = true; // Disabled until recording starts
+
+                    // Create cancel button
+                    const cancelButton = document.createElement("button");
+                    cancelButton.textContent = "Cancel";
+                    cancelButton.style.marginTop = "10px";
+                    cancelButton.style.padding = "10px 20px";
+                    cancelButton.style.backgroundColor = "gray";
+                    cancelButton.style.color = "white";
+                    cancelButton.style.border = "none";
+                    cancelButton.style.borderRadius = "5px";
+
+                    // Append elements to overlay
+                    cameraOverlay.appendChild(video);
+                    cameraOverlay.appendChild(startButton);
+                    cameraOverlay.appendChild(stopButton);
+                    cameraOverlay.appendChild(cancelButton);
+                    document.body.appendChild(cameraOverlay);
+
+                    // Wait for video to be ready
+                    await new Promise<void>((resolve) => {
+                      video.onloadedmetadata = () => {
+                        video.play();
+                        resolve();
+                      };
+                    });
+
+                    // Initialize MediaRecorder
+                    let mediaRecorder: MediaRecorder;
+                    let recordedChunks: Blob[] = [];
+
+                    // Start recording
+                    startButton.onclick = () => {
+                      recordedChunks = [];
+                      mediaRecorder = new MediaRecorder(stream, {
+                        mimeType: "video/webm",
+                      });
+                      mediaRecorder.ondataavailable = (event) => {
+                        if (event.data.size > 0) {
+                          recordedChunks.push(event.data);
+                        }
+                      };
+                      mediaRecorder.start();
+                      startButton.disabled = true;
+                      stopButton.disabled = false;
+                    };
+
+                    // Stop recording
+                    stopButton.onclick = () => {
+                      mediaRecorder.stop();
+                      startButton.disabled = false;
+                      stopButton.disabled = true;
+                    };
+
+                    // Handle recording completion
+
+                    //@ts-ignore
+                    mediaRecorder.onstop = () => {
+                      const recordedBlob = new Blob(recordedChunks, {
+                        type: "video/webm",
+                      });
+
+                      // Stop camera tracks
+                      stream.getTracks().forEach((track) => track.stop());
+
+                      // Remove overlay
+                      document.body.removeChild(cameraOverlay);
+
+                      // Convert to file
+                      const file = new File(
+                        [recordedBlob],
+                        "captured-video.webm",
+                        {
+                          type: "video/webm",
+                        },
+                      );
+
+                      // Check file size (10MB limit)
+                      if (file.size <= 10 * 1024 * 1024) {
+                        // Create URL for preview
+                        const previewUrl = URL.createObjectURL(file);
+
+                        // Update state
+                        setSelectedValues((prev) => ({
+                          ...prev,
+                          [ques.id]: file,
+                        }));
+                        setFilePreviews((prev) => ({
+                          ...prev,
+                          [ques.id]: previewUrl,
+                        }));
+
+                        setQid(ques.id);
+                      } else {
+                        alert("Video size exceeds 10MB limit");
+                      }
+                    };
+
+                    // Cancel button functionality
+                    cancelButton.onclick = () => {
+                      // Stop camera tracks
+                      stream.getTracks().forEach((track) => track.stop());
+
+                      // Remove overlay
+                      document.body.removeChild(cameraOverlay);
+                    };
+                  } catch (error) {
+                    console.error("Error accessing camera:", error);
+                    alert("Could not access camera. Please check permissions.");
+                  }
+                }}
+                className="relative flex h-40 cursor-pointer items-center justify-center rounded-lg border-2 border-[#3365E31F] bg-[#3365E31F] text-center"
+              >
+                <div className="flex flex-col items-center">
+                  <div className="flex w-fit flex-col rounded-lg px-4 py-2 text-sm font-medium text-[#3365E3]">
+                    <div className="mb-2 flex h-8 w-8 items-center justify-center self-center rounded-full border border-dashed border-slate-300 bg-slate-200">
+                      <Camera />
+                    </div>
+                    <span>Record Video</span>
+                  </div>
+                  <span className="text-xs text-slate-400">
+                    Use device camera (max 10MB)
+                  </span>
+                  {(filePreviews[ques.id] || selectedValues[ques.id]) && (
+                    <span className="mt-2 rounded-lg border bg-amber-100 p-1 text-xs text-orange-400">
+                      Video already added
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Prefill the default value */}
+              {(filePreviews[ques.id] || selectedValues[ques.id]) &&
+                !isLoading && (
+                  <div className="relative h-32 w-32 overflow-hidden rounded-lg">
+                    <video
+                      src={
+                        filePreviews[ques.id] || // If a new file is selected
+                        (typeof selectedValues[ques.id] === "string" &&
+                          selectedValues[ques.id]) // If the default S3 URL is provided
+                      }
+                      controls
+                      className="h-full w-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedValues((prev) => ({
+                          ...prev,
+                          [ques.id]: null,
+                        }));
+                        setFilePreviews((prev) => ({
+                          ...prev,
+                          [ques.id]: "",
+                        }));
+                      }}
+                      className="absolute right-2 top-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
+                    >
+                      ×
+                    </button>
+                  </div>
+                )}
+            </div>
+          </div>
         );
 
       case "checkbox":
@@ -1027,7 +1253,7 @@ const DynamicQuestion = ({
             <input
               //@ts-ignore
               ref={(el) => (inputRefs.current[ques.id] = el)}
-              type="password"
+              type="text"
               onBlur={() => onInputedAnswerMonitoring(ques.id)}
               value={selectedValues[ques.id] || ""}
               id={ques.name}
@@ -1357,14 +1583,13 @@ const DynamicQuestion = ({
               //@ts-ignore
               ref={(el) => (inputRefs.current[ques.id] = el)}
               type="time"
-              // onBlur={() => onInputedAnswerMonitoring(ques.id)}
-
+              onBlur={() => onInputedAnswerMonitoring(ques.id)}
               value={selectedValues[ques.id] || ""}
               id={ques.name}
               onChange={(e) => {
                 handleInputChange(e.target.value, ques.id);
 
-                onInputedAnswerMonitoring(ques.id);
+                // onInputedAnswerMonitoring(ques.id);
               }}
               className="form-input w-full rounded-lg border-[#D9DCE0]"
             />
