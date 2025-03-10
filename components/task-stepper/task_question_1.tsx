@@ -1299,7 +1299,7 @@ const DynamicQuestion = ({
             <input
               //@ts-ignore
               ref={(el) => (inputRefs.current[ques.id] = el)}
-              type="text"
+              type="password"
               onBlur={() => onInputedAnswerMonitoring(ques.id)}
               value={selectedValues[ques.id] || ""}
               id={ques.name}

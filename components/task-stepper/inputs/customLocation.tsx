@@ -5,6 +5,7 @@ import {
   CommandInput,
   CommandList,
   CommandGroup,
+  CommandItem,
 } from "@/components/ui/command";
 import {
   Popover,
@@ -41,6 +42,8 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({
   const [currentLocation, setCurrentLocation] =
     useState<LocationDetails | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
 
   // Memoize the geocoding API call to prevent unnecessary re-renders
   const fetchLocationDetails = useCallback(async (lat: number, lon: number) => {
@@ -75,7 +78,7 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({
         id: Date.now().toString(),
       };
     } catch (error) {
-      // console.error("Error fetching location details:", error);
+      console.error("Error fetching location details:", error);
       return {
         address: "Location",
         city: "",
@@ -86,12 +89,87 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({
     }
   }, []);
 
+  // Fetch search results from Google Places API
+  const fetchSearchResults = useCallback(async (query: string) => {
+    if (!query) {
+      setSearchResults([]);
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(
+          query,
+        )}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`,
+      );
+
+      const data = await response.json();
+
+      console.log(data);
+
+      if (data.status === "OK") {
+        setSearchResults(data.predictions);
+      } else {
+        setSearchResults([]);
+      }
+    } catch (error) {
+      console.error("Error fetching search results:", error);
+      setSearchResults([]);
+    }
+  }, []);
+
+  // Handle search query changes
+  useEffect(() => {
+    const debounceTimer = setTimeout(() => {
+      fetchSearchResults(searchQuery);
+    }, 300); // Debounce to avoid excessive API calls
+
+    return () => clearTimeout(debounceTimer);
+  }, [searchQuery, fetchSearchResults]);
+
+  // Handle location selection from search results
+  const handleLocationSelect = useCallback(
+    async (placeId: string) => {
+      try {
+        const response = await fetch(
+          `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`,
+        );
+
+        const data = await response.json();
+
+        if (data.status === "OK") {
+          const location = data.result.geometry.location;
+          const address = data.result.formatted_address;
+          const city =
+            data.result.address_components.find(
+              (component: { types: string | string[] }) =>
+                component.types.includes("locality"),
+            )?.long_name || "";
+
+          const locationDetails = {
+            address,
+            city,
+            latitude: location.lat,
+            longitude: location.lng,
+            id: Date.now().toString(),
+          };
+
+          setCurrentLocation(locationDetails);
+          onLocationSelect(locationDetails, questionId);
+          setOpen(false);
+        }
+      } catch (error) {
+        console.error("Error fetching location details:", error);
+      }
+    },
+    [onLocationSelect, questionId],
+  );
+
   // Use a stable effect for default location
   useEffect(() => {
     let isMounted = true;
 
     const prefillDefaultLocation = async () => {
-      // Only set default location if no current location exists
       if (
         defaultLatitude &&
         defaultLongitude &&
@@ -104,19 +182,9 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({
             defaultLatitude,
             defaultLongitude,
           );
-          //  console.log(currentLocation);
-          //console.log(locationDetails);
 
           if (isMounted) {
-            // Avoid calling onLocationSelect if location is the same
-            if (
-              !currentLocation ||
-              currentLocation.latitude !== locationDetails.latitude ||
-              currentLocation.longitude !== locationDetails.longitude
-            ) {
-              setCurrentLocation(locationDetails);
-              //  onLocationSelect(locationDetails, questionId);
-            }
+            setCurrentLocation(locationDetails);
           }
         } catch (error) {
           console.error("Error prefilling default location:", error);
@@ -132,9 +200,7 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({
   }, [
     defaultLatitude,
     defaultLongitude,
-    questionId,
     fetchLocationDetails,
-    // onLocationSelect,
     currentLocation,
   ]);
 
@@ -155,15 +221,8 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({
               accuracy: position.coords.accuracy,
             };
 
-            // Only update and call onLocationSelect if location is different
-            if (
-              !currentLocation ||
-              currentLocation.latitude !== fullLocationDetails.latitude ||
-              currentLocation.longitude !== fullLocationDetails.longitude
-            ) {
-              setCurrentLocation(fullLocationDetails);
-              onLocationSelect(fullLocationDetails, questionId);
-            }
+            setCurrentLocation(fullLocationDetails);
+            onLocationSelect(fullLocationDetails, questionId);
           } catch (error) {
             console.error("Error getting location:", error);
             alert(
@@ -191,7 +250,7 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({
       setIsLoading(false);
       alert("Geolocation is not supported by your browser");
     }
-  }, [fetchLocationDetails, onLocationSelect, questionId, currentLocation]);
+  }, [fetchLocationDetails, onLocationSelect, questionId]);
 
   // Memoize the location display text
   const locationDisplayText = useMemo(() => {
@@ -240,9 +299,21 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({
           align="start"
         >
           <Command className="rounded-lg border shadow-md">
-            <CommandInput placeholder="Search location..." />
+            <CommandInput
+              placeholder="Search location..."
+              value={searchQuery}
+              onValueChange={setSearchQuery}
+            />
             <CommandList>
               <CommandGroup>
+                {searchResults.map((result) => (
+                  <CommandItem
+                    key={result.place_id}
+                    onSelect={() => handleLocationSelect(result.place_id)}
+                  >
+                    {result.description}
+                  </CommandItem>
+                ))}
                 <div className="px-2 py-1.5">
                   <button
                     onClick={getCurrentLocation}

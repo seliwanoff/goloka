@@ -133,7 +133,7 @@ const TaskStepper = ({
       router.push(`${window.location.pathname}?${newSearchParams.toString()}`);
     }
   };
-
+  //console.log(isCurrentResponse());
   // Run only on the first page load for the current response
   useEffect(() => {
     if (isFirstLoad()) {
