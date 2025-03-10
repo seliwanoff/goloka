@@ -596,6 +596,8 @@ const DynamicQuestion = ({
               );
               hasFileToUpload = true;
               promises.push(uploadQuestionFile(responseId as string, formData));
+              //@ts-ignore
+              queryClient.invalidateQueries(["campaign questions"]);
             } else {
               toast.error(`Invalid file type for ${question.label}.`);
             }
@@ -921,8 +923,8 @@ const DynamicQuestion = ({
                       };
                     });
 
-                    // Initialize MediaRecorder
-                    let mediaRecorder: MediaRecorder;
+                    // Initialize MediaRecorder and recorded chunks
+                    let mediaRecorder: MediaRecorder | null = null;
                     let recordedChunks: Blob[] = [];
 
                     // Start recording
@@ -931,11 +933,56 @@ const DynamicQuestion = ({
                       mediaRecorder = new MediaRecorder(stream, {
                         mimeType: "video/webm",
                       });
+
+                      // Handle data availability
                       mediaRecorder.ondataavailable = (event) => {
                         if (event.data.size > 0) {
                           recordedChunks.push(event.data);
                         }
                       };
+
+                      // Handle recording stop
+                      mediaRecorder.onstop = () => {
+                        const recordedBlob = new Blob(recordedChunks, {
+                          type: "video/webm",
+                        });
+
+                        // Stop camera tracks
+                        stream.getTracks().forEach((track) => track.stop());
+
+                        // Remove overlay
+                        document.body.removeChild(cameraOverlay);
+
+                        // Convert to file
+                        const file = new File(
+                          [recordedBlob],
+                          "captured-video.webm",
+                          {
+                            type: "video/webm",
+                          },
+                        );
+
+                        // Check file size (10MB limit)
+                        if (file.size <= 10 * 1024 * 1024) {
+                          // Create URL for preview
+                          const previewUrl = URL.createObjectURL(file);
+
+                          // Update state
+                          setSelectedValues((prev) => ({
+                            ...prev,
+                            [ques.id]: file,
+                          }));
+                          setFilePreviews((prev) => ({
+                            ...prev,
+                            [ques.id]: previewUrl,
+                          }));
+
+                          setQid(ques.id);
+                        } else {
+                          alert("Video size exceeds 10MB limit");
+                        }
+                      };
+
                       mediaRecorder.start();
                       startButton.disabled = true;
                       stopButton.disabled = false;
@@ -943,52 +990,10 @@ const DynamicQuestion = ({
 
                     // Stop recording
                     stopButton.onclick = () => {
-                      mediaRecorder.stop();
-                      startButton.disabled = false;
-                      stopButton.disabled = true;
-                    };
-
-                    // Handle recording completion
-
-                    //@ts-ignore
-                    mediaRecorder.onstop = () => {
-                      const recordedBlob = new Blob(recordedChunks, {
-                        type: "video/webm",
-                      });
-
-                      // Stop camera tracks
-                      stream.getTracks().forEach((track) => track.stop());
-
-                      // Remove overlay
-                      document.body.removeChild(cameraOverlay);
-
-                      // Convert to file
-                      const file = new File(
-                        [recordedBlob],
-                        "captured-video.webm",
-                        {
-                          type: "video/webm",
-                        },
-                      );
-
-                      // Check file size (10MB limit)
-                      if (file.size <= 10 * 1024 * 1024) {
-                        // Create URL for preview
-                        const previewUrl = URL.createObjectURL(file);
-
-                        // Update state
-                        setSelectedValues((prev) => ({
-                          ...prev,
-                          [ques.id]: file,
-                        }));
-                        setFilePreviews((prev) => ({
-                          ...prev,
-                          [ques.id]: previewUrl,
-                        }));
-
-                        setQid(ques.id);
-                      } else {
-                        alert("Video size exceeds 10MB limit");
+                      if (mediaRecorder) {
+                        mediaRecorder.stop();
+                        startButton.disabled = false;
+                        stopButton.disabled = true;
                       }
                     };
 
@@ -1026,36 +1031,35 @@ const DynamicQuestion = ({
               </div>
 
               {/* Prefill the default value */}
-              {(filePreviews[ques.id] || selectedValues[ques.id]) &&
-                !isLoading && (
-                  <div className="relative h-32 w-32 overflow-hidden rounded-lg">
-                    <video
-                      src={
-                        filePreviews[ques.id] || // If a new file is selected
-                        (typeof selectedValues[ques.id] === "string" &&
-                          selectedValues[ques.id]) // If the default S3 URL is provided
-                      }
-                      controls
-                      className="h-full w-full object-cover"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSelectedValues((prev) => ({
-                          ...prev,
-                          [ques.id]: null,
-                        }));
-                        setFilePreviews((prev) => ({
-                          ...prev,
-                          [ques.id]: "",
-                        }));
-                      }}
-                      className="absolute right-2 top-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
-                    >
-                      ×
-                    </button>
-                  </div>
-                )}
+              {(filePreviews[ques.id] || selectedValues[ques.id]) && (
+                <div className="relative h-32 w-32 overflow-hidden rounded-lg">
+                  <video
+                    src={
+                      filePreviews[ques.id] || // If a new file is selected
+                      (typeof selectedValues[ques.id] === "string" &&
+                        selectedValues[ques.id]) // If the default S3 URL is provided
+                    }
+                    controls
+                    className="h-full w-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedValues((prev) => ({
+                        ...prev,
+                        [ques.id]: null,
+                      }));
+                      setFilePreviews((prev) => ({
+                        ...prev,
+                        [ques.id]: "",
+                      }));
+                    }}
+                    className="absolute right-2 top-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
+                  >
+                    ×
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         );
