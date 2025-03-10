@@ -246,7 +246,7 @@ const DynamicQuestion = ({
         setQid(quesId);
       }
 
-      console.log(type);
+      //   console.log(type);
       //@ts-ignore
       if (type === "location") {
         //@ts-ignore
@@ -1203,6 +1203,18 @@ const DynamicQuestion = ({
       case "location":
         return (
           <div className="col-span-2">
+            <LocationSelector
+              apiKey={KEY as string}
+              questionId={ques.id}
+              onLocationSelect={(locations) => {
+                //@ts-ignore
+                handleInputChange(locations, ques.id, "location");
+                //setQid(ques.id);
+              }}
+              defaultLocations={selectedValues[ques.id] || []}
+            />
+
+            {/***
             <LocationDropdown
               questionId={ques.id}
               onLocationSelect={(location) => {
@@ -1213,6 +1225,7 @@ const DynamicQuestion = ({
               defaultLatitude={selectedValues[ques.id]?.latitude}
               defaultLongitude={selectedValues[ques.id]?.longitude}
             />
+            */}
           </div>
         );
       case "line":
