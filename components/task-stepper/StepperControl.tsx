@@ -21,6 +21,7 @@ const StepperControl: React.FC<StepperControlProps> = ({
   const searchParams = useSearchParams();
 
   const updateUrlStep = (newStep: number) => {
+    // console.log(newStep);
     // Create a new URLSearchParams object
     const newSearchParams = new URLSearchParams(searchParams.toString());
     // Update the step parameter
@@ -41,6 +42,7 @@ const StepperControl: React.FC<StepperControlProps> = ({
   };
   const handlePrevious = () => {
     prevStep();
+    //  console.log(step);
     updateUrlStep(step - 1);
   };
 
