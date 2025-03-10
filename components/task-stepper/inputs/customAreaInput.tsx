@@ -221,7 +221,7 @@ const CustomAreaInput = ({
     },
     [locations, updateLocations, apiKey],
   );
-  console.log(locations);
+  // console.log(locations);
 
   const getCurrentLocation = () => {
     return new Promise<{ latitude: number; longitude: number }>(
@@ -293,6 +293,8 @@ const CustomAreaInput = ({
                     onClick={async () => {
                       try {
                         const currentLocation = await getCurrentLocation();
+
+                        console.log(currentLocation);
                         await handleCurrentLocation(
                           location.id,
                           currentLocation,

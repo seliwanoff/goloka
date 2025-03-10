@@ -104,8 +104,8 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({
             defaultLatitude,
             defaultLongitude,
           );
-          console.log(currentLocation);
-          console.log(locationDetails);
+          //  console.log(currentLocation);
+          //console.log(locationDetails);
 
           if (isMounted) {
             // Avoid calling onLocationSelect if location is the same

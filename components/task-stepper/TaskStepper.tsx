@@ -12,6 +12,7 @@ type Question = {
   name?: string;
   label: string;
   options?: string[];
+  value?: string;
   placeholder?: string;
   attributes?: {
     accept?: string;
@@ -34,6 +35,7 @@ import { useStepper } from "@/context/TaskStepperContext.tsx";
 import DynamicQuestion from "./task_question_1";
 import SuccessModal from "./customSuccess";
 import { useSuccessModalStore } from "@/stores/misc";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const TaskStepper = ({
   response,
@@ -45,7 +47,7 @@ const TaskStepper = ({
   quest: { question_groups: QuestionGroup[]; ungrouped_questions: Question[] };
 }) => {
   const { isModalOpen, closeModal, isLastStepLoading } = useSuccessModalStore();
-  const { step } = useStepper();
+  const { step, setStep } = useStepper();
   const { question_groups, ungrouped_questions } = quest;
 
   const allGroups = [
@@ -57,6 +59,20 @@ const TaskStepper = ({
       order: index + 2, // Start from 2 since ungrouped questions have order 1
     })),
   ];
+  /**
+  useEffect(() => {
+    for (const group of allGroups) {
+      const emptyQuestion = group.questions.find((question) => !question.value);
+      //  console.log(group);
+      if (emptyQuestion) {
+        // Set the step to the group's order (page number)
+        setStep(group.order);
+        break; // Stop after finding the first empty question
+      }
+    }
+  }, [allGroups, setStep]);
+
+  */
 
   //console.log(allGroups, "my checking questions");
   const totalQuestions = allGroups.reduce((sum, group) => {
@@ -72,6 +88,41 @@ const TaskStepper = ({
   const isLastStep = step === allGroups.length;
 
   const res = response?.data;
+
+  //  console.log(res);
+
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const { answers } = response?.data || {};
+
+    if (!answers) return; // Exit if answers are not available
+
+    for (const group of allGroups) {
+      const unansweredQuestion = group.questions.find((question) => {
+        const answer = answers.find(
+          (ans: any) => ans.question.id === question.id,
+        );
+        return !answer || !answer.value;
+      });
+
+      if (unansweredQuestion) {
+        // Avoid unnecessary updates if the step is already correct
+        if (step !== group.order) {
+          setStep(group.order);
+
+          // Update URL with the new step
+          const newSearchParams = new URLSearchParams(searchParams.toString());
+          newSearchParams.set("step", group.order.toString());
+          router.push(
+            `${window.location.pathname}?${newSearchParams.toString()}`,
+          );
+        }
+        break; // Stop after finding the first unanswered question
+      }
+    }
+  }, [allGroups, response?.data, step, setStep, searchParams, router]);
 
   useEffect(() => {
     if (response === undefined) {

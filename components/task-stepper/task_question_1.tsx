@@ -275,7 +275,36 @@ const DynamicQuestion = ({
     }
   }, [filePreviews[qId]]);
   const nextStepNext = async () => {
-    nextStep();
+    const requiredQuestions = questions.filter((q) => q.required === 1);
+    const missingRequiredQuestions = requiredQuestions.filter((q) => {
+      const value = selectedValues[q.id];
+      if (value === undefined || value === null || value === "") return true;
+      if (Array.isArray(value) && value.length === 0) return true;
+      if (["file", "photo", "video", "audio"].includes(q.type)) {
+        return !(
+          value &&
+          ((typeof value === "object" &&
+            "file" in value &&
+            value.file instanceof File) ||
+            value instanceof File ||
+            (typeof value === "string" && value.trim() !== ""))
+        );
+      }
+      return false;
+    });
+
+    //   console.log(missingRequiredQuestions, "missing required");
+
+    if (missingRequiredQuestions.length > 0) {
+      toast.warning(
+        `Please fill in all required questions: ${missingRequiredQuestions
+          .map((q) => q.label)
+          .join(", ")}`,
+      );
+      // ... focus handling logic
+    } else {
+      nextStep();
+    }
   };
 
   const handleNext = async () => {
@@ -294,6 +323,7 @@ const DynamicQuestion = ({
       nextStep();
       return;
     }
+      **/
 
     // Validation for required questions
     const requiredQuestions = questions.filter((q) => q.required === 1);
@@ -323,6 +353,7 @@ const DynamicQuestion = ({
       // ... focus handling logic
       return;
     }
+    /***
 
     questions.forEach((question) =>
       updateAnswer(question.id, selectedValues[question.id]),
@@ -597,7 +628,7 @@ const DynamicQuestion = ({
               hasFileToUpload = true;
               promises.push(uploadQuestionFile(responseId as string, formData));
               //@ts-ignore
-              queryClient.invalidateQueries(["campaign questions"]);
+              //queryClient.invalidateQueries(["campaign questions"]);
             } else {
               toast.error(`Invalid file type for ${question.label}.`);
             }
@@ -655,7 +686,7 @@ const DynamicQuestion = ({
       // toast.error(error instanceof Error ? error.message : "An error occurred");
     } finally {
       //@ts-ignore
-      queryClient.invalidateQueries(["campaign questions"]);
+      // queryClient.invalidateQueries(["campaign questions"]);
       setIsLoading(false);
 
       // setIsLoading(false);
@@ -908,11 +939,20 @@ const DynamicQuestion = ({
                     cancelButton.style.border = "none";
                     cancelButton.style.borderRadius = "5px";
 
+                    // Create recording indicator
+                    const recordingIndicator = document.createElement("div");
+                    recordingIndicator.textContent = "Recording...";
+                    recordingIndicator.style.color = "red";
+                    recordingIndicator.style.fontWeight = "bold";
+                    recordingIndicator.style.marginTop = "10px";
+                    recordingIndicator.style.display = "none"; // Hidden by default
+
                     // Append elements to overlay
                     cameraOverlay.appendChild(video);
                     cameraOverlay.appendChild(startButton);
                     cameraOverlay.appendChild(stopButton);
                     cameraOverlay.appendChild(cancelButton);
+                    cameraOverlay.appendChild(recordingIndicator);
                     document.body.appendChild(cameraOverlay);
 
                     // Wait for video to be ready
@@ -986,6 +1026,7 @@ const DynamicQuestion = ({
                       mediaRecorder.start();
                       startButton.disabled = true;
                       stopButton.disabled = false;
+                      recordingIndicator.style.display = "block"; // Show recording indicator
                     };
 
                     // Stop recording
@@ -994,6 +1035,7 @@ const DynamicQuestion = ({
                         mediaRecorder.stop();
                         startButton.disabled = false;
                         stopButton.disabled = true;
+                        recordingIndicator.style.display = "none"; // Hide recording indicator
                       }
                     };
 
