@@ -93,7 +93,7 @@ const TaskStepper = ({
 
   const router = useRouter();
   const searchParams = useSearchParams();
-
+  /***
   useEffect(() => {
     const { answers } = response?.data || {};
 
@@ -122,7 +122,9 @@ const TaskStepper = ({
         break; // Stop after finding the first unanswered question
       }
     }
-  }, [allGroups, response?.data, step, setStep, searchParams, router]);
+  }, [allGroups, response?.data, step, setStep, router, searchParams]);
+
+  */
 
   useEffect(() => {
     if (response === undefined) {
