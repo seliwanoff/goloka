@@ -115,7 +115,7 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({
               currentLocation.longitude !== locationDetails.longitude
             ) {
               setCurrentLocation(locationDetails);
-              // onLocationSelect(locationDetails, questionId);
+              //  onLocationSelect(locationDetails, questionId);
             }
           }
         } catch (error) {
