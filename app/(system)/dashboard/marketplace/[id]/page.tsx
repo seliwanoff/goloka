@@ -252,11 +252,16 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
         // console.log(response, " first call");
 
         // Fixed URL format - use & instead of second ?
+
+        /***
         router.push(
           //@ts-ignore
           `${window.location.pathname}?responseID=${response.data?.id}&stepper=true&step=1`,
         );
+        */
 
+        //@ts-ignore
+        window.location.href = `${window.location.pathname}?responseID=${response.data?.id}&stepper=true&step=1`;
         //@ts-ignore
         toast.success(response.message);
       } else if (getButtonText() === "Continue") {
@@ -270,6 +275,10 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
         if (draftResponse?.status === "draft") {
           setResponseId(draftResponse.id);
           await refetchResponse();
+
+          //@ts-ignore
+          queryClient.invalidateQueries(["get a Response", responseId]);
+
           //  console.log(getResponse, "getResponse");
 
           // Uncomment and fix URL format here too
@@ -283,10 +292,14 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
         const response = await createCampaignResponse({}, taskId as string);
 
         // Fixed URL format here as well
+        //@ts-ignore
+        window.location.href = `${window.location.pathname}?responseID=${response.data?.id}&stepper=true&step=1`;
+        /***
         router.push(
           //@ts-ignore
           `${window.location.pathname}?responseID=${response.data?.id}&stepper=true&step=1`,
         );
+         */
 
         //@ts-ignore
         toast.success(response.message);
