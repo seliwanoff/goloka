@@ -50,6 +50,8 @@ const TaskStepper = ({
   const { step, setStep } = useStepper();
   const { question_groups, ungrouped_questions } = quest;
 
+  console.log("questions", quest);
+
   const [isFirstTime, setIsFirstTime] = useState(
     localStorage.getItem("firstTime"),
   );
@@ -60,9 +62,22 @@ const TaskStepper = ({
       : []),
     ...question_groups.map((group, index) => ({
       ...group,
+      order: ungrouped_questions.length > 0 ? index + 2 : index + 1, // Adjust order based on ungrouped_questions
+    })),
+  ];
+  /***
+  const allGroups = [
+    ...(ungrouped_questions.length > 0
+      ? [{ order: 1, questions: ungrouped_questions }]
+      : []),
+    ...question_groups.map((group, index) => ({
+      ...group,
       order: index + 2, // Start from 2 since ungrouped questions have order 1
     })),
   ];
+  */
+
+  // console.log(allGroups);
 
   const totalQuestions = allGroups.reduce((sum, group) => {
     return sum + (group.questions ? group.questions.length : 0);
@@ -73,6 +88,8 @@ const TaskStepper = ({
   // const currentGroup = allGroups.find((group) => group.order === step);
 
   const currentGroup = allGroups.find((group) => group.order === step);
+
+  console.log(currentGroup);
 
   const isLastStep = step === allGroups.length;
 
