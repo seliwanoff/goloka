@@ -5,7 +5,10 @@ import Location from "@/public/assets/images/location.svg";
 import { X } from "lucide-react";
 import { useShowOverlay } from "@/stores/location";
 import { cn } from "@/lib/utils";
-import { createContributor } from "@/services/contributor";
+import {
+  createContributor,
+  createContributorLocation,
+} from "@/services/contributor";
 import { FaSpinner } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -99,7 +102,7 @@ const UpdateLocationModal = () => {
 
   const updateContributorsLocation = async (locationData: LocationData) => {
     try {
-      const res = await createContributor({
+      const res = await createContributorLocation({
         longitude: locationData.longitude,
         latitude: locationData.latitude,
         // country: locationData.country,
@@ -114,8 +117,8 @@ const UpdateLocationModal = () => {
         router.refresh(); // Refresh the page to update any location-dependent content
       }
     } catch (error) {
-        toast.error(
-          //@ts-ignore
+      toast.error(
+        //@ts-ignore
         error?.response?.data?.message || "Failed to update location",
       );
       setError("Failed to update location. Please try again.");
