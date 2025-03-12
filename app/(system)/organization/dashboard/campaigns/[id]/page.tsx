@@ -710,18 +710,40 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
   });
 
   //@ts-ignore
-  const locations = useMemo(
-    () =>
-      task?.data?.locations?.states?.map((state: any) => (
-        <span
-          key={state.label}
-          className="rounded-lg bg-gray-200 px-[6px] py-[3px] font-poppins text-[12px] text-[#4F4F4F]"
-        >
-          {state.label}
+  const locations = useMemo(() => {
+    //@ts-ignore
+    if (!task?.data?.locations) return null;
+    //@ts-ignore
+    const { label: country, states } = task.data.locations;
+
+    return (
+      <div className="flex items-center gap-2">
+        {/* Display Country */}
+        <span className="rounded-lg bg-gray-200 px-[6px] py-[3px] font-poppins text-[12px] text-[#4F4F4F]">
+          {country}
         </span>
-      )),
-    [task],
-  );
+
+        {/* Display States and LGAs */}
+        {states?.map((state: any) => (
+          <div key={state.label} className="flex items-center gap-2">
+            <span className="rounded-lg bg-gray-200 px-[6px] py-[3px] font-poppins text-[12px] text-[#4F4F4F]">
+              {state.label}
+            </span>
+
+            {/* Display LGAs */}
+            {state.lgas?.map((lga: any) => (
+              <span
+                key={lga.label}
+                className="rounded-lg bg-gray-200 px-[6px] py-[3px] font-poppins text-[12px] text-[#4F4F4F]"
+              >
+                {lga.label}
+              </span>
+            ))}
+          </div>
+        ))}
+      </div>
+    );
+  }, [task]);
 
   //@ts-ignore
   const responses = useMemo(() => task?.data?.responses, [task]);
@@ -1133,9 +1155,13 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
               <div>{<StatusPill status={task?.data?.status} />}</div>
             </div>
             <div className="flex w-full items-center justify-end gap-2">
-              <MessageComponentWithAdmin />
+              {task?.data.status === "rejected" && (
+                <>
+                  <MessageComponentWithAdmin />
 
-              <MessageComponent />
+                  <MessageComponent />
+                </>
+              )}
 
               <Popover>
                 <PopoverTrigger asChild>

@@ -171,7 +171,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
     queryClient.invalidateQueries(["get a Response", responseId]);
   };
   //@ts-ignore
-  const locations = useMemo(() => task?.data?.locations, [task]);
+  //const locations = useMemo(() => task?.data?.locations, [task]);
   //@ts-ignore
   const responses = useMemo(() => task?.data?.responses, [task]);
   const isDesktop = useMediaQuery("(min-width: 768px)");
@@ -358,6 +358,41 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
   // console.log(task, "task");
   //@ts-ignore
   const locationData = task?.data?.locations;
+
+  const locations = useMemo(() => {
+    //@ts-ignore
+    if (!task?.data?.locations) return null;
+    //@ts-ignore
+    const { label: country, states } = task.data.locations;
+
+    return (
+      <div className="flex items-center gap-2">
+        {/* Display Country */}
+        <span className="rounded-lg bg-gray-200 px-[6px] py-[3px] font-poppins text-[12px] text-[#4F4F4F]">
+          {country}
+        </span>
+
+        {/* Display States and LGAs */}
+        {states?.map((state: any) => (
+          <div key={state.label} className="flex items-center gap-2">
+            <span className="rounded-lg bg-gray-200 px-[6px] py-[3px] font-poppins text-[12px] text-[#4F4F4F]">
+              {state.label}
+            </span>
+
+            {/* Display LGAs */}
+            {state.lgas?.map((lga: any) => (
+              <span
+                key={lga.label}
+                className="rounded-lg bg-gray-200 px-[6px] py-[3px] font-poppins text-[12px] text-[#4F4F4F]"
+              >
+                {lga.label}
+              </span>
+            ))}
+          </div>
+        ))}
+      </div>
+    );
+  }, [task]);
   const WrappedTaskStepper = () => (
     <TaskStepper
       response={getResponse}
@@ -598,6 +633,13 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
                   <div>
                     <h4 className="font-medium text-[#101828]">Multiple</h4>
                     <p className="text-sm text-gray-400">Response type </p>
+                  </div>
+
+                  <div>
+                    <h4 className="flex gap-2 font-medium text-[#101828]">
+                      {locations}
+                    </h4>
+                    <p className="text-sm text-gray-400">Location</p>
                   </div>
                   <div className="md:text-left">
                     <h4 className="font-medium text-[#101828]">
