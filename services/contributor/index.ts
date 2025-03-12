@@ -92,6 +92,20 @@ export const createContributor = async (
   });
 };
 
+export const createContributorLocation = async (
+  data: any,
+): Promise<UseQueryResult<ServerResponse<any>>> => {
+  return queryClient.fetchQuery({
+    queryKey: ["create contributor"],
+    queryFn: async () => {
+      return await postData<ServerResponse<any>>(
+        "/contributor-profile/location",
+        data,
+      );
+    },
+  });
+};
+
 export const updateOrganization = async (
   data: any,
 ): Promise<UseQueryResult<ServerResponse<any>>> => {
