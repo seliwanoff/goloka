@@ -221,7 +221,7 @@ const DynamicQuestion = ({
         };
       });
 
-      console.log(value);
+      // console.log(value);
       //@ts-ignore
 
       if (value.length === 4) {
@@ -261,6 +261,8 @@ const DynamicQuestion = ({
       ...prev,
       [quesId]: value,
     }));
+    //@ts-ignore
+    setQid(quesId);
   };
   useEffect(() => {
     if (selectedValues[qId] !== undefined) {

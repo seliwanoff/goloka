@@ -10,12 +10,15 @@ interface AudioRecorderProps {
     type?: string,
   ) => void;
   defaultAudio?: string | File;
+
+  onInputedAnswerMonitoring?: any;
 }
 
 const AudioRecorder: React.FC<AudioRecorderProps> = ({
   quesId,
   handleInputChange,
   defaultAudio,
+  onInputedAnswerMonitoring,
 }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [audioURL, setAudioURL] = useState<string | null>(null);
