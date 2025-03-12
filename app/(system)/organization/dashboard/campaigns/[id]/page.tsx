@@ -1133,9 +1133,13 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
               <div>{<StatusPill status={task?.data?.status} />}</div>
             </div>
             <div className="flex w-full items-center justify-end gap-2">
-              <MessageComponentWithAdmin />
+              {task?.data.status === "rejected" && (
+                <>
+                  <MessageComponentWithAdmin />
 
-              <MessageComponent />
+                  <MessageComponent />
+                </>
+              )}
 
               <Popover>
                 <PopoverTrigger asChild>
