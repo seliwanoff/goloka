@@ -220,8 +220,10 @@ const CreateNewCampaign = () => {
     if (!selectedCampaignGroupId) {
       return toast.error("Please select a campaign group.");
     }
-    if (!responseNumber || Number(responseNumber) <= 0) {
-      return toast.error("Please enter a valid number of responses.");
+    if (!responseNumber || Number(responseNumber) <= 10) {
+      return toast.error(
+        "Please enter a valid number of responses. Mininum response is 10",
+      );
     }
     if (!paymentRate || parseFloat(paymentRate) < 500) {
       return toast.error(
