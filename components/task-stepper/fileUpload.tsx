@@ -132,7 +132,11 @@ const FileUpload: React.FC<FileUploadProps> = ({
               ref={ref}
               id="file-upload"
               type="file"
-              accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.csv,.txt,.xls,.xlsx"
+              accept={
+                type === "image"
+                  ? ".png,.jpg,.jpeg,.gif,.webp"
+                  : ".pdf,.doc,.docx,.csv,.txt,.xls,.xlsx"
+              }
               className="hidden"
               onChange={handleFileUpload}
               disabled={disabled}

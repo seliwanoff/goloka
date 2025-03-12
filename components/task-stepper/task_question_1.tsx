@@ -1661,6 +1661,7 @@ const DynamicQuestion = ({
           <div className="col-span-2">
             <FileUpload
               //@ts-ignore
+
               ref={(el) => (inputRefs.current[ques.id] = el)}
               value={selectedValues[ques.id] || ""}
               onFileUpload={(file, base64) => {
