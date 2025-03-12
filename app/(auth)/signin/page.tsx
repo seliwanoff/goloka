@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { FcGoogle } from "react-icons/fc";
 import Link from "next/link";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { userSignIn } from "@/services/auth";
+import { getCurrentOrganization, userSignIn } from "@/services/auth";
 import { useRouter } from "next/navigation";
 import { FaSpinner } from "react-icons/fa";
 import { toast } from "sonner";
@@ -106,77 +106,75 @@ const SignIn: React.FC<PageProps> = ({}) => {
   //   }
   // };
 
- const onSubmit: SubmitHandler<FormValues> = async (data) => {
-   setIsLoading(true);
+  const onSubmit: SubmitHandler<FormValues> = async (data) => {
+    setIsLoading(true);
+    getCurrentOrganization(null);
 
-   try {
-     const { email, password } = data;
+    try {
+      const { email, password } = data;
 
+      toast.loading("Signing you in...");
 
-     toast.loading("Signing you in...");
+      const response = await userSignIn(email, password);
 
-     const response = await userSignIn(email, password);
+      if (!response) {
+        throw new Error(
+          "Failed to sign in. Please check your credentials and try again.",
+        );
+      }
 
-     if (!response) {
-       throw new Error(
-         "Failed to sign in. Please check your credentials and try again.",
-       );
-     }
+      //@ts-ignore
+      const { access_token, token_type, refresh_token } = response.tokens;
 
-     //@ts-ignore
-     const { access_token, token_type, refresh_token } = response.tokens;
+      // Store tokens immediately
+      localStorage.setItem("access_token", JSON.stringify(access_token));
+      localStorage.setItem("refresh_token", JSON.stringify(refresh_token));
+      localStorage.setItem("token_type", JSON.stringify(token_type));
 
-     // Store tokens immediately
-     localStorage.setItem("access_token", JSON.stringify(access_token));
-     localStorage.setItem("refresh_token", JSON.stringify(refresh_token));
-     localStorage.setItem("token_type", JSON.stringify(token_type));
+      //@ts-ignore
 
-     //@ts-ignore
+      if (response?.user?.email_verified_at === null) {
+        toast.dismiss();
+        toast.success("Sign in successful, verification needed");
 
-     if (response?.user?.email_verified_at === null) {
+        // in parallel with navigation preparation to prevent any bulls***T
+        const otpPromise = getOTP({});
 
-       toast.dismiss();
-       toast.success("Sign in successful, verification needed");
+        //@ts-ignore
+        const redirectUrl = `/signup?step=2&email=${encodeURIComponent(response?.user?.email)}`;
+        router.prefetch(redirectUrl);
 
-       // in parallel with navigation preparation to prevent any bulls***T
-       const otpPromise = getOTP({});
+        const otpResponse = await otpPromise;
+        if (otpResponse) {
+          router.push(redirectUrl);
+        }
+        return;
+      }
 
-       //@ts-ignore
-       const redirectUrl = `/signup?step=2&email=${encodeURIComponent(response?.user?.email)}`;
-       router.prefetch(redirectUrl);
+      //  parallel
+      toast.dismiss();
+      toast.success("Sign in successful");
 
-       const otpResponse = await otpPromise;
-       if (otpResponse) {
-         router.push(redirectUrl);
-       }
-       return;
-     }
+      const redirectPath =
+        //@ts-ignore
+        response.user.current_role === "campaigner"
+          ? "/organization/dashboard/root"
+          : "/dashboard/root";
 
-     //  parallel
-     toast.dismiss();
-     toast.success("Sign in successful");
+      router.prefetch(redirectPath);
 
-     const redirectPath =
-     //@ts-ignore
-       response.user.current_role === "campaigner"
-         ? "/organization/dashboard/root"
-         : "/dashboard/root";
-
-
-     router.prefetch(redirectPath);
-
-
-     router.replace(redirectPath);
-   } catch (error: any) {
-     toast.dismiss();
-     console.error("Sign-in error:", error);
-     toast.error(
-       error?.response?.data?.message || "Failed to sign in. Please try again.",
-     );
-   } finally {
-     setIsLoading(false);
-   }
- };
+      router.replace(redirectPath);
+    } catch (error: any) {
+      toast.dismiss();
+      console.error("Sign-in error:", error);
+      toast.error(
+        error?.response?.data?.message ||
+          "Failed to sign in. Please try again.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="w-full max-w-2xl">
