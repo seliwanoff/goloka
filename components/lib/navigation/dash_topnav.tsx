@@ -112,6 +112,8 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
   const firstSegment = pathname?.split("/")[1];
   const user = { data };
   const currentUser = useUserStore((state) => state.user);
+
+  // console.log(currentUser);
   const [isPageLoaded, setIsPageLoaded] = useState(false);
   const { setOpen: setOpenc } = useShowOverlay();
 

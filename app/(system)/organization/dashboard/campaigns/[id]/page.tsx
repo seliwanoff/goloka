@@ -605,8 +605,14 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
                     <span
                       className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#F8F8F8] p-2 px-2.5 text-sm text-[#4F4F4F]"
                       onClick={() => {
-                        setSelectedQuestion(data);
-                        setShowQuestionEdit(true);
+                        if (task?.data?.status === "draft") {
+                          setSelectedQuestion(data);
+                          setShowQuestionEdit(true);
+                        } else {
+                          toast.error(
+                            "Your campaign must be in draft for you to edit question(s).",
+                          );
+                        }
                       }}
                     >
                       <Edit size={18} /> Edit
