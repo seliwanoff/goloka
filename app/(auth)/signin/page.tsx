@@ -22,6 +22,7 @@ import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
 import { useAuth } from "@/services/auth/hooks";
 import { getOTP } from "@/services/misc";
 import { getUseServices } from "@/services/organization";
+import { set } from "date-fns";
 
 type PageProps = {};
 
@@ -33,6 +34,8 @@ type FormValues = {
 const SignIn: React.FC<PageProps> = ({}) => {
   const [eye1, setEye1] = useState(false);
   const { googleLogin, isNavigating } = useAuth();
+  const [isUserDataCaptured, setIsUserDataCaptured] = useState(false);
+
   const router = useRouter();
   const {
     register,
@@ -49,7 +52,7 @@ const SignIn: React.FC<PageProps> = ({}) => {
   );
 
   const handleGoogleSuccess = (credentialResponse: any) => {
-    console.log(credentialResponse);
+    // console.log(credentialResponse);
     if (credentialResponse.credential) {
       googleLogin(credentialResponse.credential);
     }
@@ -286,7 +289,7 @@ const SignIn: React.FC<PageProps> = ({}) => {
                   theme="outline"
                   size="large"
                   shape="pill"
-                  width="100%"
+                  width="100%" // Dynamically adjust width
                   text="signin_with"
                   logo_alignment="center"
                 />
