@@ -132,7 +132,7 @@ const SignIn: React.FC<PageProps> = ({}) => {
       localStorage.setItem("token_type", JSON.stringify(token_type));
 
       //@ts-ignore
-
+     
       if (response?.user?.email_verified_at === null) {
         toast.dismiss();
         toast.success("Sign in successful, verification needed");
@@ -150,11 +150,23 @@ const SignIn: React.FC<PageProps> = ({}) => {
         }
         return;
       }
+       //@ts-ignore
+      console.log(`lenght:${response?.services.length}`);
+       //@ts-ignore
+       
+      
 
       //  parallel
       toast.dismiss();
+      
       toast.success("Sign in successful");
-
+        //@ts-ignore
+      if(response?.services.length ===0){
+        console.log("inside");
+        router.push(`/signup?step=3&verify-complete=true`);
+        return;
+      
+      }
       const redirectPath =
         //@ts-ignore
         response.user.current_role === "campaigner"
