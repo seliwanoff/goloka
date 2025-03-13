@@ -198,6 +198,9 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
 
   const getRegisteredUsersService = async () => {
     const response = await getUseServices();
+    //@ts-ignore
+
+    console.log(response);
     const currentUsers = await getCurrentUser();
     //@ts-ignore
     const contributor = response.services.contributor
@@ -238,7 +241,7 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
   };
 
   //console.log(currentOrganization);
-  const filteredOrganizations = organizations.filter(
+  const filteredOrganizations = organizations?.filter(
     (org: any) =>
       org?.id !== currentOrganization?.id && org?.id !== currentUser?.id,
   );

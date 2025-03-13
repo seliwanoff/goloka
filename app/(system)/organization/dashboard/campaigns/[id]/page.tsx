@@ -327,7 +327,7 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
       const getCurrentUserResponse = async () => {
         const user = await getCurrentUser();
 
-        console.log(user);
+        // console.log(user);
         //@ts-ignore
         setUserId(user.data.id);
       };

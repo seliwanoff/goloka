@@ -21,6 +21,7 @@ import { useRemoteUserStore } from "@/stores/remoteUser";
 import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
 import { useAuth } from "@/services/auth/hooks";
 import { getOTP } from "@/services/misc";
+import { getUseServices } from "@/services/organization";
 
 type PageProps = {};
 
@@ -133,6 +134,7 @@ const SignIn: React.FC<PageProps> = ({}) => {
 
       //@ts-ignore
 
+      //@ts-ignore
       if (response?.user?.email_verified_at === null) {
         toast.dismiss();
         toast.success("Sign in successful, verification needed");
@@ -150,6 +152,17 @@ const SignIn: React.FC<PageProps> = ({}) => {
         }
         return;
       }
+
+      /***
+
+      const responses = await getUseServices();
+      //@ts-ignore
+      if (responses?.services?.length === 0) {
+        router.push("/signup?step=3&verify-complete=true");
+        return;
+      }
+
+      */
 
       //  parallel
       toast.dismiss();
