@@ -772,7 +772,13 @@ const DynamicQuestion = ({
                             "bg-main-100 text-white",
                         )}
                       >
-                        {index as number}
+                        <span
+                          className={cn(
+                            "block h-3 w-3 rounded-full",
+                            selectedValues[ques.id] === opt?.value &&
+                              "bg-white text-white",
+                          )}
+                        ></span>
                       </span>
                       <p
                         className={cn(

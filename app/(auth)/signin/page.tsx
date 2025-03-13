@@ -134,7 +134,6 @@ const SignIn: React.FC<PageProps> = ({}) => {
 
       //@ts-ignore
 
-      //@ts-ignore
       if (response?.user?.email_verified_at === null) {
         toast.dismiss();
         toast.success("Sign in successful, verification needed");
@@ -152,6 +151,9 @@ const SignIn: React.FC<PageProps> = ({}) => {
         }
         return;
       }
+      //@ts-ignore
+      console.log(`lenght:${response?.services.length}`);
+      //@ts-ignore
 
       /***
 
@@ -166,8 +168,14 @@ const SignIn: React.FC<PageProps> = ({}) => {
 
       //  parallel
       toast.dismiss();
-      toast.success("Sign in successful");
 
+      toast.success("Sign in successful");
+      //@ts-ignore
+      if (response?.services.length === 0) {
+        //   console.log("inside");
+        router.push(`/signup?step=3&verify-complete=true`);
+        return;
+      }
       const redirectPath =
         //@ts-ignore
         response.user.current_role === "campaigner"
@@ -202,7 +210,7 @@ const SignIn: React.FC<PageProps> = ({}) => {
             </span>
           </h1>
           <p className="mx-auto max-w-xs text-sm text-gray-500">
-            Log in to keep contributing and earning with Goloka
+            Sign in to keep contributing and earning with Goloka
           </p>
         </div>
 
@@ -265,13 +273,12 @@ const SignIn: React.FC<PageProps> = ({}) => {
               type="submit"
               className="h-12 w-full rounded-full bg-main-100 text-base font-light text-white hover:bg-blue-700"
             >
-              {isLoading ? <FaSpinner className="animate-spin" /> : "Login"}
+              {isLoading ? <FaSpinner className="animate-spin" /> : "Sign In"}
             </Button>
             {isNavigating && <LoadingOverlay />}
             <div className="mt-4 flex w-full justify-center">
               <div className="h-12 w-full">
                 {" "}
-                {/* Added h-12 to match your button height */}
                 <GoogleLogin
                   onSuccess={handleGoogleSuccess}
                   onError={handleGoogleError}

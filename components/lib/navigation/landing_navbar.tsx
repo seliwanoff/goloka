@@ -98,7 +98,7 @@ const LandingNavbar: React.FC<ComponentProps> = ({}) => {
                 className="hidden rounded-full border border-main-100 px-9 text-main-100 hover:bg-blue-700 hover:text-[#fff] md:block"
                 // onClick={() => router.push("/signin")}
               >
-                Login
+                Sign in
               </Button>
             </Link>
             <Link href="/signup">

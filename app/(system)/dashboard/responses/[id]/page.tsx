@@ -187,6 +187,7 @@ const ResponseDetails = () => {
             label="Select option"
             placeholder="Type something..."
             preview={preview}
+            tab="response"
             initialOptions={(() => {
               try {
                 const parsedValue = value ? JSON.parse(value) : [];
@@ -211,6 +212,7 @@ const ResponseDetails = () => {
       case "radio":
         return (
           <RadioSelection
+            tab="response"
             initialOptions={(() => {
               try {
                 const parsedValue = value ? JSON.parse(value) : [];
@@ -235,6 +237,7 @@ const ResponseDetails = () => {
       case "checkbox":
         return (
           <CheckboxList
+            tab="response"
             initialOptions={(() => {
               try {
                 const parsedValue = value ? JSON.parse(value) : [];
