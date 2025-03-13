@@ -11,6 +11,7 @@ interface DynamicListInputProps {
   initialOptions?: Option[];
   onOptionsChange?: (options: Option[]) => void;
   preview?: any;
+  tab?: string;
 }
 
 const MultipleChoices: React.FC<DynamicListInputProps> = ({
@@ -19,6 +20,7 @@ const MultipleChoices: React.FC<DynamicListInputProps> = ({
   initialOptions = [],
   onOptionsChange,
   preview,
+  tab,
 }) => {
   const [options, setOptions] = useState<Option[]>(initialOptions);
 
@@ -59,7 +61,9 @@ const MultipleChoices: React.FC<DynamicListInputProps> = ({
     <div className="space-y-4">
       {options.map((option, index) => (
         <div key={option.id} className="flex items-center gap-4">
-          <span className="text-gray-500">{index + 1}.</span>
+          {tab !== "response" && (
+            <span className="text-gray-500">{index + 1}.</span>
+          )}
           <input
             type="text"
             value={option.value}

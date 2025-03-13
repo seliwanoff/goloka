@@ -112,6 +112,8 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
   const firstSegment = pathname?.split("/")[1];
   const user = { data };
   const currentUser = useUserStore((state) => state.user);
+
+  // console.log(currentUser);
   const [isPageLoaded, setIsPageLoaded] = useState(false);
   const { setOpen: setOpenc } = useShowOverlay();
 
@@ -196,6 +198,9 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
 
   const getRegisteredUsersService = async () => {
     const response = await getUseServices();
+    //@ts-ignore
+
+    console.log(response);
     const currentUsers = await getCurrentUser();
     //@ts-ignore
     const contributor = response.services.contributor
@@ -236,7 +241,7 @@ const DashTopNav: React.FC<ComponentProps> = ({}) => {
   };
 
   //console.log(currentOrganization);
-  const filteredOrganizations = organizations.filter(
+  const filteredOrganizations = organizations?.filter(
     (org: any) =>
       org?.id !== currentOrganization?.id && org?.id !== currentUser?.id,
   );

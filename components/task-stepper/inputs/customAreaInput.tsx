@@ -13,6 +13,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { FaSpinner } from "react-icons/fa";
 
 interface Location {
   id: number;
@@ -47,6 +48,8 @@ const CustomAreaInput = ({
     () => defaultLocations || [],
     [defaultLocations],
   );
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedId, setSelectedId] = useState<number>(0);
 
   // State to store locations with potential address resolution
   const [locations, setLocations] = useState<Location[]>(() =>
@@ -224,6 +227,8 @@ const CustomAreaInput = ({
   // console.log(locations);
 
   const getCurrentLocation = () => {
+    setIsLoading(true);
+
     return new Promise<{ latitude: number; longitude: number }>(
       (resolve, reject) => {
         if ("geolocation" in navigator) {
@@ -233,8 +238,11 @@ const CustomAreaInput = ({
                 latitude: position.coords.latitude,
                 longitude: position.coords.longitude,
               });
+              setIsLoading(false); // Start loading
             },
             (error) => {
+              setIsLoading(false); // Start loading
+
               alert("Geolocation is not supported by this browser.");
 
               console.error("Error getting location:", error);
@@ -291,10 +299,11 @@ const CustomAreaInput = ({
                     size="icon"
                     className="group relative h-10 w-10 rounded-full hover:bg-blue-50"
                     onClick={async () => {
+                      setSelectedId(location.id);
                       try {
                         const currentLocation = await getCurrentLocation();
 
-                        console.log(currentLocation);
+                        //  console.log(currentLocation);
                         await handleCurrentLocation(
                           location.id,
                           currentLocation,
@@ -304,10 +313,16 @@ const CustomAreaInput = ({
                       }
                     }}
                   >
-                    <Navigation className="h-5 w-5 text-blue-500" />
-                    <span className="pointer-events-none absolute left-1/2 top-full z-50 mt-1 -translate-x-1/2 transform whitespace-nowrap rounded bg-gray-700 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                      Use Current Location
-                    </span>
+                    {isLoading && selectedId === location.id ? (
+                      <FaSpinner className="h-5 w-5 text-blue-500" /> // Show spinner while loading
+                    ) : (
+                      <>
+                        <Navigation className="h-5 w-5 text-blue-500" />
+                        <span className="pointer-events-none absolute left-1/2 top-full z-50 mt-1 -translate-x-1/2 transform whitespace-nowrap rounded bg-gray-700 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                          Use Current Location
+                        </span>
+                      </>
+                    )}
                   </Button>
                 </PopoverTrigger>
 

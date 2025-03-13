@@ -340,6 +340,41 @@ const Create = () => {
     </div>
   );
 
+  const getAnswerValue = (question: any) => {
+    // Only handle select, checkbox, and radio types
+    if (
+      question.type === "select" ||
+      question.type === "checkbox" ||
+      question.type === "radio"
+    ) {
+      if (
+        !question.answer ||
+        !Array.isArray(question.answer) ||
+        question.answer.length === 0
+      ) {
+        toast.error(
+          "This question must have at least one option for this question type!",
+        );
+        return null;
+      }
+
+      const hasEmptyValue = question.answer.some(
+        (item: any) => !item.value || item.value.trim() === "",
+      );
+
+      if (hasEmptyValue) {
+        toast.error("Options must have a value!");
+        return null;
+      }
+
+      return JSON.stringify(question.answer.map((item: any) => item.value));
+    }
+
+    return null;
+  };
+
+  // Usage
+
   const saveQuestion = async () => {
     setIsSubmitting(true);
     let allQuestionsSaved = true;
@@ -347,7 +382,12 @@ const Create = () => {
     if (hasData) {
       try {
         for (const question of questions) {
-          //  console.log(question.type);
+          const answerValue = getAnswerValue(question);
+
+          if (answerValue === null) {
+            allQuestionsSaved = false;
+            break;
+          }
           const payload = {
             label: question.content,
             question_group_id: parseFloat(
@@ -427,7 +467,7 @@ const Create = () => {
     const isAnyQuestionAvailable = questions.some(
       (question) => question.content !== "",
     );
-    console.log(isAnyQuestionAvailable);
+    //console.log(isAnyQuestionAvailable);
 
     if (!isAnyQuestionAvailable) {
       try {
@@ -443,6 +483,16 @@ const Create = () => {
 
     try {
       for (const question of questions) {
+        /**
+        const answerValue = getAnswerValue(question);
+
+        //console.log(answerValue);
+
+        if (answerValue === null) {
+          allQuestionsSaved = false;
+          break;
+        }
+          */
         const payload = {
           label: question.content,
           question_group_id: parseFloat(

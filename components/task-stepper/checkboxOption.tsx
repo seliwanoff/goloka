@@ -11,6 +11,7 @@ interface CheckboxListProps {
   initialOptions?: Option[];
   onOptionsChange?: (options: Option[]) => void;
   preview?: any;
+  tab?: string;
 }
 
 const CheckboxList: React.FC<CheckboxListProps> = ({
@@ -18,6 +19,7 @@ const CheckboxList: React.FC<CheckboxListProps> = ({
   initialOptions = [],
   onOptionsChange,
   preview,
+  tab,
 }) => {
   const [options, setOptions] = useState<Option[]>(initialOptions);
   const [newOptionLabel, setNewOptionLabel] = useState<string>("");
@@ -54,13 +56,16 @@ const CheckboxList: React.FC<CheckboxListProps> = ({
       <div className="space-y-4">
         {options.map((option) => (
           <div key={option.id} className="flex items-center gap-3">
-            <input
-              type="checkbox"
-              id={`checkbox-${option.id}`}
-              checked={option.checked}
-              onChange={() => handleCheckboxToggle(option.id)}
-              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-            />
+            {tab !== "response" && (
+              <input
+                type="checkbox"
+                id={`checkbox-${option.id}`}
+                checked={option.checked}
+                onChange={() => handleCheckboxToggle(option.id)}
+                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+            )}
+
             <label
               htmlFor={`checkbox-${option.id}`}
               className="flex-grow cursor-pointer text-gray-800"

@@ -11,6 +11,7 @@ interface RadioSelectionProps {
   initialOptions?: Option[];
   onOptionsChange?: (options: Option[]) => void;
   preview?: any;
+  tab?: string;
 }
 
 const RadioSelection: React.FC<RadioSelectionProps> = ({
@@ -18,6 +19,7 @@ const RadioSelection: React.FC<RadioSelectionProps> = ({
   initialOptions = [],
   onOptionsChange,
   preview,
+  tab,
 }) => {
   const [options, setOptions] = useState<Option[]>(initialOptions);
   const [newOptionLabel, setNewOptionLabel] = useState<string>("");
@@ -54,14 +56,16 @@ const RadioSelection: React.FC<RadioSelectionProps> = ({
       <div className="space-y-4">
         {options.map((option) => (
           <div key={option.id} className="flex items-center gap-3">
-            <input
-              type="radio"
-              id={`radio-${option.id}`}
-              name="radioGroup"
-              checked={option.checked}
-              onChange={() => handleCheckboxToggle(option.id)}
-              className="border-gray-300 text-blue-600 focus:ring-blue-500"
-            />
+            {tab !== "response" && (
+              <input
+                type="radio"
+                id={`radio-${option.id}`}
+                name="radioGroup"
+                checked={option.checked}
+                onChange={() => handleCheckboxToggle(option.id)}
+                className="border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+            )}
             <label
               htmlFor={`radio-${option.id}`}
               className="flex-grow cursor-pointer text-gray-800"

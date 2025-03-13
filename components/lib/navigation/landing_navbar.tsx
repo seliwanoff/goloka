@@ -83,7 +83,7 @@ const LandingNavbar: React.FC<ComponentProps> = ({}) => {
                 className={classMerge(
                   "transit text-base font-medium text-[#fff] hover:text-[#fff]",
                   pathname.includes(link.href)
-                    ? "text-[#fff] hover:text-[#fff]"
+                    ? "text-[#4F4F4F] hover:text-[#fff]"
                     : "",
                 )}
               >
@@ -98,7 +98,7 @@ const LandingNavbar: React.FC<ComponentProps> = ({}) => {
                 className="hidden rounded-full border border-main-100 px-9 text-main-100 hover:bg-blue-700 hover:text-[#fff] md:block"
                 // onClick={() => router.push("/signin")}
               >
-                Login
+                Sign in
               </Button>
             </Link>
             <Link href="/signup">
@@ -160,11 +160,18 @@ const LandingNavbar: React.FC<ComponentProps> = ({}) => {
                 {link.text}
               </Link>
             ))}
+
             <Button
-              className="mt-3 bg-main-100 px-6 text-white hover:bg-blue-700 md:block"
+              className="mt-3 border border-main-100 bg-white px-9 text-main-100 hover:bg-blue-700 hover:text-[#fff] md:block"
               onClick={() => router.push("/signin")}
             >
-              Get Started
+              Sign in
+            </Button>
+            <Button
+              className="mt-3 bg-main-100 px-6 text-white hover:bg-blue-700 md:block"
+              onClick={() => router.push("/signup")}
+            >
+              Sign up
             </Button>
           </PopoverContent>
         </Popover>
@@ -178,7 +185,7 @@ export default LandingNavbar;
 const navLinks: { text: string; href: string }[] = [
   { text: "Products", href: "/" },
   { text: "Solution", href: "/" },
-  { text: "Case study", href: "/" },
-  { text: "Pricing", href: "/" },
-  { text: "Blog", href: "/" },
+  { text: "Case study", href: "/case-studies" },
+  { text: "Pricing", href: "/pricing" },
+  { text: "Blog", href: "/blog" },
 ];

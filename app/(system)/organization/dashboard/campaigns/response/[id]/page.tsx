@@ -686,6 +686,7 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
       case "select":
         return (
           <MultipleChoices
+            tab="response"
             label="Select option"
             placeholder="Type something..."
             preview={preview}
@@ -713,6 +714,7 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
       case "radio":
         return (
           <RadioSelection
+            tab="response"
             initialOptions={(() => {
               try {
                 const parsedValue = value ? JSON.parse(value) : [];
@@ -737,6 +739,7 @@ const ViewResponse: React.FC<PageProps> = ({}) => {
       case "checkbox":
         return (
           <CheckboxList
+            tab="response"
             initialOptions={(() => {
               try {
                 const parsedValue = value ? JSON.parse(value) : [];

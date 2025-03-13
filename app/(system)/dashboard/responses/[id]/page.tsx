@@ -187,6 +187,7 @@ const ResponseDetails = () => {
             label="Select option"
             placeholder="Type something..."
             preview={preview}
+            tab="response"
             initialOptions={(() => {
               try {
                 const parsedValue = value ? JSON.parse(value) : [];
@@ -211,6 +212,7 @@ const ResponseDetails = () => {
       case "radio":
         return (
           <RadioSelection
+            tab="response"
             initialOptions={(() => {
               try {
                 const parsedValue = value ? JSON.parse(value) : [];
@@ -235,6 +237,7 @@ const ResponseDetails = () => {
       case "checkbox":
         return (
           <CheckboxList
+            tab="response"
             initialOptions={(() => {
               try {
                 const parsedValue = value ? JSON.parse(value) : [];
@@ -622,65 +625,67 @@ const ResponseDetails = () => {
               {isDesktop ? (
                 <div className="flex w-full gap-[7px]">
                   <MessageComponentWithAdmin />
-                  <Sheet open={open} onOpenChange={setOpen}>
-                    <SheetTrigger asChild className="flex gap-2">
-                      <Button className="h-full w-[150px] gap-3 rounded-full bg-[#3365E314] py-3 font-medium text-main-100 hover:bg-[#3365E314]">
-                        Messages{" "}
-                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#f10] text-xs font-normal text-white">
-                          {/* @ts-ignore */}
-                          {res?.unread_messages_count}
-                        </span>
-                      </Button>
-                    </SheetTrigger>
-                    <SheetContent className="border-0 p-0 md:max-w-md lg:max-w-xl">
-                      <SheetHeader className="absolute right-0 top-0 z-10 w-full bg-main-100 p-5">
-                        <div className="flex items-center gap-5">
-                          <div
-                            onClick={() => setOpen(false)}
-                            className="cursor-pointer text-[#fff]"
-                          >
-                            <MoveLeft />
-                          </div>
-                          {/* <Image
+
+                  {res?.status.toString() === "rejected" && (
+                    <Sheet open={open} onOpenChange={setOpen}>
+                      <SheetTrigger asChild className="flex gap-2">
+                        <Button className="h-full w-[150px] gap-3 rounded-full bg-[#3365E314] py-3 font-medium text-main-100 hover:bg-[#3365E314]">
+                          Messages{" "}
+                          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#f10] text-xs font-normal text-white">
+                            {/* @ts-ignore */}
+                            {res?.unread_messages_count}
+                          </span>
+                        </Button>
+                      </SheetTrigger>
+                      <SheetContent className="border-0 p-0 md:max-w-md lg:max-w-xl">
+                        <SheetHeader className="absolute right-0 top-0 z-10 w-full bg-main-100 p-5">
+                          <div className="flex items-center gap-5">
+                            <div
+                              onClick={() => setOpen(false)}
+                              className="cursor-pointer text-[#fff]"
+                            >
+                              <MoveLeft />
+                            </div>
+                            {/* <Image
                             src={profileImg}
                             alt="chat-user"
                             className="h-12 w-12 rounded-full object-cover object-center"
                           /> */}
-                          <SheetTitle className="font-normal text-white">
-                            Messages
-                          </SheetTitle>
-                          {/* <SheetDescription className="text-white">
+                            <SheetTitle className="font-normal text-white">
+                              Messages
+                            </SheetTitle>
+                            {/* <SheetDescription className="text-white">
                             24
                           </SheetDescription> */}
+                          </div>
+                          {/* CUSTOM CLOSE */}
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <span className="absolute right-4 mt-0 flex h-8 w-8 -translate-y-[calc(50%_-_20px)] cursor-pointer items-center justify-center rounded-full bg-white text-main-100">
+                                <EllipsisVertical size={20} />
+                              </span>
+                            </PopoverTrigger>
+                            <PopoverContent className="max-w-fit cursor-pointer rounded-md text-[#EB5757] shadow-lg hover:bg-slate-200">
+                              <div className="item-center flex gap-3 text-[#EB5757]">
+                                <OctagonAlert />
+                                <p className="text-[#EB5757]">Report user</p>
+                              </div>
+                            </PopoverContent>
+                          </Popover>
+                        </SheetHeader>
+
+                        {/* CHAT WIDGET */}
+                        <div className="mt-24">
+                          <ChatWidget
+                            modelType="response"
+                            status={res?.status}
+                            modelId={+responseId}
+                            currentUserId={currentUser?.id as number}
+                          />
                         </div>
-                        {/* CUSTOM CLOSE */}
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <span className="absolute right-4 mt-0 flex h-8 w-8 -translate-y-[calc(50%_-_20px)] cursor-pointer items-center justify-center rounded-full bg-white text-main-100">
-                              <EllipsisVertical size={20} />
-                            </span>
-                          </PopoverTrigger>
-                          <PopoverContent className="max-w-fit cursor-pointer rounded-md text-[#EB5757] shadow-lg hover:bg-slate-200">
-                            <div className="item-center flex gap-3 text-[#EB5757]">
-                              <OctagonAlert />
-                              <p className="text-[#EB5757]">Report user</p>
-                            </div>
-                          </PopoverContent>
-                        </Popover>
-                      </SheetHeader>
 
-                      {/* CHAT WIDGET */}
-                      <div className="mt-24">
-                        <ChatWidget
-                          modelType="response"
-                          status={res?.status}
-                          modelId={+responseId}
-                          currentUserId={currentUser?.id as number}
-                        />
-                      </div>
-
-                      {/* CHAT MESSAGE INPUT */}
-                      {/* <SheetFooter className="absolute bottom-0 left-0 w-full border-t md:flex-row md:justify-start md:p-4">
+                        {/* CHAT MESSAGE INPUT */}
+                        {/* <SheetFooter className="absolute bottom-0 left-0 w-full border-t md:flex-row md:justify-start md:p-4">
                         <form id="chat-box" className="block w-full">
                           <div className="flex w-full items-center gap-6">
                             <Input
@@ -700,8 +705,9 @@ const ResponseDetails = () => {
                           </div>
                         </form>
                       </SheetFooter> */}
-                    </SheetContent>
-                  </Sheet>
+                      </SheetContent>
+                    </Sheet>
+                  )}
                   {/*****
                   <Popover>
                     <PopoverTrigger asChild>

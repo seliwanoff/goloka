@@ -95,7 +95,7 @@ const EditQuestionWidget = ({
   const [questions, setQuestions] = useState<Question[]>(
     Array.isArray(question) ? question.flat() : [question],
   );
-
+  // console.log(question);
   const { setShowQuestionEdit } = useEditAQuestion();
   //  console.log(questions);
   const [isLoading, setIsLoading] = useState(false);
@@ -134,6 +134,13 @@ const EditQuestionWidget = ({
 
   const handleUpdate = (id: string, required: boolean) => {
     setIschecked(required);
+
+    setQuestions((prevQuestions: any) =>
+      prevQuestions.map((question: any) => ({
+        ...question,
+        required: required ? 1 : 0,
+      })),
+    );
   };
 
   const ToggleSwitch = ({
@@ -208,14 +215,28 @@ const EditQuestionWidget = ({
 
   const handleOptionsChange = (updatedOptions: any) => {
     setOptions(updatedOptions);
-    // console.log(updatedOptions);
     handleAnswerChange(1, updatedOptions);
   };
-  // console.log(options);
+  console.log(questions);
 
+  console.log(isChecked);
   const handleQuestion = async () => {
+    //@ts-ignore
+
+    //@ts-ignore
+    if (
+      //@ts-ignore
+      question.label === questions[0].label &&
+      //@ts-ignore
+      question.type === questions[0].type &&
+      //@ts-ignore
+      question.required === questions[0].required
+    ) {
+      toast.error("No changes made! Please make changes and update");
+      return;
+    }
     setIsLoading(true);
-    // console.log(questions);
+
     try {
       const payload = {
         label: questions[0].label,

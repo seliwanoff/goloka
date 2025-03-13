@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { FcGoogle } from "react-icons/fc";
 import Link from "next/link";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { userSignIn } from "@/services/auth";
+import { getCurrentOrganization, userSignIn } from "@/services/auth";
 import { useRouter } from "next/navigation";
 import { FaSpinner } from "react-icons/fa";
 import { toast } from "sonner";
@@ -21,6 +21,8 @@ import { useRemoteUserStore } from "@/stores/remoteUser";
 import { useOrganizationStore } from "@/stores/currenctOrganizationStore";
 import { useAuth } from "@/services/auth/hooks";
 import { getOTP } from "@/services/misc";
+import { getUseServices } from "@/services/organization";
+import { set } from "date-fns";
 
 type PageProps = {};
 
@@ -32,6 +34,8 @@ type FormValues = {
 const SignIn: React.FC<PageProps> = ({}) => {
   const [eye1, setEye1] = useState(false);
   const { googleLogin, isNavigating } = useAuth();
+  const [isUserDataCaptured, setIsUserDataCaptured] = useState(false);
+
   const router = useRouter();
   const {
     register,
@@ -48,7 +52,7 @@ const SignIn: React.FC<PageProps> = ({}) => {
   );
 
   const handleGoogleSuccess = (credentialResponse: any) => {
-    console.log(credentialResponse);
+    // console.log(credentialResponse);
     if (credentialResponse.credential) {
       googleLogin(credentialResponse.credential);
     }
@@ -106,77 +110,95 @@ const SignIn: React.FC<PageProps> = ({}) => {
   //   }
   // };
 
- const onSubmit: SubmitHandler<FormValues> = async (data) => {
-   setIsLoading(true);
+  const onSubmit: SubmitHandler<FormValues> = async (data) => {
+    setIsLoading(true);
+    getCurrentOrganization(null);
 
-   try {
-     const { email, password } = data;
+    try {
+      const { email, password } = data;
 
+      toast.loading("Signing you in...");
 
-     toast.loading("Signing you in...");
+      const response = await userSignIn(email, password);
 
-     const response = await userSignIn(email, password);
+      if (!response) {
+        throw new Error(
+          "Failed to sign in. Please check your credentials and try again.",
+        );
+      }
 
-     if (!response) {
-       throw new Error(
-         "Failed to sign in. Please check your credentials and try again.",
-       );
-     }
+      //@ts-ignore
+      const { access_token, token_type, refresh_token } = response.tokens;
 
-     //@ts-ignore
-     const { access_token, token_type, refresh_token } = response.tokens;
+      // Store tokens immediately
+      localStorage.setItem("access_token", JSON.stringify(access_token));
+      localStorage.setItem("refresh_token", JSON.stringify(refresh_token));
+      localStorage.setItem("token_type", JSON.stringify(token_type));
 
-     // Store tokens immediately
-     localStorage.setItem("access_token", JSON.stringify(access_token));
-     localStorage.setItem("refresh_token", JSON.stringify(refresh_token));
-     localStorage.setItem("token_type", JSON.stringify(token_type));
+      //@ts-ignore
 
-     //@ts-ignore
+      if (response?.user?.email_verified_at === null) {
+        toast.dismiss();
+        toast.success("Sign in successful, verification needed");
 
-     if (response?.user?.email_verified_at === null) {
+        // in parallel with navigation preparation to prevent any bulls***T
+        const otpPromise = getOTP({});
 
-       toast.dismiss();
-       toast.success("Sign in successful, verification needed");
+        //@ts-ignore
+        const redirectUrl = `/signup?step=2&email=${encodeURIComponent(response?.user?.email)}`;
+        router.prefetch(redirectUrl);
 
-       // in parallel with navigation preparation to prevent any bulls***T
-       const otpPromise = getOTP({});
+        const otpResponse = await otpPromise;
+        if (otpResponse) {
+          router.push(redirectUrl);
+        }
+        return;
+      }
+      //@ts-ignore
+      console.log(`lenght:${response?.services.length}`);
+      //@ts-ignore
 
-       //@ts-ignore
-       const redirectUrl = `/signup?step=2&email=${encodeURIComponent(response?.user?.email)}`;
-       router.prefetch(redirectUrl);
+      /***
 
-       const otpResponse = await otpPromise;
-       if (otpResponse) {
-         router.push(redirectUrl);
-       }
-       return;
-     }
+      const responses = await getUseServices();
+      //@ts-ignore
+      if (responses?.services?.length === 0) {
+        router.push("/signup?step=3&verify-complete=true");
+        return;
+      }
 
-     //  parallel
-     toast.dismiss();
-     toast.success("Sign in successful");
+      */
 
-     const redirectPath =
-     //@ts-ignore
-       response.user.current_role === "campaigner"
-         ? "/organization/dashboard/root"
-         : "/dashboard/root";
+      //  parallel
+      toast.dismiss();
 
+      toast.success("Sign in successful");
+      //@ts-ignore
+      if (response?.services.length === 0) {
+        //   console.log("inside");
+        router.push(`/signup?step=3&verify-complete=true`);
+        return;
+      }
+      const redirectPath =
+        //@ts-ignore
+        response.user.current_role === "campaigner"
+          ? "/organization/dashboard/root"
+          : "/dashboard/root";
 
-     router.prefetch(redirectPath);
+      router.prefetch(redirectPath);
 
-
-     router.replace(redirectPath);
-   } catch (error: any) {
-     toast.dismiss();
-     console.error("Sign-in error:", error);
-     toast.error(
-       error?.response?.data?.message || "Failed to sign in. Please try again.",
-     );
-   } finally {
-     setIsLoading(false);
-   }
- };
+      router.replace(redirectPath);
+    } catch (error: any) {
+      toast.dismiss();
+      console.error("Sign-in error:", error);
+      toast.error(
+        error?.response?.data?.message ||
+          "Failed to sign in. Please try again.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="w-full max-w-2xl">
@@ -191,7 +213,7 @@ const SignIn: React.FC<PageProps> = ({}) => {
             </span>
           </h1>
           <p className="mx-auto max-w-xs text-sm text-gray-500">
-            Log in to keep contributing and earning with Goloka
+            Sign in to keep contributing and earning with Goloka
           </p>
         </div>
 
@@ -254,13 +276,12 @@ const SignIn: React.FC<PageProps> = ({}) => {
               type="submit"
               className="h-12 w-full rounded-full bg-main-100 text-base font-light text-white hover:bg-blue-700"
             >
-              {isLoading ? <FaSpinner className="animate-spin" /> : "Login"}
+              {isLoading ? <FaSpinner className="animate-spin" /> : "Sign In"}
             </Button>
             {isNavigating && <LoadingOverlay />}
             <div className="mt-4 flex w-full justify-center">
               <div className="h-12 w-full">
                 {" "}
-                {/* Added h-12 to match your button height */}
                 <GoogleLogin
                   onSuccess={handleGoogleSuccess}
                   onError={handleGoogleError}
@@ -268,7 +289,7 @@ const SignIn: React.FC<PageProps> = ({}) => {
                   theme="outline"
                   size="large"
                   shape="pill"
-                  width="100%"
+                  width="100%" // Dynamically adjust width
                   text="signin_with"
                   logo_alignment="center"
                 />

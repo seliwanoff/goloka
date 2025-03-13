@@ -221,7 +221,7 @@ const DynamicQuestion = ({
         };
       });
 
-      console.log(value);
+      // console.log(value);
       //@ts-ignore
 
       if (value.length === 4) {
@@ -261,6 +261,8 @@ const DynamicQuestion = ({
       ...prev,
       [quesId]: value,
     }));
+    //@ts-ignore
+    setQid(quesId);
   };
   useEffect(() => {
     if (selectedValues[qId] !== undefined) {
@@ -770,7 +772,13 @@ const DynamicQuestion = ({
                             "bg-main-100 text-white",
                         )}
                       >
-                        {index as number}
+                        <span
+                          className={cn(
+                            "block h-3 w-3 rounded-full",
+                            selectedValues[ques.id] === opt?.value &&
+                              "bg-white text-white",
+                          )}
+                        ></span>
                       </span>
                       <p
                         className={cn(
@@ -1659,6 +1667,7 @@ const DynamicQuestion = ({
           <div className="col-span-2">
             <FileUpload
               //@ts-ignore
+
               ref={(el) => (inputRefs.current[ques.id] = el)}
               value={selectedValues[ques.id] || ""}
               onFileUpload={(file, base64) => {
