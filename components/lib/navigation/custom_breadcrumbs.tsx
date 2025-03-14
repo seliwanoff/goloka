@@ -19,9 +19,20 @@ const CustomBreadCrumbs: React.FC<ComponentProps> = ({}) => {
   const [displayPath, setDisplayPath] = useState<string[]>([]); // Only shows last 2 segments
 
   useEffect(() => {
-    const paths = pathname.split("/").filter(Boolean);
-    setCurrentPath(paths); // Store full path as an array
-    setDisplayPath(paths.slice(-2)); // Display only last 2 segments
+    const paths = pathname.split("/").filter(Boolean); // Split path into segments
+
+    // Check if the path contains "response"
+    const responseIndex = paths.indexOf("response");
+
+    if (responseIndex !== -1) {
+      // If "response" is found, exclude it and everything after it
+      setCurrentPath(paths.slice(0, responseIndex)); // Store full path up to "response"
+      setDisplayPath(paths.slice(0, responseIndex).slice(-2)); // Display last 2 segments before "response"
+    } else {
+      // Otherwise, proceed as normal
+      setCurrentPath(paths); // Store full path as an array
+      setDisplayPath(paths.slice(-2)); // Display only last 2 segments
+    }
   }, [pathname]);
 
   return (
