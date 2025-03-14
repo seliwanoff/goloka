@@ -341,6 +341,7 @@ const Create = () => {
   );
 
   const getAnswerValue = (question: any) => {
+    //console.log('Hello')
     // Only handle select, checkbox, and radio types
     if (
       question.type === "select" ||
@@ -384,7 +385,15 @@ const Create = () => {
         for (const question of questions) {
           const answerValue = getAnswerValue(question);
 
-          if (answerValue === null) {
+          console.log(answerValue);
+
+          if (
+            answerValue === null &&
+            question.type === "select" &&
+            //@ts-ignore
+            question.type === "checkbox" &&
+            question.type === "radio"
+          ) {
             allQuestionsSaved = false;
             break;
           }

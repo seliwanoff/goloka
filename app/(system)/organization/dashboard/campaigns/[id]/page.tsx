@@ -215,6 +215,8 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
   const currentOrganization = useOrganizationStore(
     (state) => state.organization,
   );
+
+  // console.log(user);
   const USER_CURRENCY_SYMBOL =
     currentOrganization && currentOrganization["symbol"];
   const [pageSize, setPageSize] = useState<number>(10);
@@ -276,6 +278,18 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
     }
   };
 
+  /***
+  useEffect(() => {
+    const getCurrentUserResponse = async () => {
+      const user = await getCurrentUser();
+      //   console.log(user);
+      //@ts-ignore
+      setUserId(user.data.id);
+    };
+    getCurrentUserResponse();
+  }, [setUserId]);
+
+  */
   const handleUpdate = (id: string, required: boolean) => {
     console.log("Heelo");
   };
@@ -323,16 +337,7 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
         toast.error("Failed to update requirement.");
       }
     };
-    useEffect(() => {
-      const getCurrentUserResponse = async () => {
-        const user = await getCurrentUser();
 
-        // console.log(user);
-        //@ts-ignore
-        setUserId(user.data.id);
-      };
-      getCurrentUserResponse();
-    }, []);
     return (
       <SwitchPrimitive.Root
         id="switch"
@@ -403,7 +408,7 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
                     modelId={+campaignId}
                     status={task?.data?.status}
                     //@ts-ignore
-                    currentUserId={userId}
+                    currentUserId={user?.id}
                   />
                 </div>
               </SheetContent>
@@ -444,7 +449,7 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
                   modelId={+campaignId}
                   status={task?.data?.status}
                   //@ts-ignore
-                  currentUserId={userId}
+                  currentUserId={user?.id}
                 />
               </DrawerContent>
             </Drawer>
@@ -513,7 +518,7 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
                     modelId={+campaignId}
                     status={task?.data?.status}
                     //@ts-ignore
-                    currentUserId={userId}
+                    currentUserId={user?.id}
                   />
                 </div>
               </SheetContent>
@@ -557,7 +562,7 @@ const CampaignDetails: React.FC<PageProps> = ({}) => {
                   modelId={+campaignId}
                   status={task?.data?.status}
                   //@ts-ignore
-                  currentUserId={userId}
+                  currentUserId={user?.id}
                 />
               </DrawerContent>
             </Drawer>

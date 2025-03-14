@@ -257,12 +257,22 @@ const DynamicQuestion = ({
     }
 
     // Default behavior for other types
+
+    console.log(type);
+
+    if (type === undefined) {
+      setSelectedValues((prev) => ({
+        ...prev,
+        [quesId]: value,
+      }));
+      //@ts-ignore
+      setQid(quesId);
+    }
+
     setSelectedValues((prev) => ({
       ...prev,
       [quesId]: value,
     }));
-    //@ts-ignore
-    setQid(quesId);
   };
   useEffect(() => {
     if (selectedValues[qId] !== undefined) {
@@ -711,7 +721,7 @@ const DynamicQuestion = ({
                 id={ques.name}
                 placeholder={ques.placeholder || "Enter your answer"}
                 onChange={(e) => {
-                  handleInputChange(e.target.value, ques.id);
+                  handleInputChange(e.target.value, ques.id, "textarea");
                 }}
                 className="form-textarea h-32 w-full resize-none rounded-lg border-[#D9DCE0] p-4 placeholder:text-sm placeholder:text-[#828282]"
               />
@@ -725,7 +735,7 @@ const DynamicQuestion = ({
                 id={ques.name}
                 placeholder={ques.placeholder || "Enter your answer"}
                 onChange={(e) => {
-                  handleInputChange(e.target.value, ques.id);
+                  handleInputChange(e.target.value, ques.id, "text");
                 }}
                 className="form-input w-full rounded-lg border-[#D9DCE0] p-4"
               />
@@ -742,7 +752,7 @@ const DynamicQuestion = ({
                 const newValue = selectedValues[ques.id] === val ? "" : val;
                 setQid(ques.id);
                 // Update state and trigger monitoring
-                handleInputChange(newValue, ques.id);
+                handleInputChange(newValue, ques.id, "radio");
                 // onInputedAnswerMonitoring(ques.id);
               }}
               className="grid grid-cols-2 gap-5"
@@ -1177,7 +1187,7 @@ const DynamicQuestion = ({
                       // Log for debugging
                       //console.log("New Selections:", newSelections);
 
-                      handleInputChange(newSelections, ques.id);
+                      handleInputChange(newSelections, ques.id, "checkbox");
                       setQid(ques.id);
                     }}
                     className="form-checkbox h-5 w-5 text-main-100"
@@ -1203,7 +1213,9 @@ const DynamicQuestion = ({
               value={selectedValues[ques.id] || ""}
               id={ques.name}
               onBlur={() => onInputedAnswerMonitoring(ques.id)}
-              onChange={(e) => handleInputChange(e.target.value, ques.id)}
+              onChange={(e) =>
+                handleInputChange(e.target.value, ques.id, "number")
+              }
               className="form-input w-full rounded-lg border-[#D9DCE0]"
             />
           </div>
@@ -1293,7 +1305,7 @@ const DynamicQuestion = ({
               onBlur={() => onInputedAnswerMonitoring(ques.id)}
               onChange={(e) => {
                 const email = e.target.value;
-                handleInputChange(email, ques.id);
+                handleInputChange(email, ques.id, "email");
               }}
               className="form-input w-full rounded-lg border-[#D9DCE0]"
             />
@@ -1309,7 +1321,9 @@ const DynamicQuestion = ({
               value={selectedValues[ques.id] || ""}
               id={ques.name}
               onBlur={() => onInputedAnswerMonitoring(ques.id)}
-              onChange={(e) => handleInputChange(e.target.value, ques.id)}
+              onChange={(e) =>
+                handleInputChange(e.target.value, ques.id, "tel")
+              }
               className="form-input w-full rounded-lg border-[#D9DCE0]"
             />
           </div>
@@ -1324,7 +1338,9 @@ const DynamicQuestion = ({
               onBlur={() => onInputedAnswerMonitoring(ques.id)}
               value={selectedValues[ques.id] || ""}
               id={ques.name}
-              onChange={(e) => handleInputChange(e.target.value, ques.id)}
+              onChange={(e) =>
+                handleInputChange(e.target.value, ques.id, "password")
+              }
               className="form-input w-full rounded-lg border-[#D9DCE0]"
             />
           </div>
@@ -1338,7 +1354,9 @@ const DynamicQuestion = ({
               type="range"
               value={selectedValues[ques.id] || ""}
               id={ques.name}
-              onChange={(e) => handleInputChange(e.target.value, ques.id)}
+              onChange={(e) =>
+                handleInputChange(e.target.value, ques.id, "range")
+              }
               className="form-range w-full rounded-lg"
               min={ques.attributes?.min}
               max={ques.attributes?.max}
@@ -1356,7 +1374,7 @@ const DynamicQuestion = ({
               id={ques.name}
               value={selectedValues[ques.id] || ques.defaultValue || ""}
               onChange={(e) => {
-                handleInputChange(e.target.value, ques.id);
+                handleInputChange(e.target.value, ques.id, "select");
                 setQid(ques.id);
               }}
               className="form-select w-full rounded-lg border-[#D9DCE0]"
@@ -1577,7 +1595,7 @@ const DynamicQuestion = ({
               id={ques.name}
               onBlur={() => onInputedAnswerMonitoring(ques.id)}
               onChange={(e) => {
-                handleInputChange(e.target.value, ques.id);
+                handleInputChange(e.target.value, ques.id, "date");
               }}
               className="form-input w-full rounded-lg border-[#D9DCE0]"
             />
@@ -1597,7 +1615,7 @@ const DynamicQuestion = ({
                 placeholder={ques.placeholder || "Enter URL or text"}
                 onChange={(e) => {
                   const input = e.target.value;
-                  handleInputChange(input, ques.id);
+                  handleInputChange(input, ques.id, "url");
                 }}
                 className="form-input w-full rounded-lg border-[#D9DCE0] pr-10"
               />
@@ -1637,7 +1655,9 @@ const DynamicQuestion = ({
               id={ques.name}
               onBlur={() => onInputedAnswerMonitoring(ques.id)}
               placeholder={ques.placeholder || "Enter phone number"}
-              onChange={(e) => handleInputChange(e.target.value, ques.id)}
+              onChange={(e) =>
+                handleInputChange(e.target.value, ques.id, "tel")
+              }
               className="form-input w-full rounded-lg border-[#D9DCE0]"
             />
           </div>
@@ -1654,7 +1674,7 @@ const DynamicQuestion = ({
               value={selectedValues[ques.id] || ""}
               id={ques.name}
               onChange={(e) => {
-                handleInputChange(e.target.value, ques.id);
+                handleInputChange(e.target.value, ques.id, "time");
 
                 // onInputedAnswerMonitoring(ques.id);
               }}
