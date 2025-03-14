@@ -659,7 +659,7 @@ const TaskDetail: React.FC<PageProps> = ({}) => {
               </div>
 
               <div className="rounded-2xl bg-white p-5">
-                <figure className="h-[85%]">
+                <figure className="h-[85%] min-h-[250px]">
                   <Map location={locationData} />
                 </figure>
                 <div className="mt-5 flex gap-5">

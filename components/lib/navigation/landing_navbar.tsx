@@ -144,35 +144,37 @@ const LandingNavbar: React.FC<ComponentProps> = ({}) => {
           <PopoverTrigger className="md:hidden">
             <Image src={Menu} alt="Menu" />
           </PopoverTrigger>
-          <PopoverContent className="flex flex-col gap-4">
-            {navLinks.map((link) => (
-              <Link
-                aria-disabled
-                href={link.href}
-                key={link.text}
-                className={classMerge(
-                  "transit hidden text-sm font-normal",
-                  pathname.includes(link.href)
-                    ? "hover:text-primary-400 text-primary"
-                    : "text-[#fff] hover:text-[#fff]",
-                )}
-              >
-                {link.text}
-              </Link>
-            ))}
+          <PopoverContent className="block lg:hidden">
+            <div className="flex flex-col gap-4">
+              {navLinks.map((link) => (
+                <Link
+                  aria-disabled
+                  href={link.href}
+                  key={link.text}
+                  className={classMerge(
+                    "transit hidden text-sm font-normal",
+                    pathname.includes(link.href)
+                      ? "hover:text-primary-400 text-primary"
+                      : "text-[#fff] hover:text-[#fff]",
+                  )}
+                >
+                  {link.text}
+                </Link>
+              ))}
 
-            <Button
-              className="mt-3 border border-main-100 bg-white px-9 text-main-100 hover:bg-blue-700 hover:text-[#fff] md:block"
-              onClick={() => router.push("/signin")}
-            >
-              Sign in
-            </Button>
-            <Button
-              className="mt-3 bg-main-100 px-6 text-white hover:bg-blue-700 md:block"
-              onClick={() => router.push("/signup")}
-            >
-              Sign up
-            </Button>
+              <Button
+                className="mt-3 border border-main-100 bg-white px-9 text-main-100 hover:bg-blue-700 hover:text-[#fff] md:block"
+                onClick={() => router.push("/signin")}
+              >
+                Sign in
+              </Button>
+              <Button
+                className="mt-3 bg-main-100 px-6 text-white hover:bg-blue-700 md:block"
+                onClick={() => router.push("/signup")}
+              >
+                Sign up
+              </Button>
+            </div>
           </PopoverContent>
         </Popover>
       )}

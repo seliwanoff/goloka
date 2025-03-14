@@ -17,7 +17,6 @@ const SignUpContent: React.FC<PageProps> = ({}) => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-
   const handleStepChange = (newStep: number, email?: string) => {
     if (newStep === 2 && email) {
       router.push(`/signup?step=2&email=${encodeURIComponent(email)}`);
@@ -37,7 +36,7 @@ const SignUpContent: React.FC<PageProps> = ({}) => {
 
   return (
     <>
-      <div className="md:mx-auto md:w-[70%] lg:w-[80%]">
+      <div className="w-full max-w-[320px]">
         {step === 1 && <SignUpForm setStep={handleStepChange} />}
         {step === 2 && <Verify setStep={handleStepChange} />}
         {step === 3 && <PrimaryGoal setStep={handleStepChange} />}

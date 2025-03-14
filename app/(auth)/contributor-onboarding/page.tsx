@@ -22,7 +22,7 @@ const ContributorOnboard: React.FC<PageProps> = ({}) => {
   };
   return (
     <>
-      <div className=" md:w-[70%] lg:w-[80%]">
+      <div className="w-full max-w-[320px]">
         <>{displayStep(step)}</>
       </div>
 

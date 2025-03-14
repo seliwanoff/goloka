@@ -19,7 +19,9 @@ interface ComponentProps {
 
 const DashboardWidget: React.FC<ComponentProps> = ({ increase, ...props }) => {
   return (
-    <div className={cn("rounded-lg bg-white p-4", props.containerBg)}>
+    <div
+      className={cn("min-w-[250px] rounded-lg bg-white p-4", props.containerBg)}
+    >
       <div className="flex justify-between">
         <div>
           <span className={cn("text-sm text-[#828282]", props.textColor)}>
@@ -42,12 +44,7 @@ const DashboardWidget: React.FC<ComponentProps> = ({ increase, ...props }) => {
               props.fg,
             )}
           >
-            <props.icon
-              size={26}
-          
-              color="currentColor"
-              strokeWidth={1}
-            />
+            <props.icon size={26} color="currentColor" strokeWidth={1} />
           </span>
         </div>
       </div>

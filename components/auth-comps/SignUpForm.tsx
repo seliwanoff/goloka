@@ -146,7 +146,7 @@ const SignUpForm: React.FC<PageProps> = ({ setStep }) => {
   };
 
   return (
-    <div className="relative md:w-[70%] lg:w-[80%]">
+    <div className="w-full">
       {/* HEADING */}
       <div className="mb-8 mt-60 flex flex-col items-center gap-2 lg:mt-12">
         <Image src={Logo} alt="goloka_logo" />

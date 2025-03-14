@@ -77,13 +77,13 @@ const Verify: React.FC<PageProps> = ({ setStep }) => {
     }
   };
 
-const handleNotMyEmail = () => {
-  const url = new URL(window.location.href);
-  url.searchParams.delete("email");
-  window.history.replaceState({}, "", url);
-  setStep(1);
-  toast.info("Returning to sign-in page");
-};
+  const handleNotMyEmail = () => {
+    const url = new URL(window.location.href);
+    url.searchParams.delete("email");
+    window.history.replaceState({}, "", url);
+    setStep(1);
+    toast.info("Returning to sign-in page");
+  };
 
   useEffect(() => {
     const emailParam = searchParams.get("email");
@@ -121,13 +121,15 @@ const handleNotMyEmail = () => {
 
   return (
     <div className="flex w-full flex-col gap-4">
-      <div className="flex flex-col items-center justify-center mb-2">
+      <div className="mb-2 flex flex-col items-center justify-center">
         <h2 className="mb-1 text-2xl font-semibold text-[#333333]">
           Verify your account
         </h2>
-        <p className="text-[#828282] text-center">
+        <p className="text-center text-[#828282]">
           Enter verification code sent to <br />
-          <span className="font-medium text-[#4F4F4F] text-center">{email}</span>
+          <span className="text-center font-medium text-[#4F4F4F]">
+            {email}
+          </span>
         </p>
       </div>
 
@@ -171,27 +173,26 @@ const handleNotMyEmail = () => {
         )}
       </Button>
       <div className="flex items-center justify-center">
-      <button
-        onClick={handleNotMyEmail}
-        className="mt-2 flex items-center text-sm font-medium text-main-100 transition-colors duration-200 hover:underline"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="mr-1 h-4 w-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
+        <button
+          onClick={handleNotMyEmail}
+          className="mt-2 flex items-center text-sm font-medium text-main-100 transition-colors duration-200 hover:underline"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M10 19l-7-7m0 0l7-7m-7 7h18"
-          />
-        </svg>
-        Not my email?
-      </button>
-
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="mr-1 h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            />
+          </svg>
+          Not my email?
+        </button>
       </div>
     </div>
   );
@@ -293,7 +294,7 @@ const OtpInput: React.FC<OtpInputProps> = ({
 
   return (
     <div className="flex flex-col items-center">
-      <div className="flex space-x-2">
+      <div className="flex w-full space-x-2">
         {Array.from({ length }).map((_, index) => (
           <input
             key={index}
@@ -306,7 +307,7 @@ const OtpInput: React.FC<OtpInputProps> = ({
             onKeyDown={(e) => handleKeyDown(e, index)}
             onClick={() => handleClick(index)}
             onPaste={(e) => handlePaste(e, index)}
-            className={`h-[55px] w-[53px] rounded-md border text-center outline-none focus:border-[#C0CFF6] focus:bg-[#F5F8FF] ${
+            className={`h-[45px] w-[45px] rounded-md border text-center outline-none focus:border-[#C0CFF6] focus:bg-[#F5F8FF] lg:h-[55px] lg:w-[53px] ${
               otp[index]
                 ? "border-[#C0CFF6] bg-[#F5F8FF]"
                 : "border-[#E7E7E7] bg-[#F9F9F9]"

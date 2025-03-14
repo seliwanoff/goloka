@@ -55,7 +55,7 @@ const TaskCardWidget: React.FC<TaskCardProps> = ({
 
   const handleBookmark = async (e: React.MouseEvent) => {
     e.stopPropagation();
-   e.preventDefault();
+    e.preventDefault();
     setIsBookmarkLoading(true);
     try {
       if (is_bookmarked) {
@@ -84,7 +84,7 @@ const TaskCardWidget: React.FC<TaskCardProps> = ({
     <Link
       key={id}
       href={url}
-      className="space-y-[18px] rounded-[16px] border border-[#F2F2F2] bg-white p-4 hover:border-main-100 hover:shadow"
+      className="w-full max-w-full space-y-[18px] overflow-hidden rounded-[16px] border border-[#F2F2F2] bg-white p-4 hover:border-main-100 hover:shadow"
     >
       <figure className="relative h-[280px] w-full overflow-hidden rounded-[8px]">
         <Image

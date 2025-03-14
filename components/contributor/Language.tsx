@@ -71,9 +71,6 @@ export const languages = [
   { label: "Waha", value: "waha" },
 ];
 
-
-
-
 // Validation schema
 const languageSchema = z.object({
   primary_language: z.string({
@@ -123,7 +120,7 @@ const Language: React.FC<PageProps> = ({ setStep, step }) => {
 
   return (
     <>
-      <div className="relative z-10 md:w-[70%] lg:w-[80%]">
+      <div className="relative z-10 w-full">
         <StepperIndicator setStep={setStep} step={step} />
 
         <div className="mt-6">

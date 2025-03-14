@@ -197,7 +197,7 @@ const TaskPage: React.FC<ComponentProps> = ({}) => {
         campaign_end_date: searchParams.get("endDate") || undefined,
       }),
   });
-  console.log(tasks, "tasks");
+  //console.log(tasks, "tasks");
   //@ts-ignore
   const totalPages = tasks?.pagination?.total_pages || 1;
 
